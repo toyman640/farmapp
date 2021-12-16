@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Cow-culling
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Large ruminant(Culling)</li>
+      </ol>
+	  <!-- Icon Cards-->
+		<div class="box_general padding_bottom">
+            <form action="">
+                <div class="form-group">
+                    <label for="formGroupExampleInput">Cow(s)</label>
+                    <input type="number" class="form-control" id="formGroupExampleInput" placeholder="Example input">
+                </div>
+                <div class="form-group">
+                    <label for="formGroupExampleInput">Bulls(s)</label>
+                    <input type="number" class="form-control" id="formGroupExampleInput" placeholder="Example input">
+                </div>
+                <label for="">Location(s):</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                    <label class="form-check-label" for="flexCheckDefault">
+                      Pad 1
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                    <label class="form-check-label" for="flexCheckChecked">
+                      Pad 2
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                    <label class="form-check-label" for="flexCheckChecked">
+                      Pad 3
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                    <label class="form-check-label" for="flexCheckChecked">
+                      Pad 4
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                    <label class="form-check-label" for="flexCheckChecked">
+                      Isolation
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                    <label class="form-check-label" for="flexCheckChecked">
+                      N/M
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                    <label class="form-check-label" for="flexCheckChecked">
+                      Grazing
+                    </label>
+                  </div>
+                <div class="form-group">
+                    <label for="exampleFormControlTextarea1">Reason for Culling</label>
+                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                  </div>
+                <button class="btn btn-success" value="submit">Submit</button>
+            </form>
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+    <!-- /.container-wrapper-->
+{% endblock %}
