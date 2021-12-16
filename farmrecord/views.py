@@ -23,8 +23,17 @@ def cow_sales(request):
 def cow_birth(request):
     return render(request, 'cow-birth.html')
 
-def cow_rec(request):
+def cow_motrec(request):
     return render(request, 'cowmotrec.html')
+
+def cow_procrec(request):
+    return render(request, 'cowprocrec.html')
+
+def cow_cullrec(request):
+    return render(request, 'cowcullrec.html')
+
+def cow_salerec(request):
+    return render(request, 'cowsalerec.html')
 
 def goat_birth(request):
     return render(request, 'goat-birth.html')
@@ -41,8 +50,17 @@ def goat_proc(request):
 def goat_sales(request):
     return render(request, 'goat-sale.html')
 
-def goat_rec(request):
-    return render(request, 'cowmotrec.html')
+def goat_motrec(request):
+    return render(request, 'goatmotrec.html')
+
+def goat_procrec(request):
+    return render(request, 'goatprocrec.html')
+
+def goat_cullrec(request):
+    return render(request, 'goatcullrec.html')
+
+def goat_salerec(request):
+    return render(request, 'goatsalerec.html')
 
 def pig_sales(request):
     return render(request, 'pig-sales.html')
@@ -59,14 +77,23 @@ def pig_motrep(request):
 def pig_proc(request):
     return render(request, 'pig-proc.html')
 
-def pig_rec(request):
-    return render(request, 'cowmotrec.html')
+def pig_motrec(request):
+    return render(request, 'pigmotrec.html')
+
+def pig_procrec(request):
+    return render(request, 'pigprocrec.html')
+
+def pig_salerec(request):
+    return render(request, 'pigsalerec.html')
+
+def pig_cullrec(request):
+    return render(request, 'pigcullrec.html')
 
 def sheep_birth(request):
     return render(request, 'sheep-birth.html')
 
 def sheep_cull(request):
-    return render(request, 'sheep-cul.html')
+    return render(request, 'sheep-cull.html')
 
 def sheep_motrep(request):
     return render(request, 'sheep-mot.html')
@@ -77,6 +104,15 @@ def sheep_proc(request):
 def sheep_sales(request):
     return render(request, 'sheep-sales.html')
 
-def sheep_rec(request):
-    return render(request, 'cowmotrec.html')
+def sheep_motrec(request):
+    return render(request, 'sheepmotrec.html')
+
+def sheep_procrec(request):
+    return render(request, 'sheepprocrec.html')
+
+def sheep_cullrec(request):
+    return render(request, 'sheepcullrec.html')
+
+def sheep_salerec(request):
+    return render(request, 'sheepsalerec.html')
 
