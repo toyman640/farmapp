@@ -16,12 +16,18 @@ class CowRecords(models.Model):
     cow_ent = models.CharField(max_length=100, verbose_name='entry type')
     cow_desc = models.TextField(blank=True, null=True, verbose_name='Description')
 
+    def __str__(self):
+        return (self).cow_ent
+
     class Meta():
         verbose_name_plural = 'Cow Records'
 
 class SheepRecords(models.Model):
     sheep_ent = models.CharField(max_length=100, verbose_name='entry type')
     sheep_desc = models.TextField(blank=True, null=True, verbose_name='Description')
+     
+    def __str__(self):
+        return (self).sheep_ent
 
     class Meta():
         verbose_name_plural = 'Sheep Records'
@@ -30,6 +36,9 @@ class PigRecords(models.Model):
     pig_ent = models.CharField(max_length=100, verbose_name='entry type')
     pig_desc = models.TextField(blank=True, null=True, verbose_name='Description')
 
+    def __str__(self):
+        return (self).pig_ent
+
     class Meta():
         verbose_name_plural = 'Pig Records'
 
@@ -37,5 +46,7 @@ class GoatRecords(models.Model):
     goat_ent = models.CharField(max_length=100, verbose_name='entry type')
     goat_desc = models.TextField(blank=True, null=True, verbose_name='Description')
 
+    def __str__(self):
+        return (self).goat_ent
     class Meta():
         verbose_name_plural = 'Goat Records'
