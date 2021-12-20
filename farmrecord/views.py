@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from farmrecord.forms import *
+from django.contrib import messages
 
 # Create your views here.
 
@@ -9,7 +11,14 @@ def test(request):
     return render(request, 'test.html')
 
 def cow_motrep(request):
-    return render(request, 'cow-motrep.html')
+    if request.method == 'POST':
+        cow_mot = CowmotForm(request.POST)
+        if cow_mot.is_valid():
+            cow_mot.save()
+            messages.success(request, 'Entry Saved')
+    else:
+        cow_mot = CowmotForm()
+    return render(request, 'cow-motrep.html',{'cow_mot': cow_mot})
 
 def cow_cull(request):
     return render(request, 'cow-cull.html')
