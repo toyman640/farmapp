@@ -21,7 +21,7 @@ Goat-sales
 		<div class="box_general padding_bottom">
       {% if messages %}
         {% for m in messages %}
-          <div>{{ m }}</div>
+          <div class="alert {{ m.tags }}">{{ m }}</div>
         {% endfor %}
         {% endif %}
             <form method="post" enctype="multipart/form-data" action="">

@@ -24,9 +24,9 @@ Home
                     <th scope="col">Date</th>
                     <th scope="col">Location</th>
                     <th scope="col">Mortality</th>
-                    <th scope="col">Buck(s)</th>
-                    <th scope="col">Doe(s)</th>
-                    <th scope="col">Kid(s)</th>
+                    <th scope="col">Bull(s)</th>
+                    <th scope="col">Cow(s)</th>
+                    <th scope="col">Calves</th>
                     <th scope="col">Size(s)</th>
                     <th scope="col">ACTION(View others)</th>
                   </tr>
@@ -38,9 +38,9 @@ Home
                     <td data-label="Date">{{ a.date }}</td>
                     <td data-label="Location">{{ a.location }}</td>
                     <td data-label="Mortality">{{ a.mortality }}</td>
-                    <td data-label="Buck(s)">{{ a.bull_num }}</td>
-                    <td data-label="Doe(s)">{{ a.cow_num }}</td>
-                    <td data-label="Kid(s)">{{ a.calves }}</td>
+                    <td data-label="Bull(s)">{{ a.bull_num }}</td>
+                    <td data-label="Cow(s)">{{ a.cow_num }}</td>
+                    <td data-label="Calves">{{ a.calves }}</td>
                     <td data-label="Size(s)">{{ a.size }}</td>
                     <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th>
                   {% endfor %}

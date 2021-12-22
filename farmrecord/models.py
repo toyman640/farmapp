@@ -26,7 +26,7 @@ class Section(models.Model):
 
 class CowMortality(models.Model):
     mortality = models.CharField(max_length=10, verbose_name='mortality')
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(auto_now_add=True)
     location = models.CharField(max_length=200, verbose_name='loaction(s)')
     cow_num = models.IntegerField(verbose_name='Cow(s)', blank=True, null=True)
     bull_num = models.IntegerField(verbose_name='Bull(s)', blank=True, null=True)
