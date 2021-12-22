@@ -18,78 +18,36 @@ Home
       </ol>
 		<div class="box_general padding_bottom">
 			<table>
-                <caption>Mortality Records</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Mortality</th>
-                    <th scope="col">Boar(s)</th>
-                    <th scope="col">Sow/Gilt(s)</th>
-                    <th scope="col">Hog(s)</th>
-                    <th scope="col">Weaner(s)</th>
-                    <th scope="col">Location(s)</th>
-                    <th scope="col">Size(s)</th>
-                    <th scope="col"><a data-toggle="modal" data-target="#exampleModalS">View</a></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Boar(s)">1</td>
-                    <td data-label="Sow/Gilt(s)">nill</td>
-                    <td data-label="Hog(s)">nill</td>
-                    <td data-label="Weaner(s)">nill</td>
-                    <td data-label="Location">1B4R</td>
-                    <td data-label="Size(s)">B,M</td>
-                    <th data-label="Action">View</th>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Boar(s)">1</td>
-                    <td data-label="Sow/Gilt(s)">nill</td>
-                    <td data-label="Hog(s)">nill</td>
-                    <td data-label="Weaner(s)">nill</td>
-                    <td data-label="Location">9D2L</td>
-                    <td data-label="Size(s)">B,M</td>
-                    <th data-label="Action">View</th>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Boar(s)">1</td>
-                    <td data-label="Sow/Gilt(s)">nill</td>
-                    <td data-label="Hog(s)">nill</td>
-                    <td data-label="Weaner(s)">nill</td>
-                    <td data-label="Location">4E5R</td>
-                    <td data-label="Size(s)">B,M</td>
-                    <th data-label="Action">View</th>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Boar(s)">1</td>
-                    <td data-label="Sow/Gilt(s)">nill</td>
-                    <td data-label="Hog(s)">nill</td>
-                    <td data-label="Weaner(s)">nill</td>
-                    <td data-label="Location">4E5R</td>
-                    <td data-label="Size(s)">B,M</td>
-                    <th data-label="Action">View</th>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Boar(s)">1</td>
-                    <td data-label="Sow/Gilt(s)">nill</td>
-                    <td data-label="Hog(s)">nill</td>
-                    <td data-label="Weaner(s)">nill</td>
-                    <td data-label="Location">4E5R</td>
-                    <td data-label="Size(s)">B,M</td>
-                    <th data-label="Action">View</th>
-                  </tr>
-                </tbody>
-            </table>
+        <caption>Mortality Records</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Location</th>
+            <th scope="col">Mortality</th>
+            <th scope="col">Boar(s)</th>
+            <th scope="col">Sow(s)</th>
+            <th scope="col">Pigglet(s)</th>
+            <th scope="col">Size(s)</th>
+            <th scope="col">ACTION(View others)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if pig_mrec %}
+          {% for q in pig_mrec %}
+          <tr>
+            <td data-label="Date">{{ q.date }}</td>
+            <td data-label="Location">{{ q.location }}</td>
+            <td data-label="Mortality">{{ q.mortality }}</td>
+            <td data-label="Boar(s)">{{ q.boar_num }}</td>
+            <td data-label="Sow(s)">{{ q.sow_num }}</td>
+            <td data-label="Pigglet(s)">{{ q.pigglet }}</td>
+            <td data-label="Size(s)">{{ q.size }}</td>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' b.id %}" >View</a></th>
+          {% endfor %}
+          {% endif %} 
+          </tr>
+        </tbody>
+      </table>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

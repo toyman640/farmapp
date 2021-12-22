@@ -18,66 +18,36 @@ Home
       </ol>
 		<div class="box_general padding_bottom">
 			<table>
-                <caption>Mortality Records</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Location</th>
-                    <th scope="col">Mortality</th>
-                    <th scope="col">Buck(s)</th>
-                    <th scope="col">Doe(s)</th>
-                    <th scope="col">Kid(s)</th>
-                    <th scope="col"><a data-toggle="modal" data-target="#exampleModalG">View</a></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Location">Paddock 2</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Buck(s)">1</td>
-                    <td data-label="Doe(s)">nill</td>
-                    <td data-label="Kid(s)">nill</td>
-                    <th data-label="View">View</th>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Location">Paddock 2</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Buck(s)">1</td>
-                    <td data-label="Doe(s)">nill</td>
-                    <td data-label="Kid(s)">nill</td>
-                    <th data-label="View">View</th>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Location">Paddock 2</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Buck(s)">1</td>
-                    <td data-label="Doe(s)">nill</td>
-                    <td data-label="Kid(s)">nill</td>
-                    <th data-label="View">View</th>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Location">Paddock 2</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Buck(s)">1</td>
-                    <td data-label="Doe(s)">nill</td>
-                    <td data-label="Kid(s)">nill</td>
-                    <th data-label="View">View</th>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Location">Paddock 2</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Buck(s)">1</td>
-                    <td data-label="Doe(s)">nill</td>
-                    <td data-label="Kid(s)">nill</td>
-                    <th data-label="View">View</th>
-                  </tr>
-                </tbody>
-            </table>
+        <caption>Mortality Records</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Location</th>
+            <th scope="col">Mortality</th>
+            <th scope="col">Buck(s)</th>
+            <th scope="col">Doe(s)</th>
+            <th scope="col">Kid(s)</th>
+            <th scope="col">Size(s)</th>
+            <th scope="col">ACTION(View others)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if goat_mrec %}
+          {% for b in goat_mrec %}
+          <tr>
+            <td data-label="Date">{{ b.date }}</td>
+            <td data-label="Location">{{ b.location }}</td>
+            <td data-label="Mortality">{{ b.mortality }}</td>
+            <td data-label="Buck(s)">{{ b.buck_num }}</td>
+            <td data-label="Doe(s)">{{ b.doe_num }}</td>
+            <td data-label="Kid(s)">{{ b.kid }}</td>
+            <td data-label="Size(s)">{{ b.size }}</td>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' b.id %}" >View</a></th>
+          {% endfor %}
+          {% endif %} 
+          </tr>
+        </tbody>
+      </table>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

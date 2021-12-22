@@ -39,7 +39,7 @@ def cow_proc(request):
             messages.success(request, 'Entry Saved')
     else:
         cow_proc = CowprocForm()
-    return render(request, 'cow-cull.html', {'cow_proc': cow_proc})
+    return render(request, 'cow-proc.html', {'cow_proc': cow_proc})
 
 
 def cow_sales(request):
@@ -85,7 +85,7 @@ def goat_cull(request):
             goat_cull.save()
             messages.success(request, 'Entry Saved')
     else:
-        goat_cull = CowcullForm()
+        goat_cull = GoatcullForm()
     return render(request, 'goat-cull.html', {'goat_cull': goat_cull})
 
 def goat_motrep(request):
@@ -101,13 +101,13 @@ def goat_motrep(request):
 
 def goat_proc(request):
     if request.method == 'POST':
-        goat_proc = CowprocForm(request.POST, request.FILES)
+        goat_proc = GoatprocForm(request.POST, request.FILES)
         if goat_proc.is_valid():
             goat_proc.save()
             messages.success(request, 'Entry Saved')
     else:
         goat_proc = GoatprocForm()
-    return render(request, 'goat-cull.html', {'goat_proc': goat_proc})
+    return render(request, 'goat-proc.html', {'goat_proc': goat_proc})
 
 def goat_sales(request):
     if request.method == 'POST':
@@ -117,11 +117,11 @@ def goat_sales(request):
             messages.success(request, 'Entry Saved')
     else:
         goat_sale = GoatsaleForm()
-    return render(request, 'goat-cull.html', {'goat_sale': goat_sale})
+    return render(request, 'goat-sale.html', {'goat_sale': goat_sale})
 
 def goat_motrec(request):
-    goat_rec =   GoatMortality.objects.order_by('date')
-    return render(request, 'goatmotrec.html', {'goat_rec': goat_rec})
+    goat_mrec =   GoatMortality.objects.order_by('date')
+    return render(request, 'goatmotrec.html', {'goat_mrec': goat_mrec})
 
 def goat_procrec(request):
     goat_prec = GoatProcurement.objects.order_by('date')
@@ -143,7 +143,7 @@ def pig_sales(request):
             messages.success(request, 'Entry Saved')
     else:
         pig_sale = PigsaleForm()
-    return render(request, 'pig-sale.html', {'pig_sale': pig_sale})
+    return render(request, 'pig-sales.html', {'pig_sale': pig_sale})
 
 def pig_birth(request):
     return render(request, 'pig-birth.html')
@@ -155,7 +155,7 @@ def pig_cull(request):
             pig_cull.save()
             messages.success(request, 'Entry Saved')
     else:
-        pig_cull = CowcullForm()
+        pig_cull = PigcullForm()
     return render(request, 'pig-cull.html', {'pig_cull': pig_cull})
 
 def pig_motrep(request):
@@ -180,8 +180,8 @@ def pig_proc(request):
     return render(request, 'pig-proc.html', {'pig_proc': pig_proc})
 
 def pig_motrec(request):
-    pig_rec =   PigMortality.objects.order_by('date')
-    return render(request, 'pigmotrec.html', {'pig_rec': pig_rec})
+    pig_mrec =   PigMortality.objects.order_by('date')
+    return render(request, 'pigmotrec.html', {'pig_mrec': pig_mrec})
 
 def pig_procrec(request):
     pig_prec = PigProcurement.objects.order_by('date')
@@ -217,7 +217,7 @@ def sheep_motrep(request):
             messages.success(request, 'Entry Saved')
     else:
         sheep_mot = SheepmotForm()
-    return render(request, 'cow-motrep.html',{'sheep_mot': sheep_mot})
+    return render(request, 'sheep-mot.html',{'sheep_mot': sheep_mot})
 
 
 def sheep_proc(request):
@@ -242,8 +242,8 @@ def sheep_sales(request):
     return render(request, 'sheep-sales.html', {'sheep_sale': sheep_sale})
 
 def sheep_motrec(request):
-    sheep_rec =   SheepMortality.objects.order_by('date')
-    return render(request, 'sheepmotrec.html', {'sheep_rec': sheep_rec})
+    sheep_mrec =   SheepMortality.objects.order_by('date')
+    return render(request, 'sheepmotrec.html', {'sheep_mrec': sheep_mrec})
 
 def sheep_procrec(request):
     sheep_prec = SheepProcurement.objects.order_by('date')

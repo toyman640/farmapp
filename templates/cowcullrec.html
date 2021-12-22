@@ -18,54 +18,30 @@ Home
       </ol>
 		<div class="box_general padding_bottom">
 			<table>
-                <caption>Mortality Records</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Bull(s)</th>
-                    <th scope="col">Cow(s)</th>
-                    <th scope="col">Location(s)</th>
-                    <th scope="col">Cull Reason</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Bull(s)">2</td>
-                    <td data-label="Cow(s)">1</td>
-                    <td data-label="Location(s)">Paddock 1</td>
-                    <td data-label="Cull Reason">old age</td>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Bull(s)">2</td>
-                    <td data-label="Cow(s)">1</td>
-                    <td data-label="Location(s)">Paddock 1</td>
-                    <td data-label="Cull Reason">old age</td>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Bull(s)">2</td>
-                    <td data-label="Cow(s)">1</td>
-                    <td data-label="Location(s)">Paddock 1</td>
-                    <td data-label="Cull Reason">old age</td>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Bull(s)">2</td>
-                    <td data-label="Cow(s)">1</td>
-                    <td data-label="Location(s)">Paddock 1</td>
-                    <td data-label="Cull Reason">old age</td>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Bull(s)">2</td>
-                    <td data-label="Cow(s)">1</td>
-                    <td data-label="Location(s)">Paddock 1</td>
-                    <td data-label="Cull Reason">old age</td>
-                  </tr>
-                </tbody>
-            </table>
+        <caption>Culling Records</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Bull(s)</th>
+            <th scope="col">Cow(s)</th>
+            <th scope="col">Location(s)</th>
+            <th scope="col">ACTION(View others)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if cow_crec %}
+          {% for a in cow_crec %}
+          <tr>
+            <td data-label="Date">{{ a.date }}</td>
+            <td data-label="Bull(s)">{{ a.bull_num }}</td>
+            <td data-label="Cow(s)">{{ a.cow_num }}</td>
+            <td data-label="Location(s)">{{ a.location }}</td>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th>
+          {% endfor %}
+          {% endif %} 
+          </tr>
+        </tbody>
+    </table>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

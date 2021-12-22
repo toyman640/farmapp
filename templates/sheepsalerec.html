@@ -18,72 +18,36 @@ Home
       </ol>
 		<div class="box_general padding_bottom">
 			<table>
-                <caption>Mortality Records</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Ram(s)</th>
-                    <th scope="col">Size(s)</th>
-                    <th scope="col">Ewe(s)</th>
-                    <th scope="col">Size(s)</th>
-                    <th scope="col">Weight(s)</th>
-                    <th scope="col">Total price(s)</th>
-                    <th scope="col">Comments</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Ram(s)">1</td>
-                    <td data-label="Size(s)">B</td>
-                    <td data-label="Ewe(s)"></td>
-                    <td data-label="Size(s)"></td>
-                    <td data-label="Weight(s)">200kg</td>
-                    <td data-label="Total Price(s)">400000</td>
-                    <td data-label="Comment(s)">Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem, fuga, eveniet alias consequatur tempora voluptas inventore fugit accusantium repudiandae voluptates recusandae nesciunt molestias autem debitis? Cum ab cupiditate mollitia doloremque.</td>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Ram(s)">1</td>
-                    <td data-label="Size(s)">B</td>
-                    <td data-label="Ewe(s)"></td>
-                    <td data-label="Size(s)"></td>
-                    <td data-label="Weight(s)">200kg</td>
-                    <td data-label="Total Price(s)">400000</td>
-                    <td data-label="Comment(s)">Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem, fuga, eveniet alias consequatur tempora voluptas inventore fugit accusantium repudiandae voluptates recusandae nesciunt molestias autem debitis? Cum ab cupiditate mollitia doloremque.</td>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Ram(s)">1</td>
-                    <td data-label="Size(s)">B</td>
-                    <td data-label="Ewe(s)"></td>
-                    <td data-label="Size(s)"></td>
-                    <td data-label="Weight(s)">200kg</td>
-                    <td data-label="Total Price(s)">400000</td>
-                    <td data-label="Comment(s)">Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem, fuga, eveniet alias consequatur tempora voluptas inventore fugit accusantium repudiandae voluptates recusandae nesciunt molestias autem debitis? Cum ab cupiditate mollitia doloremque.</td>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Ram(s)">1</td>
-                    <td data-label="Size(s)">B</td>
-                    <td data-label="Ewe(s)"></td>
-                    <td data-label="Size(s)"></td>
-                    <td data-label="Weight(s)">200kg</td>
-                    <td data-label="Total Price(s)">400000</td>
-                    <td data-label="Comment(s)">Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem, fuga, eveniet alias consequatur tempora voluptas inventore fugit accusantium repudiandae voluptates recusandae nesciunt molestias autem debitis? Cum ab cupiditate mollitia doloremque.</td>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Ram(s)">1</td>
-                    <td data-label="Size(s)">B</td>
-                    <td data-label="Ewe(s)"></td>
-                    <td data-label="Size(s)"></td>
-                    <td data-label="Weight(s)">200kg</td>
-                    <td data-label="Total Price(s)">400000</td>
-                    <td data-label="Comment(s)">Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem, fuga, eveniet alias consequatur tempora voluptas inventore fugit accusantium repudiandae voluptates recusandae nesciunt molestias autem debitis? Cum ab cupiditate mollitia doloremque.</td>
-                  </tr> 
-                </tbody>
-            </table>
+        <caption>Sales Record</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Ram(s)</th>
+            <th scope="col">Size(s)</th>
+            <th scope="col">Ewe(s)</th>
+            <th scope="col">Size(s)</th>
+            <th scope="col">Weight(s)</th>
+            <th scope="col">Price(s)</th>
+            <th scope="col">ACTION(View others)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if sheep_srec %}
+          {% for a in sheep_srec %}
+          <tr>
+            <td data-label="Date">{{ a.date }}</td>
+            <td data-label="Ram(s)">{{ a.ram_num }}</td>
+            <td data-label="Size(s)">{{ a.size1 }}</td>
+            <td data-label="Ewe(s)">{{ a.ewe_num }}</td>
+            <td data-label="Size(s)">{{ a.size }}</td>
+            <td data-label="Weight(s)">{{ a.weight }}</td>
+            <td data-label="Price(s)">{{ a.price }}</td>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th>
+          {% endfor %}
+          {% endif %} 
+          </tr>
+        </tbody>
+    </table>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->
