@@ -32,45 +32,19 @@ Home
                   </tr>
                 </thead>
                 <tbody>
+                  {% if cow_rec %}
+                  {% for a in cow_rec %}
                   <tr>
-                    <td data-label="Date">04/01/2016</td>
-                    <td data-label="Location">Paddock 2</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Bull(s)">1</td>
-                    <td data-label="Cow(s)">nill</td>
-                    <td data-label="Calves(s)">nill</td>
-                    <td data-label="Size(s)">B,M</td>
-                    <th data-label="Action">View</th>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">03/01/2016</td>
-                    <td data-label="Location">Paddock 1</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Bull(s)">nill</td>
-                    <td data-label="Cow(s)">2</td>
-                    <td data-label="Calves(s)">nill</td>
-                    <td data-label="Size(s)">S,S</td>
-                    <th data-label="Action">View</th>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">03/01/2016</td>
-                    <td data-label="Location">Isolation</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Bull(s)">nill</td>
-                    <td data-label="Cow(s)">nill</td>
-                    <td data-label="Calves(s)">1</td>
-                    <td data-label="Size(s)">S,S</td>
-                    <th data-label="Action">View</th>
-                  </tr>
-                  <tr>
-                    <td data-label="Date">03/01/2016</td>
-                    <td data-label="Location">Paddock 4</td>
-                    <td data-label="Mortality">Yes</td>
-                    <td data-label="Bull(s)">nill</td>
-                    <td data-label="Cow(s)">nill</td>
-                    <td data-label="Calves(s)">1</td>
-                    <td data-label="Size(s)">S,M</td>
-                    <th data-label="Action" class="table"><a data-toggle="modal" data-target="#exampleModalt">View</a></th>
+                    <td data-label="Date">{{ a.date }}</td>
+                    <td data-label="Location">{{ a.location }}</td>
+                    <td data-label="Mortality">{{ a.mortality }}</td>
+                    <td data-label="Bull(s)">{{ a.bull_num }}</td>
+                    <td data-label="Cow(s)">{{ a.cow_num }}</td>
+                    <td data-label="Calves(s)">{{ a.calves }}</td>
+                    <td data-label="Size(s)">{{ a.size }}</td>
+                    <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th>
+                  {% endfor %}
+                  {% endif %} 
                   </tr>
                 </tbody>
             </table>
@@ -80,21 +54,21 @@ Home
    	</div>
     <!-- /.container-wrapper-->
 <!-- table view Modal Cow-->
-<div class="modal fade" id="exampleModalt" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- <div class="modal fade" id="exampleModalt" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">Image(s) of dead animal(s)</h5>
-          <img src="img/dead-ram.jpg" alt="">
+          <img src="{{ a.pst_image_1 }}" alt="">
       </div>
       <div class="modal-footer">
           <h5 class="modal-title" id="exampleModalLabel">Comment</h5>
-        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptatem excepturi accusantium odit necessitatibus in similique sint eveniet laudantium vitae modi quae eius sed veritatis, cupiditate, nisi quia, expedita nemo facere.</p>
+        <p>{{ a.comment }}</p>
       </div>
       <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
         </div>
     </div>
   </div>
-</div>
+</div> -->
 {% endblock %}

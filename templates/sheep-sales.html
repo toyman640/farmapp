@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 <!Doctype html>
 {% block title %}
@@ -18,71 +19,16 @@ Sheep-sales
       </ol>
 	  <!-- Icon Cards-->
 		<div class="box_general padding_bottom">
-      <form action="">
-        <div class="form-group">
-            <label for="formGroupExampleInput">Ram(s)</label>
-            <input type="number" class="form-control" id="formGroupExampleInput" placeholder="Example input">
-        </div>
-        <div class="col-sm-2">Size(s)</div>
-            <div class="col-sm-10">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="gridCheck1">
-                <label class="form-check-label" for="gridCheck1">
-                 Small
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="gridCheck1">
-                <label class="form-check-label" for="gridCheck1">
-                  Medium
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="gridCheck1">
-                <label class="form-check-label" for="gridCheck1">
-                  Big
-                </label>
-              </div>
-            </div>
-        <div class="form-group">
-            <label for="formGroupExampleInput">Ewe(s)</label>
-            <input type="number" class="form-control" id="formGroupExampleInput" placeholder="Example input">
-        </div>
-        <div class="col-sm-2">Size(s)</div>
-            <div class="col-sm-10">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="gridCheck1">
-                <label class="form-check-label" for="gridCheck1">
-                 Small
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="gridCheck1">
-                <label class="form-check-label" for="gridCheck1">
-                  Medium
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="gridCheck1">
-                <label class="form-check-label" for="gridCheck1">
-                  Big
-                </label>
-              </div>
-        <div class="form-group">
-            <label for="formGroupExampleInput">Total Price(s)</label>
-            <input type="number" class="form-control" id="formGroupExampleInput" placeholder="Example input">
-        </div>
-        <div class="form-group">
-            <label for="formGroupExampleInput">Weights(s)</label>
-            <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Example input">
-        </div>
-        
-        <div class="form-group">
-            <label for="exampleFormControlTextarea1">Comments</label>
-            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-          </div>
-        <button class="btn btn-success" value="submit">Submit</button>
-      </form>
+      {% if messages %}
+      {% for m in messages %}
+        <div>{{ m }}</div>
+      {% endfor %}
+      {% endif %}
+          <form method="post" enctype="multipart/form-data" action="">
+            {{ sheep_sale | crispy }}
+            {% csrf_token %}
+              <button class="btn btn-success" value="submit">Submit</button>
+          </form>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard</li>
+      </ol>
+		<div class="box_general padding_bottom">
+			hey!
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+    <!-- /.container-wrapper-->
+<!-- table view Modal Cow-->
+<!-- <div class="modal fade" id="exampleModalt" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Image(s) of dead animal(s)</h5>
+          <img src="{{ a.pst_image_1 }}" alt="">
+      </div>
+      <div class="modal-footer">
+          <h5 class="modal-title" id="exampleModalLabel">Comment</h5>
+        <p>{{ a.comment }}</p>
+      </div>
+      <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+  </div>
+</div> -->
+{% endblock %}

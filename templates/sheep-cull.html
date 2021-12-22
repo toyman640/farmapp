@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 <!Doctype html>
 {% block title %}
@@ -18,21 +19,16 @@ Sheep-culling
       </ol>
 	  <!-- Icon Cards-->
 		<div class="box_general padding_bottom">
-      <form action="">
-        <div class="form-group">
-            <label for="formGroupExampleInput">Ram(s)</label>
-            <input type="number" class="form-control" id="formGroupExampleInput" placeholder="Example input">
-        </div>
-        <div class="form-group">
-            <label for="formGroupExampleInput">Ewe(s)</label>
-            <input type="number" class="form-control" id="formGroupExampleInput" placeholder="Example input">
-        </div>
-        <div class="form-group">
-            <label for="exampleFormControlTextarea1">Reason for Culling</label>
-            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-          </div>
-        <button class="btn btn-success" value="submit">Submit</button>
-    </form>
+      {% if messages %}
+      {% for m in messages %}
+        <div>{{ m }}</div>
+      {% endfor %}
+      {% endif %}
+          <form method="post" enctype="multipart/form-data" action="">
+            {{ sheep_cull | crispy }}
+            {% csrf_token %}
+              <button class="btn btn-success" value="submit">Submit</button>
+          </form>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

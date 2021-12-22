@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 <!Doctype html>
 {% block title %}
@@ -18,40 +19,16 @@ Pig-culling
       </ol>
 	  <!-- Icon Cards-->
 		<div class="box_general padding_bottom">
-            <form action="">
-                <div class="form-group">
-                    <label for="formGroupExampleInput">Boar(s)</label>
-                    <input type="number" class="form-control" id="formGroupExampleInput" placeholder="Example input">
-                </div>
-                <div class="form-group">
-                    <label for="formGroupExampleInput">Sow/Gilt(s)</label>
-                    <input type="number" class="form-control" id="formGroupExampleInput" placeholder="Example input">
-                </div>
-                <div class="form-group">
-                  <label for="formGroupExampleInput">Hog(s)</label>
-                  <input type="number" class="form-control" id="formGroupExampleInput" placeholder="Example input">
-              </div>
-                <label for="">Location(s):</label>
-                <div class="form-row">
-                  <div class="col-2">
-                    <input type="number" class="form-control" placeholder="Line">
-                  </div>
-                  <div class="col-2">
-                    <input type="text" class="form-control" placeholder="Block">
-                  </div>
-                  <div class="col-2">
-                    <input type="number" class="form-control" placeholder="Pen">
-                  </div>
-                  <div class="col-2">
-                    <input type="text" class="form-control" placeholder="L/R">
-                  </div>
-                </div>
-                <div class="form-group">
-                    <label for="exampleFormControlTextarea1">Reason for Culling</label>
-                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                  </div>
-                <button class="btn btn-success" value="submit">Submit</button>
-            </form>
+      {% if messages %}
+      {% for m in messages %}
+        <div>{{ m }}</div>
+      {% endfor %}
+      {% endif %}
+          <form method="post" enctype="multipart/form-data" action="">
+            {{ pig_cull | crispy }}
+            {% csrf_token %}
+              <button class="btn btn-success" value="submit">Submit</button>
+          </form>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

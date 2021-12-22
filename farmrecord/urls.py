@@ -41,6 +41,7 @@ urlpatterns = [
     path('pig-mortality-records', views.pig_motrec, name='pig_motrec'),
     path('pig-procurement-records', views.pig_procrec, name='pig_procrec'),
     path('pig-cull-records', views.pig_cullrec, name='pig_cullrec'),
+    path('cow-mortality-record-view/<int:abt_id>', views.cow_motrec_view, name='cow_motrec_view')
 
 
 ]
