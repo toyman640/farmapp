@@ -60,8 +60,21 @@ def cow_motrec(request):
     return render(request, 'cowmotrec.html', {'cow_rec': cow_rec})
 
 def cow_motrec_view(request, abt_id):
-    view = CowMortality.objects.get(id=abt_id)
-    return render(request, 'cowmotrec-view.html', {'view':view})
+    mview = CowMortality.objects.get(id=abt_id)
+    return render(request, 'cowmotrec-view.html', {'mview':mview})
+
+def cow_procrec_view(request, abt_id):
+    Pview = CowProcurement.objects.get(id=abt_id)
+    return render(request, 'cowprocrec-view.html', {'Pview':Pview})
+
+def cow_salerec_view(request, abt_id):
+    Sview = CowProcurement.objects.get(id=abt_id)
+    return render(request, 'cowsalerec-view.html', {'Sview':Sview})
+
+def cow_cullrec_view(request, abt_id):
+    Cview = CowProcurement.objects.get(id=abt_id)
+    return render(request, 'cowcullrec-view.html', {'Cview':Cview})
+
 
 def cow_procrec(request):
     cow_prec = CowProcurement.objects.order_by('date')
@@ -135,6 +148,22 @@ def goat_salerec(request):
     goat_srec = GoatSale.objects.order_by('date')
     return render(request, 'goatsalerec.html', {'goat_srec': goat_srec})
 
+def goat_motrec_view(request, abt_id):
+    Mview = GoatMortality.objects.get(id=abt_id)
+    return render(request, 'goatmotrec-view.html', {'Mview':Mview})
+
+def goat_cullrec_view(request, abt_id):
+    Cview = GoatCulling.objects.get(id=abt_id)
+    return render(request, 'goatcullrec-view.html', {'Cview':Cview})
+
+def goat_salerec_view(request, abt_id):
+    Sview = GoatSale.objects.get(id=abt_id)
+    return render(request, 'goatsalerec-view.html', {'Sview':Sview})
+
+def goat_procrec_view(request, abt_id):
+    Pview = GoatProcurement.objects.get(id=abt_id)
+    return render(request, 'goatprocrec-view.html', {'Pview':Pview})
+
 def pig_sales(request):
     if request.method == 'POST':
         pig_sale = PigsaleForm(request.POST, request.FILES)
@@ -194,6 +223,23 @@ def pig_salerec(request):
 def pig_cullrec(request):
     pig_crec = PigCulling.objects.order_by('date')
     return render(request, 'pigcullrec.html', {'pig_crec': pig_crec})
+
+def pig_procrec_view(request, abt_id):
+    Pview = PigProcurement.objects.get(id=abt_id)
+    return render(request, 'pigprocrec-view.html', {'Pview':Pview})
+
+def pig_motrec_view(request, abt_id):
+    Mview = PigMortality.objects.get(id=abt_id)
+    return render(request, 'pigmotrec-view.html', {'Mview':Mview})
+
+def pig_salerec_view(request, abt_id):
+    Sview = PigSale.objects.get(id=abt_id)
+    return render(request, 'pigsalerec-view.html', {'Sview':Sview})
+
+def pig_cullrec_view(request, abt_id):
+    Cview = PigCulling.objects.get(id=abt_id)
+    return render(request, 'pigcullrec-view.html', {'Cview':Cview})
+
 
 def sheep_birth(request):
     return render(request, 'sheep-birth.html')
@@ -256,4 +302,21 @@ def sheep_cullrec(request):
 def sheep_salerec(request):
     sheep_srec = SheepSale.objects.order_by('date')
     return render(request, 'sheepsalerec.html', {'sheep_srec': sheep_srec})
+
+def sheep_motrec_view(request, abt_id):
+    Mview = SheepMortality.objects.get(id=abt_id)
+    return render(request, 'sheepmotrec-view.html', {'Mview':Mview})
+
+def sheep_procrec_view(request, abt_id):
+    Pview = SheepProcurement.objects.get(id=abt_id)
+    return render(request, 'sheepprocrec-view.html', {'Pview':Pview})
+
+def sheep_salerec_view(request, abt_id):
+    Sview = SheepSale.objects.get(id=abt_id)
+    return render(request, 'sheepsalerec-view.html', {'Sview':Sview})
+
+def sheep_cullrec_view(request, abt_id):
+    Cview = SheepCulling.objects.get(id=abt_id)
+    return render(request, 'sheepcullrec-view.html', {'Cview':Cview})
+
 

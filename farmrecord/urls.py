@@ -41,7 +41,23 @@ urlpatterns = [
     path('pig-mortality-records', views.pig_motrec, name='pig_motrec'),
     path('pig-procurement-records', views.pig_procrec, name='pig_procrec'),
     path('pig-cull-records', views.pig_cullrec, name='pig_cullrec'),
-    path('cow-mortality-record-view/<int:abt_id>', views.cow_motrec_view, name='cow_motrec_view')
+    path('cow-mortality-record-view/<int:abt_id>', views.cow_motrec_view, name='cow_motrec_view'),
+    path('cow-culling-record-view/<int:abt_id>', views.cow_cullrec_view, name='cow_cullrec_view'),
+    path('cow-procurement-record-view/<int:abt_id>', views.cow_procrec_view, name='cow_procrec_view'),
+    path('cow-sale-record-view/<int:abt_id>', views.cow_salerec_view, name='cow_salerec_view'),
+    path('goat-mortality-record-view/<int:abt_id>', views.goat_motrec_view, name='goat_motrec_view'),
+    path('goat-sale-record-view/<int:abt_id>', views.goat_salerec_view, name='goat_salerec_view'),
+    path('goat-procurement-record-view/<int:abt_id>', views.goat_procrec_view, name='goat_procrec_view'),
+    path('goat-cull-record-view/<int:abt_id>', views.goat_cullrec_view, name='goat_cullrec_view'),
+    path('pig-cull-record-view/<int:abt_id>', views.pig_cullrec_view, name='pig_cullrec_view'),
+    path('pig-mortality-record-view/<int:abt_id>', views.pig_motrec_view, name='pig_motrec_view'),
+    path('pig-sale-record-view/<int:abt_id>', views.pig_salerec_view, name='pig_salerec_view'),
+    path('sheep-procurement-record-view/<int:abt_id>', views.pig_procrec_view, name='pig_procrec_view'),
+    path('sheep-mortality-record-view/<int:abt_id>', views.sheep_motrec_view, name='sheep_motrec_view'),
+    path('sheep-sale-record-view/<int:abt_id>', views.sheep_salerec_view, name='sheep_salerec_view'),
+    path('sheep-cull-record-view/<int:abt_id>', views.sheep_cullrec_view, name='sheep_cullrec_view'),
+    
+    
 
 
 ]

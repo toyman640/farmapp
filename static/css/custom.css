@@ -1,1 +1,11 @@
 /* YOUR CUSTOM CSS */
+
+.carousel-inner{
+    height: 300px !important;
+}
+
+.item, img{
+    height: 100 !important;
+    width: 100 !important;
+    border: 1px solid red;
+}

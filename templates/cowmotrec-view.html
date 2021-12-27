@@ -2,7 +2,7 @@
 {% load static %}
 <!Doctype html>
 {% block title %}
-Home
+Cow Mortality
 {% endblock %}
 
 {% block content %}
@@ -19,14 +19,54 @@ Home
 		<div class="box_general padding_bottom">
 			<div class="container">
         <div class="row">
-          {% if view %}
-          <div class="col-xs-6 col-8">
-            <img src="" alt="" srcset="">
-            <img src="" alt="" srcset="">
-          </div>
-          <div class="col-xs-6 col-4">
-            
-          </div>
+          {% if mview %}
+            <div class="container">
+              <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                  <div class="carousel-item active">
+                    <img class="d-block w-100" src="{{ mview.post_img }}" alt="First slide">
+                  </div>
+                  <div class="carousel-item">
+                    <img class="d-block w-100" src="{{ mview.post_img1 }}" alt="No Second Image">
+                  </div>
+                </div>
+                <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Next</span>
+                </a>
+              </div>
+              <div>
+                <h3 class="h3 mt-5">{{ mview.date }}</mview></h3>
+                <hr>
+                <h4 class="h4 mt">Mortality:</h4>
+                <p><b> {{ mview.mortality }}</b></p>
+                <hr>
+                <h4 class="h4 mt">Location(s):</h4>
+                <p><strong>  {{ mview.location }} </strong></p>
+                <hr>
+                <h4 class="h4 mt">Cow(s):</h4>
+                <p><strong>  {{ mview.cow_num }} </strong></p>
+                <hr>
+                <h4 class="h4 mt">Bull(s):</h4>
+                <p><b> {{ mview.bull_null }} </b></p>
+                <hr>
+                <h4 class="h4 mt">Calf:</h4>
+                <p>{{ mview.calves }}</p>
+                <hr>
+                <h4 class="h4 mt">Size(s):</h4>
+                <p>{{ mview.size }}</p>
+                <hr>
+                <h4 class="h4 mt">Comment(s):</h4>
+                <p><strong> {{ mview.comment }}</strong></p>
+                <hr>
+
+
+              </div>
+            </div>
           {% endif %}
         </div>
       </div>

@@ -29,14 +29,14 @@ Home
           </tr>
         </thead>
         <tbody>
-          {% if cow_crec %}
-          {% for a in cow_crec %}
+          {% if pig_crec %}
+          {% for a in pig_crec %}
           <tr>
             <td data-label="Date">{{ a.date }}</td>
             <td data-label="Boar(s)">{{ a.boar_num }}</td>
             <td data-label="Sow(s)">{{ a.sow_num }}</td>
             <td data-label="Location">{{ a.location }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="" >View</a></th>
           {% endfor %}
           {% endif %} 
           </tr>
