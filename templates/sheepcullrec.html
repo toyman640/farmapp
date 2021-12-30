@@ -14,7 +14,7 @@ Home
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">Sheep Cullling</li>
       </ol>
 		<div class="box_general padding_bottom">
       <table>
@@ -36,7 +36,7 @@ Home
             <td data-label="Ram(s)">{{ a.ram_num }}</td>
             <td data-label="Ewe(s)">{{ a.ewe_num }}</td>
             <td data-label="Location">{{ a.location }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:sheep_cullrec_view' a.id %}" >View</a></th>
           {% endfor %}
           {% endif %} 
           </tr>

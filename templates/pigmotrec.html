@@ -42,7 +42,7 @@ Home
             <td data-label="Sow(s)">{{ q.sow_num }}</td>
             <td data-label="Pigglet(s)">{{ q.pigglet }}</td>
             <td data-label="Size(s)">{{ q.size }}</td>
-            <th data-label="Action" class="table"><a href="" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:pig_motrec_view' q.id %}" >View</a></th>
           {% endfor %}
           {% endif %} 
           </tr>

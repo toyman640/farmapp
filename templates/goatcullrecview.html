@@ -14,19 +14,35 @@ Goat Culling
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">Goat Culling(DETAILS)</li>
       </ol>
 		<div class="box_general padding_bottom">
 			<div class="container">
         <div class="row">
           {% if Cview %}
-          <div class="col-xs-6 col-8">
-            <img src="" alt="" srcset="">
-            <img src="" alt="" srcset="">
-          </div>
-          <div class="col-xs-6 col-4">
-            
-          </div>
+            <div class="container">
+              <div>
+                <h3 class="h3 mt-5">{{ cview.date }}</mview></h3>
+                <hr>
+                <h4 class="h4 mt">Location(s):</h4>
+                <p><strong>  {{ Cview.location }} </strong></p>
+                <hr>
+                <h4 class="h4 mt">Doe(s):</h4>
+                <p><strong>  {{ Cview.doe_num }} </strong></p>
+                <hr>
+                <h4 class="h4 mt">Buck(s):</h4>
+                <p><b> {{ Cview.buck_num }} </b></p>
+                <hr>
+                <h4 class="h4 mt">Reason:</h4>
+                <p>{{ Cview.reason }}</p>
+                <hr>
+                <a href="{% url 'farmrecord:goat_cullrec' %}" class="btn btn-secondary">Go Back</a>
+                
+                <a href="{% url 'farmrecord:delete_postcullg' Cview.id %}" class="btn btn-danger float-right">Delete</a>
+                <a href="{% url 'farmrecord:edit_goatcull' Cview.id %}" class="btn btn-warning float-right ml-2">Edit</a>
+                
+              </div>
+            </div>
           {% endif %}
         </div>
       </div>

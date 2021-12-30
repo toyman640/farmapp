@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from farmrecord.forms import *
 from django.contrib import messages
 from django.http import HttpResponse
@@ -68,12 +68,12 @@ def cow_procrec_view(request, abt_id):
     return render(request, 'cowprocrec-view.html', {'Pview':Pview})
 
 def cow_salerec_view(request, abt_id):
-    Sview = CowProcurement.objects.get(id=abt_id)
+    Sview = CowSale.objects.get(id=abt_id)
     return render(request, 'cowsalerec-view.html', {'Sview':Sview})
 
-def cow_cullrec_view(request, abt_id):
-    Cview = CowProcurement.objects.get(id=abt_id)
-    return render(request, 'cowcullrec-view.html', {'Cview':Cview})
+def cow_cullrec_view(request, abtc_id):
+    cview = CowCulling.objects.get(id=abtc_id)
+    return render(request, 'cowcullrec-view.html', {'cview':cview})
 
 
 def cow_procrec(request):
@@ -154,7 +154,7 @@ def goat_motrec_view(request, abt_id):
 
 def goat_cullrec_view(request, abt_id):
     Cview = GoatCulling.objects.get(id=abt_id)
-    return render(request, 'goatcullrec-view.html', {'Cview':Cview})
+    return render(request, 'goatcullrecview.html', {'Cview':Cview})
 
 def goat_salerec_view(request, abt_id):
     Sview = GoatSale.objects.get(id=abt_id)
@@ -238,7 +238,7 @@ def pig_salerec_view(request, abt_id):
 
 def pig_cullrec_view(request, abt_id):
     Cview = PigCulling.objects.get(id=abt_id)
-    return render(request, 'pigcullrec-view.html', {'Cview':Cview})
+    return render(request, 'pigcullrecview.html', {'Cview':Cview})
 
 
 def sheep_birth(request):
@@ -288,7 +288,7 @@ def sheep_sales(request):
     return render(request, 'sheep-sales.html', {'sheep_sale': sheep_sale})
 
 def sheep_motrec(request):
-    sheep_mrec =   SheepMortality.objects.order_by('date')
+    sheep_mrec = SheepMortality.objects.order_by('date')
     return render(request, 'sheepmotrec.html', {'sheep_mrec': sheep_mrec})
 
 def sheep_procrec(request):
@@ -320,3 +320,239 @@ def sheep_cullrec_view(request, abt_id):
     return render(request, 'sheepcullrec-view.html', {'Cview':Cview})
 
 
+def delete_postc(request, listf_id):
+    post_record = get_object_or_404(CowMortality, id=listf_id)
+    post_record.delete()
+    return redirect('farmrecord:cow_motrec')
+
+def delete_postg(request, listg_id):
+    post_record = get_object_or_404(GoatMortality, id=listg_id)
+    post_record.delete()
+    return redirect('farmrecord:goat_motrec')
+
+def delete_posts(request, listf_id):
+    post_record = get_object_or_404(SheepMortality, id=listf_id)
+    post_record.delete()
+    return redirect('farmrecord:sheep_motrec')
+
+def delete_postp(request, listf_id):
+    post_record = get_object_or_404(PigMortality, id=listf_id)
+    post_record.delete()
+    return redirect('farmrecord:pig_motrec')
+
+def delete_postcullg(request, listcullg_id):
+    post_record = get_object_or_404(GoatCulling, id=listcullg_id)
+    post_record.delete()
+    return redirect('farmrecord:goat_cullrec')
+
+def delete_postcullp(request, listcullp_id):
+    post_record = get_object_or_404(PigCulling, id=listcullp_id)
+    post_record.delete()
+    return redirect('farmrecord:pig_cullrec')
+
+def delete_postculls(request, listculls_id):
+    post_record = get_object_or_404(SheepCulling, id=listculls_id)
+    post_record.delete()
+    return redirect('farmrecord:sheep_cullrec')
+
+def delete_postcullc(request, listcullc_id):
+    post_record = get_object_or_404(CowCulling, id=listcullc_id)
+    post_record.delete()
+    return redirect('farmrecord:cow_cullrec')
+
+def delete_postsalec(request, listsalec_id):
+    post_record = get_object_or_404(CowSale, id=listsalec_id)
+    post_record.delete()
+    return redirect('farmrecord:cow_salerec')
+
+def delete_postsaleg(request, listsaleg_id):
+    post_record = get_object_or_404(GoatSale, id=listsaleg_id)
+    post_record.delete()
+    return redirect('farmrecord:goat_salerec')
+
+def delete_postsalep(request, listsalep_id):
+    post_record = get_object_or_404(PigSale, id=listsalep_id)
+    post_record.delete()
+    return redirect('farmrecord:pig_salerec')
+
+def delete_postsales(request, listsales_id):
+    post_record = get_object_or_404(SheepSale, id=listsales_id)
+    post_record.delete()
+    return redirect('farmrecord:sheep_salerec')
+
+def edit_cowmot(request, post_id):
+    single_log = get_object_or_404(CowMortality, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Ecowmot.html', {'edit_keycm': edit_motc})
+
+def edit_goatmot(request, post_id):
+    single_log = get_object_or_404(GoatMortality, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Egoatmot.html', {'edit_keycm': edit_motc})
+
+def edit_sheepmot(request, post_id):
+    single_log = get_object_or_404(SheepMortality, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Esheepmot.html', {'edit_keycm': edit_motc})
+
+def edit_pigmot(request, post_id):
+    single_log = get_object_or_404(PigMortality, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Epigmot.html', {'edit_keycm': edit_motc})
+
+def edit_cowsale(request, post_id):
+    single_log = get_object_or_404(CowSale, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Ecowsale.html', {'edit_keycm': edit_motc})
+
+
+def edit_goatsale(request, post_id):
+    single_log = get_object_or_404(GoatSale, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Egoatsale.html', {'edit_keycm': edit_motc})
+
+def edit_pigsale(request, post_id):
+    single_log = get_object_or_404(PigSale, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Epigsale.html', {'edit_keycm': edit_motc})
+
+def edit_sheepsale(request, post_id):
+    single_log = get_object_or_404(SheepSale, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Esheepsale.html', {'edit_keycm': edit_motc})
+
+def edit_cowproc(request, post_id):
+    single_log = get_object_or_404(CowProcurement, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Ecowproc.html', {'edit_keycm': edit_motc})
+
+def edit_goatproc(request, post_id):
+    single_log = get_object_or_404(GoatProcurement, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Egoatproc.html', {'edit_keycm': edit_motc})
+
+def edit_pigproc(request, post_id):
+    single_log = get_object_or_404(PigProcurement, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Epigproc.html', {'edit_keycm': edit_motc})
+
+def edit_sheepproc(request, post_id):
+    single_log = get_object_or_404(SheepProcurement, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Esheepproc.html', {'edit_keycm': edit_motc})
+
+def edit_cowcull(request, post_id):
+    single_log = get_object_or_404(CowCulling, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Ecowcull.html', {'edit_keycm': edit_motc})
+
+def edit_goatcull(request, post_id):
+    single_log = get_object_or_404(GoatCulling, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Egoatcull.html', {'edit_keycm': edit_motc})
+
+def edit_sheepcull(request, post_id):
+    single_log = get_object_or_404(SheepCulling, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Esheepcull.html', {'edit_keycm': edit_motc})
+
+def edit_pigcull(request, post_id):
+    single_log = get_object_or_404(PigCulling, id=post_id)
+    if request.method == 'POST':
+        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        if edit_motc.is_valid():
+            edit_motc.save()
+            messages.success(request, 'Edited Successfully')
+    else:
+        edit_motc = EditcowMot(instance=single_log)
+    return render(request, 'Epigcull.html', {'edit_keycm': edit_motc})

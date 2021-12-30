@@ -14,7 +14,7 @@ Cow Mortality
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">Cow Mortality</li>
       </ol>
 		<div class="box_general padding_bottom">
 			<div class="container">
@@ -64,7 +64,11 @@ Cow Mortality
                 <p><strong> {{ mview.comment }}</strong></p>
                 <hr>
 
+                <a href="{% url 'farmrecord:cow_motrec' %}" class="btn btn-secondary">Go Back</a>
 
+                <a href="{% url 'farmrecord:edit_cowmot' mview.id %}" class="btn btn-warning float-right ml-2">Edit</a>
+                <a href="{% url 'farmrecord:delete_postc' mview.id %}" class="btn btn-danger float-right">Delete</a>
+                
               </div>
             </div>
           {% endif %}

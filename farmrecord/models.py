@@ -144,7 +144,7 @@ class SheepCulling(models.Model):
     reason = models.TextField(max_length=500, verbose_name='Reason', blank=True)
 
     def __str__(self):
-        return self.date          
+        return self.reason          
 
 class CowCulling(models.Model):
     date = models.DateField(default=timezone.now)
@@ -155,7 +155,7 @@ class CowCulling(models.Model):
     reason = models.TextField(max_length=500, verbose_name='Reason', blank=True)
 
     def __str__(self):
-        return self.date
+        return self.reason
 
 class GoatCulling(models.Model):
     date = models.DateField(default=timezone.now)
@@ -166,7 +166,7 @@ class GoatCulling(models.Model):
     reason = models.TextField(max_length=500, verbose_name='Reason', blank=True)
 
     def __str__(self):
-        return self.date         
+        return self.reason         
 
 class PigCulling(models.Model):
     date = models.DateField(default=timezone.now)
@@ -177,7 +177,7 @@ class PigCulling(models.Model):
     reason = models.TextField(max_length=500, verbose_name='Reason', blank=True)
 
     def __str__(self):
-        return self.date
+        return self.reason
 
 class CowSale(models.Model):
     date = models.DateField(default=timezone.now)
