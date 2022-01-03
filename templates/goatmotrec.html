@@ -32,8 +32,8 @@ Home
           </tr>
         </thead>
         <tbody>
-          {% if goat_mrec %}
-          {% for b in goat_mrec %}
+          {% if gm_page_obj %}
+          {% for b in gm_page_obj %}
           <tr>
             <td data-label="Date">{{ b.date }}</td>
             <td data-label="Location">{{ b.location }}</td>
@@ -48,28 +48,39 @@ Home
           </tr>
         </tbody>
       </table>
+      <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          
+          {% if gm_page_obj.has_previous %}
+            
+          <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ gm_page_obj.previous_page_number }}"> Previous</a></li>
+          
+          {% endif %}
+          
+          
+           
+         {% for i in nums %}
+          
+          <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+
+         {% endfor %}
+          
+          {% if gm_page_obj.has_next %}
+            
+          <li class="page-item"><a class="page-link" href="?page={{ gm_page_obj.next_page_number }}">Next</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ gm_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+            
+          {% endif %}
+          
+        </ul>
+      </nav>
+      <!-- /pagination -->
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->
    	</div>
     <!-- /.container-wrapper-->
 
-<!-- table view Modal Cow-->
-<div class="modal fade" id="exampleModalG" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Image(s) of dead animal(s)</h5>
-            <img src="img/dead-ram.jpg" alt="">
-        </div>
-        <div class="modal-footer">
-            <h5 class="modal-title" id="exampleModalLabel">Comment</h5>
-          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptatem excepturi accusantium odit necessitatibus in similique sint eveniet laudantium vitae modi quae eius sed veritatis, cupiditate, nisi quia, expedita nemo facere.</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          </div>
-      </div>
-    </div>
-  </div>
+
 {% endblock %}

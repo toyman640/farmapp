@@ -30,8 +30,14 @@ Cow Sale
                 <h4 class="h4 mt">Cow(s):</h4>
                 <p><strong>  {{ Sview.cow_num }} </strong></p>
                 <hr>
+                <h4 class="h4 mt">Size(s):</h4>
+                <p><strong>  {{ Sview.size }} </strong></p>
+                <hr>
                 <h4 class="h4 mt">Bull(s):</h4>
                 <p><b> {{ Sview.bull_num }} </b></p>
+                <hr>
+                <h4 class="h4 mt">Size(s):</h4>
+                <p><strong>  {{ Sview.size1 }} </strong></p>
                 <hr>
                 <h4 class="h4 mt">Reason:</h4>
                 <p>{{ Sview.reason }}</p>
@@ -39,7 +45,7 @@ Cow Sale
                 <a href="{% url 'farmrecord:cow_cullrec' %}" class="btn btn-secondary">Go Back</a>
                 
                 <a href="{% url 'farmrecord:delete_postc' Sview.id %}" class="btn btn-danger float-right">Delete</a>
-                <a href="{% url 'farmrecord:edit_cowcull' Sview.id %}" class="btn btn-warning float-right ml-2">Edit</a>
+                <a href="{% url 'farmrecord:edit_cowcull' Sview.id %}" class="btn btn-warning float-right mr-2">Edit</a>
                 
               </div>
             </div>

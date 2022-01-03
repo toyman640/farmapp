@@ -14,7 +14,7 @@ Home
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">Cow Mortality</li>
       </ol>
 		<div class="box_general padding_bottom">
 			      <table>
@@ -32,8 +32,8 @@ Home
                   </tr>
                 </thead>
                 <tbody>
-                  {% if cow_rec %}
-                  {% for a in cow_rec %}
+                  {% if  cm_page_obj %}
+                  {% for a in cm_page_obj %}
                   <tr>
                     <td data-label="Date">{{ a.date }}</td>
                     <td data-label="Location">{{ a.location }}</td>
@@ -48,6 +48,46 @@ Home
                   </tr>
                 </tbody>
             </table>
+            <div>
+              <!-- <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                  <li class="page-item"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                  <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+              </nav> -->
+              
+              <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  
+                  {% if cm_page_obj.has_previous %}
+                    
+                  <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ cm_page_obj.previous_page_number }}"> Previous</a></li>
+                  
+                  {% endif %}
+                  
+                  
+                   
+                 {% for i in nums %}
+                  
+                  <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+
+                 {% endfor %}
+                  
+                  {% if cm_page_obj.has_next %}
+                    
+                  <li class="page-item"><a class="page-link" href="?page={{ cm_page_obj.next_page_number }}">Next</a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ cm_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+                    
+                  {% endif %}
+                  
+                </ul>
+              </nav>
+              <!-- /pagination -->
+            </div>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from farmrecord.forms import *
 from django.contrib import messages
 from django.http import HttpResponse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 
@@ -17,6 +18,7 @@ def cow_motrep(request):
         if cow_mot.is_valid():
             cow_mot.save()
             messages.success(request, 'Entry Saved')
+            cow_mot=CowmotForm()
     else:
         cow_mot = CowmotForm()
     return render(request, 'cow-motrep.html',{'cow_mot': cow_mot})
@@ -27,6 +29,7 @@ def cow_cull(request):
         if cow_cull.is_valid():
             cow_cull.save()
             messages.success(request, 'Entry Saved')
+            cow_cull = CowcullForm()
     else:
         cow_cull = CowcullForm()
     return render(request, 'cow-cull.html', {'cow_cull': cow_cull})
@@ -37,6 +40,7 @@ def cow_proc(request):
         if cow_proc.is_valid():
             cow_proc.save()
             messages.success(request, 'Entry Saved')
+            cow_proc = CowprocForm()
     else:
         cow_proc = CowprocForm()
     return render(request, 'cow-proc.html', {'cow_proc': cow_proc})
@@ -48,6 +52,7 @@ def cow_sales(request):
         if cow_sale.is_valid():
             cow_sale.save()
             messages.success(request, 'Entry Saved')
+            cow_sale = CowsaleForm()
     else:
         cow_sale = CowsaleForm()
     return render(request, 'cow-sale.html', {'cow_sale': cow_sale})
@@ -57,7 +62,17 @@ def cow_birth(request):
 
 def cow_motrec(request):
     cow_rec =   CowMortality.objects.order_by('date')
-    return render(request, 'cowmotrec.html', {'cow_rec': cow_rec})
+    paginated_filtercm = Paginator(cow_rec, 10)
+    page_number = request.GET.get('page')
+    cm_page_obj = paginated_filtercm.get_page(page_number)
+    nums = "a" * cm_page_obj.paginator.num_pages
+    context = {
+        'cm_page_obj': cow_rec,
+        'nums': nums
+        
+    }
+    context['cm_page_obj'] = cm_page_obj
+    return render(request, 'cowmotrec.html',context)
 
 def cow_motrec_view(request, abt_id):
     mview = CowMortality.objects.get(id=abt_id)
@@ -78,15 +93,45 @@ def cow_cullrec_view(request, abtc_id):
 
 def cow_procrec(request):
     cow_prec = CowProcurement.objects.order_by('date')
-    return render(request, 'cowprocrec.html', {'cow_prec': cow_prec})
+    paginated_filtercp = Paginator(cow_prec, 10)
+    page_number = request.GET.get('page')
+    cp_page_obj = paginated_filtercp.get_page(page_number)
+    nums = "a" * cp_page_obj.paginator.num_pages
+    context = {
+        'cm_page_obj': cow_prec,
+        'nums': nums
+        
+    }
+    context['cm_page_obj'] = cp_page_obj
+    return render(request, 'cowprocrec.html', {'cow_prec': cow_prec}, context)
 
 def cow_cullrec(request):
     cow_crec = CowCulling.objects.order_by('date')
-    return render(request, 'cowcullrec.html', {'cow_crec': cow_crec})
+    paginated_filtercc = Paginator(cow_crec, 10)
+    page_number = request.GET.get('page')
+    cc_page_obj = paginated_filtercc.get_page(page_number)
+    nums = "a" * cc_page_obj.paginator.num_pages
+    context = {
+        'cc_page_obj': cow_crec,
+        'nums': nums
+        
+    }
+    context['cc_page_obj'] = cc_page_obj
+    return render(request, 'cowcullrec.html',context)
 
 def cow_salerec(request):
     cow_srec = CowSale.objects.order_by('date')
-    return render(request, 'cowsalerec.html', {'cow_srec': cow_srec})
+    paginated_filtercs = Paginator(cow_srec, 10)
+    page_number = request.GET.get('page')
+    cs_page_obj = paginated_filtercs.get_page(page_number)
+    nums = "a" * cs_page_obj.paginator.num_pages
+    context = {
+        'cs_page_obj': cow_srec,
+        'nums': nums
+        
+    }
+    context['cs_page_obj'] = cs_page_obj
+    return render(request, 'cowsalerec.html',context)
 
 def goat_birth(request):
     return render(request, 'goat-birth.html')
@@ -107,6 +152,7 @@ def goat_motrep(request):
         if goat_mot.is_valid():
             goat_mot.save()
             messages.success(request, 'Entry Saved')
+            goat_mot = GoatmotForm()
     else:
         goat_mot = GoatmotForm()
     return render(request, 'goat-motrep.html',{'goat_mot': goat_mot})
@@ -118,6 +164,7 @@ def goat_proc(request):
         if goat_proc.is_valid():
             goat_proc.save()
             messages.success(request, 'Entry Saved')
+            goat_proc = GoatprocForm()
     else:
         goat_proc = GoatprocForm()
     return render(request, 'goat-proc.html', {'goat_proc': goat_proc})
@@ -128,25 +175,66 @@ def goat_sales(request):
         if goat_sale.is_valid():
             goat_sale.save()
             messages.success(request, 'Entry Saved')
+            goat_sale = GoatsaleForm()
     else:
         goat_sale = GoatsaleForm()
     return render(request, 'goat-sale.html', {'goat_sale': goat_sale})
 
 def goat_motrec(request):
     goat_mrec =   GoatMortality.objects.order_by('date')
-    return render(request, 'goatmotrec.html', {'goat_mrec': goat_mrec})
+    paginated_filtergm = Paginator(goat_mrec, 10)
+    page_number = request.GET.get('page')
+    gm_page_obj = paginated_filtergm.get_page(page_number)
+    nums = "a" * gm_page_obj.paginator.num_pages
+    context = {
+        'gm_page_obj': goat_mrec,
+        'nums': nums
+        
+    }
+    context['gm_page_obj'] = gm_page_obj
+    return render(request, 'goatmotrec.html', context)
 
 def goat_procrec(request):
     goat_prec = GoatProcurement.objects.order_by('date')
-    return render(request, 'goatprocrec.html', {'goat_prec' : goat_prec})
+    paginated_filtergp = Paginator(goat_prec, 10)
+    page_number = request.GET.get('page')
+    gp_page_obj = paginated_filtergp.get_page(page_number)
+    nums = "a" * gp_page_obj.paginator.num_pages
+    context = {
+        'gp_page_obj': goat_prec,
+        'nums': nums
+        
+    }
+    context['gp_page_obj'] = gp_page_obj
+    return render(request, 'goatprocrec.html',context)
 
 def goat_cullrec(request):
     goat_crec = GoatCulling.objects.order_by('date')
-    return render(request, 'goatcullrec.html', {'goat_crec': goat_crec})
+    paginated_filtergc = Paginator(goat_crec, 10)
+    page_number = request.GET.get('page')
+    gc_page_obj = paginated_filtergc.get_page(page_number)
+    nums = "a" * gc_page_obj.paginator.num_pages
+    context = {
+        'gc_page_obj': goat_crec,
+        'nums': nums
+        
+    }
+    context['gc_page_obj'] = gc_page_obj
+    return render(request, 'goatcullrec.html',context)
 
 def goat_salerec(request):
     goat_srec = GoatSale.objects.order_by('date')
-    return render(request, 'goatsalerec.html', {'goat_srec': goat_srec})
+    paginated_filtergs = Paginator(goat_srec, 10)
+    page_number = request.GET.get('page')
+    gs_page_obj = paginated_filtergs.get_page(page_number)
+    nums = "a" * gs_page_obj.paginator.num_pages
+    context = {
+        'gs_page_obj': goat_srec,
+        'nums': nums
+        
+    }
+    context['gs_page_obj'] = gs_page_obj
+    return render(request, 'goatsalerec.html',context)
 
 def goat_motrec_view(request, abt_id):
     Mview = GoatMortality.objects.get(id=abt_id)
@@ -170,6 +258,7 @@ def pig_sales(request):
         if pig_sale.is_valid():
             pig_sale.save()
             messages.success(request, 'Entry Saved')
+            pig_sale = PigsaleForm()
     else:
         pig_sale = PigsaleForm()
     return render(request, 'pig-sales.html', {'pig_sale': pig_sale})
@@ -183,6 +272,7 @@ def pig_cull(request):
         if pig_cull.is_valid():
             pig_cull.save()
             messages.success(request, 'Entry Saved')
+            pig_cull = PigcullForm()
     else:
         pig_cull = PigcullForm()
     return render(request, 'pig-cull.html', {'pig_cull': pig_cull})
@@ -193,6 +283,7 @@ def pig_motrep(request):
         if pig_mot.is_valid():
             pig_mot.save()
             messages.success(request, 'Entry Saved')
+            pig_mot = PigmotForm()
     else:
         pig_mot = PigmotForm()
     return render(request, 'pig-motrep.html',{'pig_mot': pig_mot})
@@ -204,24 +295,65 @@ def pig_proc(request):
         if pig_proc.is_valid():
             pig_proc.save()
             messages.success(request, 'Entry Saved')
+            pig_proc = PigprocForm()
     else:
         pig_proc = PigprocForm()
     return render(request, 'pig-proc.html', {'pig_proc': pig_proc})
 
 def pig_motrec(request):
     pig_mrec =   PigMortality.objects.order_by('date')
+    paginated_filterpm = Paginator(pig_mrec, 10)
+    page_number = request.GET.get('page')
+    pm_page_obj = paginated_filterpm.get_page(page_number)
+    nums = "a" * pm_page_obj.paginator.num_pages
+    context = {
+        'pm_page_obj': pig_mrec,
+        'nums': nums
+        
+    }
+    context['pm_page_obj'] = pm_page_obj
     return render(request, 'pigmotrec.html', {'pig_mrec': pig_mrec})
 
 def pig_procrec(request):
     pig_prec = PigProcurement.objects.order_by('date')
+    paginated_filterpp = Paginator(pig_prec, 10)
+    page_number = request.GET.get('page')
+    pp_page_obj = paginated_filterpp.get_page(page_number)
+    nums = "a" * pp_page_obj.paginator.num_pages
+    context = {
+        'pp_page_obj': pig_prec,
+        'nums': nums
+        
+    }
+    context['pp_page_obj'] = pp_page_obj
     return render(request, 'pigprocrec.html', {'pig_rec': pig_prec})
     
 def pig_salerec(request):
     pig_srec = PigSale.objects.order_by('date')
-    return render(request, 'pigsalerec.html', {'pig_srec': pig_srec})
+    paginated_filterps = Paginator(pig_srec, 10)
+    page_number = request.GET.get('page')
+    ps_page_obj = paginated_filterps.get_page(page_number)
+    nums = "a" * ps_page_obj.paginator.num_pages
+    context = {
+        'ps_page_obj': pig_srec,
+        'nums': nums
+        
+    }
+    context['ps_page_obj'] = ps_page_obj
+    return render(request, 'pigsalerec.html',context)
 
 def pig_cullrec(request):
     pig_crec = PigCulling.objects.order_by('date')
+    paginated_filterpc = Paginator(pig_crec, 10)
+    page_number = request.GET.get('page')
+    pc_page_obj = paginated_filterpc.get_page(page_number)
+    nums = "a" * pc_page_obj.paginator.num_pages
+    context = {
+        'pc_page_obj': pig_crec,
+        'nums': nums
+        
+    }
+    context['pc_page_obj'] = pc_page_obj
     return render(request, 'pigcullrec.html', {'pig_crec': pig_crec})
 
 def pig_procrec_view(request, abt_id):
@@ -250,6 +382,7 @@ def sheep_cull(request):
         if sheep_cull.is_valid():
             sheep_cull.save()
             messages.success(request, 'Entry Saved')
+            sheep_cull = SheepcullForm()
     else:
         sheep_cull = SheepcullForm()
     return render(request, 'sheep-cull.html', {'sheep_cull': sheep_cull})
@@ -261,6 +394,7 @@ def sheep_motrep(request):
         if sheep_mot.is_valid():
             sheep_mot.save()
             messages.success(request, 'Entry Saved')
+            sheep_mot = SheepmotForm()
     else:
         sheep_mot = SheepmotForm()
     return render(request, 'sheep-mot.html',{'sheep_mot': sheep_mot})
@@ -272,6 +406,7 @@ def sheep_proc(request):
         if sheep_proc.is_valid():
             sheep_proc.save()
             messages.success(request, 'Entry Saved')
+            sheep_proc = SheepprocForm()
     else:
         sheep_proc = SheepprocForm()
     return render(request, 'sheep-proc.html', {'sheep_proc': sheep_proc})
@@ -283,25 +418,66 @@ def sheep_sales(request):
         if sheep_sale.is_valid():
             sheep_sale.save()
             messages.success(request, 'Entry Saved')
+            sheep_sale = SheepsaleForm()
     else:
         sheep_sale = SheepsaleForm()
     return render(request, 'sheep-sales.html', {'sheep_sale': sheep_sale})
 
 def sheep_motrec(request):
     sheep_mrec = SheepMortality.objects.order_by('date')
-    return render(request, 'sheepmotrec.html', {'sheep_mrec': sheep_mrec})
+    paginated_filtersm = Paginator(sheep_mrec, 10)
+    page_number = request.GET.get('page')
+    sm_page_obj = paginated_filtersm.get_page(page_number)
+    nums = "a" * sm_page_obj.paginator.num_pages
+    context = {
+        'sm_page_obj': sheep_mrec,
+        'nums': nums
+        
+    }
+    context['sm_page_obj'] = sm_page_obj
+    return render(request, 'sheepmotrec.html',context)
 
 def sheep_procrec(request):
     sheep_prec = SheepProcurement.objects.order_by('date')
-    return render(request, 'sheepprocrec.html', {'sheep_prec': sheep_prec})
+    paginated_filtersp = Paginator(sheep_prec, 10)
+    page_number = request.GET.get('page')
+    sp_page_obj = paginated_filtersp.get_page(page_number)
+    nums = "a" * sp_page_obj.paginator.num_pages
+    context = {
+        'sp_page_obj': sheep_prec,
+        'nums': nums
+        
+    }
+    context['sp_page_obj'] = sp_page_obj
+    return render(request, 'sheepprocrec.html',context)
 
 def sheep_cullrec(request):
     sheep_crec = SheepCulling.objects.order_by('date')
-    return render(request, 'sheepcullrec.html', {'sheep_crec': sheep_crec})
+    paginated_filtersc = Paginator(sheep_crec, 10)
+    page_number = request.GET.get('page')
+    sc_page_obj = paginated_filtersc.get_page(page_number)
+    nums = "a" * sc_page_obj.paginator.num_pages
+    context = {
+        'sc_page_obj': sheep_crec,
+        'nums': nums
+        
+    }
+    context['sc_page_obj'] = sc_page_obj
+    return render(request, 'sheepcullrec.html',context)
 
 def sheep_salerec(request):
     sheep_srec = SheepSale.objects.order_by('date')
-    return render(request, 'sheepsalerec.html', {'sheep_srec': sheep_srec})
+    paginated_filterss = Paginator(sheep_srec, 10)
+    page_number = request.GET.get('page')
+    ss_page_obj = paginated_filterss.get_page(page_number)
+    nums = "a" * ss_page_obj.paginator.num_pages
+    context = {
+        'ss_page_obj': sheep_srec,
+        'nums': nums
+        
+    }
+    context['ss_page_obj'] = ss_page_obj
+    return render(request, 'sheepsalerec.html',context)
 
 def sheep_motrec_view(request, abt_id):
     Mview = SheepMortality.objects.get(id=abt_id)
@@ -380,6 +556,26 @@ def delete_postsales(request, listsales_id):
     post_record.delete()
     return redirect('farmrecord:sheep_salerec')
 
+def delete_postprocc(request, listprocc_id):
+    post_record = get_object_or_404(CowProcurement, id=listprocc_id)
+    post_record.delete()
+    return redirect('farmrecord:cow_procrec')
+
+def delete_postprocg(request, listprocg_id):
+    post_record = get_object_or_404(GoatProcurement, id=listprocg_id)
+    post_record.delete()
+    return redirect('farmrecord:goat_procrec')
+
+def delete_postprocp(request, listprocp_id):
+    post_record = get_object_or_404(PigProcurement, id=listprocp_id)
+    post_record.delete()
+    return redirect('farmrecord:pig_procrec')
+
+def delete_postprocs(request, listprocs_id):
+    post_record = get_object_or_404(SheepProcurement, id=listprocs_id)
+    post_record.delete()
+    return redirect('farmrecord:sheep_procrec')
+
 def edit_cowmot(request, post_id):
     single_log = get_object_or_404(CowMortality, id=post_id)
     if request.method == 'POST':
@@ -394,118 +590,118 @@ def edit_cowmot(request, post_id):
 def edit_goatmot(request, post_id):
     single_log = get_object_or_404(GoatMortality, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditgoatMot(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditgoatMot(instance=single_log)
     return render(request, 'Egoatmot.html', {'edit_keycm': edit_motc})
 
 def edit_sheepmot(request, post_id):
     single_log = get_object_or_404(SheepMortality, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditsheepMot(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditsheepMot(instance=single_log)
     return render(request, 'Esheepmot.html', {'edit_keycm': edit_motc})
 
 def edit_pigmot(request, post_id):
     single_log = get_object_or_404(PigMortality, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditpigMot(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditpigMot(instance=single_log)
     return render(request, 'Epigmot.html', {'edit_keycm': edit_motc})
 
 def edit_cowsale(request, post_id):
     single_log = get_object_or_404(CowSale, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditcowSale(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditcowSale(instance=single_log)
     return render(request, 'Ecowsale.html', {'edit_keycm': edit_motc})
 
 
 def edit_goatsale(request, post_id):
     single_log = get_object_or_404(GoatSale, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditgoatSale(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditgoatSale(instance=single_log)
     return render(request, 'Egoatsale.html', {'edit_keycm': edit_motc})
 
 def edit_pigsale(request, post_id):
     single_log = get_object_or_404(PigSale, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditpigSale(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditpigSale(instance=single_log)
     return render(request, 'Epigsale.html', {'edit_keycm': edit_motc})
 
 def edit_sheepsale(request, post_id):
     single_log = get_object_or_404(SheepSale, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditsheepSale(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditsheepSale(instance=single_log)
     return render(request, 'Esheepsale.html', {'edit_keycm': edit_motc})
 
 def edit_cowproc(request, post_id):
     single_log = get_object_or_404(CowProcurement, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditcowProc(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditcowProc(instance=single_log)
     return render(request, 'Ecowproc.html', {'edit_keycm': edit_motc})
 
 def edit_goatproc(request, post_id):
     single_log = get_object_or_404(GoatProcurement, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditgoatProc(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditgoatProc(instance=single_log)
     return render(request, 'Egoatproc.html', {'edit_keycm': edit_motc})
 
 def edit_pigproc(request, post_id):
     single_log = get_object_or_404(PigProcurement, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditpigProc(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditpigProc(instance=single_log)
     return render(request, 'Epigproc.html', {'edit_keycm': edit_motc})
 
 def edit_sheepproc(request, post_id):
     single_log = get_object_or_404(SheepProcurement, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditsheepProc(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
@@ -516,43 +712,43 @@ def edit_sheepproc(request, post_id):
 def edit_cowcull(request, post_id):
     single_log = get_object_or_404(CowCulling, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditcowCull(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditcowCull(instance=single_log)
     return render(request, 'Ecowcull.html', {'edit_keycm': edit_motc})
 
 def edit_goatcull(request, post_id):
     single_log = get_object_or_404(GoatCulling, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditgoatCull(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditgoatCull(instance=single_log)
     return render(request, 'Egoatcull.html', {'edit_keycm': edit_motc})
 
 def edit_sheepcull(request, post_id):
     single_log = get_object_or_404(SheepCulling, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditsheepCull(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditsheepCull(instance=single_log)
     return render(request, 'Esheepcull.html', {'edit_keycm': edit_motc})
 
 def edit_pigcull(request, post_id):
     single_log = get_object_or_404(PigCulling, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
+        edit_motc = EditpigCull(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowMot(instance=single_log)
+        edit_motc = EditpigCull(instance=single_log)
     return render(request, 'Epigcull.html', {'edit_keycm': edit_motc})

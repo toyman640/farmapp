@@ -14,7 +14,7 @@ Home
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">Cow Procurement</li>
       </ol>
 		<div class="box_general padding_bottom">
 			<table>
@@ -30,8 +30,8 @@ Home
           </tr>
         </thead>
         <tbody>
-          {% if cow_prec %}
-          {% for a in cow_prec %}
+          {% if cp_page_obj %}
+          {% for a in cp_page_obj %}
           <tr>
             <td data-label="Date">{{ a.date }}</td>
             <td data-label="Bull(s)">{{ a.bull_num }}</td>
@@ -44,7 +44,34 @@ Home
           </tr>
         </tbody>
     </table>
-    
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        
+        {% if cp_page_obj.has_previous %}
+          
+        <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ cp_page_obj.previous_page_number }}"> Previous</a></li>
+        
+        {% endif %}
+        
+        
+         
+       {% for i in nums %}
+        
+        <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+
+       {% endfor %}
+        
+        {% if cp_page_obj.has_next %}
+          
+        <li class="page-item"><a class="page-link" href="?page={{ cp_page_obj.next_page_number }}">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ cp_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+          
+        {% endif %}
+        
+      </ul>
+    </nav>
+    <!-- /pagination -->
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

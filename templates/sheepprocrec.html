@@ -30,8 +30,8 @@ Home
           </tr>
         </thead>
         <tbody>
-          {% if sheep_prec %}
-          {% for a in sheep_prec %}
+          {% if sp_page_obj %}
+          {% for a in sp_page_obj %}
           <tr>
             <td data-label="Date">{{ a.date }}</td>
             <td data-label="Ram(s)">{{ a.ram_num }}</td>
@@ -44,6 +44,34 @@ Home
           </tr>
         </tbody>
     </table>
+
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        
+        {% if sp_page_obj.has_previous %}
+          
+        <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ sp_page_obj.previous_page_number }}"> Previous</a></li>
+        
+        {% endif %}
+        
+        
+         
+       {% for i in nums %}
+        
+        <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+
+       {% endfor %}
+        
+        {% if sp_page_obj.has_next %}
+          
+        <li class="page-item"><a class="page-link" href="?page={{ sp_page_obj.next_page_number }}">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ sp_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+          
+        {% endif %}
+        
+      </ul>
+    </nav>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

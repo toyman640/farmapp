@@ -32,8 +32,8 @@ Home
           </tr>
         </thead>
         <tbody>
-          {% if pig_mrec %}
-          {% for q in pig_mrec %}
+          {% if pm_page_obj %}
+          {% for q in pm_page_obj %}
           <tr>
             <td data-label="Date">{{ q.date }}</td>
             <td data-label="Location">{{ q.location }}</td>
@@ -48,27 +48,55 @@ Home
           </tr>
         </tbody>
       </table>
+      <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          
+          {% if pm_page_obj.has_previous %}
+            
+          <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ pm_page_obj.previous_page_number }}"> Previous</a></li>
+          
+          {% endif %}
+          
+          
+           
+         {% for i in nums %}
+          
+          <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+
+         {% endfor %}
+          
+          {% if cm_page_obj.has_next %}
+            
+          <li class="page-item"><a class="page-link" href="?page={{ pm_page_obj.next_page_number }}">Next</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ pm_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+            
+          {% endif %}
+          
+        </ul>
+      </nav>
+
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->
    	</div>
-    <!-- /.container-wrapper-->
-<!-- table view Modal Sheep-->
-<div class="modal fade" id="exampleModalS" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Image(s) of dead animal(s)</h5>
-          <img src="img/dead-ram.jpg" alt="">
-      </div>
-      <div class="modal-footer">
-          <h5 class="modal-title" id="exampleModalLabel">Comment</h5>
-        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptatem excepturi accusantium odit necessitatibus in similique sint eveniet laudantium vitae modi quae eius sed veritatis, cupiditate, nisi quia, expedita nemo facere.</p>
-      </div>
-      <div class="modal-footer">
+      <!-- Report Modal Pig-->
+   <div class="modal fade" id="exampleModalP" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Select the record(s) you want do view</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_salerec' %}">Sales</a><a class="btn btn-info mr-1" href="">Birth</a></div>
+        <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
         </div>
+      </div>
     </div>
   </div>
-</div>
+    <!-- /.container-wrapper-->
+
 {% endblock %}
