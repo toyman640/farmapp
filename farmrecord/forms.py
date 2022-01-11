@@ -166,4 +166,19 @@ class EditsheepSale(forms.ModelForm):
         model = SheepSale
         fields =('ewe_num', 'size', 'ram_num', 'size1', 'section', 'weight', 'price')
         
+    
+class CowmotFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = CowMortality
+        fields =('date',)
         
+class SheepmotFilter(forms.ModelForm):
+    class Meta:
+        model = SheepMortality
+        fields = ('date',)
