@@ -17,20 +17,10 @@ Home
         <li class="breadcrumb-item active">Cow Mortality</li>
       </ol>
 		<div class="box_general padding_bottom">
-      <h5>Show only from:</h5>
-      <form class="mb-5" action="{% url 'farmrecord:cowmot_filter' %}">
-        <div class="row">
-          <div class="col-lg-4 col-md-12 form-group">
-            {{ q.start_date }}
-          </div>
-          <div class="col-lg-4 col-md-12 form-group">
-            {{ q.end_date }}
-          </div>
-        </div>
-        <input type="submit" class="btn btn-outline-info btn-sm" value="Show">
-      </form>
 			      <table>
                 <caption>Mortality Records</caption>
+                {% if  queryset %}
+                  {% for p in queryset %}
                 <thead>
                   <tr>
                     <th scope="col">Date</th>
@@ -44,23 +34,23 @@ Home
                   </tr>
                 </thead>
                 <tbody>
-                  {% if  cm_page_obj %}
-                  {% for a in cm_page_obj %}
+                  
                   <tr>
-                    <td data-label="Date">{{ a.date }}</td>
-                    <td data-label="Location">{{ a.location }}</td>
-                    <td data-label="Mortality">{{ a.mortality }}</td>
-                    <td data-label="Bull(s)">{{ a.bull_num }}</td>
-                    <td data-label="Cow(s)">{{ a.cow_num }}</td>
-                    <td data-label="Calves">{{ a.calves }}</td>
-                    <td data-label="Size(s)">{{ a.size }}</td>
-                    <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th>
+                    <td data-label="Date">{{ p.date }}</td>
+                    <td data-label="Location">{{ p.location }}</td>
+                    <td data-label="Mortality">{{ p.mortality }}</td>
+                    <td data-label="Bull(s)">{{ p.bull_num }}</td>
+                    <td data-label="Cow(s)">{{ p.cow_num }}</td>
+                    <td data-label="Calves">{{ p.calves }}</td>
+                    <td data-label="Size(s)">{{ p.size }}</td>
+                    <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' p.id %}" >View</a></th>
                   {% endfor %}
+                  {% else %}
+                  <h4>There is no record for the dates you enetred, check the dates and try again</h4>
                   {% endif %} 
                   </tr>
                 </tbody>
             </table>
-           
             <div>
               <!-- <nav aria-label="Page navigation example">
                 <ul class="pagination">
@@ -72,7 +62,7 @@ Home
                 </ul>
               </nav> -->
               
-              <nav aria-label="Page navigation example">
+              <!-- <nav aria-label="Page navigation example">
                 <ul class="pagination">
                   
                   {% if cm_page_obj.has_previous %}
@@ -98,10 +88,9 @@ Home
                   {% endif %}
                   
                 </ul>
-              </nav>
+              </nav> -->
               <!-- /pagination -->
             </div>
-            <button class="btn btn-info"><a href="{% url 'farmrecord:cowmot_filter' %}">filter</a> </button>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

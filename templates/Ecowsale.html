@@ -25,7 +25,7 @@
         {% endfor %}
         {% endif %}
             <form method="post" enctype="multipart/form-data">
-                {{ edit_keycm | crispy }}
+                {{ edit_keycs | crispy }}
                 {% csrf_token %}
                 <button class="btn btn-success" value="submit">Submit</button>
             </form>

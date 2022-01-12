@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.html import format_html 
+from datetime import datetime, timedelta
 
 # Create your views here.
 
@@ -63,13 +64,15 @@ def cow_birth(request):
 
 def cow_motrec(request):
     cow_rec =   CowMortality.objects.order_by('date')
+    query_form = CowmotFilter()
     paginated_filtercm = Paginator(cow_rec, 10)
     page_number = request.GET.get('page')
     cm_page_obj = paginated_filtercm.get_page(page_number)
     nums = "a" * cm_page_obj.paginator.num_pages
     context = {
         'cm_page_obj': cow_rec,
-        'nums': nums
+        'nums': nums,
+        'q': query_form
         
     }
     context['cm_page_obj'] = cm_page_obj
@@ -624,13 +627,13 @@ def edit_pigmot(request, post_id):
 def edit_cowsale(request, post_id):
     single_log = get_object_or_404(CowSale, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditcowSale(request.POST, request.FILES, instance=single_log)
-        if edit_motc.is_valid():
-            edit_motc.save()
+        edit_salec = EditcowSale(request.POST, request.FILES, instance=single_log)
+        if edit_salec.is_valid():
+            edit_salec.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditcowSale(instance=single_log)
-    return render(request, 'Ecowsale.html', {'edit_keycm': edit_motc})
+        edit_salec = EditcowSale(instance=single_log)
+    return render(request, 'Ecowsale.html', {'edit_keycs': edit_salec})
 
 
 def edit_goatsale(request, post_id):
@@ -755,12 +758,181 @@ def edit_pigcull(request, post_id):
     return render(request, 'Epigcull.html', {'edit_keycm': edit_motc})
 
 def cowmot_filter(request):
-    queryset = CowMortality.objects.filter(
-	item_name__icontains=form['item_name'].value(),
-	date=[
-		form['start_date'].value(),
-		form['end_date'].value()
-                                
-                                ]
-        )
-    return render(request, 'cowmot-filter.html')
+    if request.method == 'GET':
+        cowmot_query = CowmotFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = CowMortality.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-cowmot.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = CowmotFilter()
+    return render(request, 'filter-cowmot.html', {'q': cowmot_query})
+
+def goatmot_filter(request):
+    if request.method == 'GET':
+        cowmot_query = GoatmotFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = GoatMortality.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-goatmot.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = GoatmotFilter()
+    return render(request, 'filter-goatmot.html', {'q': cowmot_query})
+
+def pigmot_filter(request):
+    if request.method == 'GET':
+        cowmot_query = PigmotFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = PigMortality.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-pigmot.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = PigmotFilter()
+    return render(request, 'filter-pigmot.html', {'q': cowmot_query})
+
+def sheepmot_filter(request):
+    if request.method == 'GET':
+        cowmot_query = SheepmotFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = SheepMortality.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-sheepmot.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = SheepmotFilter()
+    return render(request, 'filter-sheepmot.html', {'q': cowmot_query})
+
+def sheepsale_filter(request):
+    if request.method == 'GET':
+        cowmot_query = SheepsaleFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = SheepSale.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-sheepsale.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = SheepsaleFilter()
+    return render(request, 'filter-sheepsale.html', {'q': cowmot_query})
+
+def pigsale_filter(request):
+    if request.method == 'GET':
+        cowmot_query = PigsaleFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = PigSale.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-pigsale.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = PigsaleFilter()
+    return render(request, 'filter-pigsale.html', {'q': cowmot_query})
+
+def cowsale_filter(request):
+    if request.method == 'GET':
+        cowmot_query = CowsaleFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = CowSale.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-cowsale.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = CowsaleFilter()
+    return render(request, 'filter-cowsale.html', {'q': cowmot_query})
+
+def goatsale_filter(request):
+    if request.method == 'GET':
+        cowmot_query = GoatsaleFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = GoatSale.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-sheepsale.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = GoatsaleFilter()
+    return render(request, 'filter-sheepsale.html', {'q': cowmot_query})
+
+def sheepproc_filter(request):
+    if request.method == 'GET':
+        cowmot_query = SheepprocFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = SheepProcurement.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-sheepproc.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = SheepprocFilter()
+    return render(request, 'filter-sheepproc.html', {'q': cowmot_query})
+
+def pigproc_filter(request):
+    if request.method == 'GET':
+        cowmot_query = PigprocFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = PigProcurement.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-pigproc.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = PigprocFilter()
+    return render(request, 'filter-pigproc.html', {'q': cowmot_query})
+
+def cowproc_filter(request):
+    if request.method == 'GET':
+        cowmot_query = CowprocFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = CowProcurement.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-sheepproc.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = CowprocFilter()
+    return render(request, 'filter-sheepproc.html', {'q': cowmot_query})
+
+def goatproc_filter(request):
+    if request.method == 'GET':
+        cowmot_query = GoatprocFilter(request.GET)
+        if cowmot_query.is_valid():
+            start_date = cowmot_query.cleaned_data.get('start_date')
+            end_date = cowmot_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = GoatProcurement.objects.filter(date__range=[start_date, new_end])
+            return render(request, 'filter-goatproc.html', {'queryset': result, 'q': cowmot_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowmot_query = GoatprocFilter()
+    return render(request, 'filter-goatproc.html', {'q': cowmot_query})

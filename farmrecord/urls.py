@@ -76,7 +76,7 @@ urlpatterns = [
     path('edit-post-goat-mortality/<int:post_id>', views.edit_goatmot, name='edit_goatmot'),
     path('edit-post-sheep-mortality/<int:post_id>', views.edit_sheepmot, name='edit_sheepmot'),
     path('edit-post-pig-mortality/<int:post_id>', views.edit_pigmot, name='edit_pigmot'),
-    path('edit-post-cow-sale/<int:post_id>', views.edit_cowsale, name='edit_pigsale'),
+    path('edit-post-cow-sale/<int:post_id>', views.edit_cowsale, name='edit_cowsale'),
     path('edit-post-goat-sale/<int:post_id>', views.edit_goatsale, name='edit_goatsale'),
     path('edit-post-pig-sale/<int:post_id>', views.edit_pigsale, name='edit_pigsale'),
     path('edit-post-sheep-sale/<int:post_id>', views.edit_sheepsale, name='edit_sheepsale'),
@@ -88,11 +88,6 @@ urlpatterns = [
     path('edit-post-pig-cull/<int:post_id>', views.edit_pigcull, name='edit_pigcull'),
     path('edit-post-goat-cull/<int:post_id>', views.edit_goatcull, name='edit_goatcull'),
     path('edit-post-sheep-cull/<int:post_id>', views.edit_sheepcull, name='edit_sheepcull'),
-    path('cowmot-filter-page', views.cowmot_filter, name='cowmot_filter')
-    
-    
-    
-
-
+    path('cowmot-result/', views.cowmot_filter, name='cowmot_filter'),
 ]
 

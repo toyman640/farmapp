@@ -166,18 +166,180 @@ class EditsheepSale(forms.ModelForm):
         model = SheepSale
         fields =('ewe_num', 'size', 'ram_num', 'size1', 'section', 'weight', 'price')
         
-
-class StockHistorySearchForm(forms.ModelForm):
-    start_date = forms.DateField(required=False, label='Start Date',widget=forms.DateInput(
-        attrs={'class': 'form-control', 'type': 'date'}))
-    end_date = forms.DateTimeField(required=False,label='End Date', widget=forms.DateInput(
-        attrs={'class': 'form-control', 'type': 'date'}))
-    date = forms.DateField(required=False, widget=forms.HiddenInput(
-       ))
-
-    class Meta():
-        model = CowMortality
-        fields = ['date',]
-	
     
+class CowmotFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = CowMortality
+        fields =('date',)
         
+class SheepmotFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = SheepMortality
+        fields =('date',)
+
+class GoatmotFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = GoatMortality
+        fields =('date',)
+
+class PigmotFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = PigMortality
+        fields =('date',)
+
+
+class PigcullFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = PigCulling
+        fields =('date',)
+
+class GoatcullFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = GoatCulling
+        fields =('date',)
+
+class SheepcullFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = SheepCulling
+        fields =('date',)
+
+class CowcullFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = CowCulling
+        fields =('date',)
+
+class CowsaleFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = CowSale
+        fields =('date',)
+
+class PigsaleFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = PigSale
+        fields =('date',)
+
+class GoatsaleFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = GoatSale
+        fields =('date',)
+
+class SheepsaleFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = SheepSale
+        fields =('date',)
+
+class CowprocFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = CowProcurement
+        fields =('date',)
+
+class PigprocFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = PigProcurement
+        fields =('date',)
+
+class SheepprocFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = SheepProcurement
+        fields =('date',)
+
+class GoatprocFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+
+    class Meta:
+        model = GoatProcurement
+        fields =('date',)

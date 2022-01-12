@@ -26,7 +26,7 @@ class Section(models.Model):
 
 class CowMortality(models.Model):
     mortality = models.CharField(max_length=10, verbose_name='mortality')
-    date = models.DateTimeField(auto_now=False)
+    date = models.DateTimeField(default=timezone.now)
     location = models.CharField(max_length=200, verbose_name='loaction(s)')
     cow_num = models.IntegerField(verbose_name='Cow(s)', blank=True, null=True)
     bull_num = models.IntegerField(verbose_name='Bull(s)', blank=True, null=True)
@@ -190,7 +190,7 @@ class CowSale(models.Model):
     price = models.IntegerField(verbose_name='Price(s)')
 
     def __str__(self):
-        return self.price
+        return str(self.price)
 
 class SheepSale(models.Model):
     date = models.DateField(default=timezone.now)
@@ -258,7 +258,7 @@ class PigProcurement(models.Model):
     sow_num = models.IntegerField(verbose_name='Sow(s)', null=True, blank=True)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     boar_num = models.IntegerField(verbose_name='Boar(s)', null=True, blank=True)
-    size1 = models.CharField(max_length=100, verbose_name='Size(s)',null=True)
+    size1 = models.CharField(max_length=100, verbose_name='Size(s)',null=True, blank=True)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category15', null=True, on_delete=models.CASCADE)
 
     def __str__(self):

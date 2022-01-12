@@ -17,6 +17,18 @@ Home
         <li class="breadcrumb-item active">Goat Sale</li>
       </ol>
 		<div class="box_general padding_bottom">
+      <h5>Show only from:</h5>
+      <form class="mb-5" action="{% url 'farmrecord:cowmot_filter' %}">
+        <div class="row">
+          <div class="col-lg-4 col-md-12 form-group">
+            {{ q.start_date }}
+          </div>
+          <div class="col-lg-4 col-md-12 form-group">
+            {{ q.end_date }}
+          </div>
+        </div>
+        <input type="submit" class="btn btn-outline-info btn-sm" value="Show">
+      </form>
       <table>
         <caption>Sales Record</caption>
         <thead>
