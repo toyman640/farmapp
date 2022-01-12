@@ -66,7 +66,7 @@ Home
 
          {% endfor %}
           
-          {% if cm_page_obj.has_next %}
+          {% if pm_page_obj.has_next %}
             
           <li class="page-item"><a class="page-link" href="?page={{ pm_page_obj.next_page_number }}">Next</a></li>
           <li class="page-item"><a class="page-link" href="?page={{ pm_page_obj.paginator.num_pages }}">&laquo; Last</a></li>

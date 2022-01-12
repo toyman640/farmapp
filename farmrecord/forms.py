@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import fields
+from django.contrib.auth.models import User
 from farmrecord.models import *
 from django.core import validators
 
@@ -166,4 +166,18 @@ class EditsheepSale(forms.ModelForm):
         model = SheepSale
         fields =('ewe_num', 'size', 'ram_num', 'size1', 'section', 'weight', 'price')
         
+
+class StockHistorySearchForm(forms.ModelForm):
+    start_date = forms.DateField(required=False, label='Start Date',widget=forms.DateInput(
+        attrs={'class': 'form-control', 'type': 'date'}))
+    end_date = forms.DateTimeField(required=False,label='End Date', widget=forms.DateInput(
+        attrs={'class': 'form-control', 'type': 'date'}))
+    date = forms.DateField(required=False, widget=forms.HiddenInput(
+       ))
+
+    class Meta():
+        model = CowMortality
+        fields = ['date',]
+	
+    
         

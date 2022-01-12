@@ -52,7 +52,7 @@ urlpatterns = [
     path('pig-cull-record-view/<int:abt_id>', views.pig_cullrec_view, name='pig_cullrec_view'),
     path('pig-mortality-record-view/<int:abt_id>', views.pig_motrec_view, name='pig_motrec_view'),
     path('pig-sale-record-view/<int:abt_id>', views.pig_salerec_view, name='pig_salerec_view'),
-    path('sheep-procurement-record-view/<int:abt_id>', views.pig_procrec_view, name='pig_procrec_view'),
+    path('pig-procurement-record-view/<int:abt_id>', views.pig_procrec_view, name='pig_procrec_view'),
     path('sheep-mortality-record-view/<int:abt_id>', views.sheep_motrec_view, name='sheep_motrec_view'),
     path('sheep-sale-record-view/<int:abt_id>', views.sheep_salerec_view, name='sheep_salerec_view'),
     path('sheep-cull-record-view/<int:abt_id>', views.sheep_cullrec_view, name='sheep_cullrec_view'),
@@ -64,14 +64,14 @@ urlpatterns = [
     path('delete-post-pig/<int:listcullp_id>', views.delete_postcullp, name='delete_postcullp'),
     path('delete-post-sheep/<int:listculls_id>', views.delete_postculls, name='delete_postculls'),
     path('delete-post-cow/<int:listcullc_id>', views.delete_postcullc, name='delete_postcullc'),
-    path('delete-post-cow/<int:listsalec_id>', views.delete_postsalec, name='delete_postsalec'),
-    path('delete-post-goat/<int:listsaleg_id>', views.delete_postsaleg, name='delete_postsaleg'),
-    path('delete-post-pig/<int:listsalep_id>', views.delete_postsalep, name='delete_postsalep'),
+    path('delete-post-sale-cow/<int:listsalec_id>', views.delete_postsalec, name='delete_postsalec'),
+    path('delete-post-sale-goat/<int:listsaleg_id>', views.delete_postsaleg, name='delete_postsaleg'),
+    path('delete-post-sale-pig/<int:listsalep_id>', views.delete_postsalep, name='delete_postsalep'),
     path('delete-post-sheep/<int:listsales_id>', views.delete_postsales, name='delete_postsales'),
-    path('delete-post-cow/<int:listprocc_id>', views.delete_postprocc, name='delete_postprocc'),
-    path('delete-post-goat/<int:listprocg_id>', views.delete_postprocg, name='delete_postprocg'),
-    path('delete-post-pig/<int:listprocp_id>', views.delete_postprocp, name='delete_postprocp'),
-    path('delete-post-sheep/<int:listprocs_id>', views.delete_postprocs, name='delete_postprocs'),
+    path('delete-post-proc-cow/<int:listprocc_id>', views.delete_postprocc, name='delete_postprocc'),
+    path('delete-post-proc-goat/<int:listprocg_id>', views.delete_postprocg, name='delete_postprocg'),
+    path('delete-post-proc-pig/<int:listprocp_id>', views.delete_postprocp, name='delete_postprocp'),
+    path('delete-post-proc-sheep/<int:listprocs_id>', views.delete_postprocs, name='delete_postprocs'),
     path('edit-post-cow-mortality/<int:post_id>', views.edit_cowmot, name='edit_cowmot'),
     path('edit-post-goat-mortality/<int:post_id>', views.edit_goatmot, name='edit_goatmot'),
     path('edit-post-sheep-mortality/<int:post_id>', views.edit_sheepmot, name='edit_sheepmot'),
@@ -88,7 +88,7 @@ urlpatterns = [
     path('edit-post-pig-cull/<int:post_id>', views.edit_pigcull, name='edit_pigcull'),
     path('edit-post-goat-cull/<int:post_id>', views.edit_goatcull, name='edit_goatcull'),
     path('edit-post-sheep-cull/<int:post_id>', views.edit_sheepcull, name='edit_sheepcull'),
-    
+    path('cowmot-filter-page', views.cowmot_filter, name='cowmot_filter')
     
     
     

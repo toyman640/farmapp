@@ -42,7 +42,7 @@ Home
             <td data-label="Size(s)">{{ a.size }}</td>
             <td data-label="Weight(s)">{{ a.weight }}</td>
             <td data-label="Price(s)">{{ a.price }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_salerec_view' a.id %}" >View</a></th>
           {% endfor %}
           {% endif %} 
           </tr>

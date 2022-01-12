@@ -3,6 +3,7 @@ from farmrecord.forms import *
 from django.contrib import messages
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.utils.html import format_html 
 
 # Create your views here.
 
@@ -302,7 +303,7 @@ def pig_proc(request):
 
 def pig_motrec(request):
     pig_mrec =   PigMortality.objects.order_by('date')
-    paginated_filterpm = Paginator(pig_mrec, 10)
+    paginated_filterpm = Paginator(pig_mrec, 1)
     page_number = request.GET.get('page')
     pm_page_obj = paginated_filterpm.get_page(page_number)
     nums = "a" * pm_page_obj.paginator.num_pages
@@ -312,7 +313,7 @@ def pig_motrec(request):
         
     }
     context['pm_page_obj'] = pm_page_obj
-    return render(request, 'pigmotrec.html', {'pig_mrec': pig_mrec})
+    return render(request, 'pigmotrec.html', context)
 
 def pig_procrec(request):
     pig_prec = PigProcurement.objects.order_by('date')
@@ -326,7 +327,7 @@ def pig_procrec(request):
         
     }
     context['pp_page_obj'] = pp_page_obj
-    return render(request, 'pigprocrec.html', {'pig_rec': pig_prec})
+    return render(request, 'pigprocrec.html', context)
     
 def pig_salerec(request):
     pig_srec = PigSale.objects.order_by('date')
@@ -354,7 +355,7 @@ def pig_cullrec(request):
         
     }
     context['pc_page_obj'] = pc_page_obj
-    return render(request, 'pigcullrec.html', {'pig_crec': pig_crec})
+    return render(request, 'pigcullrec.html', context)
 
 def pig_procrec_view(request, abt_id):
     Pview = PigProcurement.objects.get(id=abt_id)
@@ -366,7 +367,7 @@ def pig_motrec_view(request, abt_id):
 
 def pig_salerec_view(request, abt_id):
     Sview = PigSale.objects.get(id=abt_id)
-    return render(request, 'pigsalerec-view.html', {'Sview':Sview})
+    return render(request, 'pigsalerecview.html', {'Sview':Sview})
 
 def pig_cullrec_view(request, abt_id):
     Cview = PigCulling.objects.get(id=abt_id)
@@ -690,13 +691,13 @@ def edit_goatproc(request, post_id):
 def edit_pigproc(request, post_id):
     single_log = get_object_or_404(PigProcurement, id=post_id)
     if request.method == 'POST':
-        edit_motc = EditpigProc(request.POST, request.FILES, instance=single_log)
-        if edit_motc.is_valid():
-            edit_motc.save()
+        edit_procp = EditpigProc(request.POST, request.FILES, instance=single_log)
+        if edit_procp.is_valid():
+            edit_procp.save()
             messages.success(request, 'Edited Successfully')
     else:
-        edit_motc = EditpigProc(instance=single_log)
-    return render(request, 'Epigproc.html', {'edit_keycm': edit_motc})
+        edit_procp = EditpigProc(instance=single_log)
+    return render(request, 'Epigproc.html', {'edit_procp': edit_procp})
 
 def edit_sheepproc(request, post_id):
     single_log = get_object_or_404(SheepProcurement, id=post_id)
@@ -737,7 +738,7 @@ def edit_sheepcull(request, post_id):
         edit_motc = EditsheepCull(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, 'Edited Successfully')
+            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/sheep-cull-records">link</a>'))
     else:
         edit_motc = EditsheepCull(instance=single_log)
     return render(request, 'Esheepcull.html', {'edit_keycm': edit_motc})
@@ -752,3 +753,14 @@ def edit_pigcull(request, post_id):
     else:
         edit_motc = EditpigCull(instance=single_log)
     return render(request, 'Epigcull.html', {'edit_keycm': edit_motc})
+
+def cowmot_filter(request):
+    queryset = CowMortality.objects.filter(
+	item_name__icontains=form['item_name'].value(),
+	date=[
+		form['start_date'].value(),
+		form['end_date'].value()
+                                
+                                ]
+        )
+    return render(request, 'cowmot-filter.html')
