@@ -2,7 +2,7 @@
 {% load static %}
 <!Doctype html>
 {% block title %}
-Goat Procurement
+Cow Procurement
 {% endblock %}
 
 {% block content %}
@@ -14,21 +14,20 @@ Goat Procurement
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">Cow Procurement</li>
       </ol>
 		<div class="box_general padding_bottom">
-      
+      <h5>Show only from:</h5>
 			<table>
         <caption>Procurement Records</caption>
-        <caption>Mortality Records</caption>
         {% if  queryset %}
         {% for p in queryset %}
         <thead>
           <tr>
             <th scope="col">Date</th>
-            <th scope="col">Buck(s)</th>
+            <th scope="col">Bull(s)</th>
             <th scope="col">Size(s)</th>
-            <th scope="col">Doe(s)</th>
+            <th scope="col">Cow(s)</th>
             <th scope="col">Size(s)</th>
             <th scope="col">ACTION(View others)</th>
           </tr>
@@ -36,9 +35,9 @@ Goat Procurement
         <tbody>
           <tr>
             <td data-label="Date">{{ a.date }}</td>
-            <td data-label="Buck(s)">{{ a.buck_num }}</td>
-            <td data-label="Size(s)">{{ a.size1 }}</td>
-            <td data-label="Doe(s)">{{ a.doe_num }}</td>
+            <td data-label="Bull(s)">{{ a.bull_num }}</td>
+            <td data-label="Size(s)">{{ a.size }}</td>
+            <td data-label="Cow(s)">{{ a.cow_num }}</td>
             <td data-label="Size(s)">{{ a.size }}</td>
             <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' p.id %}" >View</a></th>
           </tr>
@@ -46,15 +45,15 @@ Goat Procurement
         {% endfor %}
         {% else %}
         <h4>There is no record for the dates you enetred, check the dates and try again</h4>
-        {% endif %}
+        {% endif %} 
     </table>
     <!-- <nav aria-label="Page navigation example">
       <ul class="pagination">
         
-        {% if gp_page_obj.has_previous %}
+        {% if cp_page_obj.has_previous %}
           
         <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ gp_page_obj.previous_page_number }}"> Previous</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ cp_page_obj.previous_page_number }}"> Previous</a></li>
         
         {% endif %}
         
@@ -66,17 +65,16 @@ Goat Procurement
 
        {% endfor %}
         
-        {% if gp_page_obj.has_next %}
+        {% if cp_page_obj.has_next %}
           
-        <li class="page-item"><a class="page-link" href="?page={{ gp_page_obj.next_page_number }}">Next</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ gp_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ cp_page_obj.next_page_number }}">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ cp_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
           
         {% endif %}
         
       </ul>
     </nav> -->
     <!-- /pagination -->
-
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

@@ -2,7 +2,7 @@
 {% load static %}
 <!Doctype html>
 {% block title %}
-Home
+Cow Mortality
 {% endblock %}
 
 {% block content %}
@@ -60,6 +60,12 @@ Home
                   </tr>
                 </tbody>
             </table>
+            {% for a in count %}
+            {% if forloop.last %}
+            <label for="">Total mortality for Current month</label>
+            <h4>{{ a.total }}</h4>
+            {% endif%}
+            {% endfor %}
            
             <div>
               <!-- <nav aria-label="Page navigation example">

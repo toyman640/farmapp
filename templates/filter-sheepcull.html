@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Sheep Culling
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Sheep Cullling</li>
+      </ol>
+		<div class="box_general padding_bottom">
+      <table>
+        <caption>Culling Records</caption>
+        {% if  queryset %}
+        {% for p in queryset %}
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Ram(s)</th>
+            <th scope="col">Ewe(s)</th>
+            <th scope="col">Location(s)</th>
+            <th scope="col">ACTION(View others)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="Date">{{ a.date }}</td>
+            <td data-label="Ram(s)">{{ a.ram_num }}</td>
+            <td data-label="Ewe(s)">{{ a.ewe_num }}</td>
+            <td data-label="Location">{{ a.location }}</td>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:sheep_cullrec_view' p.id %}" >View</a></th>
+          </tr>
+        </tbody>
+        {% endfor %}
+        {% else %}
+        <h4>There is no record for the dates you enetred, check the dates and try again</h4>
+        {% endif %}
+    </table>
+
+    <!-- <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        
+        {% if sc_page_obj.has_previous %}
+          
+        <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ sc_page_obj.previous_page_number }}"> Previous</a></li>
+        
+        {% endif %}
+        
+        
+         
+       {% for i in nums %}
+        
+        <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+
+       {% endfor %}
+        
+        {% if sc_page_obj.has_next %}
+          
+        <li class="page-item"><a class="page-link" href="?page={{ sc_page_obj.next_page_number }}">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ sc_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+          
+        {% endif %}
+        
+      </ul>
+    </nav> -->
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+    <!-- /.container-wrapper-->
+{% endblock %}

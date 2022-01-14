@@ -89,5 +89,16 @@ urlpatterns = [
     path('edit-post-goat-cull/<int:post_id>', views.edit_goatcull, name='edit_goatcull'),
     path('edit-post-sheep-cull/<int:post_id>', views.edit_sheepcull, name='edit_sheepcull'),
     path('cowmot-result/', views.cowmot_filter, name='cowmot_filter'),
+    path('goatmot-result/', views.goatmot_filter, name='goatmot_filter'),
+    path('pigmot-result/', views.pigmot_filter, name='pigmot_filter'),
+    path('sheepmot-result/', views.sheepmot_filter, name='sheepmot_filter'),
+    path('cowcull-result/', views.cowsale_filter, name='cowsale_filter'),
+    path('pigcull-result/', views.pigsale_filter, name='pigsale_filter'),
+    path('goatcull-result/', views.goatsale_filter, name='goatsale_filter'),
+    path('sheepcull-result/', views.sheepsale_filter, name='sheepsale_filter'),
+    path('cowcull-result/', views.cowcull_filter, name='cowcull_filter'),
+    path('pigcull-result/', views.pigcull_filter, name='pigcull_filter'),
+    path('sheepcull-result/', views.sheepcull_filter, name='sheepcull_filter'),
+    path('goatcull-result/', views.goatcull_filter, name='goatcull_filter'),
 ]
 

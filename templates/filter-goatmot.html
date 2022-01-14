@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Goat Mortality
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard</li>
+      </ol>
+		<div class="box_general padding_bottom">
+	 <table>
+        <caption>Mortality Records</caption>
+        {% if  queryset %}
+        {% for p in queryset %}
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Location</th>
+            <th scope="col">Mortality</th>
+            <th scope="col">Buck(s)</th>
+            <th scope="col">Doe(s)</th>
+            <th scope="col">Kid(s)</th>
+            <th scope="col">Size(s)</th>
+            <th scope="col">ACTION(View others)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="Date">{{ b.date }}</td>
+            <td data-label="Location">{{ b.location }}</td>
+            <td data-label="Mortality">{{ b.mortality }}</td>
+            <td data-label="Buck(s)">{{ b.buck_num }}</td>
+            <td data-label="Doe(s)">{{ b.doe_num }}</td>
+            <td data-label="Kid(s)">{{ b.kid }}</td>
+            <td data-label="Size(s)">{{ b.size }}</td>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:goat_motrec_view' p.id %}" >View</a></th>
+         
+          </tr>
+        </tbody>
+        {% endfor %}
+                  {% else %}
+                  <h4>There is no record for the dates you enetred, check the dates and try again</h4>
+                  {% endif %}
+      </table>
+      <!-- <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          
+          {% if gm_page_obj.has_previous %}
+            
+          <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ gm_page_obj.previous_page_number }}"> Previous</a></li>
+          
+          {% endif %}
+          
+          
+           
+         {% for i in nums %}
+          
+          <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+
+         {% endfor %}
+          
+          {% if gm_page_obj.has_next %}
+            
+          <li class="page-item"><a class="page-link" href="?page={{ gm_page_obj.next_page_number }}">Next</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ gm_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+            
+          {% endif %}
+          
+        </ul>
+      </nav> -->
+      <!-- /pagination -->
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+    <!-- /.container-wrapper-->
+
+
+{% endblock %}

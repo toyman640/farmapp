@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Pig Mortality
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard</li>
+      </ol>
+		<div class="box_general padding_bottom">
+			<table>
+        <caption>Mortality Records</caption>
+        {% if  queryset %}
+        {% for p in queryset %}
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Location</th>
+            <th scope="col">Mortality</th>
+            <th scope="col">Boar(s)</th>
+            <th scope="col">Sow(s)</th>
+            <th scope="col">Pigglet(s)</th>
+            <th scope="col">Size(s)</th>
+            <th scope="col">ACTION(View others)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="Date">{{ q.date }}</td>
+            <td data-label="Location">{{ q.location }}</td>
+            <td data-label="Mortality">{{ q.mortality }}</td>
+            <td data-label="Boar(s)">{{ q.boar_num }}</td>
+            <td data-label="Sow(s)">{{ q.sow_num }}</td>
+            <td data-label="Pigglet(s)">{{ q.pigglet }}</td>
+            <td data-label="Size(s)">{{ q.size }}</td>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:pig_motrec_view' p.id %}" >View</a></th>
+          </tr>
+        </tbody>
+        {% endfor %}
+        {% else %}
+        <h4>There is no record for the dates you enetred, check the dates and try again</h4>
+        {% endif %}
+      </table>
+      <!-- <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          
+          {% if pm_page_obj.has_previous %}
+            
+          <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ pm_page_obj.previous_page_number }}"> Previous</a></li>
+          
+          {% endif %}
+          
+          
+           
+         {% for i in nums %}
+          
+          <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link" >{{ forloop.counter }}</a></li>                    
+
+         {% endfor %}
+          
+          {% if pm_page_obj.has_next %}
+            
+          <li class="page-item"><a class="page-link" href="?page={{ pm_page_obj.next_page_number }}">Next</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ pm_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+            
+          {% endif %}
+          
+        </ul>
+      </nav> -->
+
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+      <!-- Report Modal Pig-->
+   <div class="modal fade" id="exampleModalP" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Select the record(s) you want do view</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_salerec' %}">Sales</a><a class="btn btn-info mr-1" href="">Birth</a></div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+    <!-- /.container-wrapper-->
+
+{% endblock %}
