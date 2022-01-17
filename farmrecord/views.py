@@ -65,7 +65,7 @@ def cow_birth(request):
     return render(request, 'cow-birth.html')
 
 def cow_motrec(request):
-    cow_rec =   CowMortality.objects.order_by('date')
+    cow_rec =   CowMortality.objects.order_by('-date')
     query_form = CowmotFilter()
     paginated_filtercm = Paginator(cow_rec, 10)
     page_number = request.GET.get('page')
@@ -101,7 +101,7 @@ def cow_cullrec_view(request, abtc_id):
 
 
 def cow_procrec(request):
-    cow_prec = CowProcurement.objects.order_by('date')
+    cow_prec = CowProcurement.objects.order_by('-date')
     query_form = CowprocFilter()
     paginated_filtercp = Paginator(cow_prec, 10)
     page_number = request.GET.get('page')
@@ -117,7 +117,7 @@ def cow_procrec(request):
     return render(request, 'cowprocrec.html', {'cow_prec': cow_prec}, context)
 
 def cow_cullrec(request):
-    cow_crec = CowCulling.objects.order_by('date')
+    cow_crec = CowCulling.objects.order_by('-date')
     query_form = CowcullFilter()
     paginated_filtercc = Paginator(cow_crec, 10)
     page_number = request.GET.get('page')
@@ -133,7 +133,7 @@ def cow_cullrec(request):
     return render(request, 'cowcullrec.html',context)
 
 def cow_salerec(request):
-    cow_srec = CowSale.objects.order_by('date')
+    cow_srec = CowSale.objects.order_by('-date')
     query_form = CowsaleFilter()
     paginated_filtercs = Paginator(cow_srec, 10)
     page_number = request.GET.get('page')
@@ -196,7 +196,7 @@ def goat_sales(request):
     return render(request, 'goat-sale.html', {'goat_sale': goat_sale})
 
 def goat_motrec(request):
-    goat_mrec =   GoatMortality.objects.order_by('date')
+    goat_mrec =   GoatMortality.objects.order_by('-date')
     query_form = GoatmotFilter()
     paginated_filtergm = Paginator(goat_mrec, 10)
     page_number = request.GET.get('page')
@@ -212,7 +212,7 @@ def goat_motrec(request):
     return render(request, 'goatmotrec.html', context)
 
 def goat_procrec(request):
-    goat_prec = GoatProcurement.objects.order_by('date')
+    goat_prec = GoatProcurement.objects.order_by('-date')
     query_form = GoatprocFilter()
     paginated_filtergp = Paginator(goat_prec, 10)
     page_number = request.GET.get('page')
@@ -228,7 +228,7 @@ def goat_procrec(request):
     return render(request, 'goatprocrec.html',context)
 
 def goat_cullrec(request):
-    goat_crec = GoatCulling.objects.order_by('date')
+    goat_crec = GoatCulling.objects.order_by('-date')
     query_form = GoatcullFilter()
     paginated_filtergc = Paginator(goat_crec, 10)
     page_number = request.GET.get('page')
@@ -244,7 +244,7 @@ def goat_cullrec(request):
     return render(request, 'goatcullrec.html',context)
 
 def goat_salerec(request):
-    goat_srec = GoatSale.objects.order_by('date')
+    goat_srec = GoatSale.objects.order_by('-date')
     query_form = GoatsaleFilter()
     paginated_filtergs = Paginator(goat_srec, 10)
     page_number = request.GET.get('page')
@@ -324,7 +324,7 @@ def pig_proc(request):
     return render(request, 'pig-proc.html', {'pig_proc': pig_proc})
 
 def pig_motrec(request):
-    pig_mrec =   PigMortality.objects.order_by('date')
+    pig_mrec =   PigMortality.objects.order_by('-date')
     query_form = PigmotFilter()
     paginated_filterpm = Paginator(pig_mrec, 1)
     page_number = request.GET.get('page')
@@ -340,7 +340,7 @@ def pig_motrec(request):
     return render(request, 'pigmotrec.html', context)
 
 def pig_procrec(request):
-    pig_prec = PigProcurement.objects.order_by('date')
+    pig_prec = PigProcurement.objects.order_by('-date')
     query_form = PigprocFilter()
     paginated_filterpp = Paginator(pig_prec, 10)
     page_number = request.GET.get('page')
@@ -356,7 +356,7 @@ def pig_procrec(request):
     return render(request, 'pigprocrec.html', context)
     
 def pig_salerec(request):
-    pig_srec = PigSale.objects.order_by('date')
+    pig_srec = PigSale.objects.order_by('-date')
     query_form = PigsaleFilter()
     paginated_filterps = Paginator(pig_srec, 10)
     page_number = request.GET.get('page')
@@ -372,7 +372,7 @@ def pig_salerec(request):
     return render(request, 'pigsalerec.html',context)
 
 def pig_cullrec(request):
-    pig_crec = PigCulling.objects.order_by('date')
+    pig_crec = PigCulling.objects.order_by('-date')
     query_form = PigcullFilter() 
     paginated_filterpc = Paginator(pig_crec, 10)
     page_number = request.GET.get('page')
@@ -455,7 +455,7 @@ def sheep_sales(request):
     return render(request, 'sheep-sales.html', {'sheep_sale': sheep_sale})
 
 def sheep_motrec(request):
-    sheep_mrec = SheepMortality.objects.order_by('date')
+    sheep_mrec = SheepMortality.objects.order_by('-date')
     query_form = SheepmotFilter() 
     paginated_filtersm = Paginator(sheep_mrec, 10)
     page_number = request.GET.get('page')
@@ -471,7 +471,7 @@ def sheep_motrec(request):
     return render(request, 'sheepmotrec.html',context)
 
 def sheep_procrec(request):
-    sheep_prec = SheepProcurement.objects.order_by('date')
+    sheep_prec = SheepProcurement.objects.order_by('-date')
     query_form = SheepprocFilter()
     paginated_filtersp = Paginator(sheep_prec, 10)
     page_number = request.GET.get('page')
@@ -487,7 +487,7 @@ def sheep_procrec(request):
     return render(request, 'sheepprocrec.html',context)
 
 def sheep_cullrec(request):
-    sheep_crec = SheepCulling.objects.order_by('date')
+    sheep_crec = SheepCulling.objects.order_by('-date')
     query_form = SheepcullFilter()
     paginated_filtersc = Paginator(sheep_crec, 10)
     page_number = request.GET.get('page')
@@ -503,7 +503,7 @@ def sheep_cullrec(request):
     return render(request, 'sheepcullrec.html',context)
 
 def sheep_salerec(request):
-    sheep_srec = SheepSale.objects.order_by('date')
+    sheep_srec = SheepSale.objects.order_by('-date')
     query_form = SheepsaleFilter() 
     paginated_filterss = Paginator(sheep_srec, 10)
     page_number = request.GET.get('page')
