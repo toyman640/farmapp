@@ -174,7 +174,7 @@
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <span style="line-height: 35px;">Welcome John Doe</span>
+          <span style="line-height: 35px;">Welcome {{ request.user.get_full_name }}</span>
         </li>
         <li class="nav-item">
           <a class="nav-link" data-toggle="modal" data-target="#exampleModal">

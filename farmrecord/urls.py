@@ -63,7 +63,7 @@ urlpatterns = [
     path('delete-post-goat/<int:listcullg_id>', views.delete_postcullg, name='delete_postcullg'),
     path('delete-post-pig/<int:listcullp_id>', views.delete_postcullp, name='delete_postcullp'),
     path('delete-post-sheep/<int:listculls_id>', views.delete_postculls, name='delete_postculls'),
-    path('delete-post-cow/<int:listcullc_id>', views.delete_postcullc, name='delete_postcullc'),
+    path('delete-post-cow-culling/<int:listcullc_id>', views.delete_postcullc, name='delete_postcullc'),
     path('delete-post-sale-cow/<int:listsalec_id>', views.delete_postsalec, name='delete_postsalec'),
     path('delete-post-sale-goat/<int:listsaleg_id>', views.delete_postsaleg, name='delete_postsaleg'),
     path('delete-post-sale-pig/<int:listsalep_id>', views.delete_postsalep, name='delete_postsalep'),
@@ -100,5 +100,6 @@ urlpatterns = [
     path('pigcull-result/', views.pigcull_filter, name='pigcull_filter'),
     path('sheepcull-result/', views.sheepcull_filter, name='sheepcull_filter'),
     path('goatcull-result/', views.goatcull_filter, name='goatcull_filter'),
+    path('logout-view/', views.logout_view, name='logout_view')
 ]
 

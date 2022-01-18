@@ -1,0 +1,236 @@
+{% extends 'main/base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard admin</li>
+      </ol>
+	  <!-- Icon Cards-->
+		<!-- /cards -->
+		<div class="box_general padding_bottom">
+      <h3 class="text-center mb-2"> Latest Mortality Records</h3>
+      <div class="card-deck">
+        {% if cml %}
+        {% for a in cml %}
+        <div class="card col-lg-3">
+          <img src="{{ a.post_img }}" class="card-img-top" alt="No image available">
+          <div class="card-body">
+            <h5 class="card-title">{{ a.section }}</h5>
+            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            <p class="card-text"><small class="text-muted">{{ a.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+        
+        {% if gml %}
+        {% for b in gml %}
+        <div class="card col-lg-3">
+          <img src="{{ b.post_img }}" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">{{ b.section }}</h5>
+            <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+            <p class="card-text"><small class="text-muted">{{ b.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if pml %}
+        {% for c in pml %}
+        <div class="card col-lg-3">
+          <img src="{{ c.post_img }}" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">{{ c.section }}</h5>
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if sml %}
+        {% for d in sml %}
+        <div class="card col-lg-3">
+          <img src="{{ d.post_img }}" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">{{ d.section }}</h5>
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+      <hr>
+      <h3 class="text-center mt-2"> Latest Culling Records</h3>
+      <div class="card-deck">
+        {% if ccl %}
+        {% for q in ccl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ q.section }}</h5>
+            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            <p class="card-text"><small class="text-muted">{{ q.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+        
+        {% if gcl %}
+        {% for b in gcl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ b.section }}</h5>
+            <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+            <p class="card-text"><small class="text-muted">{{ b.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if scl %}
+        {% for j in scl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ j.section }}</h5>
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text"><small class="text-muted">{{ j.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if pcl %}
+        {% for d in pcl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ d.section }}</h5>
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text"><small class="text-muted">{{ d.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+      <hr>
+      <h3 class="text-center mt-2"> Latest Procurement Records</h3>
+      <div class="card-deck">
+        {% if ccl %}
+        {% for q in ccl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ q.section }}</h5>
+            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            <p class="card-text"><small class="text-muted">{{ q.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+        
+        {% if gcl %}
+        {% for b in gcl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ b.section }}</h5>
+            <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+            <p class="card-text"><small class="text-muted">{{ b.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if scl %}
+        {% for j in scl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ j.section }}</h5>
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text"><small class="text-muted">{{ cjdate }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if pcl %}
+        {% for d in pcl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ d.section }}</h5>
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text"><small class="text-muted">{{ d.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+      <hr class="mt-4">
+      <h3 class="text-center mt-2"> Latest Sale(s) Records</h3>
+      <div class="card-deck">
+        {% if ccl %}
+        {% for q in ccl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ q.section }}</h5>
+            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            <p class="card-text"><small class="text-muted">{{ q.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+        
+        {% if gcl %}
+        {% for b in gcl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ b.section }}</h5>
+            <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+            <p class="card-text"><small class="text-muted">{{ b.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if scl %}
+        {% for j in scl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ j.section }}</h5>
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text"><small class="text-muted">{{ cjdate }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if pcl %}
+        {% for d in pcl %}
+        <div class="card col-lg-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ d.section }}</h5>
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text"><small class="text-muted">{{ d.date }}</small></p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+		
+		
+	  </div>
+	  <!-- /.container-fluid-->
+
+   	</div>
+      
+      {% endblock %}
