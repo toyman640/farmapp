@@ -101,10 +101,38 @@ Home
         </div>
 		</div>
 		<!-- /cards -->
-		<h2>admin</h2>
+    <div class="box_general padding_bottom">
+		<div class="jumbotron">
+      <h3 class="text-center"><b> <marquee behavior="alternate" direction="">  Total Census </marquee></b></h3>
+      <div class="row">
+        <div class="col-12">
+          <div class="d-inline col-3">
+            <span style="font-size: 100px;" class=" number">5679</span>
+            <label for="">CATTLES</label>
+          </div>
+          <div class="d-inline col-3">
+            <span style="font-size: 100px;" class=" number">9854</span>
+            <label for="">PIGS</label>
+          </div>
+          <div class="d-inline col-3 ">
+            <span style="font-size: 100px;" class=" number">2578</span>
+            <label for="">SHEEP</label>
+          </div>
+          <div class="d-inline col-3">
+            <span style="font-size: 100px;" class=" number">347</span>
+            <label for="">GOATS</label>
+          </div>
+        </div>
+      </div>
+        
+      
+      
+    </div>
+		</div>
+		
 		<div class="box_general padding_bottom">
 			<div class="header_box version_2">
-				<h2><i class="fa fa-bar-chart"></i>Statistic</h2>
+				<h2><i class="fa fa-bar-chart"></i>Total Census </h2>
 			</div>
 		 <canvas id="myAreaChart" width="100%" height="30" style="margin:45px 0 15px 0;"></canvas>
 		</div>
@@ -112,5 +140,4 @@ Home
 	  <!-- /.container-fluid-->
       <a href="{% url 'main:login_page' %}" class="btn btn-info">Login</a>
    	</div>
-      
       {% endblock %}

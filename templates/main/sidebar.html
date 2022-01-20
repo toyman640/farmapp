@@ -1,14 +1,14 @@
 {% load static %}
 <!-- Navigation-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-default fixed-top" id="mainNav">
-    <a class="navbar-brand" href="{% url 'index' %}"><img src="" data-retina="true" alt="Skaal" width="150" height="36"></a>
+    <a class="navbar-brand" href="{% url 'main:dashboard' %}"><img src="" data-retina="true" alt="Skaal" width="150" height="36"></a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
-          <a class="nav-link" href="{% url 'index' %}">
+          <a class="nav-link" href="{% url 'main:dashboard' %}">
             <i class="fa fa-fw fa-dashboard"></i>
             <span class="nav-link-text">Dashboard</span>
           </a>
@@ -16,33 +16,28 @@
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
           <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#mortality" data-parent="#mylistings">
             <i class="fa fa-fw fa-list"></i>
-            <span class="nav-link-text">Piggery</span>
+            <span class="nav-link-text">Animal Section</span>
           </a>
           <ul class="sidenav-second-level collapse" id="mortality">
             <li>
-              <a href="{% url 'farmrecord:pig_motrep' %}">Mortality</a>
+              <a class="nav-link" data-toggle="modal" data-target="#exampleModalP">Piggery</a>
             </li>
 			<li>
-              <a href="{% url 'farmrecord:pig_cull' %}">Culling</a>
+              <a class="nav-link" data-toggle="modal" data-target="#exampleModalC">Cattle</a>
             </li>
 			<li>
-              <a href="{% url 'farmrecord:pig_birth' %}">Farrowing</a>
+              <a class="nav-link" data-toggle="modal" data-target="#exampleModalS">Sheep</a>
             </li>
       <li>
-            <a href="{% url 'farmrecord:pig_proc' %}">Procurement</a>
+            <a class="nav-link" data-toggle="modal" data-target="#exampleModalG">Goat</a>
 
-          <li>
-              <a href="{% url 'farmrecord:pig_sales' %}">Sales</a>
-            </li>
-            <li>
-              <a  class="nav-link" data-toggle="modal" data-target="#exampleModalP">Records</a>
-            </li>
+         
           </ul>
     </li>
     <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
           <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#sheep" data-parent="#mylistings">
             <i class="fa fa-fw fa-list"></i>
-            <span class="nav-link-text">Samll Ruminant(sheep)</span>
+            <span class="nav-link-text">Maintanance Section</span>
           </a>
           <ul class="sidenav-second-level collapse" id="sheep">
             <li>
@@ -68,7 +63,7 @@
 <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
   <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#goat" data-parent="#mylistings">
     <i class="fa fa-fw fa-list"></i>
-    <span class="nav-link-text">Small Ruminant(goat)</span>
+    <span class="nav-link-text">HR Section</span>
   </a>
           <ul class="sidenav-second-level collapse" id="goat">
             <li>
@@ -194,7 +189,7 @@
             <span aria-hidden="true">×</span>
           </button>
         </div>
-        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_salerec' %}">Sales</a><a class="btn btn-info mr-1" href="">Birth</a></div>
+        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'main:cow_mota' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'main:cow_culla' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'main:cow_proca' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'main:cow_salea' %}">Sales</a><a class="btn btn-info mr-1" href="">Birth</a></div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
         </div>

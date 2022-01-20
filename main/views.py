@@ -72,3 +72,71 @@ def latest_page(request):
     }
 
     return render (request, 'main/latest-rep-animal.html', context)
+
+@login_required(login_url='/admin-page/login')
+def cow_mota(request):
+    cmta = CowMortality.objects.order_by('-date')
+    return render(request, 'main/cowmot-a.html', {'cmta' : cmta})
+
+@login_required(login_url='/admin-page/login')
+def cow_salea(request):
+    csa = CowSale.objects.order_by('-date')
+    return render(request, 'main/cowsale-a.html', {'csa': csa})
+
+@login_required(login_url='/admin-page/login')
+def cow_proca(request):
+    cpa = CowProcurement.objects.order_by('-date')
+    return render(request, 'main/cowproc-a.html', {'cpa' : cpa})
+
+@login_required(login_url='/admin-page/login')
+def cow_culla(request):
+    cca = CowCulling.objects.order_by('-date')
+    return render(request, 'cowcull-a.html', {'cca': cca})
+
+@login_required(login_url='/admin-page/login')
+def goat_mota(request):
+    pass
+
+@login_required(login_url='/admin-page/login')
+def goat_salea(request):
+    pass
+
+@login_required(login_url='/admin-page/login')
+def goat_proca(request):
+    pass
+
+@login_required(login_url='/admin-page/login')
+def goat_culla(request):
+    pass
+
+@login_required(login_url='/admin-page/login')
+def pig_mota(request):
+    pass
+
+@login_required(login_url='/admin-page/login')
+def pig_salea(request):
+    pass
+
+@login_required(login_url='/admin-page/login')
+def pig_proca(request):
+    pass
+
+@login_required(login_url='/admin-page/login')
+def pig_culla(request):
+    pass
+
+@login_required(login_url='/admin-page/login')
+def sheep_mota(request):
+    pass
+
+@login_required(login_url='/admin-page/login')
+def sheep_salea(request):
+    pass
+
+@login_required(login_url='/admin-page/login')
+def sheep_proca(request):
+    pass
+
+@login_required(login_url='/admin-page/login')
+def sheep_culla(request):
+    pass

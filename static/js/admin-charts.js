@@ -7,7 +7,7 @@ var ctx = document.getElementById("myAreaChart");
 var myLineChart = new Chart(ctx, {
   type: 'bar',
   data: {
-    labels: ["Mar 1", "Mar 2", "Mar 3", "Mar 4", "Mar 5",],
+    labels: ["Cattle", "Piggery", "Goat", "Sheep",],
     datasets: [{
       label: "Sessions",
       lineTension: 0.3,
@@ -23,7 +23,7 @@ var myLineChart = new Chart(ctx, {
       pointHoverBackgroundColor: "rgba(2,117,216,1)",
       pointHitRadius: 20,
       pointBorderWidth: 2,
-      data: [10000, 30162, 26263, 18394, 18287,],
+      data: [10000, 30162, 26263, 18394,],
     }],
   },
   options: {

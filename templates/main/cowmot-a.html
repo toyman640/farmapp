@@ -1,0 +1,26 @@
+{% extends 'main/base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard admin</li>
+      </ol>
+		<div class="box_general padding_bottom">
+			
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+      <a href="{% url 'main:login_page' %}" class="btn btn-info">Login</a>
+   	</div>
+      {% endblock %}

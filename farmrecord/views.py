@@ -6,7 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.html import format_html 
 from datetime import datetime, timedelta
 from django.db.models.functions import TruncMonth
-from django.db.models.aggregates import Count
+from django.db.models.aggregates import Count, Sum
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 # Create your views here.
@@ -79,7 +79,7 @@ def cow_motrec(request):
     page_number = request.GET.get('page')
     cm_page_obj = paginated_filtercm.get_page(page_number)
     cowmot_count = CowMortality.objects.all()
-    aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
     nums = "a" * cm_page_obj.paginator.num_pages
     context = {
         'cm_page_obj': cow_rec,
