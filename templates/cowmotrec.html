@@ -47,7 +47,7 @@ Cow Mortality
                   {% if  cm_page_obj %}
                   {% for a in cm_page_obj %}
                   <tr>
-                    <td data-label="Date">{{ a.date }}</td>
+                    <td data-label="Date">{{ a.date|date:"M d, Y" }}</td>
                     <td data-label="Location">{{ a.location }}</td>
                     <td data-label="Mortality">{{ a.mortality }}</td>
                     <td data-label="Bull(s)">{{ a.bull_num }}</td>

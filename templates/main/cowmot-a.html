@@ -17,7 +17,30 @@ Home
         <li class="breadcrumb-item active">My Dashboard admin</li>
       </ol>
 		<div class="box_general padding_bottom">
-			
+      {% if cmta %}
+      {% for a in cmta %}
+      <div class="card mb-3">
+        <div class="row no-gutters">
+          <div class="col-md-4">
+            <img src="{{ a.post_img }}" class="card-img" alt="...">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">Cause of motality:</h5>
+              <p class="card-text">{{ a.comment }}</p>
+              <h5 class="card-title">Cow(s):</h5>
+              <p class="card-text">{{ a.cow_num }}</p>
+              <h5 class="card-title">Bull(s):</h5>
+              <p class="card-text">{{ a.bull_num }}</p>
+              <h5 class="card-title">Calf/ves:</h5>
+              <p class="card-text">{{ a.calves }}</p>
+              <p class="card-text"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

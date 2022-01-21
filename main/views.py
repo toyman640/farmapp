@@ -95,48 +95,59 @@ def cow_culla(request):
 
 @login_required(login_url='/admin-page/login')
 def goat_mota(request):
-    pass
+    gma = GoatMortality.objects.order_by('-date')
+    return render(request, 'main/goatmot-a.html', {'gma' : gma})
 
 @login_required(login_url='/admin-page/login')
 def goat_salea(request):
-    pass
+    gsa = GoatSale.objects.order_by('-date') 
 
 @login_required(login_url='/admin-page/login')
 def goat_proca(request):
-    pass
+    gpa = GoatProcurement.objects.order_by('-date')
+    return render(request, 'main/goatproc-a.html', {'gpa' : gpa})
 
 @login_required(login_url='/admin-page/login')
 def goat_culla(request):
-    pass
+    gca = GoatCulling.objects.order_by('-date')
+    return render(request, 'main/goatcull-a.html', {'gca' : gca})
 
 @login_required(login_url='/admin-page/login')
 def pig_mota(request):
-    pass
+    pma = PigMortality.objects.order_by('-date')
+    return render(request, 'main/pigmot-a.html', {'pma' : pma})
 
 @login_required(login_url='/admin-page/login')
 def pig_salea(request):
-    pass
+    psa = PigSale.objects.order_by('-date')
+    return render(request, 'main/pigmot-a.html', {'psa' : psa})
 
 @login_required(login_url='/admin-page/login')
 def pig_proca(request):
-    pass
+    ppa = PigProcurement.objects.order_by('-date')
+    return render(request, 'main/pigproc-a.html', {'ppa' : ppa})
 
 @login_required(login_url='/admin-page/login')
 def pig_culla(request):
-    pass
+    pca = PigCulling.objects.order_by('-date')
+    return render(request, 'main/pigcull-a.html', {'pca' : pca})
 
 @login_required(login_url='/admin-page/login')
 def sheep_mota(request):
-    pass
+    sma = SheepMortality.objects.order_by('-date')
+    return render(request, 'main/sheepmot-a.html', {'sma' : sma})
 
 @login_required(login_url='/admin-page/login')
 def sheep_salea(request):
-    pass
+    ssa = SheepSale.objects.order_by('-date')
+    return render(request, 'main/sheepsale-a.html', {'ssa' : ssa})
 
 @login_required(login_url='/admin-page/login')
 def sheep_proca(request):
-    pass
+    spa = SheepProcurement.objects.order_by('-date')
+    return render(request, 'main/sheepproc-a.html', {'spa' : spa})
 
 @login_required(login_url='/admin-page/login')
 def sheep_culla(request):
-    pass
+    sca = SheepCulling.objects.order_by('-date')
+    return render(request, 'main/sheepcull-a.html', {'sca' : sca})
