@@ -2,7 +2,7 @@
 {% load static %}
 <!Doctype html>
 {% block title %}
-Cow Culling
+Pig Culling
 {% endblock %}
 
 {% block content %}
@@ -14,21 +14,21 @@ Cow Culling
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">Cow Culling</li>
+        <li class="breadcrumb-item active">Pig Culling</li>
       </ol>
 		<div class="box_general padding_bottom">
-      {% if cca %}
-      {% for a in cca %}
+      {% if pca %}
+      {% for a in pca %}
       <div class="card mb-3">
         <div class="row no-gutters">
           <div class="col-md-8">
             <div class="card-body">
               <h5 class="card-title">Reason for Cull:</h5>
               <p class="card-text">{{ a.reason }}</p>
-              <h5 class="card-title">Cow(s):</h5>
-              <p class="card-text">{{ a.cow_num }}</p>
-              <h5 class="card-title">Bull(s):</h5>
-              <p class="card-text">{{ a.bull_num }}</p>
+              <h5 class="card-title">Sow(s):</h5>
+              <p class="card-text">{{ a.sow_num }}</p>
+              <h5 class="card-title">Boar(s):</h5>
+              <p class="card-text">{{ a.boar_num }}</p>
               <h5 class="card-title">Location(s):</h5>
               <p class="card-text">{{ a.location }}</p>
               <p class="card-text"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>

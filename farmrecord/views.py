@@ -1132,3 +1132,54 @@ def logout_view(request):
     logout(request)
     return redirect('main:login_page')
 
+@login_required(login_url='/admin-page/login')
+def cen_cow(request):
+    if request.method == 'POST':
+        cow_cen = CowCen(request.POST, request.FILES)
+        if cow_cen.is_valid():
+            cow_cen.save()
+            messages.success(request, 'Entry Saved')
+            cow_cen = CowCen()
+    else:
+        cow_cen = CowCen()
+    return render(request, 'cow-cen.html', {'cow_cull': cow_cen})
+
+@login_required(login_url='/admin-page/login')
+def cen_goat(request):
+    if request.method == 'POST':
+        goat_cen = GoatCen(request.POST, request.FILES)
+        if goat_cen.is_valid():
+            goat_cen.save()
+            messages.success(request, 'Entry Saved')
+            goat_cen = GoatCen()
+    else:
+        goat_cen = GoatCen()
+    return render(request, 'goat-cen.html', {'goat_cull': goat_cen})
+
+@login_required(login_url='/admin-page/login')
+def cen_pig(request):
+    if request.method == 'POST':
+        pig_cen = PigCen(request.POST, request.FILES)
+        if pig_cen.is_valid():
+            pig_cen.save()
+            messages.success(request, 'Entry Saved')
+            pig_cen = PigCen()
+    else:
+        pig_cen = PigCen()
+    return render(request, 'pig-cen.html', {'pig_cull': pig_cen})
+
+
+@login_required(login_url='/admin-page/login')
+def cen_sheep(request):
+    if request.method == 'POST':
+        sheep_cen = SheepCen(request.POST, request.FILES)
+        if sheep_cen.is_valid():
+            sheep_cen.save()
+            messages.success(request, 'Entry Saved')
+            sheep_cen = SheepCen()
+    else:
+        sheep_cen = SheepCen()
+    return render(request, 'cow-cen.html', {'sheep_cull': sheep_cen})
+
+
+

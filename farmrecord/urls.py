@@ -100,6 +100,10 @@ urlpatterns = [
     path('pigcull-result/', views.pigcull_filter, name='pigcull_filter'),
     path('sheepcull-result/', views.sheepcull_filter, name='sheepcull_filter'),
     path('goatcull-result/', views.goatcull_filter, name='goatcull_filter'),
-    path('logout-view/', views.logout_view, name='logout_view')
+    path('logout-view/', views.logout_view, name='logout_view'),
+    path('cow-cencus/', views.cen_cow, name='cen_cow'),
+    path('pig-census', views.cen_pig, name='cen_pig'),
+    path('goat-cencus', views.cen_goat, name='cen_goat'),
+    path('sheep-census', views.cen_sheep, name='cen_sheep')
 ]
 

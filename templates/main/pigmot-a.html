@@ -2,7 +2,7 @@
 {% load static %}
 <!Doctype html>
 {% block title %}
-Cow Mortality
+Pig Mortality
 {% endblock %}
 
 {% block content %}
@@ -14,11 +14,11 @@ Cow Mortality
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">Cow Mortality</li>
+        <li class="breadcrumb-item active">Pig Mortality</li>
       </ol>
 		<div class="box_general padding_bottom">
-      {% if cmta %}
-      {% for a in cmta %}
+      {% if pma %}
+      {% for a in pma %}
       <div class="card mb-3">
         <div class="row no-gutters">
           <div class="col-md-4">
@@ -49,12 +49,12 @@ Cow Mortality
             <div class="card-body">
               <h5 class="card-title">Cause of motality:</h5>
               <p class="card-text">{{ a.comment }}</p>
-              <h5 class="card-title">Cow(s):</h5>
-              <p class="card-text">{{ a.cow_num }}</p>
-              <h5 class="card-title">Bull(s):</h5>
-              <p class="card-text">{{ a.bull_num }}</p>
-              <h5 class="card-title">Calf/ves:</h5>
-              <p class="card-text">{{ a.calves }}</p>
+              <h5 class="card-title">Sow(s):</h5>
+              <p class="card-text">{{ a.sow_num }}</p>
+              <h5 class="card-title">Boar(s):</h5>
+              <p class="card-text">{{ a.boar_num }}</p>
+              <h5 class="card-title">Pigglet(s):</h5>
+              <p class="card-text">{{ a.pigglet }}</p>
               <p class="card-text"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>
             </div>
           </div>

@@ -91,7 +91,7 @@ def cow_proca(request):
 @login_required(login_url='/admin-page/login')
 def cow_culla(request):
     cca = CowCulling.objects.order_by('-date')
-    return render(request, 'cowcull-a.html', {'cca': cca})
+    return render(request, 'main/cowcull-a.html', {'cca': cca})
 
 @login_required(login_url='/admin-page/login')
 def goat_mota(request):
@@ -101,6 +101,7 @@ def goat_mota(request):
 @login_required(login_url='/admin-page/login')
 def goat_salea(request):
     gsa = GoatSale.objects.order_by('-date') 
+    return render(request, 'main/goatsale-a.html', {'gsa' : gsa})
 
 @login_required(login_url='/admin-page/login')
 def goat_proca(request):

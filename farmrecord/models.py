@@ -183,53 +183,61 @@ class CowSale(models.Model):
     date = models.DateField(default=timezone.now)
     cow_num = models.IntegerField(verbose_name='Cow(s)', null=True, blank=True)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
+    price = models.IntegerField(verbose_name='Price(s)', blank=True, null=True)
     bull_num = models.IntegerField(verbose_name='Bull(s)', null=True, blank=True)
     size1 = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
+    price1 = models.IntegerField(verbose_name='Price(s)', blank=True, null=True)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category9', null=True, on_delete=models.CASCADE)
     weight= models.IntegerField(verbose_name='Weight(s)')
-    price = models.IntegerField(verbose_name='Price(s)')
+    total_price = models.IntegerField(verbose_name='Toatl Price(s)', blank=True, null=True)
 
     def __str__(self):
-        return str(self.price)
+        return str(self.total_price)
 
 class SheepSale(models.Model):
     date = models.DateField(default=timezone.now)
     ewe_num = models.IntegerField(verbose_name='Ewe(s)', null=True, blank=True)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
+    price = models.IntegerField(verbose_name='Price(s)', blank=True, null=True)
     ram_num = models.IntegerField(verbose_name='Ram(s)', null=True, blank=True)
     size1 = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
+    price1 = models.IntegerField(verbose_name='Price(s)', blank=True, null=True)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category10', null=True, on_delete=models.CASCADE)
     weight= models.IntegerField(verbose_name='Weight(s)')
-    price = models.IntegerField(verbose_name='Price(s)')
+    total_price = models.IntegerField(verbose_name='Total Price(s)', blank=True, null=True)
 
     def __str__(self):
-        return self.price
+        return self.total_price
 
 class GoatSale(models.Model):
     date = models.DateField(default=timezone.now)
     doe_num = models.IntegerField(verbose_name='Doe(s)', null=True, blank=True)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
+    price = models.IntegerField(verbose_name='Price(s)', null=True, blank=True)
     buck_num = models.IntegerField(verbose_name='Buck(s)', null=True)
     size1 = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
+    price1 = models.IntegerField(verbose_name='Price(s)', null=True, blank=True)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category11', null=True, on_delete=models.CASCADE)
     weight= models.IntegerField(verbose_name='Weight(s)')
-    price = models.IntegerField(verbose_name='Price(s)')
+    total_price = models.IntegerField(verbose_name='Total Price(s)', null=True, blank=True)
 
     def __str__(self):
-        return self.price
+        return self.total_price
 
 class PigSale(models.Model):
     date = models.DateField(default=timezone.now)
     sow_num = models.IntegerField(verbose_name='Sow(s)', null=True, blank=True)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
+    price = models.IntegerField(verbose_name='Price(s)', blank=True, null=True)
     boar_num = models.IntegerField(verbose_name='Boar(s)', null=True, blank=True)
     size1 = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
+    price1 = models.IntegerField(verbose_name='Price(s)', blank=True, null=True)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category12', null=True, on_delete=models.CASCADE)
     weight= models.IntegerField(verbose_name='Weight(s)')
-    price = models.IntegerField(verbose_name='Price(s)')
+    total_price = models.IntegerField(verbose_name='Total Price(s)', blank=True, null=True)
 
     def __str__(self):
-        return self.price
+        return self.total_price
 
 
 class GoatProcurement(models.Model):
@@ -274,3 +282,160 @@ class CowProcurement(models.Model):
 
     def __str__(self):
         return self.date 
+
+class CowCensusPop(models.Model):
+    JANUARY = 'January'
+    FEBRUARY = 'February'
+    MARCH = 'March'
+    APRIL = 'April'
+    MAY = 'May'
+    JUNE = 'June'
+    JULY = 'July'
+    AUGUST = 'August'
+    SEPTEMBER = 'September'
+    OCTOBER = 'October'
+    NOVEMBER = 'November'
+    DECEMBER = 'December'
+    CHOOSE = ''
+    MONTHS=[
+        (JANUARY, 'January'),
+        (FEBRUARY, 'February'),
+        (MARCH, 'March'),
+        (APRIL, 'April'),
+        (MAY, 'May'),
+        (JUNE, 'June'),
+        (JULY, 'July'),
+        (AUGUST, 'August'),
+        (SEPTEMBER, 'September'),
+        (OCTOBER, 'October'),
+        (NOVEMBER, 'November'),
+        (DECEMBER, 'December'),
+        (CHOOSE, 'Select month')
+    ]
+    date = models.DateField(default=timezone.now)
+    month = models.CharField(max_length=50, choices=MONTHS)
+    cow_population = models.PositiveIntegerField(verbose_name='Cows Population', null=True, blank=True)
+    bull_population = models.PositiveIntegerField(verbose_name='Bulls Population', null=True, blank=True)
+    calf_population = models.PositiveIntegerField(verbose_name='Calves Population', null=True, blank=True)
+
+    def __str__(self):
+        return self.month
+
+
+class GoatCensusPop(models.Model):
+    JANUARY = 'January'
+    FEBRUARY = 'February'
+    MARCH = 'March'
+    APRIL = 'April'
+    MAY = 'May'
+    JUNE = 'June'
+    JULY = 'July'
+    AUGUST = 'August'
+    SEPTEMBER = 'September'
+    OCTOBER = 'October'
+    NOVEMBER = 'November'
+    DECEMBER = 'December'
+    CHOOSE = ''
+    MONTHS=[
+        (JANUARY, 'January'),
+        (FEBRUARY, 'February'),
+        (MARCH, 'March'),
+        (APRIL, 'April'),
+        (MAY, 'May'),
+        (JUNE, 'June'),
+        (JULY, 'July'),
+        (AUGUST, 'August'),
+        (SEPTEMBER, 'September'),
+        (OCTOBER, 'October'),
+        (NOVEMBER, 'November'),
+        (DECEMBER, 'December'),
+        (CHOOSE, 'Select month')
+    ]
+    date = models.DateField(default=timezone.now)
+    month = models.CharField(max_length=50, choices=MONTHS)
+    doe_population = models.PositiveIntegerField(verbose_name='Does Population', null=True, blank=True)
+    buck_population = models.PositiveIntegerField(verbose_name='Bucks Population', null=True, blank=True)
+    kid_population = models.PositiveIntegerField(verbose_name='Kids Population', null=True, blank=True)
+
+    def __str__(self):
+        return self.month
+
+
+class PigCensusPop(models.Model):
+    JANUARY = 'January'
+    FEBRUARY = 'February'
+    MARCH = 'March'
+    APRIL = 'April'
+    MAY = 'May'
+    JUNE = 'June'
+    JULY = 'July'
+    AUGUST = 'August'
+    SEPTEMBER = 'September'
+    OCTOBER = 'October'
+    NOVEMBER = 'November'
+    DECEMBER = 'December'
+    CHOOSE = ''
+    MONTHS=[
+        (JANUARY, 'January'),
+        (FEBRUARY, 'February'),
+        (MARCH, 'March'),
+        (APRIL, 'April'),
+        (MAY, 'May'),
+        (JUNE, 'June'),
+        (JULY, 'July'),
+        (AUGUST, 'August'),
+        (SEPTEMBER, 'September'),
+        (OCTOBER, 'October'),
+        (NOVEMBER, 'November'),
+        (DECEMBER, 'December'),
+        (CHOOSE, 'Select month')
+    ]
+    date = models.DateField(default=timezone.now)
+    month = models.CharField(max_length=50, choices=MONTHS)
+    sow_population = models.PositiveIntegerField(verbose_name='Sow Population', null=True, blank=True)
+    boar_population = models.PositiveIntegerField(verbose_name='Boar Population', null=True, blank=True)
+    hog_population = models.PositiveIntegerField(verbose_name='Hogs Population', null=True, blank=True)
+    weaner_population = models.PositiveIntegerField(verbose_name='Weaners Population', null=True, blank=True)
+    grower_population = models.PositiveIntegerField(verbose_name='Growers Population', null=True, blank=True)
+    dry_population = models.PositiveIntegerField(verbose_name='Dry Sows Population', null=True, blank=True)
+
+    def __str__(self):
+        return self.month
+
+class SheepCensusPop(models.Model):
+    JANUARY = 'January'
+    FEBRUARY = 'February'
+    MARCH = 'March'
+    APRIL = 'April'
+    MAY = 'May'
+    JUNE = 'June'
+    JULY = 'July'
+    AUGUST = 'August'
+    SEPTEMBER = 'September'
+    OCTOBER = 'October'
+    NOVEMBER = 'November'
+    DECEMBER = 'December'
+    CHOOSE = ''
+    MONTHS=[
+        (JANUARY, 'January'),
+        (FEBRUARY, 'February'),
+        (MARCH, 'March'),
+        (APRIL, 'April'),
+        (MAY, 'May'),
+        (JUNE, 'June'),
+        (JULY, 'July'),
+        (AUGUST, 'August'),
+        (SEPTEMBER, 'September'),
+        (OCTOBER, 'October'),
+        (NOVEMBER, 'November'),
+        (DECEMBER, 'December'),
+        (CHOOSE, 'Select month')
+    ]
+    date = models.DateField(default=timezone.now)
+    month = models.CharField(max_length=50, choices=MONTHS)
+    ewe_population = models.PositiveIntegerField(verbose_name='Ewes Population', null=True, blank=True)
+    ram_population = models.PositiveIntegerField(verbose_name='Rams Population', null=True, blank=True)
+    lamb_population = models.PositiveIntegerField(verbose_name='Lambs Population', null=True, blank=True)
+
+    def __str__(self):
+        return self.month

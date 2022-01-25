@@ -1,3 +1,5 @@
+from dataclasses import fields
+from pyexpat import model
 from django import forms
 from django.contrib.auth.models import User
 from farmrecord.models import *
@@ -48,22 +50,22 @@ class PigcullForm(forms.ModelForm):
 class CowsaleForm(forms.ModelForm):
     class Meta:
         model = CowSale
-        fields =('cow_num', 'size', 'bull_num', 'size1', 'section', 'weight', 'price')
+        fields =('cow_num', 'size', 'price', 'bull_num', 'size1', 'price1', 'section', 'weight', 'total_price')
 
 class GoatsaleForm(forms.ModelForm):
     class Meta:
         model = GoatSale
-        fields =('doe_num', 'size', 'buck_num', 'size1', 'section', 'weight', 'price')
+        fields =('doe_num', 'size', 'price', 'buck_num', 'size1', 'price1' ,'section', 'weight', 'total_price')
 
 class SheepsaleForm(forms.ModelForm):
     class Meta:
         model = SheepSale
-        fields =('ewe_num', 'size', 'ram_num', 'size1', 'section', 'weight', 'price')
+        fields =('ewe_num', 'size', 'price', 'ram_num', 'size1', 'price1', 'section', 'weight', 'total_price')
 
 class PigsaleForm(forms.ModelForm):
     class Meta:
         model = PigSale
-        fields =('sow_num', 'size', 'boar_num', 'size1', 'section', 'weight', 'price')
+        fields =('sow_num', 'size', 'price', 'boar_num', 'size1', 'price1', 'section', 'weight', 'total_price')
 
 class CowprocForm(forms.ModelForm):
     class Meta:
@@ -84,6 +86,26 @@ class PigprocForm(forms.ModelForm):
     class Meta:
         model = PigProcurement
         fields = ('sow_num', 'size', 'boar_num', 'size1', 'section' )
+
+class CowCen(forms.ModelForm):
+    class Meta:
+        model = CowCensusPop
+        fields = ('month', 'cow_population', 'bull_population', 'calf_population')
+
+class GoatCen(forms.ModelForm):
+    class Meta:
+        model = GoatCensusPop
+        fields = ('month', 'doe_population', 'buck_population', 'kid_population')
+
+class PigCen(forms.ModelForm):
+    class Meta:
+        model = PigCensusPop
+        fields = ('month', 'sow_population', 'boar_population', 'hog_population', 'weaner_population', 'grower_population', 'dry_population')
+
+class SheepCen(forms.ModelForm):
+    class Meta:
+        model = SheepCensusPop
+        fields = ('month', 'ewe_population', 'ram_population', 'lamb_population')
 
 class EditcowMot(forms.ModelForm):
     class Meta:
@@ -343,3 +365,5 @@ class GoatprocFilter(forms.ModelForm):
     class Meta:
         model = GoatProcurement
         fields =('date',)
+
+
