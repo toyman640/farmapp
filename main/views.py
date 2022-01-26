@@ -76,7 +76,7 @@ def latest_page(request):
 @login_required(login_url='/admin-page/login')
 def cow_mota(request):
     cmta = CowMortality.objects.order_by('-date')
-    return render(request, 'main/cowmot-a.html', {'cmta' : cmta})
+    return render(request, 'main/cowmot-a.html', {'my_cmta' : cmta})
 
 @login_required(login_url='/admin-page/login')
 def cow_salea(request):

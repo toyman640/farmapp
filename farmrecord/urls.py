@@ -104,6 +104,10 @@ urlpatterns = [
     path('cow-cencus/', views.cen_cow, name='cen_cow'),
     path('pig-census', views.cen_pig, name='cen_pig'),
     path('goat-cencus', views.cen_goat, name='cen_goat'),
-    path('sheep-census', views.cen_sheep, name='cen_sheep')
+    path('sheep-census', views.cen_sheep, name='cen_sheep'),
+    path('cow-population-records', views.cencow_view, name='cencow_view'),
+    path('goat-population-records', views.cengoat_view, name='cengoat_view'),
+    path('pig-population-records', views.cenpig_view, name='cenpig_view'),
+    path('sheep-population-records', views.censheep_view, name='censheep_view')
 ]
 

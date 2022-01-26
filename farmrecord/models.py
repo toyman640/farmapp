@@ -313,7 +313,7 @@ class CowCensusPop(models.Model):
         (CHOOSE, 'Select month')
     ]
     date = models.DateField(default=timezone.now)
-    month = models.CharField(max_length=50, choices=MONTHS)
+    month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
     cow_population = models.PositiveIntegerField(verbose_name='Cows Population', null=True, blank=True)
     bull_population = models.PositiveIntegerField(verbose_name='Bulls Population', null=True, blank=True)
     calf_population = models.PositiveIntegerField(verbose_name='Calves Population', null=True, blank=True)
@@ -352,7 +352,7 @@ class GoatCensusPop(models.Model):
         (CHOOSE, 'Select month')
     ]
     date = models.DateField(default=timezone.now)
-    month = models.CharField(max_length=50, choices=MONTHS)
+    month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
     doe_population = models.PositiveIntegerField(verbose_name='Does Population', null=True, blank=True)
     buck_population = models.PositiveIntegerField(verbose_name='Bucks Population', null=True, blank=True)
     kid_population = models.PositiveIntegerField(verbose_name='Kids Population', null=True, blank=True)
@@ -391,7 +391,7 @@ class PigCensusPop(models.Model):
         (CHOOSE, 'Select month')
     ]
     date = models.DateField(default=timezone.now)
-    month = models.CharField(max_length=50, choices=MONTHS)
+    month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
     sow_population = models.PositiveIntegerField(verbose_name='Sow Population', null=True, blank=True)
     boar_population = models.PositiveIntegerField(verbose_name='Boar Population', null=True, blank=True)
     hog_population = models.PositiveIntegerField(verbose_name='Hogs Population', null=True, blank=True)
@@ -432,7 +432,7 @@ class SheepCensusPop(models.Model):
         (CHOOSE, 'Select month')
     ]
     date = models.DateField(default=timezone.now)
-    month = models.CharField(max_length=50, choices=MONTHS)
+    month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
     ewe_population = models.PositiveIntegerField(verbose_name='Ewes Population', null=True, blank=True)
     ram_population = models.PositiveIntegerField(verbose_name='Rams Population', null=True, blank=True)
     lamb_population = models.PositiveIntegerField(verbose_name='Lambs Population', null=True, blank=True)

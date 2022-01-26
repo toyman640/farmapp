@@ -117,26 +117,29 @@
         </li>
       </ul>
 </li>
-<!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
   <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#Procurement" data-parent="#mylistings">
     <i class="fa fa-fw fa-list"></i>
-    <span class="nav-link-text">Procurement Report</span>
+    <span class="nav-link-text">Monthly Census</span>
   </a>
   <ul class="sidenav-second-level collapse" id="Procurement">
     <li>
-      <a href="pig-cull.html">Piggery</a>
+      <a href="{% url 'farmrecord:cen_pig' %}">Piggery</a>
     </li>
 <li>
-      <a href="cow-proc.html">Large ruminant</a>
+      <a href="{% url 'farmrecord:cen_cow' %}">Paddock</a>
     </li>
 <li>
-      <a href="goat-proc.html">Small ruminant(goat)</a>
+      <a href="{% url 'farmrecord:cen_goat' %}">Small ruminant(goat)</a>
     </li>
 <li>
-    <a href="sheep-proc.html">Small ruminant(sheep)</a>
-  
+    <a href="{% url 'farmrecord:cen_sheep' %}">Small ruminant(sheep)</a>
+    <li>
+      <a class="nav-link" data-toggle="modal" data-target="#exampleModalCen">Records</a>
+    </li>
   </ul>
-</li> -->
+
+</li>
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Add listing">
           <a class="nav-link" href="#">
             <i class="fa fa-fw fa-plus-circle"></i>
@@ -246,6 +249,23 @@
           </button>
         </div>
         <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_salerec' %}">Sales</a><a class="btn btn-info mr-1" href="">Birth</a></div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Report Modal Census-->
+  <div class="modal fade" id="exampleModalCen" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Select the record(s) you want do view</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:cenpig_view' %}">Piggery</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:cencow_view' %}">Paddock</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:cengoat_view' %}">Goat</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:censheep_view' %}">Sheep</a></div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
         </div>

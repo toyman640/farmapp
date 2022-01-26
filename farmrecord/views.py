@@ -13,7 +13,9 @@ from django.contrib.auth.decorators import login_required
 
 @login_required(login_url='/admin-page/login')
 def index(request):
-    return render(request, 'index.html')
+    cowmot_count = CowMortality.objects.all()
+    aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    return render(request, 'index.html', {'count' : aggregated})
 
 def test(request):
     return render(request, 'test.html')
@@ -79,7 +81,7 @@ def cow_motrec(request):
     page_number = request.GET.get('page')
     cm_page_obj = paginated_filtercm.get_page(page_number)
     cowmot_count = CowMortality.objects.all()
-    aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
+    aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
     nums = "a" * cm_page_obj.paginator.num_pages
     context = {
         'cm_page_obj': cow_rec,
@@ -1142,7 +1144,7 @@ def cen_cow(request):
             cow_cen = CowCen()
     else:
         cow_cen = CowCen()
-    return render(request, 'cow-cen.html', {'cow_cull': cow_cen})
+    return render(request, 'cow-cen.html', {'cow_cen': cow_cen})
 
 @login_required(login_url='/admin-page/login')
 def cen_goat(request):
@@ -1154,7 +1156,7 @@ def cen_goat(request):
             goat_cen = GoatCen()
     else:
         goat_cen = GoatCen()
-    return render(request, 'goat-cen.html', {'goat_cull': goat_cen})
+    return render(request, 'goat-cen.html', {'goat_cen': goat_cen})
 
 @login_required(login_url='/admin-page/login')
 def cen_pig(request):
@@ -1166,7 +1168,7 @@ def cen_pig(request):
             pig_cen = PigCen()
     else:
         pig_cen = PigCen()
-    return render(request, 'pig-cen.html', {'pig_cull': pig_cen})
+    return render(request, 'pig-cen.html', {'pig_cen': pig_cen})
 
 
 @login_required(login_url='/admin-page/login')
@@ -1179,7 +1181,56 @@ def cen_sheep(request):
             sheep_cen = SheepCen()
     else:
         sheep_cen = SheepCen()
-    return render(request, 'cow-cen.html', {'sheep_cull': sheep_cen})
+    return render(request, 'sheep-cen.html', {'sheep_cen': sheep_cen})
 
+@login_required(login_url='/admin-page/login')
+def cencow_view(request):
+    cencowv = CowCensusPop.objects.order_by('-date')
+    paginateccv = Paginator(cencowv, 12)
+    page_number = request.GET.get('page')
+    ccv_page_obj = paginateccv.get_page(page_number)
+    nums = "a" * ccv_page_obj.paginator.num_pages
+    context = {
+        'ccv_page_obj' : ccv_page_obj,
+        'nums' : nums
+    }
+    return render(request, 'cow-cenv.html', context)
 
+@login_required(login_url='/admin-page/login')
+def cengoat_view(request):
+    cengoatv = GoatCensusPop.objects.order_by('-date')
+    paginategcv = Paginator(cengoatv, 12)
+    page_number = request.GET.get('page')
+    gcv_page_obj = paginategcv.get_page(page_number)
+    nums = "a" * gcv_page_obj.paginator.num_pages
+    context = {
+        'gcv_page_obj' : gcv_page_obj,
+        'nums' : nums
+    }
+    return render(request, 'goat-cenv.html', context)
 
+@login_required(login_url='/admin-page/login')
+def cenpig_view(request):
+    cenpigv = PigCensusPop.objects.order_by('-date')
+    paginatepcv = Paginator(cenpigv, 12)
+    page_number = request.GET.get('page')
+    pcv_page_obj = paginatepcv.get_page(page_number)
+    nums = "a" * pcv_page_obj.paginator.num_pages
+    context = {
+        'pcv_page_obj' : pcv_page_obj,
+        'nums' : nums
+    }
+    return render(request, 'pig-cenv.html',context)
+
+@login_required(login_url='/admin-page/login')
+def censheep_view(request):
+    censheepv = SheepCensusPop.objects.order_by('-date')
+    paginatescv = Paginator(censheepv, 12)
+    page_number = request.GET.get('page')
+    scv_page_obj = paginatescv.get_page(page_number)
+    nums = "a" * scv_page_obj.paginator.num_pages
+    context = {
+        'scv_page_obj' : scv_page_obj,
+        'nums' : nums
+    }
+    return render(request, 'sheep-cenv.html', context)

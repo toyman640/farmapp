@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+ Pig-Census
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Piggery Census</li>
+      </ol>
+	  <!-- Icon Cards-->
+		<div class="box_general padding_bottom">
+            {% if pcv_page_obj %}
+            {% for b in pcv_page_obj %}
+            <div class="row mb-3">
+                <div class="col-12 bg-dark rounded-pill card">
+                    <div class="card-header">
+                        <b class="text-info offset-5">{{ b.month }}</b> 
+                    </div>
+                    <div>
+                        <p class="text-white">
+                            <b>Sows:</b>  {{ b.sow_population}}
+                        </p>
+                    </div>
+                    <hr>
+                    <div >
+                        <p class="text-white">
+                            <b> Boars:</b> {{ b.boar_population}}
+                        </p>
+                    </div>
+                    <hr>
+                    <div >
+                        <p class="text-white">
+                            <b> Hogs:</b> {{ b.hog_population}}
+                        </p>
+                    </div>
+                    <hr>
+                    <div>
+                        <p class="text-white">
+                            <b> Weaner:</b> {{ b.weaner_population}} 
+                        </p>
+                    </div>
+                    <hr>
+                    <div>
+                        <p class="text-white">
+                            <b>Grower:</b> {{ b.grower_population}} 
+                        </p>
+                    </div>
+                    <hr>
+                    <div>
+                        <p class="text-white">
+                            <b>Dry:</b> {{ b.dry_population}} 
+                        </p>
+                    </div>
+                    <hr>
+                    <div>
+                        <p class="text-white">
+                            <b>Total:</b> {{ b.dry_population}} 
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+            <div>
+              
+                <nav aria-label="Page navigation example">
+                  <ul class="pagination">
+                    
+                    {% if pcv_page_obj.has_previous %}
+                      
+                    <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ pcv_page_obj.previous_page_number }}"> Previous</a></li>
+                    
+                    {% endif %}
+                    
+                    
+                     
+                   {% for i in nums %}
+                    
+                    <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+  
+                   {% endfor %}
+                    
+                    {% if pcv_page_obj.has_next %}
+                      
+                    <li class="page-item"><a class="page-link" href="?page={{ pcv_page_obj.next_page_number }}">Next</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ pcv_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+                      
+                    {% endif %}
+                    
+                  </ul>
+                </nav>
+                <!-- /pagination -->
+              </div>
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+    <!-- /.container-wrapper-->
+  {% endblock %}
