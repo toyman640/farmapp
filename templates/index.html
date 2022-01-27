@@ -97,7 +97,7 @@ Home
               data: {
                   labels: [{% for count in count %} '{{ count.month|date:"M" }}', {% endfor %}],
                   datasets: [{
-                      label: 'Mortality',
+                      label: 'Mortality Rates',
                       data: [{% for count in count %} {{count.total }}, {% endfor %}],
                       backgroundColor: [
                           'rgba(255, 99, 132, 0.9)',
@@ -129,7 +129,6 @@ Home
       </script>
 		</div>
 	  </div>
-    <a href="{% url 'main:dashboard' %}" class="btn btn-info">back</a>
 	  <!-- /.container-fluid-->
    	</div>
       {% endblock %}

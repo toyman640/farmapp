@@ -28,31 +28,34 @@
                     </div>
                     <div>
                         <p class="text-white">
-                            <b>Cows:</b>  {{ b.cow_population}}
+                            <b class="offset-5" >Cows:</b>  {{ b.cow_population}}
                         </p>
                     </div>
                     <hr>
                     <div >
                         <p class="text-white">
-                            <b> Bulls:</b> {{ b.bull_population}}
+                            <b class="offset-5"> Bulls:</b> {{ b.bull_population}}
                         </p>
                     </div>
                     <hr>
                     <div >
                         <p class="text-white">
-                            <b> Calves:</b> {{ b.calf_population}}
+                            <b class="offset-5"> Calves:</b> {{ b.calf_population}}
                         </p>
                     </div>
                     <hr>
                     <div>
                         <p class="text-white">
-                            <b> Total:</b> {{ b.calf_population}} 
+                            {% for i in list %}
+                            <b class="offset-5"> Total:</b>  {{ list }}
+                            {% endfor %}
                         </p>
                     </div>
                 </div>
             </div>
             {% endfor %}
             {% endif %}
+            {{ check }}
             <div>
               
                 <nav aria-label="Page navigation example">

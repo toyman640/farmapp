@@ -97,3 +97,15 @@
                     <label for="exampleFormControlTextarea1">Cause of mortality(ies)</label>
                     <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
                   </div>
+
+
+                  <div class="card text-white boarder-primary mb-3" style="max-width: 18rem;">
+                    <div class="card-header text-dark">{{ b.month }}</div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item text-dark">Cows: {{ b.cow_population }}</li>
+                            <li class="list-group-item text-dark">Bull: {{ b.bull_population }}</li>
+                            <li class="list-group-item text-dark">Calves: {{ b.calf_population }}</li>
+                        </ul>
+                    </div>
+                </div>

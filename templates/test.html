@@ -102,5 +102,3 @@ Home
    aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
    <!-- label  -->
    {% for count in count %} '{{ count.month|date:"M" }}', {% endfor %}
-   <!-- data  -->
-   {% for count in count %}{{ count.total }},{% endfor %}
