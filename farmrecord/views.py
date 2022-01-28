@@ -1191,20 +1191,10 @@ def cencow_view(request):
     paginateccv = Paginator(cencowv, 12)
     page_number = request.GET.get('page')
     ccv_page_obj = paginateccv.get_page(page_number)
-    comb = CowCensusPop.objects.aggregate(total=Sum(F('cow_population') + F('bull_population') + F('calf_population')))['total']
     nums = "a" * ccv_page_obj.paginator.num_pages
-    calc = CowCensusPop.objects.all()
-    for instance in calc:
-        total = instance.cow_population + instance.bull_population + instance.calf_population
-        list = []
-        for i in range(0,total):
-            list.append(i)
     context = {
         'ccv_page_obj' : ccv_page_obj,
         'nums' : nums,
-        'comb' : comb,
-        'total' : total,
-        'instance' : instance,
         'list' : list
     }
     return render(request, 'cow-cenv.html', context)

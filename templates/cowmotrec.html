@@ -60,13 +60,25 @@ Cow Mortality
                   </tr>
                 </tbody>
             </table>
-            <h3>{{ total }}</h3>
             {% for a in count %}
-            
+            {% if forloop.last %}
+            <h3>{{ a.total }}</h3>
+            {% endif %}
+            {% endfor %}
+            {% for a in count %}
+            {% if forloop.last %}
             <label for="">Total mortality for Current month</label>
             <h4>{{ a.total }}</h4>
             <h5>{{ a.month|date:"M" }}</h5>
+            {% endif %}
             {% endfor %}
+            
+            
+            <label for="">Total mortality for Current month</label>
+            <h4>{{ total }}</h4>
+            <h5>{{ month|date:"M" }}</h5>
+            
+            
            
             <div>
               

@@ -17,7 +17,7 @@ Home
         <li class="breadcrumb-item active">My Dashboard admin</li>
       </ol>
 	  <!-- Icon Cards-->
-      <div class="row">
+      <div class="row" style="height: 250px;">
         <div class="col-xl-3 col-sm-6 mb-3">
           <div class="card dashboard text-white bg-primary o-hidden h-100">
             <div class="card-body">
@@ -103,23 +103,40 @@ Home
 		<!-- /cards -->
     <div class="box_general padding_bottom">
 		<div class="jumbotron">
-      <h3 class="text-center"><b> <marquee behavior="alternate" direction="">  Total Census </marquee></b></h3>
+            {% for c in ctotal %}
+            {% if forloop.last %}
+      <h3 class="text-center"><b> <marquee behavior="alternate" direction="">  Total Census For {{ c.month }} </marquee></b></h3>
       <div class="row">
         <div class="col-12">
           <div class="d-inline col-3">
-            <span style="font-size: 100px;" class=" number">5679</span>
+            
+            <span style="font-size: 100px;" class=" number">{{ c.addc }}</span>
+            {% endif %}
+            {% endfor %}
             <label for="">CATTLES</label>
           </div>
           <div class="d-inline col-3">
-            <span style="font-size: 100px;" class=" number">9854</span>
+            {% for d in ptotal %}
+            {% if forloop.last %}
+            <span style="font-size: 100px;" class=" number">{{ d.addp }}</span>
+            {% endif %}
+            {% endfor %}
             <label for="">PIGS</label>
           </div>
           <div class="d-inline col-3 ">
-            <span style="font-size: 100px;" class=" number">2578</span>
+            {% for i in stotal %}
+            {% if forloop.last %}
+            <span style="font-size: 100px;" class=" number">{{ i.adds }}</span>
+            {% endif %}
+            {% endfor %}
             <label for="">SHEEP</label>
           </div>
           <div class="d-inline col-3">
-            <span style="font-size: 100px;" class=" number">347</span>
+            {% for h in gtotal %}
+            {% if forloop.last %}
+            <span style="font-size: 100px;" class=" number">{{ h.addg }}</span>
+            {% endif %}
+            {% endfor %}
             <label for="">GOATS</label>
           </div>
         </div>

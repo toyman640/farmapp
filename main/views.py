@@ -9,7 +9,17 @@ from farmrecord.models import *
 
 @login_required(login_url='/admin-page/login')
 def dashboard(request):
-    return render(request, 'main/index.html')
+    cowpop = CowCensusPop.objects.order_by('-date')
+    pigpop = PigCensusPop.objects.all()
+    sheeppop = SheepCensusPop.objects.all()
+    goatpop = GoatCensusPop.objects.all()
+    context ={
+        'ctotal' : cowpop,
+        'ptotal' : pigpop,
+        'stotal' : sheeppop,
+        'gtotal' : goatpop
+    }
+    return render(request, 'main/index.html', context)
 
 def login_page(request):
     if request.method == 'POST':

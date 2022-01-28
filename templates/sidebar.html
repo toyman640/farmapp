@@ -152,20 +152,28 @@
             <span class="nav-link-text">Change Password</span>
           </a>
         </li>
-		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
-          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseComponents" data-parent="#Components">
-            <i class="fa fa-fw fa-gear"></i>
-            <span class="nav-link-text">Components</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listingsc">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#chart" data-parent="#mylistingsc">
+            <i class="fa fa-fw fa-list"></i>
+            <span class="nav-link-text">Monthly Census1</span>
           </a>
-          <ul class="sidenav-second-level collapse" id="collapseComponents">
+          <ul class="sidenav-second-level collapse" id="chart">
             <li>
-              Charts
+              <a href="{% url 'farmrecord:cen_pig' %}">Piggery</a>
             </li>
-			<li>
-             
-              Tables
+        <li>
+              <a href="{% url 'farmrecord:cen_cow' %}">Paddock</a>
+            </li>
+        <li>
+              <a href="{% url 'farmrecord:cen_goat' %}">Small ruminant(goat)</a>
+            </li>
+        <li>
+            <a href="{% url 'farmrecord:cen_sheep' %}">Small ruminant(sheep)</a>
+            <li>
+              <a class="nav-link" data-toggle="modal" data-target="">Records</a>
             </li>
           </ul>
+        
         </li>
       </ul>
       <ul class="navbar-nav sidenav-toggler">

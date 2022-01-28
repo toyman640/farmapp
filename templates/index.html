@@ -17,7 +17,7 @@ Home
         <li class="breadcrumb-item active">My Dashboard user</li>
       </ol>
 	  <!-- Icon Cards-->
-      <div class="row">
+      <div class="row" style="height: 200px;">
         <div class="col-xl-3 col-sm-6 mb-3">
           <div class="card dashboard text-white bg-primary o-hidden h-100">
             <div class="card-body">
@@ -95,7 +95,7 @@ Home
           const myChart = new Chart(ctx, {
               type: 'bar',
               data: {
-                  labels: [{% for count in count %} '{{ count.month|date:"M" }}', {% endfor %}],
+                  labels: [{% for count in count %} '{{ count.month|date:"M Y" }}', {% endfor %}],
                   datasets: [{
                       label: 'Mortality Rates',
                       data: [{% for count in count %} {{count.total }}, {% endfor %}],

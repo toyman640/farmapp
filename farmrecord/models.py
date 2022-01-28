@@ -319,7 +319,10 @@ class CowCensusPop(models.Model):
     calf_population = models.PositiveIntegerField(verbose_name='Calves Population', null=True, blank=True)
 
     def __str__(self):
-        return self.month
+        return self.month , self.cow_population , self.calf_population, self.bull_population
+
+    def addc(self):
+        return self.cow_population + self.calf_population + self.bull_population
 
 
 class GoatCensusPop(models.Model):
@@ -358,8 +361,10 @@ class GoatCensusPop(models.Model):
     kid_population = models.PositiveIntegerField(verbose_name='Kids Population', null=True, blank=True)
 
     def __str__(self):
-        return self.month
+        return self.month , self.doe_population , self.kid_population, self.buck_population
 
+    def addg(self):
+        return self.doe_population + self.kid_population + self.buck_population
 
 class PigCensusPop(models.Model):
     JANUARY = 'January'
@@ -400,7 +405,10 @@ class PigCensusPop(models.Model):
     dry_population = models.PositiveIntegerField(verbose_name='Dry Sows Population', null=True, blank=True)
 
     def __str__(self):
-        return self.month
+        return self.month , self.sow_population , self.boar_population, self.hog_population, self.weaner_population, self.grower_population, self.dry_population
+
+    def addp(self):
+        return self.sow_population + self.boar_population + self.hog_population + self.weaner_population + self.grower_population + self.dry_population
 
 class SheepCensusPop(models.Model):
     JANUARY = 'January'
@@ -438,4 +446,7 @@ class SheepCensusPop(models.Model):
     lamb_population = models.PositiveIntegerField(verbose_name='Lambs Population', null=True, blank=True)
 
     def __str__(self):
-        return self.month
+        return self.month , self.ewe_population , self.ram_population, self.lamb_population
+
+    def adds(self):
+        return self.ewe_population + self.ram_population + self.lamb_population
