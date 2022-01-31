@@ -16,7 +16,7 @@ from django.db.models import F
 def index(request):
     cowmot_count = CowMortality.objects.all()
     aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
-
+    
     return render(request, 'index.html', {'count' : aggregated})
 
 def test(request):

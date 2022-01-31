@@ -10,9 +10,9 @@ from farmrecord.models import *
 @login_required(login_url='/admin-page/login')
 def dashboard(request):
     cowpop = CowCensusPop.objects.order_by('-date')
-    pigpop = PigCensusPop.objects.all()
-    sheeppop = SheepCensusPop.objects.all()
-    goatpop = GoatCensusPop.objects.all()
+    pigpop = PigCensusPop.objects.order_by('-date')
+    sheeppop = SheepCensusPop.objects.order_by('-date')
+    goatpop = GoatCensusPop.objects.order_by('-date')
     context ={
         'ctotal' : cowpop,
         'ptotal' : pigpop,

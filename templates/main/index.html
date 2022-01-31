@@ -104,7 +104,7 @@ Home
     <div class="box_general padding_bottom">
 		<div class="jumbotron">
             {% for c in ctotal %}
-            {% if forloop.last %}
+            {% if forloop.first %}
       <h3 class="text-center"><b> <marquee behavior="alternate" direction="">  Total Census For {{ c.month }} </marquee></b></h3>
       <div class="row">
         <div class="col-12">
@@ -117,7 +117,7 @@ Home
           </div>
           <div class="d-inline col-3">
             {% for d in ptotal %}
-            {% if forloop.last %}
+            {% if forloop.first %}
             <span style="font-size: 100px;" class=" number">{{ d.addp }}</span>
             {% endif %}
             {% endfor %}
@@ -125,7 +125,7 @@ Home
           </div>
           <div class="d-inline col-3 ">
             {% for i in stotal %}
-            {% if forloop.last %}
+            {% if forloop.first %}
             <span style="font-size: 100px;" class=" number">{{ i.adds }}</span>
             {% endif %}
             {% endfor %}
@@ -133,7 +133,7 @@ Home
           </div>
           <div class="d-inline col-3">
             {% for h in gtotal %}
-            {% if forloop.last %}
+            {% if forloop.first %}
             <span style="font-size: 100px;" class=" number">{{ h.addg }}</span>
             {% endif %}
             {% endfor %}
@@ -151,7 +151,44 @@ Home
 			<div class="header_box version_2">
 				<h2><i class="fa fa-bar-chart"></i>Total Census </h2>
 			</div>
-		 <canvas id="myAreaChart" width="100%" height="30" style="margin:45px 0 15px 0;"></canvas>
+      <canvas id="myChart" width="400" height="150"></canvas>
+      <script>
+          const ctx = document.getElementById('myChart').getContext('2d');
+          const myChart = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                  labels: ['Cattles', 'Swine', 'Sheep', 'Goat'],
+                  datasets: [{
+                      label: 'Population',
+                      data: [{% for countc in ctotal %}{% if forloop.first %} {{ countc.addc }}, {% endif %}{% endfor %}{% for countp in ptotal %}{% if forloop.first %} {{ countp.addp }}, {% endif %}{% endfor %}{% for counts in stotal %}{% if forloop.first %} {{ counts.adds }}, {% endif %}{% endfor %}{% for countg in gtotal %}{% if forloop.first %} {{ countg.addg }}, {% endif %}{% endfor %}],
+                      backgroundColor: [
+                          'rgba(255, 99, 132, 0.9)',
+                          'rgba(54, 162, 235, 0.9)',
+                          'rgba(255, 206, 86, 0.9)',
+                          'rgba(75, 192, 192, 0.9)',
+                          'rgba(153, 102, 255, 0.9)',
+                          'rgba(255, 159, 64, 0.9)'
+                      ],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          'rgba(75, 192, 192, 1)',
+                          'rgba(153, 102, 255, 1)',
+                          'rgba(255, 159, 64, 1)'
+                      ],
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                      }
+                  }
+              }
+          });
+      </script>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->
