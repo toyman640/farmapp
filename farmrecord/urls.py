@@ -108,6 +108,7 @@ urlpatterns = [
     path('cow-population-records', views.cencow_view, name='cencow_view'),
     path('goat-population-records', views.cengoat_view, name='cengoat_view'),
     path('pig-population-records', views.cenpig_view, name='cenpig_view'),
-    path('sheep-population-records', views.censheep_view, name='censheep_view')
+    path('sheep-population-records', views.censheep_view, name='censheep_view'),
+    path('cow-census-chart', views.cow_chart, name='cow_chart')
 ]
 

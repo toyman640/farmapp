@@ -1237,3 +1237,14 @@ def censheep_view(request):
         'nums' : nums
     }
     return render(request, 'sheep-cenv.html', context)
+
+@login_required(login_url='/admin-page/login')
+def cow_chart(request):
+    cowmot_char = CowMortality.objects.all()
+    month_cow = cowmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    cowpop_char = CowCensusPop.objects.all()
+    context ={
+        'cmot' : month_cow,
+        'cpop' : cowpop_char,
+    }
+    return render(request, 'cow-chart.html', context)
