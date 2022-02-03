@@ -3,6 +3,8 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db.models.aggregates import Count, Sum
+from django.db.models.functions import TruncMonth
 from farmrecord.models import *
 
 # Create your views here.
@@ -162,3 +164,32 @@ def sheep_proca(request):
 def sheep_culla(request):
     sca = SheepCulling.objects.order_by('-date')
     return render(request, 'main/sheepcull-a.html', {'sca' : sca})
+
+@login_required(login_url='/admin-page/login')
+def cow_all(request):
+    c_chart = CowMortality.objects.all()
+    chart_countc = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    bull_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('bull_num'))
+    cow_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
+    calf_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('calves'))
+    popad = CowCensusPop.objects.order_by('-date')[:12]
+    context = {
+        'motcc' : chart_countc,
+        'popc' : popad,
+        'bullc' : bull_count,
+        'cowc' : cow_count,
+        'calfc' : calf_count
+    }
+    return render(request, 'main/cow-allad.html', context)
+
+@login_required(login_url='/admin-page/login')
+def goat_all(request):
+    return render(request, 'main/goat-allad.html')
+
+@login_required(login_url='/admin-page/login')
+def pig_all(request):
+    return render(request, 'main/pig-allad.html')
+
+@login_required(login_url='/admin-page/login')
+def sheep_all(request):
+    return render(request, 'main/sheep-allad.html')

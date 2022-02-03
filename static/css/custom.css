@@ -13,3 +13,167 @@
 .latest{
     width: 50%;
 }
+
+.panel {
+    border: 0; }
+  
+.panel-container {
+    padding-top: 20px; }
+  
+.panel-heading .fa-toggle-up, .panel-heading .fa-toggle-down {
+    font-size: 17px; }
+  
+.panel-primary > .panel-heading {
+    background-color: #30a5ff;
+    color: #fff;
+    border: none; }
+  
+.panel-success > .panel-heading {
+    background-color: #8ad919;
+    color: #fff;
+    border: none; }
+  
+.panel-info > .panel-heading {
+    background-color: #30a5ff;
+    color: #fff;
+    border: none; }
+  
+.panel-warning > .panel-heading {
+    background-color: #ffb53e;
+    color: #fff;
+    border: none; }
+  
+.panel-danger > .panel-heading {
+    background-color: #f9243f;
+    color: #fff;
+    border: none; }
+  
+.panel-primary .panel-settings, .panel-primary .panel-toggle, .panel-success .panel-settings, .panel-success .panel-toggle, .panel-info .panel-settings, .panel-info .panel-toggle, .panel-warning .panel-settings, .panel-warning .panel-toggle, .panel-danger .panel-settings, .panel-danger .panel-toggle {
+    border: none;
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.2); }
+  
+.panel-primary .panel-settings:hover, .panel-primary .panel-toggle:hover, .panel-success .panel-settings:hover, .panel-success .panel-toggle:hover, .panel-info .panel-settings:hover, .panel-info .panel-toggle:hover, .panel-warning .panel-settings:hover, .panel-warning .panel-toggle:hover, .panel-danger .panel-settings:hover, .panel-danger .panel-toggle:hover {
+    border: none;
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.4); }
+  
+.panel-blue {
+    background: #30a5ff;
+    color: #fff; }
+  
+.panel-teal {
+    background: #1ebfae;
+    color: #fff; }
+  
+.panel-orange {
+    background: #ffb53e;
+    color: #fff; }
+  
+.panel-red {
+    background: #f9243f;
+    color: #fff; }
+  
+.dark-overlay {
+    background: rgba(0, 0, 0, 0.05); }
+  
+.panel-blue p, .panel-teal p, .panel-orange p, .panel-red p {
+    color: rgba(255, 255, 255, 0.75); }
+  
+.panel-heading {
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 0.025em;
+    height: 60px;
+    line-height: 38px; }
+  
+.panel-default .panel-heading {
+    background: #fff;
+    border-bottom: 1px solid #e9ecf2;
+    color: #444444; }
+  
+.panel-footer {
+    background: #fff;
+    border-top: 1px solid #e9ecf2; }
+  
+.panel-widget {
+    padding: 10px 0;
+    position: relative;
+    box-shadow: none;
+    border-radius: 0;
+    background: none;
+    text-align: center;
+    color: #333; }
+  
+.panel-widget .panel-footer {
+    border: 0;
+    text-align: center; }
+  
+.panel-footer .input-group {
+    padding: 0px;
+    margin: 0 -5px; }
+  
+.panel-footer .input-group-btn:last-child > .btn, .panel-footer .input-group-btn:last-child > .btn-group {
+    margin: 0; }
+  
+.panel-widget .panel-footer a {
+    color: #999; }
+  
+.panel-widget .panel-footer a:hover {
+    color: #666;
+    text-decoration: none; }
+  
+.panel-widget .text-muted {
+    margin-top: -6px;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.8em; }
+  
+.panel-widget .large {
+    color: #373b45;
+    font-size: 3em; }
+  
+.panel-settings {
+    list-style: none;
+    padding: 0;
+    margin: 0; }
+  
+.panel-settings .dropdown a.dropdown-toggle, .panel-settings a {
+    padding: 0;
+    background: none;
+    color: #7c7c7c; }
+  
+.panel-settings a, .panel-toggle {
+    width: 40px;
+    padding: 2px 0 0 0; }
+  
+.panel-settings:hover, .panel-toggle:hover, .panel-settings .dropdown a.dropdown-toggle:hover, .panel-settings:active, .panel-toggle:active, .panel-settings .dropdown a.dropdown-toggle:active, .panel-settings:focus, .panel-toggle:focus, .panel-settings .dropdown a.dropdown-toggle:focus {
+    background: #f1f4f7;
+    color: #444444; }
+  
+.panel-settings, .panel-toggle {
+    display: inline-block;
+    margin: -1px -5px 0 15px !important;
+    border-radius: 4px;
+    text-align: center;
+    border: 1px solid #e9ecf2;
+    color: #7c7c7c;
+    background: #fff;
+    width: 42px; }
+  
+.panel-settings {
+    width: 42px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px; }
+  
+.panel-settings li.dropdown {
+    margin: 0;
+    padding: 0; }
+
+.large {
+    font-size: 2em; }
+
+.text-muted {
+    color: #c5c7cc; }
+
+      

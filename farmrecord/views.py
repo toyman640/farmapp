@@ -16,7 +16,6 @@ from django.db.models import F
 def index(request):
     cowmot_count = CowMortality.objects.all()
     aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
-    
     return render(request, 'index.html', {'count' : aggregated})
 
 def test(request):
@@ -1242,9 +1241,67 @@ def censheep_view(request):
 def cow_chart(request):
     cowmot_char = CowMortality.objects.all()
     month_cow = cowmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
-    cowpop_char = CowCensusPop.objects.all()
+    cowpop_char = CowCensusPop.objects.order_by('-month')[:12]
     context ={
         'cmot' : month_cow,
         'cpop' : cowpop_char,
     }
     return render(request, 'cow-chart.html', context)
+
+@login_required(login_url='/admin-page/login')
+def goat_chart(request):
+    goatmot_char = GoatMortality.objects.all()
+    month_goat = goatmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    goatpop_char = GoatCensusPop.objects.order_by('-month')[:12]
+    context ={
+        'gmot' : month_goat,
+        'gpop' : goatpop_char,
+    }
+    return render(request, 'goat-chart.html', context)
+
+@login_required(login_url='/admin-page/login')
+def sheep_chart(request):
+    sheepmot_char = SheepMortality.objects.all()
+    month_sheep = sheepmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    sheeppop_char = SheepCensusPop.objects.order_by('-month')[:12]
+    context ={
+        'smot' : month_sheep,
+        'spop' : sheeppop_char,
+    }
+    return render(request, 'sheep-chart.html', context)
+
+@login_required(login_url='/admin-page/login')
+def pig_chart(request):
+    pigmot_char = PigMortality.objects.all()
+    month_pig = pigmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    pigpop_char = PigCensusPop.objects.order_by('-month')[:12]
+    context ={
+        'pmot' : month_pig,
+        'ppop' : pigpop_char,
+    }
+    return render(request, 'pig-chart.html', context)
+
+@login_required(login_url='/admin-page/login')
+def delete_cowpop(request, cenc_id):
+    post_record = get_object_or_404(CowCensusPop, id=cenc_id)
+    post_record.delete()
+    return redirect('farmrecord:cencow_view')
+
+@login_required(login_url='/admin-page/login')
+def delete_pigpop(request, cenp_id):
+    post_record = get_object_or_404(PigCensusPop, id=cenp_id)
+    post_record.delete()
+    return redirect('farmrecord:cenpig_view')
+
+@login_required(login_url='/admin-page/login')
+def delete_goatpop(request, ceng_id):
+    post_record = get_object_or_404(GoatCensusPop, id=ceng_id)
+    post_record.delete()
+    return redirect('farmrecord:cengoat_view')
+
+@login_required(login_url='/admin-page/login')
+def delete_sheeppop(request, cens_id):
+    post_record = get_object_or_404(SheepCensusPop, id=cens_id)
+    post_record.delete()
+    return redirect('farmrecord:censheep_view')
+

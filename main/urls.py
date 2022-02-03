@@ -25,5 +25,9 @@ urlpatterns = [
     path('sheep-mortality-page', views.sheep_mota, name='sheep_mota'),
     path('sheep-cull-page', views.sheep_culla, name='sheep_culla'),
     path('sheep-sale-page', views.sheep_salea, name='sheep_salea'),
-    path('sheep-procurement-page', views.sheep_proca, name='sheep_proca')
+    path('sheep-procurement-page', views.sheep_proca, name='sheep_proca'),
+    path('cattle-results-page', views.cow_all, name='cow_all'),
+    path('goat-results-page', views.goat_all, name='goat_all'),
+    path('pig-results-page', views.pig_all, name='pig_all'),
+    path('sheep-results-page', views.sheep_all, name='sheep_all')
 ]

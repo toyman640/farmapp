@@ -24,7 +24,7 @@
             <div class="row mb-3">
                 <div class="col-12 bg-dark rounded-pill card">
                     <div class="card-header">
-                        <b class="text-info offset-5">{{ b.month }}</b> 
+                        <b class="text-info offset-5">{{ b.month }}</b> <a href="{% url 'farmrecord:delete_pigpop' b.id %}" class="btn btn-danger btn-sm float-right">Delete</a>
                     </div>
                     <div>
                         <p class="text-white offset-5">

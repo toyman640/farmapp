@@ -1,0 +1,166 @@
+{% extends 'main/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+ Cow-Records
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Large ruminant(cow) Records</li>
+      </ol>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Large ruminant(cow) Records</li>
+      </ol>
+	  <!-- Icon Cards-->
+		<div class="box_general padding_bottom">
+            <div class="panel panel-container">
+                <h3 class=" offset-4 mb-5"><span class="badge badge-secondary"> Entry Records For the Month Of </span></h3>
+                <div class="row">
+                    <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                        <div class="panel panel-teal panel-widget border-right">
+                            <div class="row no-padding"><em class="fa fa-xl fa-shopping-cart color-blue"></em>
+                                {% for s in bullc %}
+                                {% if forloop.last %}
+                                <div class="large">{{ s.total }}</div>
+                                {% endif %}
+                                {% endfor %}
+                                <div class="text-muted">Bulls</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                        <div class="panel panel-blue panel-widget border-right">
+                            <div class="row no-padding"><em class="fa fa-xl fa-comments color-orange"></em>
+                                <div class="large">52</div>
+                                <div class="text-muted">Comments</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                        <div class="panel panel-orange panel-widget border-right">
+                            <div class="row no-padding"><em class="fa fa-xl fa-users color-teal"></em>
+                                <div class="large">24</div>
+                                <div class="text-muted">New Users</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                        <div class="panel panel-red panel-widget ">
+                            <div class="row no-padding"><em class="fa fa-xl fa-search color-red"></em>
+                                <div class="large">25.2k</div>
+                                <div class="text-muted">Page Views</div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!--/.row-->
+            </div>
+		</div>
+        <div class="box_general padding_bottom">
+            <div class="row">
+                <div class="col-6">
+                    <div class="header_box version_2">
+                        <h2><i class="fa fa-bar-chart"></i>Cattle Mortality rates over month(s)</h2>
+                    </div>
+                    <canvas id="myChart" width="400" height="250"></canvas>
+                    <script>
+                    const ctx = document.getElementById('myChart').getContext('2d');
+                    const myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: [{% for count in motcc %} '{{ count.month|date:"M Y" }}', {% endfor %}],
+                            datasets: [{
+                                label: 'number of mortality records',
+                                data: [{% for count in motcc %} {{count.total }}, {% endfor %}],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                    </script>
+                    
+                </div>
+                <div class="col-6">
+                    <div class="header_box version_2">
+                        <h2><i class="fa fa-bar-chart"></i>Cattle Population rates over month(s)</h2>
+                    </div>
+                    <canvas id="myChartp" width="400" height="250"></canvas>
+                    <script>
+                    const ctxp = document.getElementById('myChartp').getContext('2d');
+                    const myChartp = new Chart(ctxp, {
+                        type: 'bar',
+                        data: {
+                            labels: [{% for countc in popc %}'{{ countc.month }}', {% endfor %}],
+                            datasets: [{
+                                label: 'Population',
+                                data: [{% for countc in popc %} {{ countc.addc }}, {% endfor %}],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                    </script>
+
+                </div>
+            </div>
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+    <!-- /.container-wrapper-->
+  {% endblock %}

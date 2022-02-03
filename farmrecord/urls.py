@@ -109,6 +109,15 @@ urlpatterns = [
     path('goat-population-records', views.cengoat_view, name='cengoat_view'),
     path('pig-population-records', views.cenpig_view, name='cenpig_view'),
     path('sheep-population-records', views.censheep_view, name='censheep_view'),
-    path('cow-census-chart', views.cow_chart, name='cow_chart')
+    path('cow-census-chart', views.cow_chart, name='cow_chart'),
+    path('goat-census-chart', views.goat_chart, name='goat_chart'),
+    path('pig-census-chart', views.pig_chart, name='pig_chart'),
+    path('sheep-census-chart', views.sheep_chart, name='sheep_chart'),
+    path('delete-census-cow/<int:cenc_id>', views.delete_cowpop, name='delete_cowpop'),
+    path('delete-census-goat/<int:ceng_id>', views.delete_goatpop, name='delete_goatpop'),
+    path('delete-census-sheep/<int:cens_id>', views.delete_sheeppop, name='delete_sheeppop'),
+    path('delete-census-pig/<int:cenp_id>', views.delete_pigpop, name='delete_pigpop')
+    
+
 ]
 
