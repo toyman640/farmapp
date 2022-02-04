@@ -17,53 +17,65 @@
         </li>
         <li class="breadcrumb-item active">Large ruminant(cow) Records</li>
       </ol>
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item active">Large ruminant(cow) Records</li>
-      </ol>
+        <div class="box_general padding_bottom bg-light">
+            <div class="row ">
+                <div class="col-2">One</div>
+                <div class="col-2">Two</div>
+                <div class="col-2">Three</div>
+                <div class="col-2">four</div>
+                <div class="col-2">five</div>
+                <div class="col-2">six</div>
+            </div>
+        </div>
 	  <!-- Icon Cards-->
 		<div class="box_general padding_bottom">
             <div class="panel panel-container">
-                <h3 class=" offset-4 mb-5"><span class="badge badge-secondary"> Entry Records For the Month Of </span></h3>
+                {% for s in bullc %}
+                {% if forloop.last %}
+                <h3 class=" offset-4 mb-5"><span class="badge badge-secondary">Mortality Entry Records For the Month Of {{ s.month|date:"M" }}</span></h3>
                 <div class="row">
-                    <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                    <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
                         <div class="panel panel-teal panel-widget border-right">
-                            <div class="row no-padding"><em class="fa fa-xl fa-shopping-cart color-blue"></em>
-                                {% for s in bullc %}
-                                {% if forloop.last %}
-                                <div class="large">{{ s.total }}</div>
+                            <div class="row no-padding"><em class="fa fa-xl fa-shopping-cart color-blue"></em>                             
+                                <div class="large value counter">{{ s.total }}</div>
                                 {% endif %}
                                 {% endfor %}
-                                <div class="text-muted">Bulls</div>
+                                <div class="text-muted">Bull(s)</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                    <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
                         <div class="panel panel-blue panel-widget border-right">
                             <div class="row no-padding"><em class="fa fa-xl fa-comments color-orange"></em>
-                                <div class="large">52</div>
-                                <div class="text-muted">Comments</div>
+                                {% for h in cowc %}
+                                {% if forloop.last %}
+                                <div class="large value counter">{{ h.total }}</div>
+                                <div class="text-muted">Cow(s)</div>
+                                {% endif %}
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                    <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
                         <div class="panel panel-orange panel-widget border-right">
                             <div class="row no-padding"><em class="fa fa-xl fa-users color-teal"></em>
-                                <div class="large">24</div>
-                                <div class="text-muted">New Users</div>
+                                {% for d in calfc %}
+                                {% if forloop.last %}
+                                <div class="large value counter">{{ d.total }}</div>
+                                <div class="text-muted">Calf(ves)</div>
+                                {% endif %}
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                    <!-- <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
                         <div class="panel panel-red panel-widget ">
                             <div class="row no-padding"><em class="fa fa-xl fa-search color-red"></em>
-                                <div class="large">25.2k</div>
-                                <div class="text-muted">Page Views</div>
+                                <div class="large"></div>
+                                <div class="text-muted">Total</div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div><!--/.row-->
             </div>
 		</div>
