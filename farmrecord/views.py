@@ -123,13 +123,13 @@ def cow_procrec(request):
     cp_page_obj = paginated_filtercp.get_page(page_number)
     nums = "a" * cp_page_obj.paginator.num_pages
     context = {
-        'cm_page_obj': cow_prec,
+        'cp_page_obj': cow_prec,
         'nums': nums,
         'q'    : query_form
         
     }
     context['cm_page_obj'] = cp_page_obj
-    return render(request, 'cowprocrec.html', {'cow_prec': cow_prec}, context)
+    return render(request, 'cowprocrec.html', context)
 
 @login_required(login_url='/admin-page/login')
 def cow_cullrec(request):
@@ -176,6 +176,7 @@ def goat_cull(request):
         if goat_cull.is_valid():
             goat_cull.save()
             messages.success(request, 'Entry Saved')
+            goat_cull = GoatcullForm()
     else:
         goat_cull = GoatcullForm()
     return render(request, 'goat-cull.html', {'goat_cull': goat_cull})
@@ -1042,7 +1043,7 @@ def cowproc_filter(request):
             end_date = cowproc_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = CowProcurement.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'filter-sheepproc.html', {'queryset': result, 'q': cowproc_query})
+            return render(request, 'filter-cowproc.html', {'queryset': result, 'q': cowproc_query})
         else:
             messages.error(request, 'Out of range')
     else:

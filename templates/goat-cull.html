@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 <!Doctype html>
 {% block title %}
-Goat Culling
+Goat-culling
 {% endblock %}
 
 {% block content %}
@@ -14,62 +15,20 @@ Goat Culling
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">Cow Culling</li>
+        <li class="breadcrumb-item active">Goat Culling</li>
       </ol>
+	  <!-- Icon Cards-->
 		<div class="box_general padding_bottom">
-			<table>
-        <caption>Culling Records</caption>
-        <thead>
-          <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Bull(s)</th>
-            <th scope="col">Cow(s)</th>
-            <th scope="col">Location(s)</th>
-            <th scope="col">ACTION(View others)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if gc_page_obj %}
-          {% for a in gc_page_obj %}
-          <tr>
-            <td data-label="Date">{{ a.date }}</td>
-            <td data-label="Bull(s)">{{ a.buck_num }}</td>
-            <td data-label="Cow(s)">{{ a.doe_num }}</td>
-            <td data-label="Location(s)">{{ a.location }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:goat_cullrec_view' a.id %}" >View</a></th>
-          {% endfor %}
-          {% endif %} 
-          </tr>
-        </tbody>
-    </table>
-    <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        
-        {% if gc_page_obj.has_previous %}
-          
-        <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ gc_page_obj.previous_page_number }}"> Previous</a></li>
-        
-        {% endif %}
-        
-        
-         
-       {% for i in nums %}
-        
-        <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
-
-       {% endfor %}
-        
-        {% if gc_page_obj.has_next %}
-          
-        <li class="page-item"><a class="page-link" href="?page={{ gc_page_obj.next_page_number }}">Next</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ gc_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
-          
-        {% endif %}
-        
-      </ul>
-    </nav>
-    <!-- /pagination -->
+      {% if messages %}
+      {% for m in messages %}
+        <div class="alert {{ m.tags }}">{{ m }}</div>
+      {% endfor %}
+      {% endif %}
+          <form method="post" enctype="multipart/form-data" action="">
+            {{ goat_cull | crispy }}
+            {% csrf_token %}
+              <button class="btn btn-success" value="submit">Submit</button>
+          </form>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

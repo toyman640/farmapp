@@ -17,9 +17,182 @@
         </li>
         <li class="breadcrumb-item active">Small ruminant(goat) Records</li>
       </ol>
+        <div class="box_general padding_bottom bg-light">
+            <div class="row ">
+                <div class="col-2">One</div>
+                <div class="col-2">Two</div>
+                <div class="col-2">Three</div>
+                <div class="col-2">four</div>
+                <div class="col-2">five</div>
+                <div class="col-2">six</div>
+            </div>
+        </div>
 	  <!-- Icon Cards-->
 		<div class="box_general padding_bottom">
-        
+            <div class="panel panel-container">
+                {% for s in buckc %}
+                {% if forloop.last %}
+                <h3 class=" offset-4 mb-5"><span class="badge badge-secondary">Mortality Entry Records For the Month Of {{ s.month|date:"M" }}</span></h3>
+                <div class="row">
+                    <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
+                        <div class="panel panel-teal panel-widget border-right">
+                            <div class="row no-padding"><em class="fa fa-xl fa-shopping-cart color-blue"></em>                             
+                                <div class="large value counter">{{ s.total }}</div>
+                                {% endif %}
+                                {% endfor %}
+                                <div class="text-muted">Buck(s)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
+                        <div class="panel panel-blue panel-widget border-right">
+                            <div class="row no-padding"><em class="fa fa-xl fa-comments color-orange"></em>
+                                {% for h in doec %}
+                                {% if forloop.last %}
+                                <div class="large value counter">{{ h.total }}</div>
+                                <div class="text-muted">Doe(s)</div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
+                        <div class="panel panel-orange panel-widget border-right">
+                            <div class="row no-padding"><em class="fa fa-xl fa-users color-teal"></em>
+                                {% for d in kidc %}
+                                {% if forloop.last %}
+                                <div class="large value counter">{{ d.total }}</div>
+                                <div class="text-muted">Kid(s)</div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div><!--/.row-->
+            </div>
+		</div>
+        <div class="box_general padding_bottom">
+            <div class="panel panel-container">
+                {% for s in buckcull %}
+                {% if forloop.last %}
+                <h3 class=" offset-4 mb-5"><span class="badge badge-secondary">Culling Entry Records For the Month Of {{ s.month|date:"M" }}</span></h3>
+                <div class="row">
+                    <div class="col-xs-6 col-md-4 col-lg-6 no-padding">
+                        <div class="panel panel-teal panel-widget border-right">
+                            <div class="row no-padding"><em class="fa fa-xl fa-shopping-cart color-blue"></em>                             
+                                <div class="large value counter">{{ s.total }}</div>
+                                {% endif %}
+                                {% endfor %}
+                                <div class="text-muted">Buck(s)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-4 col-lg-6 no-padding">
+                        <div class="panel panel-blue panel-widget border-right">
+                            <div class="row no-padding"><em class="fa fa-xl fa-comments color-orange"></em>
+                                {% for h in doecull %}
+                                {% if forloop.last %}
+                                <div class="large value counter">{{ h.total }}</div>
+                                <div class="text-muted">Doe(s)</div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div><!--/.row-->
+            </div>
+		</div>
+        <div class="box_general padding_bottom">
+            <div class="row">
+                <div class="col-6">
+                    <div class="header_box version_2">
+                        <h2><i class="fa fa-bar-chart"></i>Cattle Mortality rates over month(s)</h2>
+                    </div>
+                    <canvas id="myChart" width="400" height="250"></canvas>
+                    <script>
+                    const ctx = document.getElementById('myChart').getContext('2d');
+                    const myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: [{% for count in motcg %} '{{ count.month|date:"M Y" }}', {% endfor %}],
+                            datasets: [{
+                                label: 'number of mortality records',
+                                data: [{% for count in motcg %} {{count.total }}, {% endfor %}],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                    </script>
+                    
+                </div>
+                <div class="col-6">
+                    <div class="header_box version_2">
+                        <h2><i class="fa fa-bar-chart"></i>Cattle Population rates over month(s)</h2>
+                    </div>
+                    <canvas id="myChartp" width="400" height="250"></canvas>
+                    <script>
+                    const ctxp = document.getElementById('myChartp').getContext('2d');
+                    const myChartp = new Chart(ctxp, {
+                        type: 'bar',
+                        data: {
+                            labels: [{% for countc in popg %}'{{ countc.month }}', {% endfor %}],
+                            datasets: [{
+                                label: 'Population',
+                                data: [{% for countc in popg %} {{ countc.addg }}, {% endfor %}],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                    </script>
+
+                </div>
+            </div>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

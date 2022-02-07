@@ -14,7 +14,7 @@ Goat Culling
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">Goat Culling</li>
       </ol>
 		<div class="box_general padding_bottom">
       <h5>Show only from:</h5>
@@ -41,8 +41,8 @@ Goat Culling
           </tr>
         </thead>
         <tbody>
-          {% if goat_crec %}
-          {% for a in goat_crec %}
+          {% if gc_page_obj %}
+          {% for a in gc_page_obj %}
           <tr>
             <td data-label="Date">{{ a.date }}</td>
             <td data-label="Buck(s)">{{ a.buck_num }}</td>

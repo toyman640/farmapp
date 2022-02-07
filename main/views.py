@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.db.models.aggregates import Count, Sum
 from django.db.models.functions import TruncMonth
 from farmrecord.models import *
+import math
+from django.db.models import ExpressionWrapper
 
 # Create your views here.
 
@@ -169,27 +171,86 @@ def sheep_culla(request):
 def cow_all(request):
     c_chart = CowMortality.objects.all()
     chart_countc = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
-    bull_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('bull_num'))
-    cow_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
+    bullM_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('bull_num'))
+    cowM_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
     calf_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('calves'))
     popad = CowCensusPop.objects.order_by('-date')[:12]
+    cullcow = CowCulling.objects.all()
+    bullC_count = cullcow.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('bull_num'))
+    cowC_count = cullcow.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
     context = {
         'motcc' : chart_countc,
         'popc' : popad,
-        'bullc' : bull_count,
-        'cowc' : cow_count,
-        'calfc' : calf_count
+        'bullc' : bullM_count,
+        'cowc' : cowM_count,
+        'calfc' : calf_count,
+        'bullcull' : bullC_count,
+        'cowcull' : cowC_count
     }
     return render(request, 'main/cow-allad.html', context)
 
 @login_required(login_url='/admin-page/login')
 def goat_all(request):
-    return render(request, 'main/goat-allad.html')
+    g_chart = GoatMortality.objects.all()
+    chart_countg = g_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    buckM_count = g_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('buck_num'))
+    doeM_count = g_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('doe_num'))
+    kid_count = g_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('kid'))
+    popadg = GoatCensusPop.objects.order_by('-date')[:12]
+    cullgoat = GoatCulling.objects.all()
+    buckC_count = cullgoat.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('buck_num'))
+    doeC_count = cullgoat.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('doe_num'))
+    context = {
+        'motcg' : chart_countg,
+        'popg' : popadg,
+        'buckc' : buckM_count,
+        'doec' : doeM_count,
+        'kidc' : kid_count,
+        'buckcull' : buckC_count,
+        'doecull' : doeC_count
+    }
+    return render(request, 'main/goat-allad.html', context)
 
 @login_required(login_url='/admin-page/login')
 def pig_all(request):
-    return render(request, 'main/pig-allad.html')
+    p_chart = PigMortality.objects.all()
+    chart_countp = p_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    boarM_count = p_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('boar_num'))
+    sowM_count = p_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('sow_num'))
+    pigglet_count = p_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('pigglet'))
+    popadp = PigCensusPop.objects.order_by('-date')[:12]
+    cullpig = PigCulling.objects.all()
+    boarC_count = cullpig.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('boar_num'))
+    sowC_count = cullpig.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('sow_num'))
+    context = {
+        'motcp' : chart_countp,
+        'popp' : popadp,
+        'boarc' : boarM_count,
+        'sowc' : sowM_count,
+        'piggletc' : pigglet_count,
+        'boarcull' : boarC_count,
+        'sowcull' : sowC_count
+    }
+    return render(request, 'main/pig-allad.html', context)
 
 @login_required(login_url='/admin-page/login')
 def sheep_all(request):
-    return render(request, 'main/sheep-allad.html')
+    s_chart = SheepMortality.objects.all()
+    chart_counts = s_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    ramM_count = s_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ram_num'))
+    eweM_count = s_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ewe_num'))
+    lamb_count = s_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('lamb'))
+    popads = SheepCensusPop.objects.order_by('-date')[:12]
+    cullsheep = SheepCulling.objects.all()
+    ramC_count = cullsheep.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ram_num'))
+    eweC_count = cullsheep.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ewe_num'))
+    context = {
+        'motcs' : chart_counts,
+        'pops' : popads,
+        'ramc' : ramM_count,
+        'ewec' : eweM_count,
+        'lambc' : lamb_count,
+        'ramcull' : ramC_count,
+        'ewecull' : eweC_count
+    }
+    return render(request, 'main/sheep-allad.html', context)
