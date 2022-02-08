@@ -2,7 +2,7 @@
 {% load static %}
 <!Doctype html>
 {% block title %}
-Cow Sale
+Goat Sale
 {% endblock %}
 
 {% block content %}
@@ -42,10 +42,10 @@ Cow Sale
                 <h4 class="h4 mt">Reason:</h4>
                 <p>{{ Sview.reason }}</p>
                 <hr>
-                <a href="{% url 'farmrecord:goat_cullrec' %}" class="btn btn-secondary">Go Back</a>
+                <a href="{% url 'farmrecord:goat_salerec' %}" class="btn btn-secondary">Go Back</a>
                 
-                <a href="{% url 'farmrecord:delete_postc' Sview.id %}" class="btn btn-danger float-right">Delete</a>
-                <a href="{% url 'farmrecord:edit_goatcull' Sview.id %}" class="btn btn-warning float-right mr-2">Edit</a>
+                <a href="{% url 'farmrecord:delete_postsaleg' Sview.id %}" class="btn btn-danger float-right">Delete</a>
+                <a href="{% url 'farmrecord:edit_goatsale' Sview.id %}" class="btn btn-warning float-right mr-2">Edit</a>
                 
               </div>
             </div>

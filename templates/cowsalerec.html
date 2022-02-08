@@ -39,7 +39,7 @@ Cow Sale
             <th scope="col">Cow(s)</th>
             <th scope="col">Size(s)</th>
             <th scope="col">Weight(s)</th>
-            <th scope="col">Price(s)</th>
+            <th scope="col"> Total Price(&#8358;)</th>
             <th scope="col">ACTION(View others)</th>
           </tr>
         </thead>
@@ -53,7 +53,7 @@ Cow Sale
             <td data-label="Cow(s)">{{ a.cow_num }}</td>
             <td data-label="Size(s)">{{ a.size }}</td>
             <td data-label="Weight(s)">{{ a.weight }}</td>
-            <td data-label="Price(s)">{{ a.price }}</td>
+            <td data-label="Total Price(&#8358;)"> {{ a.total_price }}</td>
             <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_salerec_view' a.id %}" >View</a></th>
           {% endfor %}
           {% endif %} 

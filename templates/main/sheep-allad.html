@@ -19,12 +19,17 @@
       </ol>
         <div class="box_general padding_bottom bg-light">
             <div class="row ">
-                <div class="col-2">One</div>
-                <div class="col-2">Two</div>
-                <div class="col-2">Three</div>
-                <div class="col-2">four</div>
-                <div class="col-2">five</div>
-                <div class="col-2">six</div>
+                
+                <div class="col-6"> <h5>Total Sheep Sales for the month: &#8358;
+                    {% for m in sheepsale%}
+                    {% if forloop.last %} 
+                    <span class="counter">{{ m.total }}</span></h5>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                    
+                <div class="col-6">Procurements</div>
+                
             </div>
         </div>
 	  <!-- Icon Cards-->
@@ -70,6 +75,7 @@
                     </div>
                 </div><!--/.row-->
             </div>
+            <a href="{% url 'main:sheep_mota' %}" class="btn btn-info btn-sm">View all Mortality Records</a>
 		</div>
         <div class="box_general padding_bottom">
             <div class="panel panel-container">
@@ -101,6 +107,7 @@
                     </div>
                 </div><!--/.row-->
             </div>
+            <a href="{% url 'main:sheep_culla' %}" class="btn btn-info btn-sm ">View all Culling Records</a>
 		</div>
         <div class="box_general padding_bottom">
             <div class="row">

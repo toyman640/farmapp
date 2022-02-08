@@ -19,12 +19,15 @@
       </ol>
         <div class="box_general padding_bottom bg-light">
             <div class="row ">
-                <div class="col-2">One</div>
-                <div class="col-2">Two</div>
-                <div class="col-2">Three</div>
-                <div class="col-2">four</div>
-                <div class="col-2">five</div>
-                <div class="col-2">six</div>
+                
+                <div class="col-6"> <h5>Total Cattle Sales for the month: &#8358;
+                    {% for b in cowsale%}
+                    {% if forloop.last %} 
+                    <span class="counter">{{ b.total }}</span></h5>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="col-6">Two</div>  
             </div>
         </div>
 	  <!-- Icon Cards-->
@@ -72,7 +75,7 @@
                     
                 </div><!--/.row-->
             </div>
-            <a href="http://" class="btn btn-warning btn-sm ">View all Records</a>
+            <a href="{% url 'main:cow_mota' %}" class="btn btn-info btn-sm ">View all Mortality Records</a>
 		</div>
         <div class="box_general padding_bottom">
             <div class="panel panel-container">
@@ -104,6 +107,7 @@
                     </div>
                 </div><!--/.row-->
             </div>
+            <a href="{% url 'main:cow_culla' %}" class="btn btn-info btn-sm ">View all Culling Records</a>
 		</div>
         <div class="box_general padding_bottom">
             <div class="row">

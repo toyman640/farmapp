@@ -17,14 +17,17 @@
         </li>
         <li class="breadcrumb-item active">Small ruminant(goat) Records</li>
       </ol>
-        <div class="box_general padding_bottom bg-light">
+      <div class="box_general padding_bottom bg-light">
             <div class="row ">
-                <div class="col-2">One</div>
-                <div class="col-2">Two</div>
-                <div class="col-2">Three</div>
-                <div class="col-2">four</div>
-                <div class="col-2">five</div>
-                <div class="col-2">six</div>
+                
+                <div class="col-6"> <h5>Total Goat Sales for the month: &#8358;
+                    {% for y in goatsale%}
+                    {% if forloop.last %} 
+                    <span class="counter">{{ y.total }}</span></h5>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="col-6">Procurement</div>  
             </div>
         </div>
 	  <!-- Icon Cards-->
@@ -70,6 +73,7 @@
                     </div>
                 </div><!--/.row-->
             </div>
+            <a href="{% url 'main:goat_mota' %}" class="btn btn-info btn-sm ">View all Mortality Records</a>
 		</div>
         <div class="box_general padding_bottom">
             <div class="panel panel-container">
@@ -101,12 +105,13 @@
                     </div>
                 </div><!--/.row-->
             </div>
+            <a href="{% url 'main:goat_culla' %}" class="btn btn-info btn-sm ">View all Culling Records</a>
 		</div>
         <div class="box_general padding_bottom">
             <div class="row">
                 <div class="col-6">
                     <div class="header_box version_2">
-                        <h2><i class="fa fa-bar-chart"></i>Cattle Mortality rates over month(s)</h2>
+                        <h2><i class="fa fa-bar-chart"></i>Goat Mortality rates over month(s)</h2>
                     </div>
                     <canvas id="myChart" width="400" height="250"></canvas>
                     <script>
@@ -150,7 +155,7 @@
                 </div>
                 <div class="col-6">
                     <div class="header_box version_2">
-                        <h2><i class="fa fa-bar-chart"></i>Cattle Population rates over month(s)</h2>
+                        <h2><i class="fa fa-bar-chart"></i>Goat Population rates over month(s)</h2>
                     </div>
                     <canvas id="myChartp" width="400" height="250"></canvas>
                     <script>

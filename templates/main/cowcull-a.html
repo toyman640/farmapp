@@ -12,13 +12,13 @@ Cow Culling
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+          <a  class="btn btn-light" href="{% url 'main:cow_all' %}"><i class="fa fa-angle-left"></i> Back to all Records Dashboard</a>
         </li>
         <li class="breadcrumb-item active">Cow Culling</li>
       </ol>
 		<div class="box_general padding_bottom">
-      {% if cca %}
-      {% for a in cca %}
+      {% if acc_page_obj %}
+      {% for a in acc_page_obj %}
       <div class="card mb-3">
         <div class="row no-gutters">
           <div class="col-md-8">
@@ -38,6 +38,33 @@ Cow Culling
       </div>
       {% endfor %}
       {% endif %}
+      <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          
+          {% if acc_page_obj.has_previous %}
+            
+          <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ acc_page_obj.previous_page_number }}"> Previous</a></li>
+          
+          {% endif %}
+          
+          
+           
+         {% for i in nums %}
+          
+          <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+
+         {% endfor %}
+          
+          {% if acc_page_obj.has_next %}
+            
+          <li class="page-item"><a class="page-link" href="?page={{ acc_page_obj.next_page_number }}">Next</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ acc_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+            
+          {% endif %}
+          
+        </ul>
+      </nav>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

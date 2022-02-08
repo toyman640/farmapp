@@ -38,8 +38,8 @@ Pig Sale
             <th scope="col">Size(s)</th>
             <th scope="col">Sow(s)</th>
             <th scope="col">Size(s)</th>
-            <th scope="col">Weight(s)</th>
-            <th scope="col">Price(s)</th>
+            <th scope="col">Weight(s) in Kg</th>
+            <th scope="col">Total Price(&#8358;)</th>
             <th scope="col">ACTION(View others)</th>
           </tr>
         </thead>
@@ -52,8 +52,8 @@ Pig Sale
             <td data-label="Size(s)">{{ a.size1 }}</td>
             <td data-label="Sow(s)">{{ a.sow_num }}</td>
             <td data-label="Size(s)">{{ a.size }}</td>
-            <td data-label="Weight(s)">{{ a.weight }}</td>
-            <td data-label="Price(s)">{{ a.price }}</td>
+            <td data-label="Weight(s) in Kg">{{ a.weight }}</td>
+            <td data-label="Total Price(&#8358;)">{{ a.total_price }}</td>
             <th data-label="Action" class="table"><a href="{% url 'farmrecord:pig_salerec_view' a.id %}" >View</a></th>
           {% endfor %}
           {% endif %} 

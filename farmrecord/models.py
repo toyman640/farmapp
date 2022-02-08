@@ -188,7 +188,7 @@ class CowSale(models.Model):
     size1 = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     price1 = models.IntegerField(verbose_name='Price(s)', blank=True, null=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category9', null=True, on_delete=models.CASCADE)
-    weight= models.IntegerField(verbose_name='Weight(s)')
+    weight= models.CharField(max_length=100,verbose_name='Weight(s)',blank=True, null=True,)
     total_price = models.IntegerField(verbose_name='Toatl Price(s)', blank=True, null=True, default=0)
 
     def __str__(self):
@@ -203,7 +203,7 @@ class SheepSale(models.Model):
     size1 = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     price1 = models.IntegerField(verbose_name='Price(s)', blank=True, null=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category10', null=True, on_delete=models.CASCADE)
-    weight= models.IntegerField(verbose_name='Weight(s)')
+    weight= models.CharField(max_length=100,verbose_name='Weight(s)',blank=True, null=True,)
     total_price = models.IntegerField(verbose_name='Total Price(s)', blank=True, null=True, default=0)
 
     def __str__(self):
@@ -218,8 +218,8 @@ class GoatSale(models.Model):
     size1 = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     price1 = models.IntegerField(verbose_name='Price(s)', null=True, blank=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category11', null=True, on_delete=models.CASCADE)
-    weight= models.IntegerField(verbose_name='Weight(s)')
-    total_price = models.IntegerField(verbose_name='Total Price(s)', null=True, blank=True)
+    weight= models.CharField(max_length=100,verbose_name='Weight(s)',blank=True, null=True,)
+    total_price = models.IntegerField(verbose_name='Total Price(s)', null=True, blank=True,default=0)
 
     def __str__(self):
         return self.total_price
@@ -233,7 +233,7 @@ class PigSale(models.Model):
     size1 = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     price1 = models.IntegerField(verbose_name='Price(s)', blank=True, null=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category12', null=True, on_delete=models.CASCADE)
-    weight= models.IntegerField(verbose_name='Weight(s)')
+    weight= models.CharField(max_length=100,verbose_name='Weight(s)',blank=True, null=True,)
     total_price = models.IntegerField(verbose_name='Total Price(s)', blank=True, null=True, default=0)
 
     def __str__(self):

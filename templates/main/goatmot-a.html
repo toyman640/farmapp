@@ -17,8 +17,8 @@ Goat Mortality
         <li class="breadcrumb-item active">Goat Mortality</li>
       </ol>
 		<div class="box_general padding_bottom">
-      {% if gma %}
-      {% for a in gma %}
+      {% if agm_page-obj %}
+      {% for a in agm_page-obj %}
       <div class="card mb-3">
         <div class="row no-gutters">
           <div class="col-md-4">
@@ -62,6 +62,38 @@ Goat Mortality
       </div>
       {% endfor %}
       {% endif %}
+
+      <div>
+              
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            
+            {% if agm_page-obj.has_previous %}
+              
+            <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ agm_page-obj.previous_page_number }}"> Previous</a></li>
+            
+            {% endif %}
+            
+            
+             
+           {% for i in nums %}
+            
+            <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+
+           {% endfor %}
+            
+            {% if cm_page_obj.has_next %}
+              
+            <li class="page-item"><a class="page-link" href="?page={{ agm_page-obj.next_page_number }}">Next</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ agm_page-obj.paginator.num_pages }}">&laquo; Last</a></li>
+              
+            {% endif %}
+            
+          </ul>
+        </nav>
+        <!-- /pagination -->
+      </div>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->
