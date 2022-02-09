@@ -16,9 +16,25 @@ Goat Mortality
         </li>
         <li class="breadcrumb-item active">Goat Mortality</li>
       </ol>
+      <div class="box_general padding_bottom pb-0 bg-light">
+        <h5>Show only from:</h5>
+          <form class="mb-5 " action="{% url 'main:goatmota_filter' %}">
+            <div class="row">
+              <div class="col-lg-4 col-md-12 form-group">
+                {{ gma.start_date }}
+              </div>
+              <div class="col-lg-4 col-md-12 form-group">
+                {{ gma.end_date }}
+              </div>
+              <div class="col-lg-4 col-md-12 form-group">
+                <input type="submit" class="btn btn-warning" value="Show">
+              </div>
+            </div> 
+          </form>
+      </div>
 		<div class="box_general padding_bottom">
-      {% if agm_page-obj %}
-      {% for a in agm_page-obj %}
+      {% if agm_page_obj %}
+      {% for a in agm_page_obj %}
       <div class="card mb-3">
         <div class="row no-gutters">
           <div class="col-md-4">
@@ -55,23 +71,24 @@ Goat Mortality
               <p class="card-text">{{ a.buck_num }}</p>
               <h5 class="card-title">Kid(s):</h5>
               <p class="card-text">{{ a.kid }}</p>
-              <p class="card-text"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>
+              <p class="card-text card-footer"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>
             </div>
           </div>
         </div>
       </div>
       {% endfor %}
       {% endif %}
+      
 
       <div>
               
-        <nav aria-label="Page navigation example">
+        <nav aria-label="">
           <ul class="pagination">
             
-            {% if agm_page-obj.has_previous %}
+            {% if agm_page_obj.has_previous %}
               
             <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ agm_page-obj.previous_page_number }}"> Previous</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ agm_page_obj.previous_page_number }}" > Previous</a></li>
             
             {% endif %}
             
@@ -79,14 +96,14 @@ Goat Mortality
              
            {% for i in nums %}
             
-            <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+            <li class="page-item {% if  i == page_number %} active {% endif %}"><a href="?page={{ forloop.counter }}" class="page-link">{{ forloop.counter }}</a></li>                    
 
            {% endfor %}
             
-            {% if cm_page_obj.has_next %}
+            {% if agm_page_obj.has_next %}
               
-            <li class="page-item"><a class="page-link" href="?page={{ agm_page-obj.next_page_number }}">Next</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ agm_page-obj.paginator.num_pages }}">&laquo; Last</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ agm_page_obj.next_page_number }}">Next</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ agm_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
               
             {% endif %}
             

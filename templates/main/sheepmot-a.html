@@ -16,6 +16,22 @@ Sheep Mortality
         </li>
         <li class="breadcrumb-item active">Goat Mortality</li>
       </ol>
+      <div class="box_general padding_bottom pb-0 bg-light">
+        <h5>Show only from:</h5>
+          <form class="mb-5 " action="{% url 'main:sheepmota_filter' %}">
+            <div class="row">
+              <div class="col-lg-4 col-md-12 form-group">
+                {{ sma.start_date }}
+              </div>
+              <div class="col-lg-4 col-md-12 form-group">
+                {{ sma.end_date }}
+              </div>
+              <div class="col-lg-4 col-md-12 form-group">
+                <input type="submit" class="btn btn-warning" value="Show">
+              </div>
+            </div> 
+          </form>
+      </div>
 		<div class="box_general padding_bottom">
       {% if sma %}
       {% for a in sma %}
@@ -55,7 +71,7 @@ Sheep Mortality
               <p class="card-text">{{ a.ram_num }}</p>
               <h5 class="card-title">Lamb(s):</h5>
               <p class="card-text">{{ a.lamb }}</p>
-              <p class="card-text"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>
+              <p class="card-text card-footer"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>
             </div>
           </div>
         </div>

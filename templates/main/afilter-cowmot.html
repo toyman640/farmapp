@@ -16,25 +16,10 @@ Cow Mortality
         </li>
         <li class="breadcrumb-item active">Cow Mortality</li>
       </ol>
-      <div class="box_general padding_bottom pb-0 bg-light">
-        <h5>Show only from:</h5>
-          <form class="mb-5 " action="{% url 'main:cowmota_filter' %}">
-            <div class="row">
-              <div class="col-lg-4 col-md-12 form-group">
-                {{ cma.start_date }}
-              </div>
-              <div class="col-lg-4 col-md-12 form-group">
-                {{ cma.end_date }}
-              </div>
-              <div class="col-lg-4 col-md-12 form-group">
-                <input type="submit" class="btn btn-warning" value="Show">
-              </div>
-            </div> 
-          </form>
-      </div>
-		<div class="box_general padding_bottom"> 
-      {% if acm_page_obj %}
-      {% for a in acm_page_obj %}
+		<div class="box_general padding_bottom">
+      
+      {% if queryseta %}
+      {% for a in queryseta %}
       <div class="card mb-3">
         <div class="row no-gutters">
           <div class="col-md-4">
@@ -70,8 +55,8 @@ Cow Mortality
               <h5 class="card-title">Bull(s):</h5>
               <p class="card-text">{{ a.bull_num }}</p>
               <h5 class="card-title">Calf/ves:</h5>
-              <p class="card-text mb-2">{{ a.calves }}</p>
-              <p class="card-text card-footer"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>
+              <p class="card-text">{{ a.calves }}</p>
+              <p class="card-text"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>
             </div>
           </div>
         </div>
@@ -81,7 +66,7 @@ Cow Mortality
 		</div>
     <div>
               
-      <nav aria-label="Page navigation example">
+      <!-- <nav aria-label="Page navigation example">
         <ul class="pagination">
           
           {% if acm_page_obj.has_previous %}
@@ -107,7 +92,7 @@ Cow Mortality
           {% endif %}
           
         </ul>
-      </nav>
+      </nav> -->
       <!-- /pagination -->
     </div>
 	  </div>

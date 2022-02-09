@@ -53,7 +53,7 @@ Cow Sale
             <td data-label="Cow(s)">{{ a.cow_num }}</td>
             <td data-label="Size(s)">{{ a.size }}</td>
             <td data-label="Weight(s)">{{ a.weight }}</td>
-            <td data-label="Total Price(&#8358;)"> {{ a.total_price }}</td>
+            <td data-label="Total Price(&#8358;)">b  {{ a.total_price }}</td>
             <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_salerec_view' a.id %}" >View</a></th>
           {% endfor %}
           {% endif %} 

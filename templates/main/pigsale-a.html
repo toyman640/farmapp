@@ -16,6 +16,22 @@ Pig Sale
         </li>
         <li class="breadcrumb-item active">Pig Sale</li>
       </ol>
+      <div class="box_general padding_bottom pb-0 bg-light">
+        <h5>Show only from:</h5>
+          <form class="mb-5 " action="{% url 'main:pigsalea_filter' %}">
+            <div class="row">
+              <div class="col-lg-4 col-md-12 form-group">
+                {{ psa.start_date }}
+              </div>
+              <div class="col-lg-4 col-md-12 form-group">
+                {{ psa.end_date }}
+              </div>
+              <div class="col-lg-4 col-md-12 form-group">
+                <input type="submit" class="btn btn-warning" value="Show">
+              </div>
+            </div> 
+          </form>
+      </div>
 		<div class="box_general padding_bottom">
       {% if psa %}
       {% for a in psa %}
@@ -37,7 +53,7 @@ Pig Sale
               <p class="card-text">{{ a.price1 }}</p>
               <h5 class="card-title">Total Price(s):</h5>
               <p class="card-text">{{ a.total_price }}</p>
-              <p class="card-text"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>
+              <p class="card-text card-footer"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>
             </div>
           </div>
         </div>

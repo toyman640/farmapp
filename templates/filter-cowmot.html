@@ -12,15 +12,14 @@ Cow Mortality
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+          <a  class="btn btn-light" href="{% url 'farmrecord:cow_motrec' %}"><i class="fa fa-angle-left"></i> Back to all Mortality Records</a>
         </li>
         <li class="breadcrumb-item active">Cow Mortality</li>
       </ol>
 		<div class="box_general padding_bottom">
 			      <table>
                 <caption>Mortality Records</caption>
-                {% if  queryset %}
-                  {% for p in queryset %}
+                
                 <thead>
                   <tr>
                     <th scope="col">Date</th>
@@ -34,7 +33,8 @@ Cow Mortality
                   </tr>
                 </thead>
                 <tbody>
-                  
+                  {% if  queryset %}
+                  {% for p in queryset %}
                   <tr>
                     <td data-label="Date">{{ p.date }}</td>
                     <td data-label="Location">{{ p.location }}</td>
