@@ -195,10 +195,11 @@ class CowmotFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = CowMortality
-        fields =('date',)
+        fields =('date','export_to_CSV')
         
 class SheepmotFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -206,10 +207,11 @@ class SheepmotFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = SheepMortality
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class GoatmotFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -217,10 +219,11 @@ class GoatmotFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = GoatMortality
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class PigmotFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -228,10 +231,11 @@ class PigmotFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = PigMortality
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 
 class PigcullFilter(forms.ModelForm):
@@ -240,10 +244,11 @@ class PigcullFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = PigCulling
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class GoatcullFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -251,10 +256,11 @@ class GoatcullFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = GoatCulling
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class SheepcullFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -265,7 +271,7 @@ class SheepcullFilter(forms.ModelForm):
 
     class Meta:
         model = SheepCulling
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class CowcullFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -273,10 +279,11 @@ class CowcullFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = CowCulling
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class CowsaleFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -284,10 +291,11 @@ class CowsaleFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = CowSale
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class PigsaleFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -295,10 +303,11 @@ class PigsaleFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = PigSale
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class GoatsaleFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -306,10 +315,11 @@ class GoatsaleFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = GoatSale
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class SheepsaleFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -317,10 +327,11 @@ class SheepsaleFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = SheepSale
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class CowprocFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -328,10 +339,11 @@ class CowprocFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = CowProcurement
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class PigprocFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -339,10 +351,11 @@ class PigprocFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = PigProcurement
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class SheepprocFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -350,10 +363,11 @@ class SheepprocFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = SheepProcurement
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 class GoatprocFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
@@ -361,9 +375,10 @@ class GoatprocFilter(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
     end_date = forms.DateField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
 
     class Meta:
         model = GoatProcurement
-        fields =('date',)
+        fields =('date','export_to_CSV')
 
 

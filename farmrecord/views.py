@@ -10,6 +10,7 @@ from django.db.models.aggregates import Count, Sum
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.db.models import F 
+import csv
 # Create your views here.
 
 @login_required(login_url='/admin-page/login')
@@ -883,7 +884,17 @@ def cowmot_filter(request):
             end_date = cowmot_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = CowMortality.objects.filter(date__range=[start_date, new_end])
+            if cowmot_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Cow-Mortality-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Location(s)', 'Cow Num', 'Bull Num', 'Calf num', 'Cause of Mortality'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.location, row.cow_num, row.bull_num, row.calves, row.comment])
+                return response
             return render(request, 'filter-cowmot.html', {'queryset': result, 'q': cowmot_query})
+            
         else:
             messages.error(request, 'Out of range')
     else:
@@ -899,6 +910,15 @@ def goatmot_filter(request):
             end_date = goatmot_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = GoatMortality.objects.filter(date__range=[start_date, new_end])
+            if goatmot_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Goat-Mortality-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Location(s)', 'Doe Num', 'Buck Num', 'Kid num', 'Cause of Mortality'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.location, row.doe_num, row.buck_num, row.kid, row.comment])
+                return response
             return render(request, 'filter-goatmot.html', {'queryset': result, 'q': goatmot_query})
         else:
             messages.error(request, 'Out of range')
@@ -915,6 +935,15 @@ def pigmot_filter(request):
             end_date = pigmot_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = PigMortality.objects.filter(date__range=[start_date, new_end])
+            if pigmot_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Pig-Mortality-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Location(s)', 'Sow Num', 'Boar Num', 'Pigglet num', 'Cause of Mortality'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.location, row.sow_num, row.boar_num, row.pigglet, row.comment])
+                return response
             return render(request, 'filter-pigmot.html', {'queryset': result, 'q': pigmot_query})
         else:
             messages.error(request, 'Out of range')
@@ -931,6 +960,15 @@ def sheepmot_filter(request):
             end_date = sheepmot_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = SheepMortality.objects.filter(date__range=[start_date, new_end])
+            if sheepmot_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Sheep-Mortality-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Location(s)', 'Ewe Num', 'Ram Num', 'lamb num', 'Cause of Mortality'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.location, row.ewe_num, row.ram_num, row.lamb, row.comment])
+                return response
             return render(request, 'filter-sheepmot.html', {'queryset': result, 'q': sheepmot_query})
         else:
             messages.error(request, 'Out of range')
@@ -947,6 +985,15 @@ def sheepsale_filter(request):
             end_date = sheepsale_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = SheepSale.objects.filter(date__range=[start_date, new_end])
+            if sheepsale_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Sheep-sale-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Ewe Num','Size','Price', 'Ram Num','Size','Price',  'Weight(s)', 'Total Price'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.ewe_num, row.size, row.price, row.ram_num, row.size1, row.price1, row.weight, row.total_price])
+                return response
             return render(request, 'filter-sheepsale.html', {'queryset': result, 'q': sheepsale_query})
         else:
             messages.error(request, 'Out of range')
@@ -963,6 +1010,15 @@ def pigsale_filter(request):
             end_date = pigsale_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = PigSale.objects.filter(date__range=[start_date, new_end])
+            if pigsale_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Pig-sale-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Sow Num','Size','Price', 'Boar Num','Size','Price',  'Weight(s)', 'Total Price'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.sow_num, row.size, row.price, row.boar_num, row.size1, row.price1, row.weight, row.total_price])
+                return response
             return render(request, 'filter-pigsale.html', {'queryset': result, 'q': pigsale_query})
         else:
             messages.error(request, 'Out of range')
@@ -979,6 +1035,15 @@ def cowsale_filter(request):
             end_date = cowsale_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = CowSale.objects.filter(date__range=[start_date, new_end])
+            if cowsale_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Cow-sale-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Cow Num','Size','Price', 'Bull Num','Size','Price',  'Weight(s)', 'Total Price'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.cow_num, row.size, row.price, row.bull_num, row.size1, row.price1, row.weight, row.total_price])
+                return response
             return render(request, 'filter-cowsale.html', {'queryset': result, 'q': cowsale_query})
         else:
             messages.error(request, 'Out of range')
@@ -995,6 +1060,15 @@ def goatsale_filter(request):
             end_date = goatsale_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = GoatSale.objects.filter(date__range=[start_date, new_end])
+            if goatsale_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Goat-sale-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Doe Num','Size','Price', 'Buck Num','Size','Price',  'Weight(s)', 'Total Price'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.doe_num, row.size, row.price, row.buck_num, row.size1, row.price1, row.weight, row.total_price])
+                return response
             return render(request, 'filter-sheepsale.html', {'queryset': result, 'q': goatsale_query})
         else:
             messages.error(request, 'Out of range')
@@ -1011,6 +1085,15 @@ def sheepproc_filter(request):
             end_date = sheepproc_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = SheepProcurement.objects.filter(date__range=[start_date, new_end])
+            if sheepproc_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Sheep-procurement-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Ewe Num', 'Size', 'Ram Num','Size'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.ewe_num, row.size, row.ram_num, row.size1])
+                return response
             return render(request, 'filter-sheepproc.html', {'queryset': result, 'q': sheepproc_query})
         else:
             messages.error(request, 'Out of range')
@@ -1027,6 +1110,15 @@ def pigproc_filter(request):
             end_date = pigproc_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = PigProcurement.objects.filter(date__range=[start_date, new_end])
+            if pigproc_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Pig-procurement-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Sow Num', 'Size', 'Boar Num','Size'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.sow_num, row.size, row.boar_num, row.size1])
+                return response
             return render(request, 'filter-pigproc.html', {'queryset': result, 'q': pigproc_query})
         else:
             messages.error(request, 'Out of range')
@@ -1043,6 +1135,15 @@ def cowproc_filter(request):
             end_date = cowproc_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = CowProcurement.objects.filter(date__range=[start_date, new_end])
+            if cowproc_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Cow-procurement-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Cow Num', 'Size', 'Bull Num','Size'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.cow_num, row.size, row.bull_num, row.size1])
+                return response
             return render(request, 'filter-cowproc.html', {'queryset': result, 'q': cowproc_query})
         else:
             messages.error(request, 'Out of range')
@@ -1059,6 +1160,15 @@ def goatproc_filter(request):
             end_date = goatproc_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = GoatProcurement.objects.filter(date__range=[start_date, new_end])
+            if goatproc_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Goat-procurement-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Doe Num', 'Size', 'Buck Num','Size'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.doe_num, row.size, row.buck_num, row.size1])
+                return response
             return render(request, 'filter-goatproc.html', {'queryset': result, 'q': goatproc_query})
         else:
             messages.error(request, 'Out of range')
@@ -1075,6 +1185,15 @@ def cowcull_filter(request):
             end_date = cowcull_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = CowCulling.objects.filter(date__range=[start_date, new_end])
+            if cowcull_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Cow-Cull-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Cow Num', 'Bull Num','Location(s)', 'Reason',])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.cow_num,  row.bull_num, row.location, row.reason])
+                return response
             return render(request, 'filter-cowcull.html', {'queryset': result, 'b': cowcull_query})
         else:
             messages.error(request, 'Out of range')
@@ -1092,6 +1211,15 @@ def goatcull_filter(request):
             end_date = goatcull_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = GoatCulling.objects.filter(date__range=[start_date, new_end])
+            if goatcull_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Goat-Cull-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Doe Num', 'Buck Num','Location(s)', 'Reason',])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.doe_num,  row.buck_num, row.location, row.reason])
+                return response
             return render(request, 'filter-goatcull.html', {'queryset': result, 'q': goatcull_query})
         else:
             messages.error(request, 'Out of range')
@@ -1108,6 +1236,15 @@ def sheepcull_filter(request):
             end_date = sheepcull_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = SheepCulling.objects.filter(date__range=[start_date, new_end])
+            if sheepcull_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Sheep-cull-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Ewe Num', 'Ram Num','Location(s)', 'Reason',])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.ewe_num,  row.ram_num, row.location, row.reason])
+                return response
             return render(request, 'filter-sheepcull.html', {'queryset': result, 'q': sheepcull_query})
         else:
             messages.error(request, 'Out of range')
@@ -1124,6 +1261,15 @@ def pigcull_filter(request):
             end_date = pigcull_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = PigCulling.objects.filter(date__range=[start_date, new_end])
+            if pigcull_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Pig-cull-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Sow Num', 'Boar Num','Location(s)', 'Reason',])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.sow_num,  row.boar_num, row.location, row.reason])
+                return response
             return render(request, 'filter-pigcull.html', {'queryset': result, 'q': pigcull_query})
         else:
             messages.error(request, 'Out of range')

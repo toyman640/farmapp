@@ -9,9 +9,15 @@ from farmrecord.models import *
 from django.core.paginator import Paginator
 from farmrecord.forms import *
 from datetime import timedelta
+from django.contrib.auth.decorators import user_passes_test
 
 # Create your views here.
 
+def staff_required(login_url=None):
+    return user_passes_test(lambda u: u.is_staff, login_url=login_url)
+
+
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def dashboard(request):
     cowpop = CowCensusPop.objects.order_by('-date')
@@ -43,11 +49,15 @@ def login_page(request):
            
     return render(request, 'main/login.html')
 
+
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def logout_view(request):
     logout(request)
     return redirect('login_page')
 
+
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def latest_page(request):
     cowmot = CowMortality.objects.order_by('-date')[:1]
@@ -88,6 +98,7 @@ def latest_page(request):
 
     return render (request, 'main/latest-rep-animal.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def cow_mota(request):
     cmta = CowMortality.objects.order_by('-date')
@@ -105,6 +116,7 @@ def cow_mota(request):
     context['acm_page_obj'] = acm_page_obj
     return render(request, 'main/cowmot-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def cow_salea(request):
     csa = CowSale.objects.order_by('-date')
@@ -121,6 +133,7 @@ def cow_salea(request):
     context['acs_page_obj'] = acs_page_obj
     return render(request, 'main/cowsale-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def cow_proca(request):
     cpa = CowProcurement.objects.order_by('-date')
@@ -137,6 +150,7 @@ def cow_proca(request):
     context['acp_page_obj'] = acp_page_obj
     return render(request, 'main/cowproc-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def cow_culla(request):
     cca = CowCulling.objects.order_by('-date')
@@ -153,6 +167,7 @@ def cow_culla(request):
     context['acc_page_obj'] = acc_page_obj
     return render(request, 'main/cowcull-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def goat_mota(request):
     gma = GoatMortality.objects.order_by('-date')
@@ -170,6 +185,7 @@ def goat_mota(request):
     context['agm_page_obj'] = agm_page_obj
     return render(request, 'main/goatmot-a.html', context) 
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def goat_salea(request):
     gsa = GoatSale.objects.order_by('-date')
@@ -183,25 +199,28 @@ def goat_salea(request):
         'nums' : nums,
         'gsa' : query_form
     }
-    context['ags_page-obj'] = ags_page_obj
+    context['ags_page_obj'] = ags_page_obj
     return render(request, 'main/goatsale-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def goat_proca(request):
     gpa = GoatProcurement.objects.order_by('-date')
     query_form = GoatprocFilter()
     admin_gp = Paginator(gpa, 10)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get('page', 1)
     agp_page_obj = admin_gp.get_page(page_number)
     nums = "a" * agp_page_obj.paginator.num_pages
     context = {
         'agp_page-obj' : gpa,
         'nums' : nums,
+        'page_number' : int(page_number),
         'gpa' : query_form
     }
-    context['agp_page-obj'] = agp_page_obj
+    context['agp_page_obj'] = agp_page_obj
     return render(request, 'main/goatproc-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def goat_culla(request):
     gca = GoatCulling.objects.order_by('-date')
@@ -218,6 +237,7 @@ def goat_culla(request):
     context['agc_page_obj'] = agc_page_obj
     return render(request, 'main/goatcull-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def pig_mota(request):
     pma = PigMortality.objects.order_by('-date')
@@ -234,6 +254,7 @@ def pig_mota(request):
     context['apm_page_obj'] = apm_page_obj
     return render(request, 'main/pigmot-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def pig_salea(request):
     psa = PigSale.objects.order_by('-date')
@@ -250,6 +271,7 @@ def pig_salea(request):
     context['aps_page_obj'] = aps_page_obj
     return render(request, 'main/pigmot-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def pig_proca(request):
     ppa = PigProcurement.objects.order_by('-date')
@@ -266,6 +288,7 @@ def pig_proca(request):
     context['app_page_obj'] = app_page_obj
     return render(request, 'main/pigproc-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def pig_culla(request):
     pca = PigCulling.objects.order_by('-date')
@@ -282,6 +305,7 @@ def pig_culla(request):
     context['apc_page_obj'] = apc_page_obj
     return render(request, 'main/pigcull-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def sheep_mota(request):
     sma = SheepMortality.objects.order_by('-date')
@@ -298,6 +322,7 @@ def sheep_mota(request):
     context['asm_page_obj'] = asm_page_obj
     return render(request, 'main/sheepmot-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def sheep_salea(request):
     ssa = SheepSale.objects.order_by('-date')
@@ -314,6 +339,7 @@ def sheep_salea(request):
     context['ass_page_obj'] = ass_page_obj
     return render(request, 'main/sheepsale-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def sheep_proca(request):
     spa = SheepProcurement.objects.order_by('-date')
@@ -325,11 +351,12 @@ def sheep_proca(request):
     context = {
         'asp_page_obj' : spa,
         'nums' : nums,
-        'ssa' : query_form
+        'spa' : query_form
     }
     context['asp_page_obj'] = asp_page_obj
     return render(request, 'main/sheepproc-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def sheep_culla(request):
     sca = SheepCulling.objects.order_by('-date')
@@ -341,11 +368,12 @@ def sheep_culla(request):
     context = {
         'asc_page_obj' : sca,
         'nums' : nums,
-        'ssa' : query_form
+        'sca' : query_form
     }
     context['asc_page_obj'] = asc_page_obj
     return render(request, 'main/sheepcull-a.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def cow_all(request):
     c_chart = CowMortality.objects.all()
@@ -371,6 +399,7 @@ def cow_all(request):
     }
     return render(request, 'main/cow-allad.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def goat_all(request):
     g_chart = GoatMortality.objects.all()
@@ -396,6 +425,7 @@ def goat_all(request):
     }
     return render(request, 'main/goat-allad.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def pig_all(request):
     p_chart = PigMortality.objects.all()
@@ -421,6 +451,7 @@ def pig_all(request):
     }
     return render(request, 'main/pig-allad.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def sheep_all(request):
     s_chart = SheepMortality.objects.all()
@@ -446,6 +477,7 @@ def sheep_all(request):
     }
     return render(request, 'main/sheep-allad.html', context)
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def cowmota_filter(request):
     if request.method == 'GET':
@@ -462,6 +494,7 @@ def cowmota_filter(request):
         cowmot_querya = CowmotFilter()
     return render(request, 'main/afilter-cowmot.html', {'cma': cowmot_querya})
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def goatmota_filter(request):
     if request.method == 'GET':
@@ -478,7 +511,8 @@ def goatmota_filter(request):
         goatmot_query = GoatmotFilter()
     return render(request, 'main/afilter-goatmot.html', {'gma': goatmot_query})
 
-login_required(login_url='/admin-page/login')
+@staff_required(login_url="/admin-page/login")
+@login_required(login_url='/admin-page/login')
 def pigmota_filter(request):
     if request.method == 'GET':
         pigmot_query = PigmotFilter(request.GET)
@@ -494,6 +528,7 @@ def pigmota_filter(request):
         pigmot_query = PigmotFilter()
     return render(request, 'main/afilter-pigmot.html', {'pma': pigmot_query})
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def sheepmota_filter(request):
     if request.method == 'GET':
@@ -510,6 +545,7 @@ def sheepmota_filter(request):
         sheepmot_query = SheepmotFilter()
     return render(request, 'main/afilter-sheepmot.html', {'q': sheepmot_query})
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def sheepsalea_filter(request):
     if request.method == 'GET':
@@ -526,7 +562,8 @@ def sheepsalea_filter(request):
         sheepsale_query = SheepsaleFilter()
     return render(request, 'main/afilter-sheepsale.html', {'ssa': sheepsale_query})
 
-login_required(login_url='/admin-page/login')
+@staff_required(login_url="/admin-page/login")
+@login_required(login_url='/admin-page/login')
 def pigsalea_filter(request):
     if request.method == 'GET':
         pigsale_query = PigsaleFilter(request.GET)
@@ -542,6 +579,7 @@ def pigsalea_filter(request):
         pigsale_query = PigsaleFilter()
     return render(request, 'main/afilter-pigsale.html', {'psa': pigsale_query})
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def cowsalea_filter(request):
     if request.method == 'GET':
@@ -558,6 +596,7 @@ def cowsalea_filter(request):
         cowsale_query = CowsaleFilter()
     return render(request, 'main/afilter-cowsale.html', {'csa': cowsale_query})
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def goatsalea_filter(request):
     if request.method == 'GET':
@@ -574,6 +613,7 @@ def goatsalea_filter(request):
         goatsale_query = GoatsaleFilter()
     return render(request, 'main/afilter-sheepsale.html', {'gsa': goatsale_query})
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def sheepproca_filter(request):
     if request.method == 'GET':
@@ -590,6 +630,7 @@ def sheepproca_filter(request):
         sheepproc_query = SheepprocFilter()
     return render(request, 'main/afilter-sheepproc.html', {'spa': sheepproc_query})
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def pigproca_filter(request):
     if request.method == 'GET':
@@ -606,7 +647,8 @@ def pigproca_filter(request):
         pigproc_query = PigprocFilter()
     return render(request, 'main/filter-pigproc.html', {'ppa': pigproc_query})
 
-login_required(login_url='/admin-page/login')
+@staff_required(login_url="/admin-page/login")
+@login_required(login_url='/admin-page/login')
 def cowproca_filter(request):
     if request.method == 'GET':
         cowproc_query = CowprocFilter(request.GET)
@@ -622,6 +664,7 @@ def cowproca_filter(request):
         cowproc_query = CowprocFilter()
     return render(request, 'main/afilter-sheepproc.html', {'cpa': cowproc_query})
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def goatproca_filter(request):
     if request.method == 'GET':
@@ -638,6 +681,7 @@ def goatproca_filter(request):
         goatproc_query = GoatprocFilter()
     return render(request, 'main/afilter-goatproc.html', {'gpa': goatproc_query})
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def cowculla_filter(request):
     if request.method == 'GET':
@@ -654,7 +698,8 @@ def cowculla_filter(request):
         cowcull_query = CowcullFilter()
     return render(request, 'main/afilter-cowcull.html', {'cca': cowcull_query})
 
-login_required(login_url='/admin-page/login')
+@staff_required(login_url="/admin-page/login")
+@login_required(login_url='/admin-page/login')
 def goatculla_filter(request):
     if request.method == 'GET':
         goatcull_query = GoatcullFilter(request.GET)
@@ -670,6 +715,7 @@ def goatculla_filter(request):
         goatcull_query = GoatcullFilter()
     return render(request, 'main/afilter-goatcull.html', {'gca': goatcull_query})
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def sheepculla_filter(request):
     if request.method == 'GET':
@@ -686,6 +732,7 @@ def sheepculla_filter(request):
         sheepcull_query = SheepcullFilter()
     return render(request, 'main/afilter-sheepcull.html', {'sca': sheepcull_query})
 
+@staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
 def pigculla_filter(request):
     if request.method == 'GET':

@@ -33,8 +33,8 @@ Sheep Procurement
           </form>
       </div>
 		<div class="box_general padding_bottom">
-      {% if spa %}
-      {% for a in spa %}
+      {% if asp_page_obj %}
+      {% for a in asp_page_obj %}
       <div class="card mb-3">
         <div class="row no-gutters">
           <div class="col-md-8">
@@ -55,6 +55,37 @@ Sheep Procurement
       {% endfor %}
       {% endif %}
 		</div>
+    <div>
+              
+      <nav aria-label="">
+        <ul class="pagination">
+          
+          {% if asp_page_obj.has_previous %}
+            
+          <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ asp_page_obj.previous_page_number }}" > Previous</a></li>
+          
+          {% endif %}
+          
+          
+           
+         {% for i in nums %}
+          
+          <li class="page-item {% if  i == page_number %} active {% endif %}"><a href="?page={{ forloop.counter }}" class="page-link">{{ forloop.counter }}</a></li>                    
+
+         {% endfor %}
+          
+          {% if asp_page_obj.has_next %}
+            
+          <li class="page-item"><a class="page-link" href="?page={{ asp_page_obj.next_page_number }}">Next</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ asp_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+            
+          {% endif %}
+          
+        </ul>
+      </nav>
+      <!-- /pagination -->
+    </div>
 	  </div>
 	  <!-- /.container-fluid-->
    	</div>

@@ -12,7 +12,7 @@ Cow Mortality
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a  class="btn btn-light" href="{% url 'farmrecord:cow_motrec' %}"><i class="fa fa-angle-left"></i> Back to all Mortality Records</a>
+          <a href="#">Dashboard</a>
         </li>
         <li class="breadcrumb-item active">Cow Mortality</li>
       </ol>
@@ -26,6 +26,10 @@ Cow Mortality
           <div class="col-lg-4 col-md-12 form-group">
             {{ q.end_date }}
           </div>
+        </div>
+        <div class="col-lg-12 col-md-12 form-group">
+          <label for="">Export to csv</label>
+          {{ q.export_to_CSV }}
         </div>
         <input type="submit" class="btn btn-outline-info btn-sm" value="Show">
       </form>
@@ -60,23 +64,7 @@ Cow Mortality
                   </tr>
                 </tbody>
             </table>
-            {% for a in count %}
-            {% if forloop.last %}
-            <h3>{{ a.total }}</h3>
-            {% endif %}
-            {% endfor %}
-            {% for a in count %}
-            {% if forloop.last %}
-            <label for="">Total mortality for Current month</label>
-            <h4>{{ a.total }}</h4>
-            <h5>{{ a.month|date:"M" }}</h5>
-            {% endif %}
-            {% endfor %}
             
-            
-            <label for="">Total mortality for Current month</label>
-            <h4>{{ total }}</h4>
-            <h5>{{ month|date:"M" }}</h5>
             
             
            
@@ -111,28 +99,11 @@ Cow Mortality
               </nav>
               <!-- /pagination -->
             </div>
-            <button class="btn btn-info"><a href="{% url 'farmrecord:cowmot_filter' %}">filter</a> </button>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->
    	</div>
     <!-- /.container-wrapper-->
 <!-- table view Modal Cow-->
-<!-- <div class="modal fade" id="exampleModalt" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Image(s) of dead animal(s)</h5>
-          <img src="{{ a.pst_image_1 }}" alt="">
-      </div>
-      <div class="modal-footer">
-          <h5 class="modal-title" id="exampleModalLabel">Comment</h5>
-        <p>{{ a.comment }}</p>
-      </div>
-      <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-        </div>
-    </div>
-  </div>
-</div> -->
+
 {% endblock %}

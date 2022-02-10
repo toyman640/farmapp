@@ -33,8 +33,8 @@ Sheep Mortality
           </form>
       </div>
 		<div class="box_general padding_bottom">
-      {% if sma %}
-      {% for a in sma %}
+      {% if asm_page_obj %}
+      {% for a in asm_page_obj %}
       <div class="card mb-3">
         <div class="row no-gutters">
           <div class="col-md-4">
@@ -79,6 +79,37 @@ Sheep Mortality
       {% endfor %}
       {% endif %}
 		</div>
+    <div>
+              
+      <nav aria-label="">
+        <ul class="pagination">
+          
+          {% if asm_page_obj.has_previous %}
+            
+          <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ asm_page_obj.previous_page_number }}" > Previous</a></li>
+          
+          {% endif %}
+          
+          
+           
+         {% for i in nums %}
+          
+          <li class="page-item {% if  i == page_number %} active {% endif %}"><a href="?page={{ forloop.counter }}" class="page-link">{{ forloop.counter }}</a></li>                    
+
+         {% endfor %}
+          
+          {% if asm_page_obj.has_next %}
+            
+          <li class="page-item"><a class="page-link" href="?page={{ asm_page_obj.next_page_number }}">Next</a></li>
+          <li class="page-item"><a class="page-link" href="?page={{ asm_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+            
+          {% endif %}
+          
+        </ul>
+      </nav>
+      <!-- /pagination -->
+    </div>
 	  </div>
 	  <!-- /.container-fluid-->
    	</div>

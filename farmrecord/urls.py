@@ -5,6 +5,7 @@ app_name = 'farmrecord'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('test-page', views.test, name='test'),
     path('cow-claving/', views.cow_birth, name='cow_birth'),
     path('cow-culling', views.cow_cull, name='cow_cull'),
     path('cow-mortality', views.cow_motrep, name='cow_motrep'),
@@ -56,6 +57,7 @@ urlpatterns = [
     path('sheep-mortality-record-view/<int:abt_id>', views.sheep_motrec_view, name='sheep_motrec_view'),
     path('sheep-sale-record-view/<int:abt_id>', views.sheep_salerec_view, name='sheep_salerec_view'),
     path('sheep-cull-record-view/<int:abt_id>', views.sheep_cullrec_view, name='sheep_cullrec_view'),
+    path('sheep-procurement-record-view/<int:abt_id>', views.sheep_procrec_view, name='sheep_procrec_view'),
     path('delete-post-cow/<int:listf_id>', views.delete_postc, name='delete_postc'),
     path('delete-post-goat/<int:listg_id>', views.delete_postg, name='delete_postg'),
     path('delete-post-sheep/<int:listf_id>', views.delete_posts, name='delete_posts'),
