@@ -71,11 +71,18 @@ Sheep Culling
         
         
          
-       {% for i in nums %}
-        
-        <li class="page-item"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
-
-       {% endfor %}
+        {% for i in sc_page_obj.paginator.page_range %}
+        {% if sc_page_obj.number == i %}
+          <li class="page-item active" aria-current="page">
+            <span class="page-link">
+              {{ i }}
+              <span class="sr-only">(current)</span>
+            </span>
+          </li>
+          {% elif i > sc_page_obj.number|add:'-5' and i < sc_page_obj.number|add:'5' %}
+          <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+        {% endif %}
+      {% endfor %}
         
         {% if sc_page_obj.has_next %}
           

@@ -14,10 +14,10 @@ Cow Mortality
         <li class="breadcrumb-item">
           <a  class="btn btn-light" href="{% url 'main:cow_all' %}"><i class="fa fa-angle-left"></i> Back to all Records Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">Cow Mortality</li>
+        <li class="breadcrumb-item active">Cow Mortality Results</li>
       </ol>
 		<div class="box_general padding_bottom">
-      
+      <h4 class="mb-4">Search Result : {{ count }} records</h4>
       {% if queryseta %}
       {% for a in queryseta %}
       <div class="card mb-3">

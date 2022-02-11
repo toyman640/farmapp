@@ -59,6 +59,40 @@ Goat Culling
         </tbody>
     </table>
 		</div>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        
+        {% if gc_page_obj.has_previous %}
+          
+        <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ gc_page_obj.previous_page_number }}"> Previous</a></li>
+        
+        {% endif %}
+        
+        
+         
+        {% for i in gc_page_obj.paginator.page_range %}
+        {% if gc_page_obj.number == i %}
+          <li class="page-item active" aria-current="page">
+            <span class="page-link">
+              {{ i }}
+              <span class="sr-only">(current)</span>
+            </span>
+          </li>
+          {% elif i > gc_page_obj.number|add:'-5' and i < gc_page_obj.number|add:'5' %}
+          <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+        {% endif %}
+      {% endfor %}
+        
+        {% if gc_page_obj.has_next %}
+          
+        <li class="page-item"><a class="page-link" href="?page={{ gc_page_obj.next_page_number }}">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ gc_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+          
+        {% endif %}
+        
+      </ul>
+    </nav>
 	  </div>
 	  <!-- /.container-fluid-->
    	</div>

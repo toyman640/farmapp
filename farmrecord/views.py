@@ -79,15 +79,13 @@ def cow_birth(request):
 def cow_motrec(request):
     cow_rec =   CowMortality.objects.order_by('-date')
     query_form = CowmotFilter()
-    paginated_filtercm = Paginator(cow_rec, 10)
+    paginated_filtercm = Paginator(cow_rec, 1)
     page_number = request.GET.get('page')
     cm_page_obj = paginated_filtercm.get_page(page_number)
     cowmot_count = CowMortality.objects.all()
     aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
-    nums = "a" * cm_page_obj.paginator.num_pages
     context = {
         'cm_page_obj': cow_rec,
-        'nums': nums,
         'q': query_form,
         'count' : aggregated
         
@@ -122,10 +120,8 @@ def cow_procrec(request):
     paginated_filtercp = Paginator(cow_prec, 10)
     page_number = request.GET.get('page')
     cp_page_obj = paginated_filtercp.get_page(page_number)
-    nums = "a" * cp_page_obj.paginator.num_pages
     context = {
         'cp_page_obj': cow_prec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -139,10 +135,8 @@ def cow_cullrec(request):
     paginated_filtercc = Paginator(cow_crec, 10)
     page_number = request.GET.get('page')
     cc_page_obj = paginated_filtercc.get_page(page_number)
-    nums = "a" * cc_page_obj.paginator.num_pages
     context = {
         'cc_page_obj': cow_crec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -156,10 +150,8 @@ def cow_salerec(request):
     paginated_filtercs = Paginator(cow_srec, 10)
     page_number = request.GET.get('page')
     cs_page_obj = paginated_filtercs.get_page(page_number)
-    nums = "a" * cs_page_obj.paginator.num_pages
     context = {
         'cs_page_obj': cow_srec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -225,10 +217,8 @@ def goat_motrec(request):
     paginated_filtergm = Paginator(goat_mrec, 10)
     page_number = request.GET.get('page')
     gm_page_obj = paginated_filtergm.get_page(page_number)
-    nums = "a" * gm_page_obj.paginator.num_pages
     context = {
         'gm_page_obj': goat_mrec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -242,10 +232,8 @@ def goat_procrec(request):
     paginated_filtergp = Paginator(goat_prec, 10)
     page_number = request.GET.get('page')
     gp_page_obj = paginated_filtergp.get_page(page_number)
-    nums = "a" * gp_page_obj.paginator.num_pages
     context = {
         'gp_page_obj': goat_prec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -259,10 +247,8 @@ def goat_cullrec(request):
     paginated_filtergc = Paginator(goat_crec, 10)
     page_number = request.GET.get('page')
     gc_page_obj = paginated_filtergc.get_page(page_number)
-    nums = "a" * gc_page_obj.paginator.num_pages
     context = {
         'gc_page_obj': goat_crec,
-        'nums': nums,
         'q'   : query_form
         
     }
@@ -276,10 +262,8 @@ def goat_salerec(request):
     paginated_filtergs = Paginator(goat_srec, 10)
     page_number = request.GET.get('page')
     gs_page_obj = paginated_filtergs.get_page(page_number)
-    nums = "a" * gs_page_obj.paginator.num_pages
     context = {
         'gs_page_obj': goat_srec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -365,10 +349,8 @@ def pig_motrec(request):
     paginated_filterpm = Paginator(pig_mrec, 1)
     page_number = request.GET.get('page')
     pm_page_obj = paginated_filterpm.get_page(page_number)
-    nums = "a" * pm_page_obj.paginator.num_pages
     context = {
         'pm_page_obj': pig_mrec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -382,10 +364,8 @@ def pig_procrec(request):
     paginated_filterpp = Paginator(pig_prec, 10)
     page_number = request.GET.get('page')
     pp_page_obj = paginated_filterpp.get_page(page_number)
-    nums = "a" * pp_page_obj.paginator.num_pages
     context = {
         'pp_page_obj': pig_prec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -399,10 +379,8 @@ def pig_salerec(request):
     paginated_filterps = Paginator(pig_srec, 10)
     page_number = request.GET.get('page')
     ps_page_obj = paginated_filterps.get_page(page_number)
-    nums = "a" * ps_page_obj.paginator.num_pages
     context = {
         'ps_page_obj': pig_srec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -416,10 +394,8 @@ def pig_cullrec(request):
     paginated_filterpc = Paginator(pig_crec, 10)
     page_number = request.GET.get('page')
     pc_page_obj = paginated_filterpc.get_page(page_number)
-    nums = "a" * pc_page_obj.paginator.num_pages
     context = {
         'pc_page_obj': pig_crec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -505,10 +481,8 @@ def sheep_motrec(request):
     paginated_filtersm = Paginator(sheep_mrec, 10)
     page_number = request.GET.get('page')
     sm_page_obj = paginated_filtersm.get_page(page_number)
-    nums = "a" * sm_page_obj.paginator.num_pages
     context = {
         'sm_page_obj': sheep_mrec,
-        'nums': nums,
         'q'   : query_form
         
     }
@@ -522,10 +496,8 @@ def sheep_procrec(request):
     paginated_filtersp = Paginator(sheep_prec, 10)
     page_number = request.GET.get('page')
     sp_page_obj = paginated_filtersp.get_page(page_number)
-    nums = "a" * sp_page_obj.paginator.num_pages
     context = {
         'sp_page_obj': sheep_prec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -539,10 +511,8 @@ def sheep_cullrec(request):
     paginated_filtersc = Paginator(sheep_crec, 10)
     page_number = request.GET.get('page')
     sc_page_obj = paginated_filtersc.get_page(page_number)
-    nums = "a" * sc_page_obj.paginator.num_pages
     context = {
         'sc_page_obj': sheep_crec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -556,10 +526,8 @@ def sheep_salerec(request):
     paginated_filterss = Paginator(sheep_srec, 10)
     page_number = request.GET.get('page')
     ss_page_obj = paginated_filterss.get_page(page_number)
-    nums = "a" * ss_page_obj.paginator.num_pages
     context = {
         'ss_page_obj': sheep_srec,
-        'nums': nums,
         'q'    : query_form
         
     }
@@ -1337,11 +1305,8 @@ def cencow_view(request):
     paginateccv = Paginator(cencowv, 12)
     page_number = request.GET.get('page')
     ccv_page_obj = paginateccv.get_page(page_number)
-    nums = "a" * ccv_page_obj.paginator.num_pages
     context = {
         'ccv_page_obj' : ccv_page_obj,
-        'nums' : nums,
-        'list' : list
     }
     return render(request, 'cow-cenv.html', context)
 
@@ -1351,10 +1316,8 @@ def cengoat_view(request):
     paginategcv = Paginator(cengoatv, 12)
     page_number = request.GET.get('page')
     gcv_page_obj = paginategcv.get_page(page_number)
-    nums = "a" * gcv_page_obj.paginator.num_pages
     context = {
         'gcv_page_obj' : gcv_page_obj,
-        'nums' : nums
     }
     return render(request, 'goat-cenv.html', context)
 
@@ -1364,10 +1327,8 @@ def cenpig_view(request):
     paginatepcv = Paginator(cenpigv, 12)
     page_number = request.GET.get('page')
     pcv_page_obj = paginatepcv.get_page(page_number)
-    nums = "a" * pcv_page_obj.paginator.num_pages
     context = {
         'pcv_page_obj' : pcv_page_obj,
-        'nums' : nums
     }
     return render(request, 'pig-cenv.html',context)
 
@@ -1377,10 +1338,8 @@ def censheep_view(request):
     paginatescv = Paginator(censheepv, 12)
     page_number = request.GET.get('page')
     scv_page_obj = paginatescv.get_page(page_number)
-    nums = "a" * scv_page_obj.paginator.num_pages
     context = {
         'scv_page_obj' : scv_page_obj,
-        'nums' : nums
     }
     return render(request, 'sheep-cenv.html', context)
 

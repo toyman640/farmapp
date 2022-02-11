@@ -93,11 +93,18 @@ Pig Mortality
           
           
            
-         {% for i in nums %}
-          
-          <li class="page-item {% if  i == page_number %} active {% endif %}"><a href="?page={{ forloop.counter }}" class="page-link">{{ forloop.counter }}</a></li>                    
-
-         {% endfor %}
+          {% for i in apm_page_obj.paginator.page_range %}
+          {% if apm_page_obj.number == i %}
+            <li class="page-item active" aria-current="page">
+              <span class="page-link">
+                {{ i }}
+                <span class="sr-only">(current)</span>
+              </span>
+            </li>
+            {% elif i > apm_page_obj.number|add:'-5' and i < apm_page_obj.number|add:'5' %}
+            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+          {% endif %}
+        {% endfor %}
           
           {% if apm_page_obj.has_next %}
             

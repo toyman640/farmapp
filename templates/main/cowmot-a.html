@@ -38,17 +38,16 @@ Cow Mortality
       <div class="card mb-3">
         <div class="row no-gutters">
           <div class="col-md-4">
-            <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
-              <div class="carousel-inner">
-                {% if forloop.first %}
-                <div class="carousel-item active">
+            <!-- <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+              <div class="carousel-inner">  
+                <div class="carousel-item {% if forloop.first %} active {% endif %}">
                   <img class="d-block w-100" src="{{ a.post_img }}" alt="First slide">
                 </div>
-                {% else %}
+                
                 <div class="carousel-item">
                   <img class="d-block w-100" src="{{ a.post_img }}" alt="Second slide">
                 </div>
-                {% endif %}
+                
               </div>
               <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -58,8 +57,8 @@ Cow Mortality
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="sr-only">Next</span>
               </a>
-            </div>
-              
+            </div> -->
+            <img class="d-block w-100" src="{{ a.post_img }}" alt="First slide">
           </div>
           <div class="col-md-8">
             <div class="card-body">
@@ -93,11 +92,23 @@ Cow Mortality
           
           
            
-         {% for i in nums %}
+         <!-- {% for i in nums %}
           
-          <li class="page-item active"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
+          <li class="page-item {% if acm_page_obj.page_range %} active {% endif %}"><a href="?page={{ forloop.counter }}" class="page-link active">{{ forloop.counter }}</a></li>                    
 
-         {% endfor %}
+         {% endfor %} -->
+         {% for i in acm_page_obj.paginator.page_range %}
+          {% if acm_page_obj.number == i %}
+            <li class="page-item active" aria-current="page">
+              <span class="page-link">
+                {{ i }}
+                <span class="sr-only">(current)</span>
+              </span>
+            </li>
+            {% elif i > acm_page_obj.number|add:'-5' and i < acm_page_obj.number|add:'5' %}
+            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+          {% endif %}
+        {% endfor %}
           
           {% if acm_page_obj.has_next %}
             

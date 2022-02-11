@@ -1,0 +1,71 @@
+{% extends 'main/base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Pig Mortality
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a  class="btn btn-light" href="{% url 'main:pig_all' %}"><i class="fa fa-angle-left"></i> Back to all Records Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Pig Mortality Result</li>
+      </ol>
+		<div class="box_general padding_bottom">
+            <h4 class="mb-4">Search Result : {{ count }} records</h4>
+      {% if queryseta %}
+      {% for a in queryseta %}
+      <div class="card mb-3">
+        <div class="row no-gutters">
+          <div class="col-md-4">
+            <!-- carousel -->
+            <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+              <div class="carousel-inner">
+                {% if forloop.counter == 0 %}
+                <div class="carousel-item active" data-slide-to="0">
+                  <img class="d-block w-100" src="{{ a.post_img }}" alt="First slide">
+                </div>
+                {% else %}
+                <div class="carousel-item" data-slide-to="{{ forloop.counter0 }}">
+                  <img class="d-block w-100" src="{{ a.post_img1 }}" alt="Second slide">
+                </div>
+                {% endif %}
+              </div>
+              <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+              </a>
+              <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+              </a>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">Cause of motality:</h5>
+              <p class="card-text">{{ a.comment }}</p>
+              <h5 class="card-title">Sow(s):</h5>
+              <p class="card-text">{{ a.sow_num }}</p>
+              <h5 class="card-title">Boar(s):</h5>
+              <p class="card-text">{{ a.boar_num }}</p>
+              <h5 class="card-title">Pigglet(s):</h5>
+              <p class="card-text">{{ a.pigglet }}</p>
+              <p class="card-text card-footer"><small class="text-muted">{{ a.date|date:"M d, Y" }}</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+		</div>
+    
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+      {% endblock %}

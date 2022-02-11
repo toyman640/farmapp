@@ -110,7 +110,8 @@ def cow_mota(request):
     context = {
         'acm_page_obj' : cmta,
         'nums' : nums,
-        'cma' : query_form
+        'cma' : query_form,
+        'active' : page_number
 
     }
     context['acm_page_obj'] = acm_page_obj
@@ -487,7 +488,8 @@ def cowmota_filter(request):
             end_date = cowmot_querya.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = CowMortality.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-cowmot.html', {'queryseta': result, 'cma': cowmot_querya})
+            count = result.count()
+            return render(request, 'main/afilter-cowmot.html', {'queryseta': result, 'cma': cowmot_querya, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -504,7 +506,8 @@ def goatmota_filter(request):
             end_date = goatmot_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = GoatMortality.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-goatmot.html', {'queryseta': result, 'gma': goatmot_query})
+            count = result.count()
+            return render(request, 'main/afilter-goatmot.html', {'queryseta': result, 'gma': goatmot_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -521,7 +524,8 @@ def pigmota_filter(request):
             end_date = pigmot_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = PigMortality.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-pigmot.html', {'queryseta': result, 'pma': pigmot_query})
+            count = result.count()
+            return render(request, 'main/afilter-pigmot.html', {'queryseta': result, 'pma': pigmot_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -538,7 +542,8 @@ def sheepmota_filter(request):
             end_date = sheepmot_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = SheepMortality.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-sheepmot.html', {'queryseta': result, 'sma': sheepmot_query})
+            count = result.count()
+            return render(request, 'main/afilter-sheepmot.html', {'queryseta': result, 'sma': sheepmot_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -555,7 +560,8 @@ def sheepsalea_filter(request):
             end_date = sheepsale_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = SheepSale.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-sheepsale.html', {'queryseta': result, 'ssa': sheepsale_query})
+            count = result.count()
+            return render(request, 'main/afilter-sheepsale.html', {'queryseta': result, 'ssa': sheepsale_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -572,7 +578,8 @@ def pigsalea_filter(request):
             end_date = pigsale_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = PigSale.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-pigsale.html', {'queryseta': result, 'psa': pigsale_query})
+            count = result.count()
+            return render(request, 'main/afilter-pigsale.html', {'queryseta': result, 'psa': pigsale_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -589,7 +596,8 @@ def cowsalea_filter(request):
             end_date = cowsale_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = CowSale.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-cowsale.html', {'queryseta': result, 'csa': cowsale_query})
+            count = result.count()
+            return render(request, 'main/afilter-cowsale.html', {'queryseta': result, 'csa': cowsale_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -606,7 +614,8 @@ def goatsalea_filter(request):
             end_date = goatsale_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = GoatSale.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-sheepsale.html', {'queryseta': result, 'gsa': goatsale_query})
+            count = result.count()
+            return render(request, 'main/afilter-sheepsale.html', {'queryseta': result, 'gsa': goatsale_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -623,7 +632,8 @@ def sheepproca_filter(request):
             end_date = sheepproc_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = SheepProcurement.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-sheepproc.html', {'queryseta': result, 'spa': sheepproc_query})
+            count = result.count()
+            return render(request, 'main/afilter-sheepproc.html', {'queryseta': result, 'spa': sheepproc_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -640,7 +650,8 @@ def pigproca_filter(request):
             end_date = pigproc_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = PigProcurement.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-pigproc.html', {'queryseta': result, 'ppa': pigproc_query})
+            count = result.count()
+            return render(request, 'main/afilter-pigproc.html', {'queryseta': result, 'ppa': pigproc_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -657,7 +668,8 @@ def cowproca_filter(request):
             end_date = cowproc_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = CowProcurement.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-cowproc.html', {'queryseta': result, 'cpa': cowproc_query})
+            count = result.count()
+            return render(request, 'main/afilter-cowproc.html', {'queryseta': result, 'cpa': cowproc_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -674,7 +686,8 @@ def goatproca_filter(request):
             end_date = goatproc_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = GoatProcurement.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-goatproc.html', {'queryseta': result, 'gpa': goatproc_query})
+            count = result.count()
+            return render(request, 'main/afilter-goatproc.html', {'queryseta': result, 'gpa': goatproc_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -691,7 +704,8 @@ def cowculla_filter(request):
             end_date = cowcull_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = CowCulling.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-cowcull.html', {'queryseta': result, 'cca': cowcull_query})
+            count = result.count()
+            return render(request, 'main/afilter-cowcull.html', {'queryseta': result, 'cca': cowcull_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -708,7 +722,8 @@ def goatculla_filter(request):
             end_date = goatcull_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = GoatCulling.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-goatcull.html', {'queryseta': result, 'gca': goatcull_query})
+            count = result.count()
+            return render(request, 'main/afilter-goatcull.html', {'queryseta': result, 'gca': goatcull_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -725,7 +740,8 @@ def sheepculla_filter(request):
             end_date = sheepcull_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = SheepCulling.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-sheepcull.html', {'queryseta': result, 'sca': sheepcull_query})
+            count = result.count()
+            return render(request, 'main/afilter-sheepcull.html', {'queryseta': result, 'sca': sheepcull_query, 'count' : count})
         else:
             messages.error(request, 'Out of range')
     else:
@@ -742,7 +758,8 @@ def pigculla_filter(request):
             end_date = pigcull_query.cleaned_data.get('end_date')
             new_end = end_date + timedelta(days=1)
             result = PigCulling.objects.filter(date__range=[start_date, new_end])
-            return render(request, 'main/afilter-pigcull.html', {'queryseta': result, 'pca': pigcull_query})
+            count = result.count()
+            return render(request, 'main/afilter-pigcull.html', {'queryseta': result, 'pca': pigcull_query, 'count' : count })
         else:
             messages.error(request, 'Out of range')
     else:
