@@ -9,15 +9,15 @@
 {% block content %}
   <!-- /Navigation-->
   <div class="content-wrapper">
-    <div class="container-fluid">
+    <div class="container-fluid overall">
       <!-- Breadcrumbs-->
-      <ol class="breadcrumb">
+      <ol class="breadcrumb top-label">
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
         <li class="breadcrumb-item active">Piggery Records</li>
       </ol>
-        <div class="box_general padding_bottom bg-light">
+        <div class="box_general padding_bottom top-sale">
             <div class="row ">
                 
                 <div class="col-6"> <h5>Total Pig Sales for the month: &#8358;
@@ -33,13 +33,13 @@
             </div>
         </div>
 	  <!-- Icon Cards-->
-		<div class="box_general padding_bottom">
+		<div class="box_general padding_bottom mortality">
             <div class="panel panel-container">
                 {% for s in boarc %}
                 {% if forloop.last %}
                 <h3 class=" offset-4 mb-5"><span class="badge badge-secondary">Mortality Entry Records For the Month Of {{ s.month|date:"M" }}</span></h3>
                 <div class="row">
-                    <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
+                    <div class="col-xs-6 col-md-4 col-lg-4 no-padding ">
                         <div class="panel panel-teal panel-widget border-right">
                             <div class="row no-padding"><em class="fa fa-xl fa-shopping-cart color-blue"></em>                             
                                 <div class="large value counter">{{ s.total }}</div>
@@ -49,13 +49,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
+                    <div class="col-xs-6 col-md-4 col-lg-4 no-padding ">
                         <div class="panel panel-blue panel-widget border-right">
-                            <div class="row no-padding"><em class="fa fa-xl fa-comments color-orange"></em>
+                            <div class="row no-padding"><i class="">&#128061</i>
                                 {% for h in sowc %}
                                 {% if forloop.last %}
                                 <div class="large value counter">{{ h.total }}</div>
-                                <div class="text-muted">Sow(s)</div>
+                                <div class="text-muted">Sow(s) </div>
                                 {% endif %}
                                 {% endfor %}
                             </div>
@@ -67,7 +67,7 @@
                                 {% for d in piggletc %}
                                 {% if forloop.last %}
                                 <div class="large value counter">{{ d.total }}</div>
-                                <div class="text-muted">Pigglet(s)</div>
+                                <div class="text-muted">Pigglet(s) &#128055</div>
                                 {% endif %}
                                 {% endfor %}
                             </div>
@@ -77,7 +77,7 @@
             </div>
             <a href="{% url 'main:pig_mota' %}" class="btn btn-info btn-sm ">View all Mortality Records</a>
 		</div>
-        <div class="box_general padding_bottom">
+        <div class="box_general padding_bottom culling">
             <div class="panel panel-container">
                 {% for s in boarcull %}
                 {% if forloop.last %}
@@ -109,7 +109,7 @@
             </div>
             <a href="{% url 'main:pig_culla' %}" class="btn btn-info btn-sm ">View all Culling Records</a>
 		</div>
-        <div class="box_general padding_bottom">
+        <div class="box_general padding_bottom mb-5">
             <div class="row">
                 <div class="col-6">
                     <div class="header_box version_2">

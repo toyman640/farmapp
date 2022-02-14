@@ -79,7 +79,7 @@ def cow_birth(request):
 def cow_motrec(request):
     cow_rec =   CowMortality.objects.order_by('-date')
     query_form = CowmotFilter()
-    paginated_filtercm = Paginator(cow_rec, 1)
+    paginated_filtercm = Paginator(cow_rec, 10)
     page_number = request.GET.get('page')
     cm_page_obj = paginated_filtercm.get_page(page_number)
     cowmot_count = CowMortality.objects.all()
