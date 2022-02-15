@@ -22,11 +22,11 @@ Cow Procurement
           {% if Pview %}
             <div class="container">
               <div>
-                <h3 class="h3 mt-5">{{ Pview.date }}</mview></h3>
+                <h3 class="h3 mt-5">{{ Pview.date|date:"M d, Y" }}</mview></h3>
                 <hr>
-                <h4 class="h4 mt">Location(s):</h4>
+                <!-- <h4 class="h4 mt">Location(s):</h4>
                 <p><strong>  {{ Pview.location }} </strong></p>
-                <hr>
+                <hr> -->
                 <h4 class="h4 mt">Cow(s):</h4>
                 <p><strong>  {{ Pview.cow_num }} </strong></p>
                 <hr>

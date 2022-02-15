@@ -22,11 +22,11 @@ Pig Procurement
           {% if Pview %}
             <div class="container">
               <div>
-                <h3 class="h3 mt-5">{{ Pview.date }}</mview></h3>
+                <h3 class="h3 mt-5">{{ Pview.date|date:"M d, Y" }}</mview></h3>
                 <hr>
-                <h4 class="h4 mt">Location(s):</h4>
+                <!-- <h4 class="h4 mt">Location(s):</h4>
                 <p><strong>  {{ Pview.location }} </strong></p>
-                <hr>
+                <hr> -->
                 <h4 class="h4 mt">Sow(s):</h4>
                 <p><strong>  {{ Pview.sow_num }} </strong></p>
                 <hr>
@@ -39,7 +39,7 @@ Pig Procurement
                 <h4 class="h4 mt">Size(s):</h4>
                 <p><strong>  {{ Pview.size1 }} </strong></p>
                 <hr>
-                <a href="{% url 'farmrecord:pig_cullrec' %}" class="btn btn-secondary">Go Back</a>
+                <a href="{% url 'farmrecord:pig_procrec' %}" class="btn btn-secondary">Go Back</a>
                 
                 <a href="{% url 'farmrecord:delete_postprocp' Pview.id %}" class="btn btn-danger float-right">Delete</a>
                 <a href="{% url 'farmrecord:edit_pigproc' Pview.id %}" class="btn btn-warning float-right mr-2">Edit</a>

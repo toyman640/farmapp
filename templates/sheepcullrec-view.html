@@ -22,7 +22,7 @@ Sheep Culling
           {% if Cview %}
             <div class="container">
               <div>
-                <h3 class="h3 mt-5">{{ cview.date }}</mview></h3>
+                <h3 class="h3 mt-5">{{ cview.date|date:"M d, Y" }}</mview></h3>
                 <hr>
                 <h4 class="h4 mt">Location(s):</h4>
                 <p><strong>  {{ Cview.location }} </strong></p>

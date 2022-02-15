@@ -49,7 +49,7 @@ Cow Procurement
           {% if cp_page_obj %}
           {% for a in cp_page_obj %}
           <tr>
-            <td data-label="Date">{{ a.date }}</td>
+            <td data-label="Date">{{ a.date|date:"M d, Y" }}</td>
             <td data-label="Bull(s)">{{ a.bull_num }}</td>
             <td data-label="Size(s)">{{ a.size }}</td>
             <td data-label="Cow(s)">{{ a.cow_num }}</td>

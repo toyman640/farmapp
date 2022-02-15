@@ -48,7 +48,7 @@ Pig Culling
           {% if pc_page_obj %}
           {% for a in pc_page_obj %}
           <tr>
-            <td data-label="Date">{{ a.date }}</td>
+            <td data-label="Date">{{ a.date|date:"M d, Y" }}</td>
             <td data-label="Boar(s)">{{ a.boar_num }}</td>
             <td data-label="Sow(s)">{{ a.sow_num }}</td>
             <td data-label="Location">{{ a.location }}</td>

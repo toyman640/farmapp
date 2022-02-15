@@ -22,7 +22,7 @@ Pig Sale
           {% if Sview %}
             <div class="container">
               <div>
-                <h3 class="h3 mt-5">{{ Sview.date }}</mview></h3>
+                <h3 class="h3 mt-5">{{ Sview.date|date:"M d, Y" }}</mview></h3>
                 <hr>
                 <h4 class="h4 mt">Location(s):</h4>
                 <p><strong>  {{ Sview.location }} </strong></p>
@@ -33,17 +33,23 @@ Pig Sale
                 <h4 class="h4 mt">Size(s):</h4>
                 <p><strong>  {{ Sview.size }} </strong></p>
                 <hr>
+                <h4 class="h4 mt">Price(s):</h4>
+                <p><strong>  {{ Sview.price }} </strong></p>
+                <hr>
                 <h4 class="h4 mt">Boar(s):</h4>
                 <p><b> {{ Sview.boar_num }} </b></p>
                 <hr>
                 <h4 class="h4 mt">Size(s):</h4>
                 <p><strong>  {{ Sview.size1 }} </strong></p>
                 <hr>
+                <h4 class="h4 mt">Price(s):</h4>
+                <p><strong>  {{ Sview.price1 }} </strong></p>
+                <hr>
                 <h4 class="h4 mt">Weight:</h4>
                 <p>{{ Sview.weight }}</p>
                 <hr>
-                <h4 class="h4 mt">Price:</h4>
-                <p>{{ Sview.price }}</p>
+                <h4 class="h4 mt">Total Price(s):</h4>
+                <p>{{ Sview.total_price }}</p>
                 <hr>
                 <a href="{% url 'farmrecord:pig_salerec' %}" class="btn btn-secondary">Go Back</a>
                 

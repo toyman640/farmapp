@@ -51,7 +51,7 @@ Sheep Mortality
           {% if sm_page_obj %}
           {% for d in sm_page_obj %}
           <tr>
-            <td data-label="Date">{{ d.date }}</td>
+            <td data-label="Date">{{ d.date|date:"M d, Y" }}</td>
             <td data-label="Location">{{ d.location }}</td>
             <td data-label="Mortality">{{ d.mortality }}</td>
             <td data-label="Ram(s)">{{ d.ram_num }}</td>

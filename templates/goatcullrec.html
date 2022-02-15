@@ -48,7 +48,7 @@ Goat Culling
           {% if gc_page_obj %}
           {% for a in gc_page_obj %}
           <tr>
-            <td data-label="Date">{{ a.date }}</td>
+            <td data-label="Date">{{ a.date|date:"M d, Y" }}</td>
             <td data-label="Buck(s)">{{ a.buck_num }}</td>
             <td data-label="Doe(s)">{{ a.doe_num }}</td>
             <td data-label="Location(s)">{{ a.location }}</td>

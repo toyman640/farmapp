@@ -14,7 +14,7 @@ Home
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">Sheep Sales</li>
       </ol>
 		<div class="box_general padding_bottom">
       <h5>Show only from:</h5>
@@ -52,14 +52,14 @@ Home
           {% if ss_page_obj %}
           {% for a in ss_page_obj %}
           <tr>
-            <td data-label="Date">{{ a.date }}</td>
+            <td data-label="Date">{{ a.date|date:"M d, Y" }}</td>
             <td data-label="Ram(s)">{{ a.ram_num }}</td>
             <td data-label="Size(s)">{{ a.size1 }}</td>
             <td data-label="Ewe(s)">{{ a.ewe_num }}</td>
             <td data-label="Size(s)">{{ a.size }}</td>
             <td data-label="Weight(s) In Kg">{{ a.weight }}</td>
             <td data-label="Total Price(s)">{{ a.total_price }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:sheep_salerec_view' a.id %}" >View</a></th>
           {% endfor %}
           {% endif %} 
           </tr>

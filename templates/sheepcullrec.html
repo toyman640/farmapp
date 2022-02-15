@@ -48,7 +48,7 @@ Sheep Culling
           {% if sc_page_obj %}
           {% for a in sc_page_obj %}
           <tr>
-            <td data-label="Date">{{ a.date }}</td>
+            <td data-label="Date">{{ a.date|date:"M d, Y" }}</td>
             <td data-label="Ram(s)">{{ a.ram_num }}</td>
             <td data-label="Ewe(s)">{{ a.ewe_num }}</td>
             <td data-label="Location">{{ a.location }}</td>

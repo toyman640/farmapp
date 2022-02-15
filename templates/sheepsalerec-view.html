@@ -14,18 +14,49 @@ Sheep Sale
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">Sheep Sale</li>
       </ol>
 		<div class="box_general padding_bottom">
 			<div class="container">
         <div class="row">
           {% if Sview %}
-          <div class="col-xs-6 col-8">
-            <img src="" alt="" srcset="">
-            <img src="" alt="" srcset="">
-          </div>
-          <div class="col-xs-6 col-4">
-            
+          <div class="container">
+            <div>
+              <h3 class="h3 mt-5">{{ Sview.date|date:"M d, Y" }}</mview></h3>
+              <hr>
+              <h4 class="h4 mt">Location(s):</h4>
+              <p><strong>  {{ Sview.location }} </strong></p>
+              <hr>
+              <h4 class="h4 mt">Ewe(s):</h4>
+              <p><strong>  {{ Sview.ewe_num }} </strong></p>
+              <hr>
+              <h4 class="h4 mt">Size(s):</h4>
+              <p><strong>  {{ Sview.size }} </strong></p>
+              <hr>
+              <h4 class="h4 mt">Price(s):</h4>
+              <p><strong>  {{ Sview.price }} </strong></p>
+              <hr>
+              <h4 class="h4 mt">Ram(s):</h4>
+              <p><b> {{ Sview.ram_num }} </b></p>
+              <hr>
+              <h4 class="h4 mt">Size(s):</h4>
+              <p><strong>  {{ Sview.size1 }} </strong></p>
+              <hr>
+              <h4 class="h4 mt">Price(s):</h4>
+              <p><strong>  {{ Sview.price1 }} </strong></p>
+              <hr>
+              <h4 class="h4 mt">Weight:</h4>
+              <p>{{ Sview.weight }}</p>
+              <hr>
+              <h4 class="h4 mt">Total Price(s):</h4>
+              <p>{{ Sview.total_price }}</p>
+              <hr>
+              <a href="{% url 'farmrecord:sheep_salerec' %}" class="btn btn-secondary">Go Back</a>
+              
+              <a href="{% url 'farmrecord:delete_postsales' Sview.id %}" class="btn btn-danger float-right">Delete</a>
+              <a href="{% url 'farmrecord:edit_sheepsale' Sview.id %}" class="btn btn-warning float-right mr-2">Edit</a>
+              
+            </div>
           </div>
           {% endif %}
         </div>

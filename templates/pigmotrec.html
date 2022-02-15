@@ -51,7 +51,7 @@ Pig Mortality
           {% if pm_page_obj %}
           {% for q in pm_page_obj %}
           <tr>
-            <td data-label="Date">{{ q.date }}</td>
+            <td data-label="Date">{{ q.date|date:"M d, Y" }}</td>
             <td data-label="Location">{{ q.location }}</td>
             <td data-label="Mortality">{{ q.mortality }}</td>
             <td data-label="Boar(s)">{{ q.boar_num }}</td>

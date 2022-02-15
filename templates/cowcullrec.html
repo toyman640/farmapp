@@ -48,7 +48,7 @@ Cow Culling
           {% if cc_page_obj %}
           {% for a in cc_page_obj %}
           <tr>
-            <td data-label="Date">{{ a.date }}</td>
+            <td data-label="Date">{{ a.date|date:"M d, Y" }}</td>
             <td data-label="Bull(s)">{{ a.bull_num }}</td>
             <td data-label="Cow(s)">{{ a.cow_num }}</td>
             <td data-label="Location(s)">{{ a.location }}</td>

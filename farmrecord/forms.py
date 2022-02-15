@@ -1,3 +1,4 @@
+from cProfile import label
 from dataclasses import fields
 from pyexpat import model
 from django import forms
@@ -26,6 +27,9 @@ class PigmotForm(forms.ModelForm):
     class Meta:
         model = PigMortality
         fields = ('mortality', 'location', 'sow_num', 'boar_num', 'pigglet', 'section', 'size', 'comment', 'image_1', 'image_2')
+        labels = {
+            "comment" : "Cause of mortality"
+        }
 
 class CowcullForm(forms.ModelForm):
     class Meta:
@@ -171,22 +175,22 @@ class EditgoatProc(forms.ModelForm):
 class EditcowSale(forms.ModelForm):
     class Meta:
         model = CowSale
-        fields = fields =('cow_num', 'size', 'bull_num', 'size1', 'section', 'weight', 'price')
+        fields = fields =('cow_num', 'size', 'price' ,'bull_num', 'size1', 'price1' ,'section', 'weight', 'total_price')
 
 class EditgoatSale(forms.ModelForm):
     class Meta:
         model = GoatSale
-        fields =('doe_num', 'size', 'buck_num', 'size1', 'section', 'weight', 'price')
+        fields =('doe_num', 'size', 'price' ,'buck_num', 'size1', 'price1' ,'section', 'weight', 'total_price')
 
 class EditpigSale(forms.ModelForm):
     class Meta:
         model = PigSale
-        fields =('sow_num', 'size', 'boar_num', 'size1', 'section', 'weight', 'price')
+        fields =('sow_num', 'size', 'price' ,'boar_num', 'size1', 'price1' ,'section', 'weight', 'total_price')
 
 class EditsheepSale(forms.ModelForm):
     class Meta:
         model = SheepSale
-        fields =('ewe_num', 'size', 'ram_num', 'size1', 'section', 'weight', 'price')
+        fields =('ewe_num', 'size', 'price' ,'ram_num', 'size1', 'price1' ,'section', 'weight', 'total_price')
         
     
 class CowmotFilter(forms.ModelForm):

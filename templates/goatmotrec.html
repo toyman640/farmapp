@@ -51,7 +51,7 @@ Goat Mortality
           {% if gm_page_obj %}
           {% for b in gm_page_obj %}
           <tr>
-            <td data-label="Date">{{ b.date }}</td>
+            <td data-label="Date">{{ b.date|date:"M d, Y" }}</td>
             <td data-label="Location">{{ b.location }}</td>
             <td data-label="Mortality">{{ b.mortality }}</td>
             <td data-label="Buck(s)">{{ b.buck_num }}</td>

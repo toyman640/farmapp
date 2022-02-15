@@ -33,9 +33,9 @@ class CowMortality(models.Model):
     calves = models.IntegerField(verbose_name='calve(s)', blank=True, null=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category1', null=True, on_delete=models.CASCADE)
     size = models.CharField(max_length=100, verbose_name='Size(s)')
-    comment = models.TextField(max_length=500, verbose_name='Cause of death' , blank=True)
-    image_1 = models.FileField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
-    image_2 = models.FileField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
+    comment = models.TextField(max_length=500, verbose_name='Cause of mortality' , blank=True)
+    image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
+    image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
 
     def __str__(self):
@@ -55,16 +55,16 @@ class CowMortality(models.Model):
 
 class SheepMortality(models.Model):
     mortality = models.CharField(max_length=10, verbose_name='mortality')
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     location = models.CharField(max_length=200, verbose_name='loaction(s)')
     ewe_num = models.IntegerField(verbose_name='Ewe(s)', blank=True, null=True, default=0)
     ram_num = models.IntegerField(verbose_name='Ram(s)', blank=True, null=True, default=0)
     lamb = models.IntegerField(verbose_name='lamb(s)', blank=True, null=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category2', null=True, on_delete=models.CASCADE)
     size = models.CharField(max_length=100, verbose_name='Size(s)')
-    comment = models.TextField(max_length=500, verbose_name='Cause of death' , blank=True)
-    image_1 = models.FileField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
-    image_2 = models.FileField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
+    comment = models.TextField(max_length=500, verbose_name='Cause of mortality' , blank=True)
+    image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
+    image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
 
     def __str__(self):
@@ -84,16 +84,16 @@ class SheepMortality(models.Model):
 
 class GoatMortality(models.Model):
     mortality = models.CharField(max_length=10, verbose_name='mortality')
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     location = models.CharField(max_length=200, verbose_name='loaction(s)')
     doe_num = models.IntegerField(verbose_name='Doe(s)', blank=True, null=True, default=0)
     buck_num = models.IntegerField(verbose_name='Buck(s)', blank=True, null=True, default=0)
     kid = models.IntegerField(verbose_name='kid(s)', blank=True, null=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category3', null=True, on_delete=models.CASCADE)
     size = models.CharField(max_length=100, verbose_name='Size(s)')
-    comment = models.TextField(max_length=500, verbose_name='Cause of death' , blank=True)
-    image_1 = models.FileField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
-    image_2 = models.FileField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
+    comment = models.TextField(max_length=500, verbose_name='Cause of mortality' , blank=True)
+    image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
+    image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
 
     def __str__(self):
@@ -112,16 +112,16 @@ class GoatMortality(models.Model):
 
 class PigMortality(models.Model):
     mortality = models.CharField(max_length=10, verbose_name='mortality')
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     location = models.CharField(max_length=200, verbose_name='loaction(s)')
     sow_num = models.IntegerField(verbose_name='Sow(s)', blank=True, null=True, default=0)
     boar_num = models.IntegerField(verbose_name='Boar(s)', blank=True, null=True, default=0)
     pigglet = models.IntegerField(verbose_name='Pigglet(s)', blank=True, null=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category4', null=True, on_delete=models.CASCADE)
     size = models.CharField(max_length=100, verbose_name='Size(s)')
-    comment = models.TextField(max_length=500, verbose_name='Cause of death' , blank=True)
-    image_1 = models.FileField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
-    image_2 = models.FileField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
+    comment = models.TextField(max_length=500, verbose_name='Cause of mortality' , blank=True)
+    image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
+    image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
 
     def __str__(self):
@@ -140,7 +140,7 @@ class PigMortality(models.Model):
 
 
 class SheepCulling(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     ewe_num = models.IntegerField(verbose_name='Ewe(s)', blank=True, null=True, default=0)
     ram_num = models.IntegerField(verbose_name='Ram(s)', blank=True, null=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category5', null=True, on_delete=models.CASCADE)
@@ -152,7 +152,7 @@ class SheepCulling(models.Model):
         return self.reason          
 
 class CowCulling(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     cow_num = models.IntegerField(verbose_name='Cow(s)', blank=True, null=True, default=0)
     bull_num = models.IntegerField(verbose_name='Bull(s)', blank=True, null=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category6', null=True, on_delete=models.CASCADE)
@@ -164,7 +164,7 @@ class CowCulling(models.Model):
         return self.reason
 
 class GoatCulling(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     doe_num = models.IntegerField(verbose_name='Doe(s)', blank=True, null=True, default=0)
     buck_num = models.IntegerField(verbose_name='Buck(s)', blank=True, null=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category7', null=True, on_delete=models.CASCADE)
@@ -176,7 +176,7 @@ class GoatCulling(models.Model):
         return self.reason         
 
 class PigCulling(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     sow_num = models.IntegerField(verbose_name='Sow(s)', blank=True, null=True, default=0)
     boar_num = models.IntegerField(verbose_name='Boar(s)', blank=True, null=True, default=0)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category8', null=True, on_delete=models.CASCADE)
@@ -188,7 +188,7 @@ class PigCulling(models.Model):
         return self.reason
 
 class CowSale(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     cow_num = models.IntegerField(verbose_name='Cow(s)', null=True, blank=True, default=0)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     price = models.IntegerField(verbose_name='Price(s)', blank=True, null=True, default=0)
@@ -204,7 +204,7 @@ class CowSale(models.Model):
         return str(self.date)
 
 class SheepSale(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     ewe_num = models.IntegerField(verbose_name='Ewe(s)', null=True, blank=True, default=0)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     price = models.IntegerField(verbose_name='Price(s)', blank=True, null=True, default=0)
@@ -220,7 +220,7 @@ class SheepSale(models.Model):
         return self.total_price
 
 class GoatSale(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     doe_num = models.IntegerField(verbose_name='Doe(s)', null=True, blank=True, default=0)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True,)
     price = models.IntegerField(verbose_name='Price(s)', null=True, blank=True, default=0)
@@ -236,7 +236,7 @@ class GoatSale(models.Model):
         return self.total_price
 
 class PigSale(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     sow_num = models.IntegerField(verbose_name='Sow(s)', null=True, blank=True, default=0)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     price = models.IntegerField(verbose_name='Price(s)', blank=True, null=True, default=0)
@@ -253,11 +253,11 @@ class PigSale(models.Model):
 
 
 class GoatProcurement(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     doe_num = models.IntegerField(verbose_name='Doe(s)', null=True, blank=True, default=0)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     buck_num = models.IntegerField(verbose_name='Buck(s)', null=True, blank=True, default=0)
-    size1 = models.CharField(max_length=100, verbose_name='Size(s)',null=True)
+    size1 = models.CharField(max_length=100, verbose_name='Size(s)',blank=True,null=True)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category13', null=True, on_delete=models.CASCADE)
     export_to_CSV = models.BooleanField(default=False)
 
@@ -265,11 +265,11 @@ class GoatProcurement(models.Model):
         return self.date
 
 class SheepProcurement(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     ewe_num = models.IntegerField(verbose_name='Ewe(s)', null=True, blank=True, default=0)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     ram_num = models.IntegerField(verbose_name='Ram(s)', null=True, blank=True, default=0)
-    size1 = models.CharField(max_length=100, verbose_name='Size(s)',null=True)
+    size1 = models.CharField(max_length=100, verbose_name='Size(s)', blank=True,null=True)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category14', null=True, on_delete=models.CASCADE)
     export_to_CSV = models.BooleanField(default=False)
 
@@ -277,7 +277,7 @@ class SheepProcurement(models.Model):
         return self.date
 
 class PigProcurement(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     sow_num = models.IntegerField(verbose_name='Sow(s)', null=True, blank=True, default=0)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     boar_num = models.IntegerField(verbose_name='Boar(s)', null=True, blank=True, default=0)
@@ -289,7 +289,7 @@ class PigProcurement(models.Model):
         return self.date
         
 class CowProcurement(models.Model):
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     cow_num = models.IntegerField(verbose_name='Cow(s)', null=True, blank=True, default=0)
     size = models.CharField(max_length=100, verbose_name='Size(s)', blank=True, null=True)
     bull_num = models.IntegerField(verbose_name='Bull(s)', null=True, blank=True, default=0)
@@ -329,7 +329,7 @@ class CowCensusPop(models.Model):
         (DECEMBER, 'December'),
         (CHOOSE, 'Select month')
     ]
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
     cow_population = models.PositiveIntegerField(verbose_name='Cows Population', null=True, blank=True)
     bull_population = models.PositiveIntegerField(verbose_name='Bulls Population', null=True, blank=True)
@@ -371,7 +371,7 @@ class GoatCensusPop(models.Model):
         (DECEMBER, 'December'),
         (CHOOSE, 'Select month')
     ]
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
     doe_population = models.PositiveIntegerField(verbose_name='Does Population', null=True, blank=True)
     buck_population = models.PositiveIntegerField(verbose_name='Bucks Population', null=True, blank=True)
@@ -412,7 +412,7 @@ class PigCensusPop(models.Model):
         (DECEMBER, 'December'),
         (CHOOSE, 'Select month')
     ]
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
     sow_population = models.PositiveIntegerField(verbose_name='Sow Population', null=True, blank=True)
     boar_population = models.PositiveIntegerField(verbose_name='Boar Population', null=True, blank=True)
@@ -456,7 +456,7 @@ class SheepCensusPop(models.Model):
         (DECEMBER, 'December'),
         (CHOOSE, 'Select month')
     ]
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
     ewe_population = models.PositiveIntegerField(verbose_name='Ewes Population', null=True, blank=True)
     ram_population = models.PositiveIntegerField(verbose_name='Rams Population', null=True, blank=True)
