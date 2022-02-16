@@ -657,7 +657,7 @@ def edit_cowmot(request, post_id):
         edit_motc = EditcowMot(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/cow-motality-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/cow-motality-records">click here to go back </a>'))
     else:
         edit_motc = EditcowMot(instance=single_log)
     return render(request, 'Ecowmot.html', {'edit_keycm': edit_motc})
@@ -669,7 +669,7 @@ def edit_goatmot(request, post_id):
         edit_motc = EditgoatMot(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/goat-mortality-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/goat-mortality-records">click here to go back</a>'))
     else:
         edit_motc = EditgoatMot(instance=single_log)
     return render(request, 'Egoatmot.html', {'edit_keycm': edit_motc})
@@ -681,7 +681,7 @@ def edit_sheepmot(request, post_id):
         edit_motc = EditsheepMot(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/sheep-mortality-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/sheep-mortality-records">click here to go back</a>'))
     else:
         edit_motc = EditsheepMot(instance=single_log)
     return render(request, 'Esheepmot.html', {'edit_keycm': edit_motc})
@@ -693,7 +693,7 @@ def edit_pigmot(request, post_id):
         edit_motc = EditpigMot(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/pig-mortality-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/pig-mortality-records">click here to go back</a>'))
     else:
         edit_motc = EditpigMot(instance=single_log)
     return render(request, 'Epigmot.html', {'edit_keycm': edit_motc})
@@ -705,7 +705,7 @@ def edit_cowsale(request, post_id):
         edit_salec = EditcowSale(request.POST, request.FILES, instance=single_log)
         if edit_salec.is_valid():
             edit_salec.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/cow-sale-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/cow-sale-records">click here to go back</a>'))
     else:
         edit_salec = EditcowSale(instance=single_log)
     return render(request, 'Ecowsale.html', {'edit_keycs': edit_salec})
@@ -718,7 +718,7 @@ def edit_goatsale(request, post_id):
         edit_motc = EditgoatSale(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/goat-sale-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/goat-sale-records">click here to go back</a>'))
     else:
         edit_motc = EditgoatSale(instance=single_log)
     return render(request, 'Egoatsale.html', {'edit_keycm': edit_motc})
@@ -730,7 +730,7 @@ def edit_pigsale(request, post_id):
         edit_motc = EditpigSale(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/pig-sale-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/pig-sale-records">click here to go back</a>'))
     else:
         edit_motc = EditpigSale(instance=single_log)
     return render(request, 'Epigsale.html', {'edit_keycm': edit_motc})
@@ -742,7 +742,7 @@ def edit_sheepsale(request, post_id):
         edit_motc = EditsheepSale(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/sheep-sale-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/sheep-sale-records">click here to go back</a>'))
     else:
         edit_motc = EditsheepSale(instance=single_log)
     return render(request, 'Esheepsale.html', {'edit_keycm': edit_motc})
@@ -754,7 +754,7 @@ def edit_cowproc(request, post_id):
         edit_motc = EditcowProc(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/cow-procurement-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/cow-procurement-records">click here to go back</a>'))
     else:
         edit_motc = EditcowProc(instance=single_log)
     return render(request, 'Ecowproc.html', {'edit_keycm': edit_motc})
@@ -766,7 +766,7 @@ def edit_goatproc(request, post_id):
         edit_motc = EditgoatProc(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/goat-procurement-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/goat-procurement-records">click here to go back</a>'))
     else:
         edit_motc = EditgoatProc(instance=single_log)
     return render(request, 'Egoatproc.html', {'edit_keycm': edit_motc})
@@ -778,7 +778,7 @@ def edit_pigproc(request, post_id):
         edit_procp = EditpigProc(request.POST, request.FILES, instance=single_log)
         if edit_procp.is_valid():
             edit_procp.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/pig-procurement-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/pig-procurement-records">click here to go back</a>'))
     else:
         edit_procp = EditpigProc(instance=single_log)
     return render(request, 'Epigproc.html', {'edit_procp': edit_procp})
@@ -790,7 +790,7 @@ def edit_sheepproc(request, post_id):
         edit_procs = EditsheepProc(request.POST, request.FILES, instance=single_log)
         if edit_procs.is_valid():
             edit_procs.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/sheep-procurement-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/sheep-procurement-records">click here to go back</a>'))
     else:
         edit_procs = EditsheepProc(instance=single_log)
     return render(request, 'Esheepproc.html', {'edit_keycm': edit_procs})
@@ -802,7 +802,7 @@ def edit_cowcull(request, post_id):
         edit_motc = EditcowCull(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/cow-cull-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/cow-cull-records">click here to go back</a>'))
     else:
         edit_motc = EditcowCull(instance=single_log)
     return render(request, 'Ecowcull.html', {'edit_keycm': edit_motc})
@@ -814,7 +814,7 @@ def edit_goatcull(request, post_id):
         edit_motc = EditgoatCull(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/goat-cull-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/goat-cull-records">click here to go back</a>'))
     else:
         edit_motc = EditgoatCull(instance=single_log)
     return render(request, 'Egoatcull.html', {'edit_keycm': edit_motc})
@@ -826,7 +826,7 @@ def edit_sheepcull(request, post_id):
         edit_motc = EditsheepCull(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/sheep-cull-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/sheep-cull-records">click here to go back/a>'))
     else:
         edit_motc = EditsheepCull(instance=single_log)
     return render(request, 'Esheepcull.html', {'edit_keycm': edit_motc})
@@ -838,7 +838,7 @@ def edit_pigcull(request, post_id):
         edit_motc = EditpigCull(request.POST, request.FILES, instance=single_log)
         if edit_motc.is_valid():
             edit_motc.save()
-            messages.success(request, format_html('Edited Successfully, click here to go back <a href="/pages/pig-cull-records">link</a>'))
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/pig-cull-records">click here to go back</a>'))
     else:
         edit_motc = EditpigCull(instance=single_log)
     return render(request, 'Epigcull.html', {'edit_keycm': edit_motc})

@@ -14,7 +14,7 @@ Goat Procurement
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">Goat Procurement</li>
       </ol>
 		<div class="box_general padding_bottom">
       <h5>Show only from:</h5>
@@ -54,7 +54,7 @@ Goat Procurement
             <td data-label="Size(s)">{{ a.size1 }}</td>
             <td data-label="Doe(s)">{{ a.doe_num }}</td>
             <td data-label="Size(s)">{{ a.size }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:goat_procrec_view' a.id %}" >View</a></th>
           {% endfor %}
           {% endif %} 
           </tr>
