@@ -32,6 +32,24 @@ def dashboard(request):
     }
     return render(request, 'main/index.html', context)
 
+# def login_page(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         user = authenticate(request, username=username, password=password)
+
+#         if user is not None:
+#             login(request, user)
+#             if user.is_superuser:
+#                 return redirect('main:dashboard')
+#             else:
+#                 return redirect('farmrecord:index')
+#         else:
+#             messages.info(request, 'Username OR Password is incorrect')
+           
+#     return render(request, 'main/login.html')
+
+
 def login_page(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -40,15 +58,15 @@ def login_page(request):
 
         if user is not None:
             login(request, user)
-            if user.is_superuser:
+            section = Department.objects.all()
+            if section == IT:
                 return redirect('main:dashboard')
-            else:
-                return redirect('farmrecord:index')
+            # else:
+            #     return redirect('farmrecord:index')
         else:
             messages.info(request, 'Username OR Password is incorrect')
            
     return render(request, 'main/login.html')
-
 
 @staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')
@@ -382,7 +400,7 @@ def cow_all(request):
     bullM_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('bull_num'))
     cowM_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
     calf_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('calves'))
-    popad = CowCensusPop.objects.order_by('-date')[:12]
+    popad = CowCensusPop.objects.order_by('-date').reverse()[:5]
     cullcow = CowCulling.objects.all()
     bullC_count = cullcow.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('bull_num'))
     cowC_count = cullcow.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))

@@ -180,10 +180,13 @@
     height: 100vh;
 }
 
-/* .top-label{
+.top-label{
     background-color: #d2b20c !important;
 }
-.top-sale{
+.all-head{
+    color: #12a55c !important;
+}
+/* .top-sale{ 
     background-color: #14e079 !important;
 }
 

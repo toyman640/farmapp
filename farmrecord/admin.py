@@ -3,6 +3,7 @@ from farmrecord.models import *
 
 # Register your models here.
 
+admin.site.register(Department)
 admin.site.register(Profile)
 admin.site.register(Section)
 admin.site.register(CowMortality)

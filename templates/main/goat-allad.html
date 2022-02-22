@@ -35,7 +35,7 @@
             <div class="panel panel-container">
                 {% for s in buckc %}
                 {% if forloop.last %}
-                <h3 class=" offset-4 mb-5"><span class="badge badge-secondary">Mortality Entry Records For the Month Of {{ s.month|date:"M" }}</span></h3>
+                <h3 class="text-center mb-5">Mortality Entry Records For {{ s.month|date:"M" }}</h3>
                 <div class="row">
                     <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
                         <div class="panel panel-teal panel-widget border-right">
@@ -79,7 +79,7 @@
             <div class="panel panel-container">
                 {% for s in buckcull %}
                 {% if forloop.last %}
-                <h3 class=" offset-4 mb-5"><span class="badge badge-secondary">Culling Entry Records For the Month Of {{ s.month|date:"M" }}</span></h3>
+                <h3 class="text-center mb-5">Culling Entry Records For the Month Of {{ s.month|date:"M" }}</h3>
                 <div class="row">
                     <div class="col-xs-6 col-md-4 col-lg-6 no-padding">
                         <div class="panel panel-teal panel-widget border-right">
@@ -109,7 +109,7 @@
 		</div>
         <div class="box_general padding_bottom">
             <div class="row">
-                <div class="col-6">
+                <div class="col-lg-6 col-sm-12">
                     <div class="header_box version_2">
                         <h2><i class="fa fa-bar-chart"></i>Goat Mortality rates over month(s)</h2>
                     </div>
@@ -153,7 +153,7 @@
                     </script>
                     
                 </div>
-                <div class="col-6">
+                <div class="col-lg-6 col-sm-12">
                     <div class="header_box version_2">
                         <h2><i class="fa fa-bar-chart"></i>Goat Population rates over month(s)</h2>
                     </div>

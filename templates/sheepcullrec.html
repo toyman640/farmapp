@@ -52,7 +52,7 @@ Sheep Culling
             <td data-label="Ram(s)">{{ a.ram_num }}</td>
             <td data-label="Ewe(s)">{{ a.ewe_num }}</td>
             <td data-label="Location">{{ a.location }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:sheep_cullrec_view' a.id %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:sheep_cullrec_view' a.slug %}" >View</a></th>
           {% endfor %}
           {% endif %} 
           </tr>

@@ -2,22 +2,37 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+from farmapp.utils import unique_slug_generator
+from django.db.models.signals import pre_save
 
 # Create your models here.
+
+
+class Department(models.Model):
+    dpt_name = models.CharField(max_length=100, verbose_name='Department')
+    dpt_desc = models.TextField(blank=True, verbose_name='Description')
+
+    def __str__(self):
+        return self.dpt_name
+    class Meta():
+        verbose_name_plural='Department'
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=100, verbose_name='First name')
     last_name = models.CharField(max_length=100, verbose_name='Last name')
+    department = models.ForeignKey(Department, verbose_name='Department', null=True, on_delete=models.CASCADE)
     email = models.EmailField(max_length=100, verbose_name='Email')
 
     def __str__(self):
         return self.user.username
 
+
+
 class Section(models.Model):
     sec_name = models.CharField(max_length=100, verbose_name='Section Name')
     sec_desc = models.TextField(blank=True, verbose_name='Description')
-    
+
     def __str__(self):
         return self.sec_name
     class Meta():
@@ -37,6 +52,7 @@ class CowMortality(models.Model):
     image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
     image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
+    slug = models.SlugField(max_length=150, unique=True)
 
     def __str__(self):
         return self.location
@@ -52,6 +68,13 @@ class CowMortality(models.Model):
     class Meta():
         verbose_name_plural='Cow mortality'
 
+    
+def slug_save(sender, instance, *args, **kwargs):
+    if not instance.slug:
+        instance.slug = unique_slug_generator(instance, instance.location, instance.slug)
+
+pre_save.connect(slug_save, sender=CowMortality)
+
 
 class SheepMortality(models.Model):
     mortality = models.CharField(max_length=10, verbose_name='mortality')
@@ -66,6 +89,7 @@ class SheepMortality(models.Model):
     image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
     image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
+    slug = models.SlugField(max_length=150, unique=True)
 
     def __str__(self):
         return self.location
@@ -81,6 +105,8 @@ class SheepMortality(models.Model):
     class Meta():
         verbose_name_plural='Sheep mortality'
 
+pre_save.connect(slug_save, sender=SheepMortality)
+
 
 class GoatMortality(models.Model):
     mortality = models.CharField(max_length=10, verbose_name='mortality')
@@ -95,6 +121,7 @@ class GoatMortality(models.Model):
     image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
     image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
+    slug = models.SlugField(max_length=150, unique=True)
 
     def __str__(self):
         return self.location
@@ -110,6 +137,8 @@ class GoatMortality(models.Model):
     class Meta():
         verbose_name_plural='Goat mortality'
 
+pre_save.connect(slug_save, sender=GoatMortality)
+
 class PigMortality(models.Model):
     mortality = models.CharField(max_length=10, verbose_name='mortality')
     date = models.DateTimeField(default=timezone.now)
@@ -123,6 +152,7 @@ class PigMortality(models.Model):
     image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
     image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
+    slug = models.SlugField(max_length=150, unique=True)
 
     def __str__(self):
         return self.location
@@ -138,6 +168,8 @@ class PigMortality(models.Model):
     class Meta():
         verbose_name_plural='Pig mortality'
 
+pre_save.connect(slug_save, sender=PigMortality)
+
 
 class SheepCulling(models.Model):
     date = models.DateTimeField(default=timezone.now)
@@ -147,9 +179,12 @@ class SheepCulling(models.Model):
     location = models.CharField(max_length=500, verbose_name='Location(s)')
     reason = models.TextField(max_length=500, verbose_name='Reason', blank=True)
     export_to_CSV = models.BooleanField(default=False)
+    slug = models.SlugField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.reason          
+        return self.reason   
+
+pre_save.connect(slug_save, sender=SheepCulling)       
 
 class CowCulling(models.Model):
     date = models.DateTimeField(default=timezone.now)
@@ -159,9 +194,12 @@ class CowCulling(models.Model):
     location = models.CharField(max_length=500, verbose_name='Location(s)')
     reason = models.TextField(max_length=500, verbose_name='Reason', blank=True)
     export_to_CSV = models.BooleanField(default=False)
+    slug = models.SlugField(max_length=150, unique=True)
 
     def __str__(self):
         return self.reason
+
+pre_save.connect(slug_save, sender=CowCulling)
 
 class GoatCulling(models.Model):
     date = models.DateTimeField(default=timezone.now)
@@ -171,9 +209,12 @@ class GoatCulling(models.Model):
     location = models.CharField(max_length=500, verbose_name='Location(s)')
     reason = models.TextField(max_length=500, verbose_name='Reason', blank=True)
     export_to_CSV = models.BooleanField(default=False)
+    slug = models.SlugField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.reason         
+        return self.reason   
+
+pre_save.connect(slug_save, sender=GoatCulling)      
 
 class PigCulling(models.Model):
     date = models.DateTimeField(default=timezone.now)
@@ -183,9 +224,12 @@ class PigCulling(models.Model):
     location = models.CharField(max_length=500, verbose_name='Location(s)')
     reason = models.TextField(max_length=500, verbose_name='Reason', blank=True)
     export_to_CSV = models.BooleanField(default=False)
+    slug = models.SlugField(max_length=150, unique=True)
 
     def __str__(self):
         return self.reason
+
+pre_save.connect(slug_save, sender=PigCulling)
 
 class CowSale(models.Model):
     date = models.DateTimeField(default=timezone.now)

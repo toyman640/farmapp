@@ -52,7 +52,7 @@ Pig Culling
             <td data-label="Boar(s)">{{ a.boar_num }}</td>
             <td data-label="Sow(s)">{{ a.sow_num }}</td>
             <td data-label="Location">{{ a.location }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:pig_cullrec_view' a.id %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:pig_cullrec_view' a.slug %}" >View</a></th>
           {% endfor %}
           {% endif %} 
           </tr>
