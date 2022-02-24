@@ -7,25 +7,16 @@ from django.db.models.signals import pre_save
 
 # Create your models here.
 
+class Userp(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    is_boss = models.BooleanField('Is boss', default=False)
+    is_hr = models.BooleanField('Is hr', default=False)
+    is_supervisor = models.BooleanField('Is supervisor', default=False)
+    is_account = models.BooleanField('Is account', default=False)
+    is_maintenance = models.BooleanField('Is maintenance', default=False)
 
-class Department(models.Model):
-    dpt_name = models.CharField(max_length=100, verbose_name='Department')
-    dpt_desc = models.TextField(blank=True, verbose_name='Description')
 
-    def __str__(self):
-        return self.dpt_name
-    class Meta():
-        verbose_name_plural='Department'
-
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=100, verbose_name='First name')
-    last_name = models.CharField(max_length=100, verbose_name='Last name')
-    department = models.ForeignKey(Department, verbose_name='Department', null=True, on_delete=models.CASCADE)
-    email = models.EmailField(max_length=100, verbose_name='Email')
-
-    def __str__(self):
-        return self.user.username
+    
 
 
 

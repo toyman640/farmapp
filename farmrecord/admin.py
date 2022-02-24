@@ -2,9 +2,7 @@ from django.contrib import admin
 from farmrecord.models import *
 
 # Register your models here.
-
-admin.site.register(Department)
-admin.site.register(Profile)
+admin.site.register(Userp)
 admin.site.register(Section)
 admin.site.register(CowMortality)
 admin.site.register(PigMortality)

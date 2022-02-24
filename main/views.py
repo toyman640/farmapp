@@ -56,13 +56,13 @@ def login_page(request):
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
 
-        if user is not None:
+        if user is not None and user.profile.is_boss:
             login(request, user)
-            section = Department.objects.all()
-            if section == IT:
-                return redirect('main:dashboard')
-            # else:
-            #     return redirect('farmrecord:index')
+            return redirect('main:dashboard')
+        elif user is not None and user.profile.is_supervisor:
+            login(request, user)
+            return redirect('farmrecord:index')
+            
         else:
             messages.info(request, 'Username OR Password is incorrect')
            
