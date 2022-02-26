@@ -1248,7 +1248,7 @@ def pigcull_filter(request):
 @login_required(login_url='/admin-page/login')
 def logout_view(request):
     logout(request)
-    return redirect('main:login_page')
+    return redirect('login_page')
 
 @login_required(login_url='/admin-page/login')
 def cen_cow(request):

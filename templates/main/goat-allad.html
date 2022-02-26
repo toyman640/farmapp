@@ -11,9 +11,9 @@
   <div class="content-wrapper">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
-      <ol class="breadcrumb">
+      <ol class="breadcrumb top-label">
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+          <a href="{% url 'main:dashboard' %}">Dashboard</a>
         </li>
         <li class="breadcrumb-item active">Small ruminant(goat) Records</li>
       </ol>
@@ -35,7 +35,7 @@
             <div class="panel panel-container">
                 {% for s in buckc %}
                 {% if forloop.last %}
-                <h3 class="text-center mb-5">Mortality Entry Records For {{ s.month|date:"M" }}</h3>
+                <h3 class="all-head text-center mb-5">Mortality Entry Records For {{ s.month|date:"M" }}</h3>
                 <div class="row">
                     <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
                         <div class="panel panel-teal panel-widget border-right">
@@ -73,13 +73,13 @@
                     </div>
                 </div><!--/.row-->
             </div>
-            <a href="{% url 'main:goat_mota' %}" class="btn btn-info btn-sm ">View all Mortality Records</a>
+            <a href="{% url 'main:goat_mota' %}" class="btn btn-warning btn-sm ">View all Mortality Records</a>
 		</div>
         <div class="box_general padding_bottom">
             <div class="panel panel-container">
                 {% for s in buckcull %}
                 {% if forloop.last %}
-                <h3 class="text-center mb-5">Culling Entry Records For the Month Of {{ s.month|date:"M" }}</h3>
+                <h3 class="all-head text-center mb-5">Culling Entry Records For the Month Of {{ s.month|date:"M" }}</h3>
                 <div class="row">
                     <div class="col-xs-6 col-md-4 col-lg-6 no-padding">
                         <div class="panel panel-teal panel-widget border-right">
@@ -105,7 +105,7 @@
                     </div>
                 </div><!--/.row-->
             </div>
-            <a href="{% url 'main:goat_culla' %}" class="btn btn-info btn-sm ">View all Culling Records</a>
+            <a href="{% url 'main:goat_culla' %}" class="btn btn-warning btn-sm ">View all Culling Records</a>
 		</div>
         <div class="box_general padding_bottom">
             <div class="row">

@@ -69,7 +69,7 @@ def login_page(request):
     return render(request, 'main/login.html')
 
 @staff_required(login_url="/admin-page/login")
-@login_required(login_url='/admin-page/login')
+@login_required(login_url='login')
 def logout_view(request):
     logout(request)
     return redirect('login_page')
@@ -134,6 +134,13 @@ def cow_mota(request):
     }
     context['acm_page_obj'] = acm_page_obj
     return render(request, 'main/cowmot-a.html', context)
+
+@staff_required(login_url="/admin-page/login")
+@login_required(login_url='/admin-page/login')
+def cow_image_view(request, slug):
+    aview = CowMortality.objects.get(slug=slug)
+    return render(request, 'main/cowmot-a-view.html', {'cmview':aview})
+
 
 @staff_required(login_url="/admin-page/login")
 @login_required(login_url='/admin-page/login')

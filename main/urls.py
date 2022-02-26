@@ -7,7 +7,6 @@ app_name = 'main'
 
 urlpatterns = [
     path('dashboard', views.dashboard, name='dashboard'),
-    path('login', views.login_page, name='login_page'),
     path('logout-page', views.logout_view, name='logout_view'),
     path('latest-report', views.latest_page, name='latest_page'),
     path('cow-mortality-page', views.cow_mota, name='cow_mota'),
@@ -46,4 +45,5 @@ urlpatterns = [
     path('goat-culling-filter-results/', views.goatculla_filter, name='goatculla_filter'),
     path('sheep-culling-filter-results/', views.sheepculla_filter, name='sheepculla_filter'),
     path('pig-culling-filter-results/', views.pigculla_filter, name='pigculla_filter'),
+    path('cow-image-view/<slug>', views.cow_image_view, name='cow_image_view'),
 ]
