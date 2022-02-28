@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 from django.contrib.messages import constants as messages
 import os
+import cloudinary_storage
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,8 +43,10 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
     'crispy_forms',
+    'cloudinary',
     'main',
     'humanR'
 
@@ -138,4 +141,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'skaal-farms',
+    'API_KEY': '887838919817388',
+    'API_SECRET': 'GoaFHEG68Mi3DMrfqtNnvmkmb6A'
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 

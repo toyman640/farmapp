@@ -1,9 +1,11 @@
+from wsgiref.validate import validator
 from django.db import models
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from farmapp.utils import unique_slug_generator
 from django.db.models.signals import pre_save
+from .validators import validate_file_size
 
 # Create your models here.
 
@@ -40,8 +42,8 @@ class CowMortality(models.Model):
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category1', null=True, on_delete=models.CASCADE)
     size = models.CharField(max_length=100, verbose_name='Size(s)')
     comment = models.TextField(max_length=500, verbose_name='Cause of mortality' , blank=True)
-    image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
-    image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
+    image_1 = models.ImageField(verbose_name='first image',validators=[validate_file_size], blank=True, null=True, upload_to='uploads/',)
+    image_2 = models.ImageField(verbose_name=' second image',validators=[validate_file_size], blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
     slug = models.SlugField(max_length=150, unique=True)
 
@@ -77,8 +79,8 @@ class SheepMortality(models.Model):
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category2', null=True, on_delete=models.CASCADE)
     size = models.CharField(max_length=100, verbose_name='Size(s)')
     comment = models.TextField(max_length=500, verbose_name='Cause of mortality' , blank=True)
-    image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
-    image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
+    image_1 = models.ImageField(verbose_name='first image',validators=[validate_file_size], blank=True, null=True, upload_to='uploads/',)
+    image_2 = models.ImageField(verbose_name=' second image',validators=[validate_file_size], blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
     slug = models.SlugField(max_length=150, unique=True)
 
@@ -109,8 +111,8 @@ class GoatMortality(models.Model):
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category3', null=True, on_delete=models.CASCADE)
     size = models.CharField(max_length=100, verbose_name='Size(s)')
     comment = models.TextField(max_length=500, verbose_name='Cause of mortality' , blank=True)
-    image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
-    image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
+    image_1 = models.ImageField(verbose_name='first image',validators=[validate_file_size], blank=True, null=True, upload_to='uploads/',)
+    image_2 = models.ImageField(verbose_name=' second image',validators=[validate_file_size], blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
     slug = models.SlugField(max_length=150, unique=True)
 
@@ -140,8 +142,8 @@ class PigMortality(models.Model):
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category4', null=True, on_delete=models.CASCADE)
     size = models.CharField(max_length=100, verbose_name='Size(s)')
     comment = models.TextField(max_length=500, verbose_name='Cause of mortality' , blank=True)
-    image_1 = models.ImageField(verbose_name='first image', blank=True, null=True, upload_to='uploads/',)
-    image_2 = models.ImageField(verbose_name=' second image', blank=True, null=True, upload_to='uploads/')
+    image_1 = models.ImageField(verbose_name='first image',validators=[validate_file_size], blank=True, null=True, upload_to='uploads/',)
+    image_2 = models.ImageField(verbose_name=' second image',validators=[validate_file_size], blank=True, null=True, upload_to='uploads/')
     export_to_CSV = models.BooleanField(default=False)
     slug = models.SlugField(max_length=150, unique=True)
 

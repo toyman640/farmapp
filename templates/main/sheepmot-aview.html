@@ -2,7 +2,7 @@
 {% load static %}
 <!Doctype html>
 {% block title %}
-Cow Mortality
+Sheep Mortality
 {% endblock %}
 
 {% block content %}
@@ -14,20 +14,20 @@ Cow Mortality
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">Cow Mortality</li>
+        <li class="breadcrumb-item active">Sheep Mortality</li>
       </ol>
 		<div class="box_general padding_bottom">
 			<div class="container">
         <div class="row">
-          {% if mview %}
+          {% if smview %}
             <div class="container">
               <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
                   <div class="carousel-item active">
-                    <img class="d-block w-100 main-wrapper" src="{{ mview.post_img }}" alt="First slide" s>
+                    <img class="d-block w-100" src="{{ smview.post_img }}" alt="First slide">
                   </div>
                   <div class="carousel-item">
-                    <img class="d-block w-100" src="{{ mview.post_img1 }}" alt="No Second Image" >
+                    <img class="d-block w-100" src="{{ smview.post_img1 }}" alt="No Second Image">
                   </div>
                 </div>
                 <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
@@ -40,39 +40,37 @@ Cow Mortality
                 </a>
               </div>
               <div>
-                <h3 class="h3 mt-5">{{ mview.date|date:"M d, Y" }}</mview></h3>
+                <h3 class="h3 mt-5">{{ smview.date|date:"M d, Y" }}</mview></h3>
                 <hr>
                 <h4 class="h4 mt">Mortality:</h4>
-                <p><b> {{ mview.mortality }}</b></p>
+                <p><b> {{ smview.mortality }}</b></p>
                 <hr>
                 <h4 class="h4 mt">Location(s):</h4>
-                <p><strong>  {{ mview.location }} </strong></p>
+                <p><strong>  {{ smview.location }} </strong></p>
                 <hr>
-                <h4 class="h4 mt">Cow(s):</h4>
-                <p><strong>  {{ mview.cow_num }} </strong></p>
+                <h4 class="h4 mt">Ewe(s):</h4>
+                <p><strong>  {{ smview.ewe_num }} </strong></p>
                 <hr>
-                <h4 class="h4 mt">Bull(s):</h4>
-                <p><b> {{ mview.bull_null }}1 </b></p>
+                <h4 class="h4 mt">Ram(s):</h4>
+                <p><b> {{ smview.ram_num }} </b></p>
                 <hr>
-                <h4 class="h4 mt">Calf:</h4>
-                <p>{{ mview.calves }}</p>
+                <h4 class="h4 mt">Lamb:</h4>
+                <p>{{ smview.lamb }}</p>
                 <hr>
                 <h4 class="h4 mt">Size(s):</h4>
-                <p>{{ mview.size }}</p>
+                <p>{{ smview.size }}</p>
                 <hr>
-                <h4 class="h4 mt">Cause of mortality(ies):</h4>
-                <p><strong> {{ mview.comment }}</strong></p>
+                <h4 class="h4 mt">Comment(s):</h4>
+                <p><strong> {{ smview.comment }}</strong></p>
                 <hr>
-                
-                <a href="{% url 'farmrecord:cow_motrec' %}" class="btn btn-secondary">Go Back</a>
 
-                <a href="{% url 'farmrecord:edit_cowmot' mview.id %}" class="btn btn-warning float-right ml-2">Edit</a>
-                <a href="{% url 'farmrecord:delete_postc' mview.id %}" class="btn btn-danger float-right">Delete</a>
+                <a href="{% url 'farmrecord:sheep_motrec' %}" class="btn btn-secondary">Go Back</a>
+                
+               
                 
               </div>
             </div>
           {% endif %}
-          
         </div>
       </div>
 		</div>
@@ -80,5 +78,5 @@ Cow Mortality
 	  <!-- /.container-fluid-->
    	</div>
     <!-- /.container-wrapper-->
-    
+
 {% endblock %}

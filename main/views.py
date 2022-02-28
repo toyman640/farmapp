@@ -121,7 +121,7 @@ def latest_page(request):
 def cow_mota(request):
     cmta = CowMortality.objects.order_by('-date')
     query_form = CowmotFilter()
-    admin_cm = Paginator(cmta, 10)
+    admin_cm = Paginator(cmta, 1)
     page_number = request.GET.get('page')
     acm_page_obj = admin_cm.get_page(page_number)
     nums = "a" * acm_page_obj.paginator.num_pages
@@ -139,7 +139,25 @@ def cow_mota(request):
 @login_required(login_url='/admin-page/login')
 def cow_image_view(request, slug):
     aview = CowMortality.objects.get(slug=slug)
-    return render(request, 'main/cowmot-a-view.html', {'cmview':aview})
+    return render(request, 'main/cowmot-aview.html', {'cmview':aview})
+
+@staff_required(login_url="/admin-page/login")
+@login_required(login_url='/admin-page/login')
+def goat_image_view(request, slug):
+    aview = GoatMortality.objects.get(slug=slug)
+    return render(request, 'main/goatmot-aview.html', {'gmview':aview})
+
+@staff_required(login_url="/admin-page/login")
+@login_required(login_url='/admin-page/login')
+def sheep_image_view(request, slug):
+    aview = SheepMortality.objects.get(slug=slug)
+    return render(request, 'main/sheepmot-aview.html', {'smview':aview})
+
+@staff_required(login_url="/admin-page/login")
+@login_required(login_url='/admin-page/login')
+def pig_image_view(request, slug):
+    aview = PigMortality.objects.get(slug=slug)
+    return render(request, 'main/pigmot-aview.html', {'pmview':aview})
 
 
 @staff_required(login_url="/admin-page/login")
