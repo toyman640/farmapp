@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 from django.contrib.messages import constants as messages
 import os
+from decouple import config
 import cloudinary_storage
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -26,7 +27,7 @@ STATICFILES_DIRS = [STATIC_DIR,]
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'hre%hy*r%8b(!29j9kg^d=1e7%9$u+an-7j35k++7ovj8iu-&*'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

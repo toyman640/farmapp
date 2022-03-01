@@ -16,8 +16,19 @@ import csv
 @login_required(login_url='/admin-page/login')
 def index(request):
     cowmot_count = CowMortality.objects.all()
+    cowcen = CowCensusPop.objects.all()
+    pigcen = PigCensusPop.objects.all()
+    sheepcen = SheepCensusPop.objects.all()
+    goatcen = GoatCensusPop.objects.all()
     aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
-    return render(request, 'index.html', {'count' : aggregated})
+    context = {
+        'cowpop' : cowcen,
+        'pigcen' : pigcen,
+        'sheepcen' : sheepcen,
+        'goatcen' : goatcen,
+        'count' : aggregated
+    }
+    return render(request, 'index.html', context)
 
 def test(request):
     return render(request, 'test.html')
