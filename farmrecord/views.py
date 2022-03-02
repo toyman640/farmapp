@@ -11,6 +11,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.db.models import F 
 import csv
+from farmrecord.models import *
 # Create your views here.
 
 @login_required(login_url='/admin-page/login')
@@ -21,12 +22,17 @@ def index(request):
     sheepcen = SheepCensusPop.objects.all()
     goatcen = GoatCensusPop.objects.all()
     aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    cowmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
+    bullmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('bull_num'))
+    calfmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('calves'))
+    # mot_total = cowmot_amt + bullmot_amt + calfmot_amt
     context = {
         'cowpop' : cowcen,
         'pigcen' : pigcen,
         'sheepcen' : sheepcen,
         'goatcen' : goatcen,
-        'count' : aggregated
+        'count' : aggregated,
+        
     }
     return render(request, 'index.html', context)
 

@@ -17,7 +17,15 @@ Home
         <li class="breadcrumb-item active">My Dashboard user</li>
       </ol>
 	  <!-- Icon Cards-->
+    <!-- <h3 class="text-center">Animals Population for month of 
+      {% for a in cowpop %}
+      {% if forloop.last %}
+        {{ a.month }}
+      {% endif %}
+      {% endfor %}
+    </h3> -->
       <div class="row">
+        
         <div class="col-xl-3 col-sm-6 mb-3">
           <div class="card dashboard text-white bg-primary o-hidden h-100">
             <div class="card-body">
@@ -107,75 +115,45 @@ Home
           </div>
         </div>
 		</div>
-    <div class="row">
-      <div class="col-xl-3 col-sm-6 mb-3">
-        <div class="card dashboard text-white bg-danger o-hidden h-100">
-          <div class="card-body">
-            <div class="card-body-icon">
-              <i class="fa-solid fa-abacus"></i> </i>
+   
+    <div class="box_general padding_bottom">
+      <h4 class="text-center">Mortality rates for the month </h4>
+      <div class="row">
+        <div class="col-sm-3 pt-2">
+          <div class="card cow">
+            <div class="card-body">
+              <h5 class="card-title text-white">Bull <span class="float-right">6</span></h5>
+              <h5 class="card-title text-white">Cow <span class="float-right">6</span></h5>
+              <h5 class="card-title text-white">Calf/ves <span class="float-right">6</span></h5>
             </div>
-            <div class="mr-5"><h5><span class="number">
-              {% for k in goatcen %}
-              {% if forloop.last %}
-                {{ k.addg }}
-              {% endif %}
-              {% endfor %}
-            </span> Goats</h5></div>
           </div>
-          <a class="card-footer text-white clearfix small z-1" href="bookmarks.html">
-            <span class="float-left">View Details</span>
-            <span class="float-right">
-              <i class="fa fa-angle-right"></i>
-            </span>
-          </a>
         </div>
-      </div>
-      <div class="col-xl-3 col-sm-6 mb-3">
-        <div class="card dashboard text-white bg-danger o-hidden h-100">
-          <div class="card-body">
-            <div class="card-body-icon">
-              <i class="fa-solid fa-abacus"></i> </i>
+        <div class="col-sm-3 pt-2">
+          <div class="card pig">
+            <div class="card-body">
+              <h5 class="card-title text-white">Boar <span class="float-right">6</span></h5>
+              <h5 class="card-title text-white">Sow <span class="float-right">6</span></h5>
+              <h5 class="card-title text-white">Pigglet(s) <span class="float-right">6</span></h5>
             </div>
-            <div class="mr-5"><h5><span class="number">
-              {% for k in goatcen %}
-              {% if forloop.last %}
-                {{ k.addg }}
-              {% endif %}
-              {% endfor %}
-            </span> Goats</h5></div>
           </div>
-          <a class="card-footer text-white clearfix small z-1" href="bookmarks.html">
-            <span class="float-left">View Details</span>
-            <span class="float-right">
-              <i class="fa fa-angle-right"></i>
-            </span>
-          </a>
         </div>
-      </div>
-      <div class="col-xl-3 col-sm-6 mb-3">
-        <div class="card dashboard text-white goat o-hidden h-100">
-          <div class="card-body">
-            <div class="card-body-icon">
-              <i class="fa-solid fa-abacus"></i> </i>
+        <div class="col-sm-3 pt-2">
+          <div class="card sheep">
+            <div class="card-body">
+              <h5 class="card-title text-white">Ram <span class="float-right">6</span></h5>
+              <h5 class="card-title text-white">Ewe <span class="float-right">6</span></h5>
+              <h5 class="card-title text-white">Lamb <span class="float-right">6</span></h5>
             </div>
-            <div class="mr-5"><h5><span >
-              
-            </span></h5></div>
           </div>
-         
         </div>
-      </div>
-      <div class="col-xl-3 col-sm-6 mb-3 ">
-        <div class="card dashboard text-white cow o-hidden h-100">
-          <div class="card-body">
-            <div class="card-body-icon">
-              <i class="fa-solid fa-abacus"></i> </i>
+        <div class="col-sm-3 pt-2">
+          <div class="card goat">
+            <div class="card-body">
+              <h5 class="card-title text-white">Doe <span class="float-right">6</span></h5>
+              <h5 class="card-title text-white">Buck <span class="float-right">6</span></h5>
+              <h5 class="card-title text-white">Kid(s) <span class="float-right">6</span></h5>
             </div>
-            <div class="mr-5"><h5><span >
-              
-            </span></h5></div>
           </div>
-         
         </div>
       </div>
     </div>

@@ -209,10 +209,22 @@
 }
 
 .cow{
-    background: url('../img/cow.JPG');
+    background: linear-gradient(0deg, rgba(27, 27, 26, 0.5), rgba(27, 27, 26, 0.5)),url('../img/cow.JPG');
+    background-size: cover;
       
 }
 
 .goat{
-    background: url('../img/goat.JPG');
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),url('../img/goat2.JPG');
+    background-size: cover;
+}
+
+.pig{
+    background: linear-gradient(0deg, rgba(27, 27, 26, 0.5), rgba(27, 27, 26, 0.5)), url('../img/pig.JPG');
+    background-size: cover;
+}
+
+.sheep{
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../img/ram.JPG');
+    background-size: cover;
 }

@@ -8,7 +8,7 @@
 
 {% block content %}
   <!-- /Navigation-->
-  <div class="content-wrapper">
+  <div class="content-wrapper sheep">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb top-label">
@@ -20,7 +20,7 @@
         <div class="box_general padding_bottom bg-light">
             <div class="row ">
                 
-                <div class="col-6"> <h5>Total Sheep Sales for the month: &#8358;
+                <div class="col-12"> <h5>Total Sheep Sales for the month: &#8358;
                     {% for m in sheepsale%}
                     {% if forloop.last %} 
                     <span class="counter">{{ m.total }}</span></h5>
@@ -28,7 +28,7 @@
                     {% endfor %}
                 </div>
                     
-                <div class="col-6">Procurements</div>
+               
                 
             </div>
         </div>
@@ -111,8 +111,9 @@
 		</div>
         <div class="box_general padding_bottom">
             <div class="row">
-                <div class="col-lg-6 col-sm-12">
-                    <div class="header_box version_2">
+                <div class="col-lg-5 col-sm-12">
+                    <div class="col-sm-12">
+                            <div class="header_box version_2">
                         <h2><i class="fa fa-bar-chart"></i>Sheep Mortality rates over month(s)</h2>
                     </div>
                     <canvas id="myChart" width="400" height="250"></canvas>
@@ -153,9 +154,9 @@
                         }
                     });
                     </script>
-                    
+                    </div>  
                 </div>
-                <div class="col-lg-6 col-sm-12">
+                <div class="col-lg-5 col-sm-12 ">
                     <div class="header_box version_2">
                         <h2><i class="fa fa-bar-chart"></i>Sheep Population rates over month(s)</h2>
                     </div>
@@ -201,6 +202,15 @@
                 </div>
             </div>
 		</div>
+        <div class="col-12">
+            <div class="row">
+                <div class="box_general padding_bottom col-6"></div>
+                <div class="box_general padding_bottom col-6"></div>
+            </div>
+        </div>
+        
+        <div class="box_general padding_bottom col-6"></div>
+        <div class="box_general padding_bottom col-6"></div>
 	  </div>
 	  <!-- /.container-fluid-->
    	</div>
