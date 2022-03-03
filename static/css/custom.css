@@ -228,3 +228,13 @@
     background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../img/ram.JPG');
     background-size: cover;
 }
+
+.cow-a{
+    background: url('../img/cow1.jpg');
+    background-size: cover;
+}
+
+.pig-a{
+    background: url('../img/pig-skin.jpg');
+    background-size: cover;
+}

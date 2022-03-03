@@ -17,6 +17,9 @@ from farmrecord.models import *
 @login_required(login_url='/admin-page/login')
 def index(request):
     cowmot_count = CowMortality.objects.all()
+    pigmot_count =  PigMortality.objects.all()
+    goatmot_count = GoatMortality.objects.all()
+    sheepmot_count = SheepMortality.objects.all()
     cowcen = CowCensusPop.objects.all()
     pigcen = PigCensusPop.objects.all()
     sheepcen = SheepCensusPop.objects.all()
@@ -25,13 +28,36 @@ def index(request):
     cowmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
     bullmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('bull_num'))
     calfmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('calves'))
-    # mot_total = cowmot_amt + bullmot_amt + calfmot_amt
+    sowmot_amt = pigmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('sow_num'))
+    boarmot_amt = pigmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('boar_num'))
+    pigletmot_amt = pigmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('pigglet'))
+    doemot_amt = goatmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('doe_num'))
+    buckmot_amt = goatmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('buck_num'))
+    kidmot_amt = goatmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('kid'))
+    rammot_amt = sheepmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ram_num'))
+    ewemot_amt = sheepmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ewe_num'))
+    lambmot_amt = sheepmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('lamb'))
+    
+    
     context = {
         'cowpop' : cowcen,
         'pigcen' : pigcen,
         'sheepcen' : sheepcen,
         'goatcen' : goatcen,
         'count' : aggregated,
+        'cdn' : cowmot_amt,
+        'bldn' : bullmot_amt,
+        'cldn' : calfmot_amt,
+        'sdn' : sowmot_amt,
+        'brdn' : boarmot_amt,
+        'pltdn' : pigletmot_amt,
+        'ddn' : doemot_amt,
+        'bkdn' : buckmot_amt,
+        'kdn' : kidmot_amt,
+        'rdn' : rammot_amt,
+        'edn' : ewemot_amt,
+        'ldn' : lambmot_amt
+
         
     }
     return render(request, 'index.html', context)
