@@ -188,7 +188,7 @@
 }
 
 .log-page{
-    background:url("../img/log-bg.jpg");
+    background: linear-gradient(0deg, rgba(27, 27, 26, 0.5), rgba(27, 27, 26, 0.5)),url("../img/log-bg.jpg");
     /* background-size: cover; */
     position: relative;
     /* height: 200px; */

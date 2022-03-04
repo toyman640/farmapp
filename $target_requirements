@@ -1,0 +1,17 @@
+asgiref @ file:///tmp/build/80754af9/asgiref_1625643473416/work
+certifi==2021.10.8
+charset-normalizer==2.0.12
+cloudinary==1.29.0
+Django==3.0.3
+django-cloudinary-storage==0.3.0
+django-crispy-forms==1.13.0
+idna==3.3
+Pillow==8.4.0
+python-decouple==3.6
+pytz==2021.3
+requests==2.27.1
+six==1.16.0
+sqlparse @ file:///tmp/build/80754af9/sqlparse_1602184451250/work
+typing-extensions @ file:///tmp/build/80754af9/typing_extensions_1631814937681/work
+urllib3==1.26.8
+wincertstore==0.2
