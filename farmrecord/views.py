@@ -24,7 +24,7 @@ def index(request):
     pigcen = PigCensusPop.objects.all()
     sheepcen = SheepCensusPop.objects.all()
     goatcen = GoatCensusPop.objects.all()
-    aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('bull_num') + F('cow_num') + F('calves')))
     cowmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
     bullmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('bull_num'))
     calfmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('calves'))
