@@ -8,7 +8,7 @@
 
 {% block content %}
   <!-- /Navigation-->
-  <div class="content-wrapper sheep">
+  <div class="content-wrapper sheep-a">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb top-label">
@@ -41,7 +41,7 @@
                 <div class="row">
                     <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
                         <div class="panel panel-teal panel-widget border-right">
-                            <div class="row no-padding"><em class="fa fa-xl fa-shopping-cart color-blue"></em>                             
+                            <div class="row no-padding">                             
                                 <div class="large value counter">{{ s.total }}</div>
                                 {% endif %}
                                 {% endfor %}
@@ -51,7 +51,7 @@
                     </div>
                     <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
                         <div class="panel panel-blue panel-widget border-right">
-                            <div class="row no-padding"><em class="fa fa-xl fa-comments color-orange"></em>
+                            <div class="row no-padding">
                                 {% for h in ewec %}
                                 {% if forloop.last %}
                                 <div class="large value counter">{{ h.total }}</div>
@@ -63,7 +63,7 @@
                     </div>
                     <div class="col-xs-6 col-md-4 col-lg-4 no-padding">
                         <div class="panel panel-orange panel-widget border-right">
-                            <div class="row no-padding"><em class="fa fa-xl fa-users color-teal"></em>
+                            <div class="row no-padding">
                                 {% for d in lambc %}
                                 {% if forloop.last %}
                                 <div class="large value counter">{{ d.total }}</div>
@@ -85,7 +85,7 @@
                 <div class="row">
                     <div class="col-xs-6 col-md-4 col-lg-6 no-padding">
                         <div class="panel panel-teal panel-widget border-right">
-                            <div class="row no-padding"><em class="fa fa-xl fa-shopping-cart color-blue"></em>                             
+                            <div class="row no-padding">                             
                                 <div class="large value counter">{{ s.total }}</div>
                                 {% endif %}
                                 {% endfor %}
@@ -95,7 +95,7 @@
                     </div>
                     <div class="col-xs-6 col-md-4 col-lg-6 no-padding">
                         <div class="panel panel-blue panel-widget border-right">
-                            <div class="row no-padding"><em class="fa fa-xl fa-comments color-orange"></em>
+                            <div class="row no-padding">
                                 {% for h in ewecull %}
                                 {% if forloop.last %}
                                 <div class="large value counter">{{ h.total }}</div>
@@ -126,7 +126,7 @@
                             data: {
                                 labels: [{% for count in motcs %} '{{ count.month|date:"M Y" }}', {% endfor %}],
                                 datasets: [{
-                                    label: 'number of mortality records',
+                                    label: 'number of mortalities',
                                     data: [{% for count in motcs %} {{count.total }}, {% endfor %}],
                                     backgroundColor: [
                                         'rgba(255, 99, 132, 0.2)',

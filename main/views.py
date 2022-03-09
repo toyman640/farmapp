@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from farmrecord.forms import *
 from datetime import timedelta
 from django.contrib.auth.decorators import user_passes_test
+from django.db.models import F
 
 # Create your views here.
 
@@ -62,6 +63,9 @@ def login_page(request):
         elif user is not None and user.profile.is_supervisor:
             login(request, user)
             return redirect('farmrecord:index')
+        elif user is not None and user.profile.is_hr:
+            login(request, user)
+            return redirect('humanR:index')
             
         else:
             messages.info(request, 'Username OR Password is incorrect')
@@ -165,7 +169,7 @@ def pig_image_view(request, slug):
 def cow_salea(request):
     csa = CowSale.objects.order_by('-date')
     query_form = CowsaleFilter()
-    admin_cs = Paginator(csa, 1)
+    admin_cs = Paginator(csa, 10)
     page_number = request.GET.get('page')
     acs_page_obj = admin_cs.get_page(page_number)
     nums = "a" * acs_page_obj.paginator.num_pages
@@ -182,7 +186,7 @@ def cow_salea(request):
 def cow_proca(request):
     cpa = CowProcurement.objects.order_by('-date')
     query_form = CowprocFilter()
-    admin_cp = Paginator(cpa, 1)
+    admin_cp = Paginator(cpa, 10)
     page_number = request.GET.get('page')
     acp_page_obj = admin_cp.get_page(page_number)
     nums = "a" * acp_page_obj.paginator.num_pages
@@ -199,7 +203,7 @@ def cow_proca(request):
 def cow_culla(request):
     cca = CowCulling.objects.order_by('-date')
     query_form = CowcullFilter()
-    paginated_filtercc = Paginator(cca, 1)
+    paginated_filtercc = Paginator(cca, 10)
     page_number = request.GET.get('page')
     acc_page_obj = paginated_filtercc.get_page(page_number)
     nums = "a" * acc_page_obj.paginator.num_pages
@@ -217,7 +221,7 @@ def goat_mota(request):
     gma = GoatMortality.objects.order_by('-date')
     query_form = GoatmotFilter()
     admin_gm = Paginator(gma, 1)
-    page_number = request.GET.get('page', 1)
+    page_number = request.GET.get('page', 10)
     agm_page_obj = admin_gm.get_page(page_number)
     nums = "a" * agm_page_obj.paginator.num_pages
     context = {
@@ -421,7 +425,7 @@ def sheep_culla(request):
 @login_required(login_url='/admin-page/login')
 def cow_all(request):
     c_chart = CowMortality.objects.all()
-    chart_countc = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    chart_countc = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('bull_num') + F('cow_num') + F('calves')))
     bullM_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('bull_num'))
     cowM_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
     calf_count = c_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('calves'))
@@ -447,11 +451,11 @@ def cow_all(request):
 @login_required(login_url='/admin-page/login')
 def goat_all(request):
     g_chart = GoatMortality.objects.all()
-    chart_countg = g_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    chart_countg = g_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('buck_num') + F('doe_num') + F('kid')))
     buckM_count = g_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('buck_num'))
     doeM_count = g_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('doe_num'))
     kid_count = g_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('kid'))
-    popadg = GoatCensusPop.objects.order_by('-date')[:12]
+    popadg = GoatCensusPop.objects.order_by('-date').reverse()[:12]
     cullgoat = GoatCulling.objects.all()
     buckC_count = cullgoat.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('buck_num'))
     doeC_count = cullgoat.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('doe_num'))
@@ -473,11 +477,11 @@ def goat_all(request):
 @login_required(login_url='/admin-page/login')
 def pig_all(request):
     p_chart = PigMortality.objects.all()
-    chart_countp = p_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    chart_countp = p_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num') + F('pigglet')))
     boarM_count = p_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('boar_num'))
     sowM_count = p_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('sow_num'))
     pigglet_count = p_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('pigglet'))
-    popadp = PigCensusPop.objects.order_by('-date')[:12]
+    popadp = PigCensusPop.objects.order_by('-date').reverse()[:12]
     cullpig = PigCulling.objects.all()
     boarC_count = cullpig.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('boar_num'))
     sowC_count = cullpig.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('sow_num'))
@@ -499,11 +503,11 @@ def pig_all(request):
 @login_required(login_url='/admin-page/login')
 def sheep_all(request):
     s_chart = SheepMortality.objects.all()
-    chart_counts = s_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
+    chart_counts = s_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('ram_num') + F('ewe_num') + F('lamb')))
     ramM_count = s_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ram_num'))
     eweM_count = s_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ewe_num'))
     lamb_count = s_chart.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('lamb'))
-    popads = SheepCensusPop.objects.order_by('-date')[:12]
+    popads = SheepCensusPop.objects.order_by('-date').reverse()  [:12]
     cullsheep = SheepCulling.objects.all()
     ramC_count = cullsheep.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ram_num'))
     eweC_count = cullsheep.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ewe_num'))
@@ -808,3 +812,15 @@ def pigculla_filter(request):
     else:
         pigcull_query = PigcullFilter()
     return render(request, 'main/afilter-pigcull.html', {'pca': pigcull_query})
+
+@staff_required(login_url="/admin-page/login")
+@login_required(login_url='/admin-page/login')
+def review_page(request):
+    if request.method == 'POST':
+        comment_form = RemarkForm(request.POST)
+        if comment_form.is_valid():
+            comment_form.save()
+            message.success(request, 'message sent')
+    else:
+        comment_form = RemarkForm()
+    return render(request, 'main/review-form.html', {'comment' : comment_form})

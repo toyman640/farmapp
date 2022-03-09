@@ -25,6 +25,7 @@ urlpatterns = [
     path('', views.login_page, name='login_page'),
     path('pages/', include('farmrecord.urls')),
     path('admin-page/', include('main.urls')),
+    path('human-resources/', include('humanR.urls')),
     path('admin/', admin.site.urls),
 ]
 

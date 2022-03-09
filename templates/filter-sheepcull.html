@@ -19,8 +19,7 @@ Sheep Culling
 		<div class="box_general padding_bottom">
       <table>
         <caption>Culling Records</caption>
-        {% if  queryset %}
-        {% for p in queryset %}
+        
         <thead>
           <tr>
             <th scope="col">Date</th>
@@ -31,12 +30,14 @@ Sheep Culling
           </tr>
         </thead>
         <tbody>
+          {% if  queryset %}
+        {% for a in queryset %}
           <tr>
             <td data-label="Date">{{ a.date }}</td>
             <td data-label="Ram(s)">{{ a.ram_num }}</td>
             <td data-label="Ewe(s)">{{ a.ewe_num }}</td>
             <td data-label="Location">{{ a.location }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:sheep_cullrec_view' p.id %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:sheep_cullrec_view' a.slug %}" >View</a></th>
           </tr>
         </tbody>
         {% endfor %}

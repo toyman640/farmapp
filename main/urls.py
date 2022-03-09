@@ -48,5 +48,6 @@ urlpatterns = [
     path('cow-image-view/<slug>', views.cow_image_view, name='cow_image_view'),
     path('goat-image-view/<slug>', views.goat_image_view, name='goat_image_view'),
     path('sheep-image-view/<slug>', views.sheep_image_view, name='sheep_image_view'),
-    path('pig-image-view/<slug>', views.pig_image_view, name='pig_image_view')
+    path('pig-image-view/<slug>', views.pig_image_view, name='pig_image_view'),
+    path('write-comment/remark', views.review_page, name='review_page')
 ]

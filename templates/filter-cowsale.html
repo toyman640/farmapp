@@ -19,8 +19,7 @@ Cow Sale
 		<div class="box_general padding_bottom">
 			<table>
         <caption>Sales Record</caption>
-        {% if  queryset %}
-        {% for p in queryset %}
+        
         <thead>
           <tr>
             <th scope="col">Date</th>
@@ -29,20 +28,21 @@ Cow Sale
             <th scope="col">Cow(s)</th>
             <th scope="col">Size(s)</th>
             <th scope="col">Weight(s)</th>
-            <th scope="col">Price(s)</th>
+            <th scope="col">Total Price(s)</th>
             <th scope="col">ACTION(View others)</th>
           </tr>
         </thead>
         <tbody>
-         
+          {% if  queryset %}
+          {% for p in queryset %}
           <tr>
-            <td data-label="Date">{{ a.date }}</td>
-            <td data-label="Bull(s)">{{ a.bull_num }}</td>
-            <td data-label="Size(s)">{{ a.size1 }}</td>
-            <td data-label="Cow(s)">{{ a.cow_num }}</td>
-            <td data-label="Size(s)">{{ a.size }}</td>
-            <td data-label="Weight(s)">{{ a.weight }}</td>
-            <td data-label="Price(s)">{{ a.price }}</td>
+            <td data-label="Date">{{ p.date }}</td>
+            <td data-label="Bull(s)">{{ p.bull_num }}</td>
+            <td data-label="Size(s)">{{ p.size1 }}</td>
+            <td data-label="Cow(s)">{{ p.cow_num }}</td>
+            <td data-label="Size(s)">{{ p.size }}</td>
+            <td data-label="Weight(s)">{{ p.weight }}</td>
+            <td data-label="Total Price(s)">{{ p.price }}</td>
             <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_salerec_view' p.id %}" >View</a></th>
            
           </tr>

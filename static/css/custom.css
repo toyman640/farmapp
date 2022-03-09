@@ -188,9 +188,12 @@
 }
 
 .log-page{
-    background: linear-gradient(0deg, rgba(27, 27, 26, 0.5), rgba(27, 27, 26, 0.5)),url("../img/log-bg.jpg");
-    /* background-size: cover; */
-    position: relative;
+    background: linear-gradient(0deg, rgba(27, 27, 27, 0.5), rgba(27, 27, 27, 0.5)),url("../img/log-bg.jpg") no-repeat;
+    background-size: cover;
+    overflow: hidden;
+    width: 100%;
+    min-height: 100vh;
+    
     /* height: 200px; */
     
     
@@ -230,11 +233,26 @@
 }
 
 .cow-a{
-    background: url('../img/cow1.jpg');
+    background: url('../img/cow-skin.jpg');
     background-size: cover;
 }
 
 .pig-a{
     background: url('../img/pig-skin.jpg');
+    background-size: cover;
+}
+
+.goat-a{
+    background: url('../img/goat-skin.jpg');
+    background-size: cover;
+}
+
+.sheep-a{
+    background: url('../img/sheep-skin.JPG');
+    background-size: cover;
+}
+
+.log-big{
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),url('../img/merge.jpg');
     background-size: cover;
 }

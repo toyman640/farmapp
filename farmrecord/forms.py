@@ -385,4 +385,7 @@ class GoatprocFilter(forms.ModelForm):
         model = GoatProcurement
         fields =('date','export_to_CSV')
 
-
+class RemarkForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ('subject', 'message')

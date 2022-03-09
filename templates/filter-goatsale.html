@@ -31,8 +31,7 @@ Goat Sales
       </form>
       <table>
         <caption>Sales Record</caption>
-        {% if  queryset %}
-        {% for p in queryset %}
+        
         <thead>
           <tr>
             <th scope="col">Date</th>
@@ -46,7 +45,8 @@ Goat Sales
           </tr>
         </thead>
         <tbody>
-         
+          {% if  queryset %}
+          {% for a in queryset %}
           <tr>
             <td data-label="Date">{{ a.date }}</td>
             <td data-label="Buck(s)">{{ a.buck_num }}</td>
@@ -55,7 +55,7 @@ Goat Sales
             <td data-label="Size(s)">{{ a.size }}</td>
             <td data-label="Weight(s)">{{ a.weight }}</td>
             <td data-label="Price(s)">{{ a.price }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:goat_salerec_view' p.id %}" >View</a></th> 
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:goat_salerec_view' a.id %}" >View</a></th> 
           </tr>
         </tbody>
         {% endfor %}

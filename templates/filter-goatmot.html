@@ -19,8 +19,7 @@ Goat Mortality
 		<div class="box_general padding_bottom">
 	 <table>
         <caption>Mortality Records</caption>
-        {% if  queryset %}
-        {% for p in queryset %}
+        
         <thead>
           <tr>
             <th scope="col">Date</th>
@@ -34,6 +33,8 @@ Goat Mortality
           </tr>
         </thead>
         <tbody>
+          {% if  queryset %}
+        {% for b in queryset %}
           <tr>
             <td data-label="Date">{{ b.date }}</td>
             <td data-label="Location">{{ b.location }}</td>
@@ -42,7 +43,7 @@ Goat Mortality
             <td data-label="Doe(s)">{{ b.doe_num }}</td>
             <td data-label="Kid(s)">{{ b.kid }}</td>
             <td data-label="Size(s)">{{ b.size }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:goat_motrec_view' p.id %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:goat_motrec_view' b.slug %}" >View</a></th>
          
           </tr>
         </tbody>

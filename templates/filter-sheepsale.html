@@ -20,8 +20,7 @@ Home
       
 			<table>
         <caption>Sales Record</caption>
-        {% if  queryset %}
-        {% for p in queryset %}
+        
         <thead>
           <tr>
             <th scope="col">Date</th>
@@ -35,6 +34,8 @@ Home
           </tr>
         </thead>
         <tbody>
+          {% if  queryset %}
+        {% for a in queryset %}
           <tr>
             <td data-label="Date">{{ a.date }}</td>
             <td data-label="Ram(s)">{{ a.ram_num }}</td>
@@ -43,7 +44,7 @@ Home
             <td data-label="Size(s)">{{ a.size }}</td>
             <td data-label="Weight(s)">{{ a.weight }}</td>
             <td data-label="Price(s)">{{ a.price }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' p.id %}" >View</a></th> 
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th> 
           </tr>
         </tbody>
         {% endfor %}

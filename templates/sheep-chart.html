@@ -75,7 +75,7 @@
               labels: [{% for countc in spop %}'{{ countc.month }}', {% endfor %}],
               datasets: [{
                   label: 'Population',
-                  data: [{% for countc in spop %} {{ countc.addc }}, {% endfor %}],
+                  data: [{% for countc in spop %} {{ countc.adds }}, {% endfor %}],
                   backgroundColor: [
                       'rgba(255, 99, 132, 0.2)',
                       'rgba(54, 162, 235, 0.2)',

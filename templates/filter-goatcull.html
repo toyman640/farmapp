@@ -17,8 +17,7 @@ Goat Culling
         <li class="breadcrumb-item active">My Dashboard</li>
       </ol>
 		<div class="box_general padding_bottom">
-            {% if  queryset %}
-            {% for p in queryset %}
+            
 			<table>
         <caption>Culling Records</caption>
         <thead>
@@ -31,13 +30,14 @@ Goat Culling
           </tr>
         </thead>
         <tbody>
-        
+          {% if  queryset %}
+          {% for a in queryset %}
           <tr>
             <td data-label="Date">{{ a.date }}</td>
             <td data-label="Buck(s)">{{ a.buck_num }}</td>
             <td data-label="Doe(s)">{{ a.doe_num }}</td>
             <td data-label="Location(s)">{{ a.location }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:goat_cullrec_view' p.id %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:goat_cullrec_view' a.slug %}" >View</a></th>
           
           </tr>
         </tbody>

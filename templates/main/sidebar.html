@@ -30,9 +30,11 @@
             </li>
       <li>
             <a class="nav-link" href="{% url 'main:goat_all' %}">Goat</a>
-
-         
+            <li>
+              <a class="nav-link"  href="{% url 'main:review_page' %}">Write remark</a>
+            </li>
           </ul>
+      
     </li>
     <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
           <a class="nav-link nav-link-collapse collapsed disabled text-muted" data-toggle="collapse" href="#sheep" data-parent="#mylistings" >
@@ -86,78 +88,13 @@
             </li>
           </ul>
 </li>
-<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-  <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#cow" data-parent="#mylistings">
-    <i class="fa fa-fw fa-list"></i>
-    <span class="nav-link-text">Large Ruminant</span>
-  </a>
-      <ul class="sidenav-second-level collapse" id="cow">
-        <li>
-          <a href="{% url 'farmrecord:cow_motrep' %}">Mortality</a>
-        </li>
-    <li>
-          <a href="{% url 'farmrecord:cow_cull' %}">Culling</a>
-        </li>
-    <li>
-          <a href="{% url 'farmrecord:cow_birth' %}">Calving</a>
-        </li>
-    <li>
-        <a href="{% url 'farmrecord:cow_proc' %}">Procurement</a>
 
-      <li>
-          <a href="{% url 'farmrecord:cow_sales' %}">Sales</a>
-        </li>
-        <li>
-          <a  class="nav-link" data-toggle="modal" data-target="#exampleModalC">Records</a>
-        </li>
-      </ul>
-</li>
-<!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-  <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#Procurement" data-parent="#mylistings">
-    <i class="fa fa-fw fa-list"></i>
-    <span class="nav-link-text">Procurement Report</span>
-  </a>
-  <ul class="sidenav-second-level collapse" id="Procurement">
-    <li>
-      <a href="pig-cull.html">Piggery</a>
-    </li>
-<li>
-      <a href="cow-proc.html">Large ruminant</a>
-    </li>
-<li>
-      <a href="goat-proc.html">Small ruminant(goat)</a>
-    </li>
-<li>
-    <a href="sheep-proc.html">Small ruminant(sheep)</a>
-  
-  </ul>
-</li> -->
+
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Add listing">
           <a class="nav-link disabled text-muted" href="#">
             <i class="fa fa-fw fa-plus-circle"></i>
             <span class="nav-link-text">Supervisors</span>
           </a>
-        </li>
-		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My profile">
-          <a class="nav-link" href="#">
-            <i class="fa fa-fw fa-user"></i>
-            <span class="nav-link-text">Change Password</span>
-          </a>
-        </li>
-		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
-          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseComponents" data-parent="#Components">
-            <i class="fa fa-fw fa-gear"></i>
-            <span class="nav-link-text">Components</span>
-          </a>
-          <ul class="sidenav-second-level collapse" id="collapseComponents">
-            <li>
-              Charts
-            </li>
-			<li>
-             
-              Tables
-            </li>
-          </ul>
         </li>
       </ul>
       <ul class="navbar-nav sidenav-toggler">
@@ -169,7 +106,7 @@
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <span style="line-height: 35px;">Welcome {{ request.user.get_full_name }}</span>
+          <span style="line-height: 35px;">{{ request.user.get_full_name }}</span>
         </li>
         <li class="nav-item">
           <a class="nav-link" data-toggle="modal" data-target="#exampleModal">
@@ -247,4 +184,11 @@
       </div>
     </div>
   </div>
+
+  <!-- remark modal -->
+
+  <!-- Button trigger modal -->
+
+
+
 

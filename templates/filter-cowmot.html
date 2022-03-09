@@ -43,7 +43,7 @@ Cow Mortality
                     <td data-label="Cow(s)">{{ p.cow_num }}</td>
                     <td data-label="Calves">{{ p.calves }}</td>
                     <td data-label="Size(s)">{{ p.size }}</td>
-                    <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' p.id %}" >View</a></th>
+                    <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' p.slug %}" >View</a></th>
                   {% endfor %}
                   {% else %}
                   <h4>There is no record for the dates you enetred, check the dates and try again</h4>

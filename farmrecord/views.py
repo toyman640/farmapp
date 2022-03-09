@@ -1389,8 +1389,8 @@ def censheep_view(request):
 @login_required(login_url='/admin-page/login')
 def cow_chart(request):
     cowmot_char = CowMortality.objects.all()
-    month_cow = cowmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
-    cowpop_char = CowCensusPop.objects.order_by('-month')[:12]
+    month_cow = cowmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('bull_num') + F('cow_num') + F('calves')))
+    cowpop_char = CowCensusPop.objects.order_by('-date')[:12]
     context ={
         'cmot' : month_cow,
         'cpop' : cowpop_char,
@@ -1400,8 +1400,8 @@ def cow_chart(request):
 @login_required(login_url='/admin-page/login')
 def goat_chart(request):
     goatmot_char = GoatMortality.objects.all()
-    month_goat = goatmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
-    goatpop_char = GoatCensusPop.objects.order_by('-month')[:12]
+    month_goat = goatmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('buck_num') + F('doe_num') + F('kid')))
+    goatpop_char = GoatCensusPop.objects.order_by('-date')[:12]
     context ={
         'gmot' : month_goat,
         'gpop' : goatpop_char,
@@ -1411,8 +1411,8 @@ def goat_chart(request):
 @login_required(login_url='/admin-page/login')
 def sheep_chart(request):
     sheepmot_char = SheepMortality.objects.all()
-    month_sheep = sheepmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
-    sheeppop_char = SheepCensusPop.objects.order_by('-month')[:12]
+    month_sheep = sheepmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('ram_num') + F('ewe_num') + F('lamb')))
+    sheeppop_char = SheepCensusPop.objects.order_by('-date')[:12]
     context ={
         'smot' : month_sheep,
         'spop' : sheeppop_char,
@@ -1422,8 +1422,8 @@ def sheep_chart(request):
 @login_required(login_url='/admin-page/login')
 def pig_chart(request):
     pigmot_char = PigMortality.objects.all()
-    month_pig = pigmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Count('mortality'))
-    pigpop_char = PigCensusPop.objects.order_by('-month')[:12]
+    month_pig = pigmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num') + F('pigglet')))
+    pigpop_char = PigCensusPop.objects.order_by('-date')[:12]
     context ={
         'pmot' : month_pig,
         'ppop' : pigpop_char,

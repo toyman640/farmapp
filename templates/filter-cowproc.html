@@ -20,8 +20,7 @@ Cow Procurement
       <h5>Show only from:</h5>
 			<table>
         <caption>Procurement Records</caption>
-        {% if  queryset %}
-        {% for p in queryset %}
+        
         <thead>
           <tr>
             <th scope="col">Date</th>
@@ -33,12 +32,14 @@ Cow Procurement
           </tr>
         </thead>
         <tbody>
+          {% if  queryset %}
+        {% for p in queryset %}
           <tr>
-            <td data-label="Date">{{ a.date }}</td>
-            <td data-label="Bull(s)">{{ a.bull_num }}</td>
-            <td data-label="Size(s)">{{ a.size }}</td>
-            <td data-label="Cow(s)">{{ a.cow_num }}</td>
-            <td data-label="Size(s)">{{ a.size }}</td>
+            <td data-label="Date">{{ p.date }}</td>
+            <td data-label="Bull(s)">{{ p.bull_num }}</td>
+            <td data-label="Size(s)">{{ p.size }}</td>
+            <td data-label="Cow(s)">{{ p.cow_num }}</td>
+            <td data-label="Size(s)">{{ p.size }}</td>
             <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' p.id %}" >View</a></th>
           </tr>
         </tbody>

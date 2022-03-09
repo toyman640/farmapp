@@ -19,8 +19,7 @@ Pig Mortality
 		<div class="box_general padding_bottom">
 			<table>
         <caption>Mortality Records</caption>
-        {% if  queryset %}
-        {% for p in queryset %}
+        
         <thead>
           <tr>
             <th scope="col">Date</th>
@@ -34,6 +33,8 @@ Pig Mortality
           </tr>
         </thead>
         <tbody>
+          {% if  queryset %}
+        {% for q in queryset %}
           <tr>
             <td data-label="Date">{{ q.date }}</td>
             <td data-label="Location">{{ q.location }}</td>
@@ -42,7 +43,7 @@ Pig Mortality
             <td data-label="Sow(s)">{{ q.sow_num }}</td>
             <td data-label="Pigglet(s)">{{ q.pigglet }}</td>
             <td data-label="Size(s)">{{ q.size }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:pig_motrec_view' p.id %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:pig_motrec_view' q.slug %}" >View</a></th>
           </tr>
         </tbody>
         {% endfor %}

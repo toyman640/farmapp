@@ -26,7 +26,7 @@
               <a href="{% url 'farmrecord:pig_cull' %}">Culling</a>
             </li>
 			<li>
-              <a href="{% url 'farmrecord:pig_birth' %}">Farrowing</a>
+              <a href="{% url 'farmrecord:pig_birth' %}" onclick="return false" class="text-muted">Farrowing</a>
             </li>
       <li>
             <a href="{% url 'farmrecord:pig_proc' %}">Procurement</a>
@@ -52,7 +52,7 @@
               <a href="{% url 'farmrecord:sheep_cull' %}">Culling</a>
             </li>
 			<li>
-              <a href="{% url 'farmrecord:sheep_birth' %}">Lambing</a>
+              <a href="{% url 'farmrecord:sheep_birth' %}" onclick="return false" class="text-muted">Lambing</a>
             </li>
       <li>
             <a href="{% url 'farmrecord:sheep_proc' %}">Procurement</a>
@@ -78,7 +78,7 @@
               <a href="{% url 'farmrecord:goat_cull' %}">Culling</a>
             </li>
       <li>
-              <a href="{% url 'farmrecord:goat_birth' %}">Kidding</a>
+              <a href="{% url 'farmrecord:goat_birth' %}" onclick="return false" class="text-muted">Kidding</a>
             </li>
       <li>
             <a href="{% url 'farmrecord:goat_proc' %}">Procurement</a>
@@ -104,7 +104,7 @@
           <a href="{% url 'farmrecord:cow_cull' %}">Culling</a>
         </li>
     <li>
-          <a href="{% url 'farmrecord:cow_birth' %}">Calving</a>
+          <a href="{% url 'farmrecord:cow_birth' %}" onclick="return false" class="text-muted">Calving</a>
         </li>
     <li>
         <a href="{% url 'farmrecord:cow_proc' %}">Procurement</a>
@@ -173,7 +173,7 @@
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <span style="line-height: 35px;">Welcome, {{ request.user.get_full_name }}</span>
+          <span style="line-height: 35px;">{{ request.user.get_full_name }}</span>
         </li>
         <li class="nav-item">
           <a class="nav-link" data-toggle="modal" data-target="#exampleModal">
@@ -193,7 +193,7 @@
             <span aria-hidden="true">×</span>
           </button>
         </div>
-        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_salerec' %}">Sales</a><a class="btn btn-info mr-1" href="">Birth</a></div>
+        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:cow_salerec' %}">Sales</a><a class="btn btn-info mr-1 disabled" href="">Birth</a></div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
         </div>
@@ -210,7 +210,7 @@
             <span aria-hidden="true">×</span>
           </button>
         </div>
-        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:sheep_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:sheep_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:sheep_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:sheep_salerec' %}">Sales</a><a class="btn btn-info mr-1" href="">Birth</a></div>
+        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:sheep_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:sheep_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:sheep_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:sheep_salerec' %}">Sales</a><a class="btn btn-info mr-1 disabled" href="">Birth</a></div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
         </div>
@@ -227,7 +227,7 @@
             <span aria-hidden="true">×</span>
           </button>
         </div>
-        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_salerec' %}">Sales</a><a class="btn btn-info mr-1" href="">Birth</a></div>
+        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:pig_salerec' %}">Sales</a><a class="btn btn-info mr-1 disabled" href="">Birth</a></div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
         </div>
@@ -244,7 +244,7 @@
             <span aria-hidden="true">×</span>
           </button>
         </div>
-        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_salerec' %}">Sales</a><a class="btn btn-info mr-1" href="">Birth</a></div>
+        <div class="modal-body"><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_motrec' %}">Mortality</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_cullrec' %}">Culling</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_procrec' %}">Procurement</a><a class="btn btn-info mr-1" href="{% url 'farmrecord:goat_salerec' %}">Sales</a><a class="btn btn-info mr-1 disabled" href="">Birth</a></div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
         </div>
@@ -268,4 +268,7 @@
       </div>
     </div>
   </div>
+
+
+
 

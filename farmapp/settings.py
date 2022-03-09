@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'cloudinary',
     'main',
-    'humanR'
+    'humanR',
 
 ]
 
@@ -144,10 +144,10 @@ STATIC_URL = '/static/'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'skaal-farms',
-    'API_KEY': '887838919817388',
-    'API_SECRET': 'GoaFHEG68Mi3DMrfqtNnvmkmb6A'
+    'CLOUD_NAME': config('CLOUDINARY_NAME'),
+    'API_KEY': config('CLOUDINARY_API_KEY'),
+    'API_SECRET': config('CLOUDINARY_SECRET')
 }
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+DEFAULT_FILE_STORAGE = config('DEFAULT_FILE_STORAGE')
 
