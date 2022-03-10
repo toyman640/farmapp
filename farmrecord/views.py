@@ -1454,3 +1454,9 @@ def delete_sheeppop(request, cens_id):
     post_record.delete()
     return redirect('farmrecord:censheep_view')
 
+@login_required(login_url='/admin-page/login')
+def review_com(request):
+    comment = Review.objects.all().order_by('-date ')
+
+    return redirect(request, 'sidebar.html', {'comment': comment})
+

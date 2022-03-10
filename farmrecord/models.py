@@ -1,8 +1,9 @@
 from email import message
+from genericpath import exists
 from wsgiref.validate import validator
 from django.db import models
 from django.contrib.auth.models import User
-from django.template.defaultfilters import slugify
+from django.utils.text import slugify
 from django.utils import timezone
 from farmapp.utils import unique_slug_generator
 from django.db.models.signals import pre_save
@@ -507,5 +508,18 @@ class SheepCensusPop(models.Model):
         return self.ewe_population + self.ram_population + self.lamb_population
 
 class Review(models.Model):
+    date = models.DateTimeField(default=timezone.now)
     subject = models.CharField(max_length=100, verbose_name='Subject')
     message = models.TextField(max_length=500, verbose_name='Message')
+    slug = models.SlugField(max_length=150, unique=True)
+
+    def __str__(self):
+        return self.subject
+
+
+def slug_save(sender, instance, *args, **kwargs):
+    if not instance.slug:
+        instance.slug = unique_slug_generator(instance, instance.subject, instance.slug)
+
+pre_save.connect(slug_save, sender=Review)
+

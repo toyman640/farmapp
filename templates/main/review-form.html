@@ -1,4 +1,5 @@
 {% extends 'main/base.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 <!Doctype html>
 {% block title %}
@@ -6,5 +7,31 @@ Home
 {% endblock %}
 
 {% block content %}
-  <h3></h3>
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'main:dashboard' %}">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Write review/comment</li>
+      </ol>
+	  <!-- Icon Cards-->
+		<div class="box_general padding_bottom">
+        {% if messages %}
+        {% for m in messages %}
+          <div class="alert {{ m.tags }}">{{ m }}</div>
+        {% endfor %}
+        {% endif %}
+            <form method="post" enctype="multipart/form-data" class="pt-5">
+                {{ comment | crispy }}
+                {% csrf_token %}
+                <button class="btn btn-success" value="submit">Submit</button>
+            </form>
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+    <!-- /.container-wrapper-->
 {% endblock %}

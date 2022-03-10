@@ -144,17 +144,10 @@ STATIC_URL = '/static/'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 CLOUDINARY_STORAGE = {
-<<<<<<< HEAD
     'CLOUD_NAME': config('CLOUDINARY_NAME'),
     'API_KEY': config('CLOUDINARY_API_KEY'),
     'API_SECRET': config('CLOUDINARY_SECRET')
 }
 
 DEFAULT_FILE_STORAGE = config('DEFAULT_FILE_STORAGE')
-=======
-    
-}
-
-DEFAULT_FILE_STORAGE = 
->>>>>>> 7b471830ce7e129ae202a3e7fc1393d9c871dccc
 

@@ -820,7 +820,8 @@ def review_page(request):
         comment_form = RemarkForm(request.POST)
         if comment_form.is_valid():
             comment_form.save()
-            message.success(request, 'message sent')
+            messages.success(request, 'message sent')
+            comment_form = RemarkForm()
     else:
         comment_form = RemarkForm()
     return render(request, 'main/review-form.html', {'comment' : comment_form})

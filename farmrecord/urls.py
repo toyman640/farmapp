@@ -122,7 +122,8 @@ urlpatterns = [
     path('delete-census-cow/<int:cenc_id>', views.delete_cowpop, name='delete_cowpop'),
     path('delete-census-goat/<int:ceng_id>', views.delete_goatpop, name='delete_goatpop'),
     path('delete-census-sheep/<int:cens_id>', views.delete_sheeppop, name='delete_sheeppop'),
-    path('delete-census-pig/<int:cenp_id>', views.delete_pigpop, name='delete_pigpop')
+    path('delete-census-pig/<int:cenp_id>', views.delete_pigpop, name='delete_pigpop'),
+    path('messages-page', views.review_com, name='review_com')
     
 
 ]
