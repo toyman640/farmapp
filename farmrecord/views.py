@@ -1456,7 +1456,12 @@ def delete_sheeppop(request, cens_id):
 
 @login_required(login_url='/admin-page/login')
 def review_com(request):
-    comment = Review.objects.all().order_by('-date ')
+    comment = Review.objects.all().order_by('-date')
+    return render(request, 'message-list.html', {'comment': comment})
 
-    return redirect(request, 'sidebar.html', {'comment': comment})
+
+@login_required(login_url='/admin-page/login')
+def review_view(request, slug):
+    mess_view = Review.objects.get(slug=slug)
+    return render(request, 'message-view.html', {'view' : mess_view})
 

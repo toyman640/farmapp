@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.urls import path
 from farmrecord import views
 
@@ -123,8 +124,8 @@ urlpatterns = [
     path('delete-census-goat/<int:ceng_id>', views.delete_goatpop, name='delete_goatpop'),
     path('delete-census-sheep/<int:cens_id>', views.delete_sheeppop, name='delete_sheeppop'),
     path('delete-census-pig/<int:cenp_id>', views.delete_pigpop, name='delete_pigpop'),
-    path('messages-page', views.review_com, name='review_com')
-    
+    path('messages-page', views.review_com, name='review_com'),
+    path('message-view/<slug>', views.review_view, name='review_view')
 
 ]
 
