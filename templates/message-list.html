@@ -18,6 +18,13 @@ Messages...
         <li class="breadcrumb-item active">Messages</li>
       </ol>
 	 <div class="box_general padding_bottom">
+        {% if notes.count > 0 %}
+        <h5 class="text-info">New Messages </h5>
+        {% for a in notes %}
+        <p><a href="/ping/show/{{ a.id }}/"> {{ a.title }}</a></p>
+        {% endfor %}
+        {% endif %}
+        <hr>
          {% if comment %}
          {% for comment in comment %}
          <a href="{% url 'farmrecord:review_view' comment.slug %}" class="message">

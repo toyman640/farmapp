@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F 
 import csv
 from farmrecord.models import *
+from notification.models import Notification
 # Create your views here.
 
 @login_required(login_url='/admin-page/login')
@@ -37,6 +38,7 @@ def index(request):
     rammot_amt = sheepmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ram_num'))
     ewemot_amt = sheepmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ewe_num'))
     lambmot_amt = sheepmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('lamb'))
+    n = Notification.objects.filter(user=request.user, viewed=False)
     
     
     context = {
@@ -56,7 +58,8 @@ def index(request):
         'kdn' : kidmot_amt,
         'rdn' : rammot_amt,
         'edn' : ewemot_amt,
-        'ldn' : lambmot_amt
+        'ldn' : lambmot_amt,
+        'notes' : n
 
         
     }
@@ -1456,12 +1459,19 @@ def delete_sheeppop(request, cens_id):
 
 @login_required(login_url='/admin-page/login')
 def review_com(request):
-    comment = Review.objects.all().order_by('-date')
-    return render(request, 'message-list.html', {'comment': comment})
+    comment = Notification.objects.all().order_by('-date')
+    n = Notification.objects.filter(user=request.user, viewed=False)
+    return render(request, 'message-list.html', {'comment': comment, 'notes' : n})
 
 
-@login_required(login_url='/admin-page/login')
+# @login_required(login_url='/admin-page/login')
+# def ping_light(request):
+#     n = Notification.objects.filter(user=request.user, viewed=False)
+#     return render(request, 'index.html', {'notes':n})
+
+
 def review_view(request, slug):
-    mess_view = Review.objects.get(slug=slug)
-    return render(request, 'message-view.html', {'view' : mess_view})
+    mess_view = Notification.objects.get(slug=slug)
+    n = Notification.objects.filter(user=request.user, viewed=False)
+    return render(request, 'message-view.html', {'view' : mess_view, 'notes' : n})
 

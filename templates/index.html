@@ -316,6 +316,12 @@ Skaal
     {% for a in count %}
      {{ a.addcmot }}
     {% endfor %}
+    {% if notes.count > 0 %}
+    <script>
+      alert('you have new message')
+    </script>
+    {% endif %}
+    
 	  </div>
 	  <!-- /.container-fluid-->
    	</div>

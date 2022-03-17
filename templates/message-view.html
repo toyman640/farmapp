@@ -17,19 +17,28 @@ Skaal
         <li class="breadcrumb-item active">My Dashboard user</li>
       </ol>
 	 <div class="box_general padding_bottom">
-         {% if view %}
+         {% if note %}
             <div class="pt-5">
-                <h3 class="pt5" > {{ view.subject }} </h3>
+                <h3 class="pt5" > {{ note.title }} </h3>
+                <hr>
+                    <p class=" pt-5">
+                        {{ note.message }}
+                    </p>
+                    <p><a href="/ping/delete/{{ note.id }}/">Go back</a></p>
+                  
+            </div>
+       
+        {% endif %}
+        {% if view %}
+            <div class="pt-5">
+                <h3 class="pt5" > {{ view.title }} </h3>
                 <hr>
                     <p class=" pt-5">
                         {{ view.message }}
                     </p>
+                    <p><a href="/ping/delete/{{ view.id }}/">Go back</a></p>
+                  
             </div>
-       
-            
-           
-         
-        
        
         {% endif %}
      </div>
