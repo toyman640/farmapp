@@ -136,7 +136,7 @@ Skaal
                 {% endif %}
                 {% endfor %}
               </span></h5>
-              <h5 class="card-title text-white">Calf/ves <span class="float-right">
+              <h5 class="card-title text-white">Calf <span class="float-right">
                 {% for c in cldn %}
                 {% if forloop.last %}
                   {{ c.total }}
@@ -163,7 +163,7 @@ Skaal
                 {% endif %}
                 {% endfor %}
               </span></h5>
-              <h5 class="card-title text-white">Pigglet(s) <span class="float-right">
+              <h5 class="card-title text-white">Pigglet <span class="float-right">
                 {% for o in pltdn %}
                 {% if forloop.last %}
                   {{ o.total }}
@@ -217,7 +217,7 @@ Skaal
                 {% endif %}
                 {% endfor %}
               </span></h5>
-              <h5 class="card-title text-white">Kid(s) <span class="float-right">
+              <h5 class="card-title text-white">Kid <span class="float-right">
                 {% for w in kdn %}
                 {% if forloop.last %}
                   {{ w.total }}
@@ -316,11 +316,9 @@ Skaal
     {% for a in count %}
      {{ a.addcmot }}
     {% endfor %}
-    {% if notes.count > 0 %}
-    <script>
-      alert('you have new message')
-    </script>
-    {% endif %}
+
+    
+   
     
 	  </div>
 	  <!-- /.container-fluid-->

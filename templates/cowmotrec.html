@@ -58,7 +58,7 @@ Cow Mortality
                     <td data-label="Cow(s)">{{ a.cow_num }}</td>
                     <td data-label="Calves">{{ a.calves }}</td>
                     <td data-label="Size(s)">{{ a.size }}</td>
-                    <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.slug %}" >View</a></th>
+                    <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_motrec_view' a.id %}" >View</a></th>
                   {% endfor %}
                   {% endif %} 
                   </tr>

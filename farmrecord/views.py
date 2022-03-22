@@ -140,8 +140,8 @@ def cow_motrec(request):
     return render(request, 'cowmotrec.html',context)
 
 @login_required(login_url='/admin-page/login')
-def cow_motrec_view(request, slug):
-    mview = CowMortality.objects.get(slug=slug)
+def cow_motrec_view(request, abt_id):
+    mview = CowMortality.objects.get(id=abt_id)
     return render(request, 'cowmotrec-view.html', {'mview':mview})
 
 @login_required(login_url='/admin-page/login')
@@ -155,8 +155,8 @@ def cow_salerec_view(request, abt_id):
     return render(request, 'cowsalerec-view.html', {'Sview':Sview})
 
 @login_required(login_url='/admin-page/login')
-def cow_cullrec_view(request, slug):
-    cview = CowCulling.objects.get(slug=slug)
+def cow_cullrec_view(request, abt_id):
+    cview = CowCulling.objects.get(id=abt_id)
     return render(request, 'cowcullrec-view.html', {'cview':cview})
 
 @login_required(login_url='/admin-page/login')
@@ -317,13 +317,13 @@ def goat_salerec(request):
     return render(request, 'goatsalerec.html',context)
 
 @login_required(login_url='/admin-page/login')
-def goat_motrec_view(request, slug):
-    Mview = GoatMortality.objects.get(slug=slug)
+def goat_motrec_view(request, abt_id):
+    Mview = GoatMortality.objects.get(id=abt_id)
     return render(request, 'goatmotrec-view.html', {'Mview':Mview})
 
 @login_required(login_url='/admin-page/login')
-def goat_cullrec_view(request, slug):
-    Cview = GoatCulling.objects.get(slug=slug)
+def goat_cullrec_view(request, abt_id):
+    Cview = GoatCulling.objects.get(id=abt_id)
     return render(request, 'goatcullrecview.html', {'Cview':Cview})
 
 @login_required(login_url='/admin-page/login')
@@ -454,8 +454,8 @@ def pig_procrec_view(request, abt_id):
     return render(request, 'pigprocrec-view.html', {'Pview':Pview})
 
 @login_required(login_url='/admin-page/login')
-def pig_motrec_view(request, slug):
-    Mview = PigMortality.objects.get(slug=slug)
+def pig_motrec_view(request, abt_id):
+    Mview = PigMortality.objects.get(id=abt_id)
     return render(request, 'pigmotrec-view.html', {'Mview':Mview})
 
 @login_required(login_url='/admin-page/login')
@@ -464,8 +464,8 @@ def pig_salerec_view(request, abt_id):
     return render(request, 'pigsalerecview.html', {'Sview':Sview})
 
 @login_required(login_url='/admin-page/login')
-def pig_cullrec_view(request, slug):
-    Cview = PigCulling.objects.get(slug=slug)
+def pig_cullrec_view(request, abt_id):
+    Cview = PigCulling.objects.get(id=abt_id)
     return render(request, 'pigcullrecview.html', {'Cview':Cview})
 
 @login_required(login_url='/admin-page/login')
@@ -581,8 +581,8 @@ def sheep_salerec(request):
     return render(request, 'sheepsalerec.html',context)
 
 @login_required(login_url='/admin-page/login')
-def sheep_motrec_view(request, slug):
-    Mview = SheepMortality.objects.get(slug=slug)
+def sheep_motrec_view(request, abt_id):
+    Mview = SheepMortality.objects.get(id=abt_id)
     return render(request, 'sheepmotrec-view.html', {'Mview':Mview})
 
 @login_required(login_url='/admin-page/login')
@@ -596,8 +596,8 @@ def sheep_salerec_view(request, abt_id):
     return render(request, 'sheepsalerec-view.html', {'Sview':Sview})
 
 @login_required(login_url='/admin-page/login')
-def sheep_cullrec_view(request, slug):
-    Cview = SheepCulling.objects.get(slug=slug)
+def sheep_cullrec_view(request, abt_id):
+    Cview = SheepCulling.objects.get(id=abt_id)
     return render(request, 'sheepcullrec-view.html', {'Cview':Cview})
 
 @login_required(login_url='/admin-page/login')
@@ -1464,14 +1464,6 @@ def review_com(request):
     return render(request, 'message-list.html', {'comment': comment, 'notes' : n})
 
 
-# @login_required(login_url='/admin-page/login')
-# def ping_light(request):
-#     n = Notification.objects.filter(user=request.user, viewed=False)
-#     return render(request, 'index.html', {'notes':n})
 
 
-def review_view(request, slug):
-    mess_view = Notification.objects.get(slug=slug)
-    n = Notification.objects.filter(user=request.user, viewed=False)
-    return render(request, 'message-view.html', {'view' : mess_view, 'notes' : n})
 

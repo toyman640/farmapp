@@ -6,6 +6,6 @@ from notification import views
 app_name = 'notification'
 
 urlpatterns = [ 
-    path('show/<int:note_id>/', views.show_note, name='show_note'),
+    path('show/<slug>/', views.show_note, name='show_note'),
     path('delete/<int:note_id>/', views.delete_note, name='delete_note')
 ]

@@ -1,0 +1,123 @@
+{% extends 'hr/base.html' %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+<!Doctype html>
+{% block title %}
+ Home
+{% endblock %}
+
+{% block content %}
+  <!-- Navigation-->
+  
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">New Emplyoee</li>
+      </ol>
+	  <!-- Icon Cards-->
+      <div class="box_general padding_bottom">
+        {% if messages %}
+        {% for m in messages %}
+          <div class="alert {{ m.tags }}">{{ m }}</div>
+        {% endfor %}
+        {% endif %}
+            <form method="post" enctype="multipart/form-data">
+              <div class="row">
+                <div class="col-4">
+                  {{ employ.title_id | as_crispy_field }}
+                </div>
+                <div class="col-4">
+                  {{ employ.section_id | as_crispy_field }}
+                </div>
+                <div class="col-4">
+                  {{ employ.employee_SN | as_crispy_field }}
+                </div>
+                <div class="col-4">
+                  {{ employ.employee_MN | as_crispy_field }}
+                </div>
+                <div class="col-4">
+                  {{ employ.employee_FN | as_crispy_field }}
+                </div>
+                <div class="col-12">
+                  {{ employ.address | as_crispy_field }}
+                </div>
+                <div class="col-6">
+                  {{ employ.phone | as_crispy_field }}
+                </div>
+                <div class="col-3">
+                  {{ employ.sex | as_crispy_field }}
+                </div>
+                <div class="col-3">
+                  {{ employ.age | as_crispy_field }}
+                </div>
+                <div class="col-6">
+                  {{ employ.bank_num | as_crispy_field }}
+                </div>
+                <div class="col-6">
+                  {{ employ.bank_name | as_crispy_field }}
+                </div>
+                <div class="col-6">
+                  {{ employ.email | as_crispy_field }}
+                </div>
+                <div class="col-6">
+                  {{ employ.id_type | as_crispy_field }}
+                </div>
+                <div class="col-6">
+                  {{ employ.id_num | as_crispy_field }}
+                </div>
+                <div class="col-12">
+                  {{ employ.image_1 | as_crispy_field }}
+                </div>
+                <div class="col-12">
+                  {{ employ.signed | as_crispy_field }}
+                </div>
+                
+                <h5 for="" class="col-12 mt-3 mb-3">Next of Kin Details</h5>
+                
+                <div class="col-6">
+                  {{ employ.nok_surname | as_crispy_field }}
+                </div>
+                <div class="col-6">
+                  {{ employ.nok_oname | as_crispy_field }}
+                </div>
+                <div class="col-6">
+                  {{ employ.nok_address | as_crispy_field }}
+                </div>
+                <div class="col-6">
+                  {{ employ.nok_phone | as_crispy_field }}
+                </div>
+                <div class="col-6">
+                  {{ employ.nok_relationship | as_crispy_field }}
+                </div>
+                <label for="">Guarantor</label>
+                <div class="col-12">
+                  {{ employ.guarantor | as_crispy_field }}
+                </div>
+                <div class="col-6">
+                  <label for="">Guarantor's Signature/acknowledgement</label>
+                  {{ employ.signed | as_crispy_field }}
+                </div>
+                <hr/>
+                <div class="col-12 mt-5">
+                  <label for="">Offical Acknowledgment</label>
+                  {{ employ.verified | as_crispy_field }}
+                </div>
+                
+                
+                {% csrf_token %}
+              </div>
+               
+                <button class="btn btn-success" value="submit">Submit</button>
+            </form>
+		</div>
+    
+		<!-- /cards -->
+	  <!-- /.container-fluid-->
+   	</div>
+{% endblock %}

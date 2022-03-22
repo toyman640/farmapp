@@ -1,4 +1,5 @@
 {% load static %}
+{% load tz %}
 <!-- Navigation-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-default fixed-top" id="mainNav">
     <a class="navbar-brand" href="{% url 'farmrecord:index' %}"><img src="{% static 'img/image-trans-removebg3.png' %}" data-retina="true" alt="logo" width="150" height="36"></a>
@@ -179,7 +180,42 @@
           </a>
         </li>
       </ul>
+      
       <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown mr-5">
+          <a class="nav-link dropdown-toggle mr-lg-2" id="alertsDropdown" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-fw fa-bell"></i>
+            {% if notes.count > 0 %}
+            <span class="d-lg-none">Alerts
+              <span class="badge badge-pill badge-warning">{{ notes.count }} New</span>
+            </span>
+            <span class="indicator text-warning d-none d-lg-block">
+              <i class="fa fa-fw fa-circle"></i>
+            </span>
+            {% endif %}
+          </a>
+          <div class="dropdown-menu" aria-labelledby="alertsDropdown">
+            {% if notes.count > 0 %}
+            <h6 class="dropdown-header">New Messages:</h6>
+            <div class="dropdown-divider"></div>
+            {% for a in notes %}
+            <a class="dropdown-item" href="/ping/show/{{ a.slug }}/">
+              <span class="text-success">
+                <strong>
+                  <i class="fa fa-long-arrow-up fa-fw"></i>{{ a.title }}</strong>
+              </span>
+              <span class="small float-right text-muted">{% localtime on %}{{ a.date|date:"M d,  H:i"  }}{% endlocaltime %}</span>
+              <div class="dropdown-message small">{{ a.message|truncatewords:10 }}</div>
+            </a>
+            <div class="dropdown-divider"></div>
+           
+            {% endfor %}
+            <div class="dropdown-divider"></div>
+            {% else %}
+            <a class="dropdown-item small" href="#">No new Messages</a> 
+            {% endif %}
+          </div>
+        </li>
         <li class="nav-item">
           <span style="line-height: 35px;">{{ request.user.get_full_name }}</span>
         </li>
@@ -207,6 +243,7 @@
         </div>
       </div>
     </div>
+   
   </div>
    <!-- Report Modal Sheep-->
    <div class="modal fade" id="exampleModalS" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

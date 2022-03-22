@@ -28,7 +28,7 @@ Messages...
          {% if comment %}
          {% for comment in comment %}
          <a href="{% url 'farmrecord:review_view' comment.slug %}" class="message">
-            <h5  > {{ comment.subject }} <span class="float-right"><small>{% localtime on %}{{ comment.date|date:"M d, Y H:i"  }}{% endlocaltime %}</small> <i class="fa fa-angle-right" aria-hidden="true"></i></span> </h3>
+            <h5  > {{ comment.title }} <span class="float-right"><small>{% localtime on %}{{ comment.date|date:"M d, Y H:i"  }}{% endlocaltime %}</small> <i class="fa fa-angle-right" aria-hidden="true"></i></span> </h3>
                 <p class=" text-dark">
                     {{ comment.message|truncatewords:20 }}
                 </p>

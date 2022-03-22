@@ -24,4 +24,4 @@ admin.site.register(CowCensusPop)
 admin.site.register(PigCensusPop)
 admin.site.register(SheepCensusPop)
 admin.site.register(GoatCensusPop)
-admin.site.register(Review)
+

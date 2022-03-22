@@ -188,8 +188,11 @@
 }
 
 .log-page{
-    background: linear-gradient(0deg, rgba(27, 27, 27, 0.5), rgba(27, 27, 27, 0.5)),url("../img/bg-log.png");
+    background: linear-gradient(0deg, rgba(223, 198, 61, 0.2), rgba(223, 198, 61, 0.2)), url('../img/dark-test.png');
     background-size: cover;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
     
       
 }

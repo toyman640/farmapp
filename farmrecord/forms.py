@@ -4,7 +4,9 @@ from pyexpat import model
 from django import forms
 from django.contrib.auth.models import User
 from farmrecord.models import *
+from humanR.models import *
 from django.core import validators
+from notification.models import Notification
 
 
 class CowmotForm(forms.ModelForm):
@@ -386,6 +388,19 @@ class GoatprocFilter(forms.ModelForm):
         fields =('date','export_to_CSV')
 
 class RemarkForm(forms.ModelForm):
+    title = forms.CharField(label='Title', widget=forms.TextInput(
+        attrs={'class': 'form-control'}))
+       
+    # message = forms.CharField(label='Message', widget=forms.TextInput(
+    #     attrs={'class': 'form-control'}))
+    user = forms.ModelChoiceField(label='Send to',queryset=User.objects.all(), widget=forms.Select(
+        attrs={'class': 'form-control'}))    
     class Meta:
-        model = Review
-        fields = ('subject', 'message')
+        model = Notification
+        fields = ('title', 'message', 'user')
+
+class WorkerForm(forms.ModelForm):
+    class Meta:
+        model = Employee
+        fields = '__all__'
+        exclude = ['date']
