@@ -13,10 +13,15 @@ class JobTitle(models.Model):
     title_name = models.CharField(max_length=50, verbose_name='title name')
     description = models.CharField(max_length=150, verbose_name='Description')
 
+    def __str__(self):
+        return self.title_name
+
 class FarmSection(models.Model):
     section_name = models.CharField(max_length=50, verbose_name='Section name')
     des_type = models.CharField(max_length=150, verbose_name='Description')
 
+    def __str__(self):
+        return self.section_name
 
 class Employee(models.Model):
 
@@ -29,8 +34,8 @@ class Employee(models.Model):
         (CHOOSE, 'Select sex')
     ]
     date = models.DateTimeField(default=timezone.now)
-    title_id = models.ManyToManyField(JobTitle, verbose_name='Job title')
-    section_id = models.ManyToManyField(FarmSection, verbose_name='Section')
+    title_id = models.ForeignKey(JobTitle, verbose_name='Job title', on_delete=models.CASCADE, default=1)
+    section_id = models.ForeignKey(FarmSection, verbose_name='Section',  on_delete=models.CASCADE, default=1)
     employee_SN = models.CharField(max_length=100, verbose_name='Surname')
     employee_MN = models.CharField(max_length=100, verbose_name='Middle Name')
     employee_FN= models.CharField(max_length=100, verbose_name='First Name')

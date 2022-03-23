@@ -188,16 +188,13 @@
 }
 
 .log-page{
-    background: linear-gradient(0deg, rgba(223, 198, 61, 0.2), rgba(223, 198, 61, 0.2)), url('../img/dark-test.png');
+    background: linear-gradient(0deg, rgba(223, 198, 61, 0.2), rgba(223, 198, 61, 0.2)), url('../img/pass-4.jpg');
     background-size: cover;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
     
       
 }
       
-/* linear-gradient(to bottom, rgba(245, 246, 252, 0.52), rgba(117, 19, 93, 0.73)),  */
+
 
 .page-item.active .page-link {
     color: rgb(5, 5, 5) !important;
@@ -206,7 +203,7 @@
 
 .page-item .page-link{
     color: rgb(0, 0, 0) !important;
-    /* background: #0ca64c !important; */
+    
 }
 
 .cow{

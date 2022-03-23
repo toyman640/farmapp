@@ -1463,7 +1463,10 @@ def review_com(request):
     n = Notification.objects.filter(user=request.user, viewed=False)
     return render(request, 'message-list.html', {'comment': comment, 'notes' : n})
 
-
+@login_required(login_url='/admin-page/login')
+def comlist_view(request, slug):
+    comment_view = Notification.objects.get(slug=slug)
+    return render(request, 'message-view-note.html', {'Mesview': comment_view})
 
 
 

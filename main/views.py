@@ -68,7 +68,7 @@ def login_page(request):
             return redirect('humanR:index')
             
         else:
-            messages.info(request, 'Username OR Password is incorrect')
+            messages.error(request, 'Username OR Password is incorrect')
            
     return render(request, 'main/login.html')
 

@@ -21,13 +21,13 @@ Messages...
         {% if notes.count > 0 %}
         <h5 class="text-info">New Messages </h5>
         {% for a in notes %}
-        <p><a href="/ping/show/{{ a.id }}/"> {{ a.title }}</a></p>
+        <p><a href="/ping/show/{{ a.slug }}/"> {{ a.title }}</a></p>
         {% endfor %}
         {% endif %}
         <hr>
          {% if comment %}
          {% for comment in comment %}
-         <a href="{% url 'farmrecord:review_view' comment.slug %}" class="message">
+         <a href="{% url 'farmrecord:comlist_view' comment.slug %}" class="message">
             <h5  > {{ comment.title }} <span class="float-right"><small>{% localtime on %}{{ comment.date|date:"M d, Y H:i"  }}{% endlocaltime %}</small> <i class="fa fa-angle-right" aria-hidden="true"></i></span> </h3>
                 <p class=" text-dark">
                     {{ comment.message|truncatewords:20 }}

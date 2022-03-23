@@ -29,10 +29,10 @@
         {% endif %}
             <form method="post" enctype="multipart/form-data">
               <div class="row">
-                <div class="col-4">
+                <div class="col-6">
                   {{ employ.title_id | as_crispy_field }}
                 </div>
-                <div class="col-4">
+                <div class="col-6">
                   {{ employ.section_id | as_crispy_field }}
                 </div>
                 <div class="col-4">
@@ -95,7 +95,7 @@
                 <div class="col-6">
                   {{ employ.nok_relationship | as_crispy_field }}
                 </div>
-                <label for="">Guarantor</label>
+                <h5 for="" class="col-12 mt-3 mb-3">Guarantor's Attestation</h5>
                 <div class="col-12">
                   {{ employ.guarantor | as_crispy_field }}
                 </div>
@@ -115,7 +115,8 @@
                
                 <button class="btn btn-success" value="submit">Submit</button>
             </form>
-		</div>
+		</div> -->
+    
     
 		<!-- /cards -->
 	  <!-- /.container-fluid-->

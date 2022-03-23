@@ -125,6 +125,7 @@ urlpatterns = [
     path('delete-census-sheep/<int:cens_id>', views.delete_sheeppop, name='delete_sheeppop'),
     path('delete-census-pig/<int:cenp_id>', views.delete_pigpop, name='delete_pigpop'),
     path('messages-page', views.review_com, name='review_com'),
+    path('messages-list/<slug>', views.comlist_view, name='comlist_view')
    
 ]
 
