@@ -21,52 +21,28 @@
       </ol>
 	  <!-- Icon Cards-->
       <div class="row">
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card dashboard text-white bg-dark o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-users"></i>
+        {% for a in section %}
+        {% if not forloop.first %}
+          <div class="col-xl-3 col-sm-6 mb-3">
+            <a href="{% url 'humanR:worker_list' a.id %}">
+              <div class="card dashboard text-white bg-dark o-hidden h-100">
+                <div class="card-body">
+                  <div class="card-body-icon">
+                    <i class="fa fa-fw fa-users"></i>
+                  </div>
+                  <div class="mr-5 pt-3"><h5> {{ a.sec_count }} {{ a.section_name }}</h5></div>
+                </div>
+                
               </div>
-              <div class="mr-5 pt-3"><h5>26 Admin Staff</h5></div>
-            </div>
+            </a>
             
           </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card dashboard text-white bg-dark o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-user-md" aria-hidden="true"></i>
-              </div>
-				<div class="mr-5 pt-3"><h5>11 Doctors</h5></div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card dashboard text-white bg-dark o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-users"></i>
-              </div>
-              <div class="mr-5 pt-3"><h5>20 Supervisors</h5></div>
-            </div>
-           
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card dashboard text-white bg-dark o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-users"></i>
-              </div>
-              <div class="mr-5 pt-3"><h5>9 Personnels</h5></div>
-            </div>
-           
-          </div>
-        </div>
+        
+        {% endif %}
+        {% endfor %}
+        
 		</div>
-    <div class="row">
+    <!-- <div class="row">
       <div class="col-xl-3 col-sm-6 mb-3">
         <div class="card dashboard text-white bg-dark o-hidden h-100">
           <div class="card-body">
@@ -111,7 +87,7 @@
           
         </div>
       </div>
-  </div>
+  </div> -->
 		<!-- /cards -->
 		<h2></h2>
 		<div class="box_general padding_bottom">

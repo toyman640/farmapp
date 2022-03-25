@@ -1,0 +1,48 @@
+{% extends 'hr/base.html' %}
+
+{% load static %}
+<!Doctype html>
+{% block title %}
+ Home
+{% endblock %}
+
+{% block content %}
+  <!-- Navigation-->
+  
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard</li>
+      </ol>
+	
+	
+	  <div class="box_general padding_bottom">
+       
+          {% for work in posts %}
+        <div class="card mb-3" style="max-width: 540px;">
+            <div class="row no-gutters">
+              <div class="col-md-4">
+                <img src="{{ work.post_img }}" class="card-img" alt="...">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">{{ work.employee_SN }} {{ work.employee_FN }} {{ work.employee_MN }}</h5>
+                  <p class="card-text">Work Section : {{ work.section_id }}</p>
+                  <p class="card-text">Job title: {{ work.title_id }}</p>
+                  <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                  <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                </div>
+              </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+{% endblock %}
