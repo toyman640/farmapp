@@ -1,4 +1,6 @@
 {% extends 'hr/base.html' %}
+{% load crispy_forms_tags %}
+
 
 {% load static %}
 <!Doctype html>
@@ -89,6 +91,24 @@
       </div>
   </div> -->
 		<!-- /cards -->
+    <div class="box_general padding_bottom">
+      <h4 class="text-center">Search Employee</h4>
+			<form action="{% url 'humanR:worker_check' %}" method="get">
+        <div class="row">
+          <div class="form-group col-lg-4 col-sm-12">
+            {{ check.employee_SN | as_crispy_field }}
+          </div>
+          <div class="form-group col-lg-4 col-sm-12">
+            {{ check.employee_FN | as_crispy_field}}
+          </div>
+          <div class="form-group col-lg-3 col-sm-12">
+            {{ check.section_id | as_crispy_field }}
+          </div>
+          
+        </div>
+        <input type="submit" class="btn btn-success btn-sm" value="Search">
+      </form>
+		</div>
 		<h2></h2>
 		<div class="box_general padding_bottom">
 			<div class="header_box version_2">

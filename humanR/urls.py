@@ -9,4 +9,5 @@ urlpatterns = [
     path('workers-list/', views.employ_list, name='employ_list'),
     path('biodata/<slug>', views.biodata, name='biodata'),
     path('workers-list/<int:section_id>/', views.worker_list, name='worker_list'),
+    path('search-result', views.worker_check, name='worker_check')
 ]

@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from farmrecord.models import Section
 from humanR.models import *
-from farmrecord.forms import WorkerForm
+from farmrecord.forms import EmployeeFilter, WorkerForm
 from django.contrib import messages
 from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
@@ -14,7 +14,8 @@ from django.core.exceptions import ObjectDoesNotExist
 def index(request):
     worker = Employee.objects.all().count()
     section = FarmSection.objects.all().annotate(sec_count=Count('employee'))
-    return render(request, 'hr/index.html', {'section': section, 'worker' : worker})
+    check_worker = EmployeeFilter()
+    return render(request, 'hr/index.html', {'section': section, 'worker' : worker, 'check' : check_worker})
 
 @login_required(login_url='/admin-page/login')
 def new_entry(request):
@@ -51,3 +52,24 @@ def worker_list(request, section_id):
     post_cat = Employee.objects.filter(section_id__id=section_id).order_by('-employee_SN')
     context = {'posts': post_cat, 'counts': employee, 'cat': get_cat_name}
     return render(request, 'hr/detail.html', context)
+
+
+def worker_check(request):
+    qs = Employee.objects.all()
+    if request.method == 'GET':
+        search_form = EmployeeFilter(request.GET)
+        if search_form.is_valid():
+            surname = search_form.cleaned_data.get('employee_SN')
+            name = search_form.cleaned_data.get('employee_FN')
+            section = search_form.cleaned_data.get('section_id')
+
+            if surname != '' and surname is not None:
+                qs = qs.filter(employee_SN__icontains=surname)
+            if name != '' and name is not None:
+                qs = qs.filter(employee_FN__icontains=name)
+            
+            if section != '' and section is not None:
+                qs = qs.filter(section_id__section_name__contains=section)
+            return render(request, 'hr/search-page.html', {'result': qs})
+        else:
+            return render(request, 'hr/search-page.html')

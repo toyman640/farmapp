@@ -1,0 +1,92 @@
+{% extends 'hr/base.html' %}
+
+{% load static %}
+<!Doctype html>
+{% block title %}
+ Employee
+{% endblock %}
+
+{% block content %}
+  <!-- Navigation-->
+  
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard</li>
+      </ol>
+	
+      {% if bio %}
+	  <div class="box_general padding_bottom">
+      <h2 class="text-center text-muted">PERSONAL DETAILS</h2>
+      <hr style="height:3px;border:none;color:#333;background-color:rgb(30, 112, 13);" >
+        
+            <div class="row">
+                <div class="col-4">
+                  <img src="{{ bio.post_img }}" class="card-img" alt="...">
+                  
+                </div>
+                <div class="col-8">
+                    <h4>{{ bio.employee_SN }}</h4>
+                    <hr>
+                    <label for="">Surname</label>
+                    <hr>
+                    <h4>{{ bio.employee_FN }}</h4>
+                    <hr>
+                    <label for="">First name</label>
+                    <hr>
+                    <h4>{{ bio.employee_MN }}</h4>
+                    <hr>
+                    <label for="">Other name</label>
+                    <hr>
+                    <h4>{{ bio.address }}</h4>
+                    <hr>
+                    <label for=""><i class="fa fa-home text-success" aria-hidden="true" style="font-size: 20px;"></i> Address</label>
+                    <hr>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6"><i class="fa fa-phone text-success" aria-hidden="true" style="font-size: 20px;"></i>  {{ bio.phone }}</div>
+                        <div class="col-lg-3 col-sm-6">Gender: {{ bio.sex }}</div>
+                        <div class="col-lg-3 col-sm-6">Age: {{ bio.age }}</div>
+                        <div class="col-lg-3 col-sm-6"> <i class="fa fa-envelope text-info" aria-hidden="true" style="font-size: 20px;"></i> olorunto</div>
+                    </div>
+                    <hr>
+                    <label for="" class=""><i class="fa fa-university text-danger" aria-hidden="true"></i> <b>BANK DETAILS</b></label>
+                    <hr>
+                    <div class="row">
+                      <div class="col-lg-4 col-md-6">Bank name:  {{ bio.bank_name }}</div>
+                      <div class="col-lg-4 col-sm-6">Account Num.: {{ bio.bank_num }}</div>
+                      <div class="col-lg-4 col-sm-6">BVN: {{ bio.bvn }}</div>
+                      
+                  </div>
+                </div>
+            </div>
+        
+	  </div>
+    <div class="box_general padding_bottom">
+      <h2 class="text-center text-muted">NEXT OF KIN DETAILS</h2>
+      <hr style="height:3px;border:none;color:#333;background-color:rgba(221, 224, 19, 0.938);">
+      <h3>{{ bio.nok_surname }} {{ bio.nok_oname }}</h3>
+      <hr>
+      <label for=""></label>
+	  </div>
+    <div class="box_general padding_bottom">
+      <h2 class="text-center text-muted">GUARANTOR SNIPPET</h2>
+      <hr style="height:3px;border:none;color:#333;background-color:rgb(127, 194, 114);">
+      <p class="mt-3" style="font-size: 20px;">
+        I <u> {{ bio.guarantor }}</u> certify that the named applicant <u> {{ bio.employee_SN }} {{bio.employee_FN}}</u> is well known by me. I have no hesitation to recommend him/her for the job.
+        <br>
+        <h4> Acknowledgement : <span class="badge badge-secondary">{{ bio.signed }}</span></h4>
+      </p>
+      
+	  </div>
+    <hr style="height:3px;border:none;color:#333;background-color:rgb(127, 194, 114);">
+    <h2 class="text-center">Official Verification : <span class="badge badge-secondary">{{ bio.verified }}</span></h2>
+    
+    {% endif %}
+	  <!-- /.container-fluid--> 
+   	</div>
+{% endblock %}

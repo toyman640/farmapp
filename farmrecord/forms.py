@@ -404,3 +404,8 @@ class WorkerForm(forms.ModelForm):
         model = Employee
         fields = ('title_id', 'section_id', 'employee_SN', 'employee_FN', 'employee_MN', 'address', 'phone', 'sex', 'age', 'bank_num', 'bank_name', 'bvn', 'email', 'id_type', 'id_num', 'signed', 'nok_surname', 'nok_oname', 'nok_address', 'nok_phone', 'nok_relationship', 'guarantor', 'signed', 'verified', 'image_1')
         exclude = ['date']
+
+class EmployeeFilter(forms.ModelForm):
+    class Meta:
+        model = Employee
+        fields = ('section_id', 'employee_SN', 'employee_FN') 

@@ -1,9 +1,10 @@
 {% extends 'hr/base.html' %}
+{% load crispy_forms_tags %}
 
 {% load static %}
 <!Doctype html>
 {% block title %}
- Employee
+ Home
 {% endblock %}
 
 {% block content %}
@@ -17,13 +18,13 @@
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">New Emplyoee</li>
       </ol>
-	
-	
-	  <div class="box_general padding_bottom">
-       
-          {% for work in posts %}
+	  <!-- Icon Cards-->
+      <div class="box_general padding_bottom">
+        {% if result %}
+        {% for work in result %}
+        <h4>There are {{ result.count }} results</h4>
         <div class="card mb-3" style="max-width: 540px;">
             <div class="row no-gutters">
               
@@ -40,10 +41,17 @@
                 </div>
               </div>
             </div>
+            
+            {% endfor %}
         </div>
-        {% endfor %}
-        
+            {% else %}
+            <h4>There are {{ result.count }} results</h4>
+            <h2>There are no Search result...... </h2>
+            {% endif %}
 	  </div>
+    
+    
+		<!-- /cards -->
 	  <!-- /.container-fluid-->
    	</div>
 {% endblock %}
