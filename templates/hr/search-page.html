@@ -23,9 +23,9 @@
 	  <!-- Icon Cards-->
       <div class="box_general padding_bottom">
         {% if result %}
+        <h4>There are {{ result.count }} result(s)</h4>
         {% for work in result %}
-        <h4>There are {{ result.count }} results</h4>
-        <div class="card mb-3" style="max-width: 540px;">
+        <div class="card mt-5" style="max-width: 540px;">
             <div class="row no-gutters">
               
               <div class="col-md-4">

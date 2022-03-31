@@ -35,6 +35,7 @@ class Employee(models.Model):
     ]
     date = models.DateTimeField(default=timezone.now)
     title_id = models.ForeignKey(JobTitle, verbose_name='Job title', on_delete=models.CASCADE, default=1)
+    job_desc = models.TextField(max_length=200, verbose_name='Job Description', blank=True, null=True)
     section_id = models.ForeignKey(FarmSection, verbose_name='Section',  on_delete=models.CASCADE, default=1)
     employee_SN = models.CharField(max_length=100, verbose_name='Surname')
     employee_MN = models.CharField(max_length=100, verbose_name='Middle Name')

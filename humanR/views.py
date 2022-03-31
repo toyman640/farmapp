@@ -1,4 +1,5 @@
 from tkinter import E
+from turtle import title
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from farmrecord.models import Section
@@ -62,6 +63,7 @@ def worker_check(request):
             surname = search_form.cleaned_data.get('employee_SN')
             name = search_form.cleaned_data.get('employee_FN')
             section = search_form.cleaned_data.get('section_id')
+            title = search_form.cleaned_data.get('title_id')
 
             if surname != '' and surname is not None:
                 qs = qs.filter(employee_SN__icontains=surname)
@@ -70,6 +72,9 @@ def worker_check(request):
             
             if section != '' and section is not None:
                 qs = qs.filter(section_id__section_name__contains=section)
+            
+            if title != '' and title is not None:
+                qs = qs.filter(title_id__title_name__contains=title)
             return render(request, 'hr/search-page.html', {'result': qs})
         else:
             return render(request, 'hr/search-page.html')
