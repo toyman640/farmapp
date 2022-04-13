@@ -1,6 +1,7 @@
 from tkinter import E
 from turtle import title
 from django.shortcuts import render, redirect
+from django.http.response import HttpResponse
 from django.contrib.auth.decorators import login_required
 from farmrecord.models import Section
 from humanR.models import *
@@ -78,3 +79,35 @@ def worker_check(request):
             return render(request, 'hr/search-page.html', {'result': qs})
         else:
             return render(request, 'hr/search-page.html')
+
+
+def calculator(request):
+    res = 0
+    if request.method == "POST":
+        num1 = request.POST.get('days')
+        num2 = request.POST.get('salary')
+        num3 = request.POST.get('tax')
+
+        if num1.isdigit() and num2.isdigit() and num3.isdigit():
+            a = int(num1)
+            b = int(num2)
+            c = int(num3)
+
+            first = b / 30
+            print(first)
+            second = int(first) * a
+            print(second)
+            res = int(second) - c
+
+        
+    
+    
+
+        if request.headers.get('Hx-Request') == 'true':
+            return HttpResponse(str(res))
+
+    else:
+        res = "Only digits are allowed"
+
+    
+    return render(request, 'hr/calculator.html')

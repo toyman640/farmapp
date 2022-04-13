@@ -1,5 +1,6 @@
 from datetime import date
 from email.mime import image
+from tabnanny import verbose
 from django.db import models
 from django.utils import timezone
 from farmapp.utils import unique_slug_generatorEMP
@@ -79,3 +80,14 @@ pre_save.connect(slug_save, sender=Employee)
 
     
     
+class Attendance(models.Model):
+    date = models.DateTimeField(default=timezone.now)
+    surname = models.ForeignKey(Employee, verbose_name='Section',  on_delete=models.CASCADE, default=1)
+    present =models.BooleanField(verbose_name='Present')
+    absent = models.BooleanField(verbose_name='Absent')
+    off = models.BooleanField(verbose_name='Off')
+    sick = models.BooleanField(verbose_name='Sick')
+    others = models.BooleanField(verbose_name='Other')
+
+    def __str__(self):
+        return self.surname

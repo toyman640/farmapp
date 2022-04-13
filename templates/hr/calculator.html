@@ -1,0 +1,55 @@
+{% extends 'hr/base.html' %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+<!Doctype html>
+{% block title %}
+ Home
+{% endblock %}
+
+{% block content %}
+  <!-- Navigation-->
+  
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Salary Calculator</li>
+      </ol>
+	  <!-- Icon Cards-->
+      <div class="box_general padding_bottom">
+        <form action="" method="POST" hx-post="{% url 'humanR:calculator' %}" hx-target="#result">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-lg-4 col-sm-6">
+                <label for="inputEmail4">Number of days Present</label>
+                <input type="number" class="form-control" name="days">
+              </div>
+              <div class="col-lg-4 col-sm-6">
+                <label for="inputEmail4">Salary</label>
+                <input type="number" class="form-control" name="salary">
+              </div>
+              <div class=" col-lg-4 col-sm-6">
+                <label for="inputEmail4">Tax</label>
+                <input type="number" class="form-control" name="tax">
+              </div>
+              <h2 id="result">Result: {{ res }}</h2>
+              <div class=" col-lg-4 col-sm-6 mt-2">
+                <input type="submit">
+              </div>
+            </div>
+            
+          </form>
+    
+          <div>
+              
+              <h2 id="result">Result: {{ res }}</h2>
+           
+          </div>
+		
+   	</div>
+{% endblock %}
