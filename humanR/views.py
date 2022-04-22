@@ -94,9 +94,9 @@ def calculator(request):
             c = int(num3)
 
             first = b / 30
-            print(first)
+            
             second = int(first) * a
-            print(second)
+            
             res = int(second) - c
 
         

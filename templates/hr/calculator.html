@@ -22,10 +22,13 @@
       </ol>
 	  <!-- Icon Cards-->
       <div class="box_general padding_bottom">
+        <h3 class="text-center mb-5">Calculate Salary Amount</h3>
         <form action="" method="POST" hx-post="{% url 'humanR:calculator' %}" hx-target="#result">
             {% csrf_token %}
             <div class="row">
+              
               <div class="col-lg-4 col-sm-6">
+                
                 <label for="inputEmail4">Number of days Present</label>
                 <input type="number" class="form-control" name="days">
               </div>
@@ -37,19 +40,23 @@
                 <label for="inputEmail4">Tax</label>
                 <input type="number" class="form-control" name="tax">
               </div>
-              <h2 id="result">Result: {{ res }}</h2>
-              <div class=" col-lg-4 col-sm-6 mt-2">
-                <input type="submit">
+              
+              <div class=" col-lg-12 col-sm-12 offset-lg-4 mt-3">
+                <h2 id="result" style="background-color: green;"> {{ res }}</h2>
+              </div>
+            
+              <div class=" col-lg-12 col-sm-12 offset-lg-4 mt-5">
+                <input type="submit" class="text-center">
               </div>
             </div>
             
           </form>
     
-          <div>
+          <!-- <div>
               
               <h2 id="result">Result: {{ res }}</h2>
            
           </div>
-		
+		 -->
    	</div>
 {% endblock %}

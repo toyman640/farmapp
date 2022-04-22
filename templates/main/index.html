@@ -18,8 +18,8 @@ Home
       </ol>
 	  <!-- Icon Cards-->
       <div class="row" >
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card dashboard text-white bg-primary o-hidden h-100">
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-primary o-hidden h-100 animate__animated animate__backInLeft">
             <div class="card-body">
               <div class="card-body-icon">
                 <i class="fa fa-fw fa-inbox"></i>
@@ -34,7 +34,7 @@ Home
             </a>
           </div>
         </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInUp">
           <div class="card dashboard text-white bg-primary o-hidden h-100">
             <div class="card-body">
               <div class="card-body-icon">
@@ -50,7 +50,7 @@ Home
             </a>
           </div>
         </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInDown">
           <div class="card dashboard text-white bg-warning o-hidden h-100">
             <div class="card-body">
               <div class="card-body-icon">
@@ -66,7 +66,7 @@ Home
             </a>
           </div>
         </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInRight">
           <div class="card dashboard text-white bg-success o-hidden h-100">
             <div class="card-body">
               <div class="card-body-icon">
@@ -85,10 +85,10 @@ Home
 		</div>
 		<!-- /cards -->
     <div class="box_general padding_bottom">
-		<div class="jumbotron">
+		<div class="jumbotron  animate__animated  animate__backInLeft">
             {% for c in ctotal %}
             {% if forloop.first %}
-      <h3 class="text-center"><b> <marquee behavior="alternate" direction="">  Total Census For {{ c.month }} </marquee></b></h3>
+      <h3 class="text-center "><b class=""> Total Census For {{ c.month }} </b></h3>
       <div class="row">
         <div class="col-12">
           <div class="d-inline col-3">
