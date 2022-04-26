@@ -9,6 +9,7 @@ from farmrecord.forms import EmployeeFilter, WorkerForm
 from django.contrib import messages
 from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
+from notification.models import Notification
 
 # Create your views here.
 
@@ -17,7 +18,8 @@ def index(request):
     worker = Employee.objects.all().count()
     section = FarmSection.objects.all().annotate(sec_count=Count('employee'))
     check_worker = EmployeeFilter()
-    return render(request, 'hr/index.html', {'section': section, 'worker' : worker, 'check' : check_worker})
+    n = Notification.objects.filter(user=request.user, viewed=False)
+    return render(request, 'hr/index.html', {'section': section, 'worker' : worker, 'check' : check_worker, 'notes' : n})
 
 @login_required(login_url='/admin-page/login')
 def new_entry(request):
@@ -111,3 +113,15 @@ def calculator(request):
 
     
     return render(request, 'hr/calculator.html')
+
+
+@login_required(login_url='/admin-page/login')
+def review_comHR(request):
+    comment = Notification.objects.filter(user=request.user).order_by('-date')
+    n = Notification.objects.filter(user=request.user, viewed=False)
+    return render(request, 'hr/message-list-hr.html', {'comment': comment, 'notes' : n})
+
+@login_required(login_url='/admin-page/login')
+def comlist_viewHR(request, slug):
+    comment_view = Notification.objects.get(slug=slug)
+    return render(request, 'message-view-noteHR.html', {'Mesview': comment_view})

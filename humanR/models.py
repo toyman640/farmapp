@@ -7,6 +7,7 @@ from farmapp.utils import unique_slug_generatorEMP
 from django.db.models.signals import pre_save
 from farmrecord.validators import validate_file_size
 
+
 # Create your models here.
 
 
@@ -91,3 +92,9 @@ class Attendance(models.Model):
 
     def __str__(self):
         return self.surname
+
+class Reminder(models.Model):
+    date_created = models.DateTimeField(default=timezone.now)
+    remind_title = models.CharField(max_length=200, verbose_name='Remind about')
+    remind_description = models.TextField(max_length=500, verbose_name='Description about reminder')
+    remind_date = models.DateField()

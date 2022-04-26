@@ -1459,7 +1459,7 @@ def delete_sheeppop(request, cens_id):
 
 @login_required(login_url='/admin-page/login')
 def review_com(request):
-    comment = Notification.objects.all().order_by('-date')
+    comment = Notification.objects.filter(user=request.user).order_by('-date')
     n = Notification.objects.filter(user=request.user, viewed=False)
     return render(request, 'message-list.html', {'comment': comment, 'notes' : n})
 

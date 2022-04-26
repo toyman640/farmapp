@@ -10,5 +10,7 @@ urlpatterns = [
     path('biodata/<slug>', views.biodata, name='biodata'),
     path('workers-list/<int:section_id>/', views.worker_list, name='worker_list'),
     path('search-result', views.worker_check, name='worker_check'),
-    path('salary-calculator', views.calculator, name='calculator')
+    path('salary-calculator', views.calculator, name='calculator'),
+    path('messages-page', views.review_comHR, name='review_comHR'),
+    path('messages-list/<slug>', views.comlist_viewHR, name='comlist_viewHR')
 ]
