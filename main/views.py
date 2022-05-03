@@ -11,6 +11,7 @@ from farmrecord.forms import *
 from datetime import timedelta
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import F
+from humanR.models import FarmSection
 
 # Create your views here.
 
@@ -25,11 +26,13 @@ def dashboard(request):
     pigpop = PigCensusPop.objects.order_by('-date')
     sheeppop = SheepCensusPop.objects.order_by('-date')
     goatpop = GoatCensusPop.objects.order_by('-date')
+    emp_pop = FarmSection.objects.all()
     context ={
         'ctotal' : cowpop,
         'ptotal' : pigpop,
         'stotal' : sheeppop,
-        'gtotal' : goatpop
+        'gtotal' : goatpop,
+        'workers' : emp_pop
     }
     return render(request, 'main/index.html', context)
 

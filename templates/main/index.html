@@ -130,49 +130,65 @@ Home
     </div>
 		</div>
 		
-		<div class="box_general padding_bottom">
-			<div class="header_box version_2">
-				<h2><i class="fa fa-bar-chart"></i>Total Census:{% for countc in ctotal %}{% if forloop.first %} {{ countc.month }} {% endif %}{% endfor %} </h2>
-			</div>
-      <canvas id="myChart" width="400" height="150"></canvas>
-      <script>
-          const ctx = document.getElementById('myChart').getContext('2d');
-          const myChart = new Chart(ctx, {
-              type: 'bar',
-              data: {
-                  labels: ['Cattles', 'Swine', 'Sheep', 'Goat'],
-                  datasets: [{
-                      label: 'Population',
-                      data: [{% for countc in ctotal %}{% if forloop.first %} {{ countc.addc }}, {% endif %}{% endfor %}{% for countp in ptotal %}{% if forloop.first %} {{ countp.addp }}, {% endif %}{% endfor %}{% for counts in stotal %}{% if forloop.first %} {{ counts.adds }}, {% endif %}{% endfor %}{% for countg in gtotal %}{% if forloop.first %} {{ countg.addg }}, {% endif %}{% endfor %}],
-                      backgroundColor: [
-                          'rgba(255, 99, 132, 0.9)',
-                          'rgba(54, 162, 235, 0.9)',
-                          'rgba(255, 206, 86, 0.9)',
-                          'rgba(75, 192, 192, 0.9)',
-                          'rgba(153, 102, 255, 0.9)',
-                          'rgba(255, 159, 64, 0.9)'
-                      ],
-                      borderColor: [
-                          'rgba(255, 99, 132, 1)',
-                          'rgba(54, 162, 235, 1)',
-                          'rgba(255, 206, 86, 1)',
-                          'rgba(75, 192, 192, 1)',
-                          'rgba(153, 102, 255, 1)',
-                          'rgba(255, 159, 64, 1)'
-                      ],
-                      borderWidth: 1
-                  }]
-              },
-              options: {
-                  scales: {
-                      y: {
-                          beginAtZero: true,
-                      }
-                  }
-              }
-          });
-      </script>
-		</div>
+    <div class="row">
+      <div class="box_general padding_bottom col-lg-6 col-sm-12">
+        <div class="header_box version_2">
+          <h2><i class="fa fa-bar-chart"></i>Total Census:{% for countc in ctotal %}{% if forloop.first %} {{ countc.month }} {% endif %}{% endfor %} </h2>
+        </div>
+        <canvas id="myChart" width="400" height="150"></canvas>
+        <script>
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Cattles', 'Swine', 'Sheep', 'Goat'],
+                    datasets: [{
+                        label: 'Population',
+                        data: [{% for countc in ctotal %}{% if forloop.first %} {{ countc.addc }}, {% endif %}{% endfor %}{% for countp in ptotal %}{% if forloop.first %} {{ countp.addp }}, {% endif %}{% endfor %}{% for counts in stotal %}{% if forloop.first %} {{ counts.adds }}, {% endif %}{% endfor %}{% for countg in gtotal %}{% if forloop.first %} {{ countg.addg }}, {% endif %}{% endfor %}],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.9)',
+                            'rgba(54, 162, 235, 0.9)',
+                            'rgba(255, 206, 86, 0.9)',
+                            'rgba(75, 192, 192, 0.9)',
+                            'rgba(153, 102, 255, 0.9)',
+                            'rgba(255, 159, 64, 0.9)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        }
+                    }
+                }
+            });
+        </script>
+      </div>
+      <div class="box_general padding_bottom col-lg-6 col-sm-12">
+        <div class="row">
+         
+          {% for work in workers %}
+          {% if not forloop.first%}
+          <tr class="{% cycle 'lightgreen' 'purple' 'darkgreen' 'lightblue' 'darkblue' 'yellow'}"></tr>
+          <div  class="col-4 pb-5 pt-5"> {{ work.section_name }} </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+	
+
+    
 	  </div>
 	  <!-- /.container-fluid-->
    	</div>
