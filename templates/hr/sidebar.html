@@ -20,13 +20,13 @@
             <span class="nav-link-text">Messages</span>
           </a>
         </li>
-		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="" data-original-title="Bookings">
+		<!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="" data-original-title="Bookings">
           <a class="nav-link" href="">
             <i class="fa fa-fw fa-calendar-check-o"></i>
             <span class="nav-link-text">Bookings <span class="badge badge-pill badge-primary">6 New</span></span>
           </a>
-        </li>
-		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+        </li> -->
+		<!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
           <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseMylistings" data-parent="#mylistings">
             <i class="fa fa-fw fa-list"></i>
             <span class="nav-link-text">My listings</span>
@@ -42,7 +42,7 @@
               <a href="">Expired <span class="badge badge-pill badge-danger">6</span></a>
             </li>
           </ul>
-        </li>
+        </li> -->
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Reviews">
           <a class="nav-link" href="{% url 'humanR:new_entry' %}">
             <i class="fa fa-user-plus" aria-hidden="true"></i>
@@ -50,10 +50,7 @@
           </a>
         </li>
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Bookmarks">
-          <a class="nav-link" href="">
-            <i class="fa fa-fw fa-heart"></i>
-            <span class="nav-link-text">Bookmarks</span>
-          </a>
+         
         </li>
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Add listing">
           <a class="nav-link" href="{% url 'humanR:calculator' %}">
@@ -62,24 +59,10 @@
           </a>
         </li>
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My profile">
-          <a class="nav-link" href="{% url 'humanR:employ_list' %}">
-            <i class="fa fa-fw fa-user"></i>
-            <span class="nav-link-text">My Profile</span>
-          </a>
+         
         </li>
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
-          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseComponents" data-parent="#Components">
-            <i class="fa fa-fw fa-gear"></i>
-            <span class="nav-link-text">Components</span>
-          </a>
-          <ul class="sidenav-second-level collapse" id="collapseComponents">
-            <li>
-              <a href="">Charts</a>
-            </li>
-			<li>
-              <a href="">Tables</a>
-            </li>
-          </ul>
+         
         </li>
       </ul>
       <ul class="navbar-nav sidenav-toggler">
@@ -125,7 +108,7 @@
             {% endif %}
           </div>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <form class="form-inline my-2 my-lg-0 mr-lg-2">
             <div class="input-group">
               <input class="form-control search-top" type="text" placeholder="Search for...">
@@ -136,7 +119,7 @@
               </span>
             </div>
           </form>
-        </li>
+        </li> -->
         <li class="nav-item">
           <a class="nav-link" data-toggle="modal" data-target="#exampleModal">
             <i class="fa fa-fw fa-sign-out"></i>Logout</a>

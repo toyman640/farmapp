@@ -5,3 +5,4 @@ from humanR.models import *
 admin.site.register(Employee)
 admin.site.register(FarmSection)
 admin.site.register(JobTitle)
+admin.site.register(Reminder)

@@ -180,7 +180,7 @@ Home
           {% for work in workers %}
           {% if not forloop.first%}
           <tr class="{% cycle 'lightgreen' 'purple' 'darkgreen' 'lightblue' 'darkblue' 'yellow'}"></tr>
-          <div  class="col-4 pb-5 pt-5"> {{ work.section_name }} </div>
+          <div  class="col-4 pb-5 pt-5"> {{ work.sec_count }} {{ work.section_name }} </div>
           {% endif %}
           {% endfor %}
         </div>

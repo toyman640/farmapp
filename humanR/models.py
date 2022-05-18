@@ -98,3 +98,6 @@ class Reminder(models.Model):
     remind_title = models.CharField(max_length=200, verbose_name='Remind about')
     remind_description = models.TextField(max_length=500, verbose_name='Description about reminder')
     remind_date = models.DateField()
+
+    def __str__(self):
+        return self.remind_title

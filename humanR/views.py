@@ -1,5 +1,3 @@
-from tkinter import E
-from turtle import title
 from django.shortcuts import render, redirect
 from django.http.response import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -10,6 +8,7 @@ from django.contrib import messages
 from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
 from notification.models import Notification
+from django.core.paginator import Paginator
 
 # Create your views here.
 
@@ -54,7 +53,16 @@ def worker_list(request, section_id):
         return render(request, 'hr/404.html')
     get_cat_name = Section.objects.get(id=section_id)
     post_cat = Employee.objects.filter(section_id__id=section_id).order_by('-employee_SN')
-    context = {'posts': post_cat, 'counts': employee, 'cat': get_cat_name}
+    paginate_wl = Paginator(post_cat, 10)
+    page_number = request.GET.get('page')
+    wl_page_obj = paginate_wl.get_page(page_number)
+    context = {
+         
+        'counts': employee, 
+        'cat': get_cat_name,
+        'wl_page_obj' : post_cat
+    }
+    context['wl_page_obj'] = wl_page_obj
     return render(request, 'hr/detail.html', context)
 
 
