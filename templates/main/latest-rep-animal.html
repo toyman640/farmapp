@@ -27,7 +27,7 @@ Home
           <img src="{{ a.post_img }}" class="card-img-top" alt="No image available">
           <div class="card-body">
             <h5 class="card-title">{{ a.section }}</h5>
-            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            <p class="card-text">{{ a.comment }}</p>
             <p class="card-text"><small class="text-muted">{{ a.date }}</small></p>
           </div>
         </div>
@@ -40,7 +40,7 @@ Home
           <img src="{{ b.post_img }}" class="card-img-top" alt="...">
           <div class="card-body">
             <h5 class="card-title">{{ b.section }}</h5>
-            <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+            <p class="card-text">{{ b.comment }}</p>
             <p class="card-text"><small class="text-muted">{{ b.date }}</small></p>
           </div>
         </div>
@@ -53,7 +53,7 @@ Home
           <img src="{{ c.post_img }}" class="card-img-top" alt="...">
           <div class="card-body">
             <h5 class="card-title">{{ c.section }}</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text">{{ c.comment }}</p>
             <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
           </div>
         </div>
@@ -66,7 +66,7 @@ Home
           <img src="{{ d.post_img }}" class="card-img-top" alt="...">
           <div class="card-body">
             <h5 class="card-title">{{ d.section }}</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text">{{ d.comment }}</p>
             <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
           </div>
         </div>
@@ -81,7 +81,7 @@ Home
         <div class="card col-lg-3">
           <div class="card-body">
             <h5 class="card-title">{{ q.section }}</h5>
-            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            <p class="card-text">{{ q.reason }}</p>
             <p class="card-text"><small class="text-muted">{{ q.date }}</small></p>
           </div>
         </div>
@@ -93,7 +93,7 @@ Home
         <div class="card col-lg-3">
           <div class="card-body">
             <h5 class="card-title">{{ b.section }}</h5>
-            <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+            <p class="card-text">{{ b.reason }}</p>
             <p class="card-text"><small class="text-muted">{{ b.date }}</small></p>
           </div>
         </div>
@@ -105,7 +105,7 @@ Home
         <div class="card col-lg-3">
           <div class="card-body">
             <h5 class="card-title">{{ j.section }}</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text">{{ j.reason }}</p>
             <p class="card-text"><small class="text-muted">{{ j.date }}</small></p>
           </div>
         </div>
@@ -117,7 +117,7 @@ Home
         <div class="card col-lg-3">
           <div class="card-body">
             <h5 class="card-title">{{ d.section }}</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text">{{ d.reason }}</p>
             <p class="card-text"><small class="text-muted">{{ d.date }}</small></p>
           </div>
         </div>
@@ -127,7 +127,7 @@ Home
       <hr>
       <h3 class="text-center mt-2"> Latest Procurement Records</h3>
       <div class="card-deck">
-        {% if ccl %}
+        {% if cpl %}
         {% for q in ccl %}
         <div class="card col-lg-3">
           <div class="card-body">
@@ -139,7 +139,7 @@ Home
         {% endfor %}
         {% endif %}
         
-        {% if gcl %}
+        {% if gpl %}
         {% for b in gcl %}
         <div class="card col-lg-3">
           <div class="card-body">
@@ -151,7 +151,7 @@ Home
         {% endfor %}
         {% endif %}
 
-        {% if scl %}
+        {% if spl %}
         {% for j in scl %}
         <div class="card col-lg-3">
           <div class="card-body">
@@ -178,8 +178,8 @@ Home
       <hr class="mt-4">
       <h3 class="text-center mt-2"> Latest Sale(s) Records</h3>
       <div class="card-deck">
-        {% if ccl %}
-        {% for q in ccl %}
+        {% if csl %}
+        {% for q in csl %}
         <div class="card col-lg-3">
           <div class="card-body">
             <h5 class="card-title">{{ q.section }}</h5>
@@ -190,8 +190,8 @@ Home
         {% endfor %}
         {% endif %}
         
-        {% if gcl %}
-        {% for b in gcl %}
+        {% if gsl %}
+        {% for b in gsl %}
         <div class="card col-lg-3">
           <div class="card-body">
             <h5 class="card-title">{{ b.section }}</h5>
@@ -202,8 +202,8 @@ Home
         {% endfor %}
         {% endif %}
 
-        {% if scl %}
-        {% for j in scl %}
+        {% if ssl %}
+        {% for j in ssl %}
         <div class="card col-lg-3">
           <div class="card-body">
             <h5 class="card-title">{{ j.section }}</h5>
@@ -214,8 +214,8 @@ Home
         {% endfor %}
         {% endif %}
 
-        {% if pcl %}
-        {% for d in pcl %}
+        {% if psl %}
+        {% for d in psl %}
         <div class="card col-lg-3">
           <div class="card-body">
             <h5 class="card-title">{{ d.section }}</h5>
