@@ -2,4 +2,4 @@
 deployment:
   task:
   - export DEPLOYPATH-/HOME/skaazzna/public_html
-  - /bib/cp -a * $DEPLOYPATH
+  - /bin/cp -a * $DEPLOYPATH
