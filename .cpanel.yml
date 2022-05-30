@@ -1,5 +1,5 @@
 ---
 deployment:
   task:
-  - export DEPLOYPATH-/HOME/skaazzna/public_html
-  - /bin/cp -a * $DEPLOYPATH
+  - export DEPLOYPATH=/home/skaazzna/public_html
+  - /bin/cp -r /home/skaazzna/repositories/farmapp/* $DEPLOYPATH
