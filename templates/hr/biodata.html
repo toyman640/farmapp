@@ -22,7 +22,7 @@
 	
       {% if bio %}
 	  <div class="box_general padding_bottom">
-      <h2 class="text-center text-muted">PERSONAL DETAILS</h2>
+      <h2 class="text-center text-muted">PERSONAL DETAILS </h2>
       <hr style="height:3px;border:none;color:#333;background-color:rgb(30, 112, 13);" >
         
             <div class="row">
@@ -85,7 +85,8 @@
 	  </div>
     <hr style="height:3px;border:none;color:#333;background-color:rgb(127, 194, 114);">
     <h2 class="text-center">Official Verification : <span class="badge badge-secondary">{{ bio.verified }}</span></h2>
-    
+    <hr style="height:3px;border:none;color:#333;background-color:rgb(127, 194, 114);">
+    <a href="{% url 'humanR:delete_emprec' bio.id %}" class="btn btn-danger float-right">Delete Record</a><a href="{% url 'humanR:edit_emprec' bio.id %}" class="btn btn-warning float-left">Edit</a>
     {% endif %}
 	  <!-- /.container-fluid--> 
    	</div>

@@ -12,5 +12,7 @@ urlpatterns = [
     path('search-result', views.worker_check, name='worker_check'),
     path('salary-calculator', views.calculator, name='calculator'),
     path('messages-page', views.review_comHR, name='review_comHR'),
-    path('messages-list/<slug>', views.comlist_viewHR, name='comlist_viewHR')
+    path('messages-list/<slug>', views.comlist_viewHR, name='comlist_viewHR'),
+    path('delete-employee-rec/<int:emprec_id>', views.delete_emprec, name='delete_emprec'),
+    path('edit-emplyee-record/<int:emp_id>', views.edit_emprec, name='edit_emprec'),
 ]

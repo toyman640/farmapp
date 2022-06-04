@@ -85,23 +85,24 @@ Home
 		</div>
 		<!-- /cards -->
     <div class="box_general padding_bottom">
-		<div class="jumbotron  animate__animated  animate__backInLeft">
-            {% for c in ctotal %}
-            {% if forloop.first %}
       <h3 class="text-center "><b class=""> Total Census For {{ c.month }} </b></h3>
+		<div class="jumbotron  animate__animated  animate__backInLeft">
+           
+      
       <div class="row">
         <div class="col-12">
           <div class="d-inline col-3">
-            
+            {% for c in ctotal %}
+            {% if forloop.first %}
             <span style="font-size: 100px;" class=" number">{{ c.addc }}</span>
             {% endif %}
             {% endfor %}
-            <label for="">CATTLES</label>
+            <label for="">CATTLE</label>
           </div>
           <div class="d-inline col-3">
             {% for d in ptotal %}
             {% if forloop.first %}
-            <span style="font-size: 100px;" class=" number">{{ d.addp }}</span>
+            <span  class=" number">{{ d.addp }}</span>
             {% endif %}
             {% endfor %}
             <label for="">PIGS</label>
@@ -109,7 +110,7 @@ Home
           <div class="d-inline col-3 ">
             {% for i in stotal %}
             {% if forloop.first %}
-            <span style="font-size: 100px;" class=" number">{{ i.adds }}</span>
+            <span  class=" number">{{ i.adds }}</span>
             {% endif %}
             {% endfor %}
             <label for="">SHEEP</label>
@@ -117,7 +118,7 @@ Home
           <div class="d-inline col-3">
             {% for h in gtotal %}
             {% if forloop.first %}
-            <span style="font-size: 100px;" class=" number">{{ h.addg }}</span>
+            <span  class=" number">{{ h.addg }}</span>
             {% endif %}
             {% endfor %}
             <label for="">GOATS</label>

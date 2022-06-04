@@ -1,14 +1,15 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http.response import HttpResponse
 from django.contrib.auth.decorators import login_required
 from farmrecord.models import Section
 from humanR.models import *
-from farmrecord.forms import EmployeeFilter, WorkerForm
+from farmrecord.forms import EditempRec, EmployeeFilter, WorkerForm
 from django.contrib import messages
 from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
 from notification.models import Notification
 from django.core.paginator import Paginator
+from django.utils.html import format_html 
 
 # Create your views here.
 
@@ -133,3 +134,21 @@ def review_comHR(request):
 def comlist_viewHR(request, slug):
     comment_view = Notification.objects.get(slug=slug)
     return render(request, 'message-view-noteHR.html', {'Mesview': comment_view})
+
+@login_required(login_url='/admin-page/login')
+def delete_emprec(request, emprec_id):
+    post_record = get_object_or_404(Employee, id=emprec_id)
+    post_record.delete()
+    return redirect('humanR:index')
+
+@login_required(login_url='/admin-page/login')
+def edit_emprec(request, emp_id):
+    single_log = get_object_or_404(Employee, id=emp_id)
+    if request.method == 'POST':
+        edit_wr = EditempRec(request.POST, request.FILES, instance=single_log)
+        if edit_wr.is_valid():
+            edit_wr.save()
+            messages.success(request, format_html('Edited Successfully,<a href="/human-resources/HR-section">click here to go back</a>'))
+    else:
+        edit_wr = EditempRec(instance=single_log)
+    return render(request, 'hr/Edit-emp.html', {'edit_emprec': edit_wr})

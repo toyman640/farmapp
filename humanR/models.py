@@ -81,17 +81,17 @@ pre_save.connect(slug_save, sender=Employee)
 
     
     
-class Attendance(models.Model):
-    date = models.DateTimeField(default=timezone.now)
-    surname = models.ForeignKey(Employee, verbose_name='Section',  on_delete=models.CASCADE, default=1)
-    present =models.BooleanField(verbose_name='Present')
-    absent = models.BooleanField(verbose_name='Absent')
-    off = models.BooleanField(verbose_name='Off')
-    sick = models.BooleanField(verbose_name='Sick')
-    others = models.BooleanField(verbose_name='Other')
+# class Attendance(models.Model):
+#     date = models.DateTimeField(default=timezone.now)
+#     surname = models.ForeignKey(Employee, verbose_name='Section',  on_delete=models.CASCADE, default=1)
+#     present =models.BooleanField(verbose_name='Present')
+#     absent = models.BooleanField(verbose_name='Absent')
+#     off = models.BooleanField(verbose_name='Off')
+#     sick = models.BooleanField(verbose_name='Sick')
+#     others = models.BooleanField(verbose_name='Other')
 
-    def __str__(self):
-        return self.surname
+#     def __str__(self):
+#         return self.surname
 
 class Reminder(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
