@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'cloudinary',
     'main',
     'humanR',
-    'notification'
+    'notification',
+    'accounts'
 
 ]
 
