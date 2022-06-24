@@ -32,9 +32,9 @@ STATICFILES_DIRS = [STATIC_DIR,]
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['skaalhub.com', 'www.skaalhub.com']
 
 
 # Application definition
@@ -52,8 +52,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'main',
     'humanR',
-    'notification',
-    'accounts'
+    'notification'
 
 ]
 
