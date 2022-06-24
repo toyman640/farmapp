@@ -28,7 +28,7 @@ class SheepmotForm(forms.ModelForm):
 class PigmotForm(forms.ModelForm):
     class Meta:
         model = PigMortality
-        fields = ('mortality', 'location', 'sow_num', 'boar_num', 'section', 'size', 'comment','pigglet', 'commentp','image_1', 'image_2')
+        fields = ('mortality', 'location', 'sow_num', 'boar_num', 'nursing_num', 'hogs_num', 'growers_num', 'weaners_num', 'drysows_num', 'section', 'size', 'comment','pigglet', 'commentp','image_1', 'image_2')
         labels = {
             "comment" : "Cause of mortality"
         }

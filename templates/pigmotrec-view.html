@@ -53,15 +53,30 @@ Pig Mortality
                 <hr>
                 <h4 class="h4 mt">Boar(s):</h4>
                 <p><b> {{ Mview.boar_num }} </b></p>
+                <h4 class="h4 mt">Nursing Mother(s):</h4>
+                <p><strong>  {{ Mview.nursing_num }} </strong></p>
                 <hr>
-                <h4 class="h4 mt">Pigglet(s):</h4>
-                <p>{{ Mview.pigglet }}</p>
+                <h4 class="h4 mt">Hog(s):</h4>
+                <p><b> {{ Mview.hogs_num }} </b></p>
+                <h4 class="h4 mt">Grower(s):</h4>
+                <p><strong>  {{ Mview.growers_num }} </strong></p>
+                <hr>
+                <h4 class="h4 mt">Weaner(s):</h4>
+                <p><b> {{ Mview.weaners_num }} </b></p>
+                <h4 class="h4 mt">Dry Sow(s):</h4>
+                <p><strong>  {{ Mview.drysows_num }} </strong></p>
+                <hr>
+                <h4 class="h4 mt">Cause of Mortality(s):</h4>
+                <p><strong> {{ Mview.comment }}</strong></p>
                 <hr>
                 <h4 class="h4 mt">Size(s):</h4>
                 <p>{{ Mview.size }}</p>
                 <hr>
-                <h4 class="h4 mt">Comment(s):</h4>
-                <p><strong> {{ Mview.comment }}</strong></p>
+                <h4 class="h4 mt">Pigglet(s):</h4>
+                <p>{{ Mview.pigglet }}</p>
+                <hr>
+                <h4 class="h4 mt">Cause of Mortality(s):</h4>
+                <p><strong> {{ Mview.commentp }}</strong></p>
                 <hr>
 
                 <a href="{% url 'farmrecord:pig_motrec' %}" class="btn btn-secondary">Go Back</a>

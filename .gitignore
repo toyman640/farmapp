@@ -1,3 +1,4 @@
 db.sqlite3
 .env
 passenger_wsgi.py
+.git.zip
