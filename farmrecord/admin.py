@@ -24,4 +24,8 @@ admin.site.register(CowCensusPop)
 admin.site.register(PigCensusPop)
 admin.site.register(SheepCensusPop)
 admin.site.register(GoatCensusPop)
+admin.site.register(CowBirth)
+admin.site.register(GoatBirth)
+admin.site.register(SheepBirth)
+admin.site.register(PigBirth)
 

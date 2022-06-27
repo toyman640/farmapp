@@ -419,3 +419,29 @@ class EditempRec(forms.ModelForm):
     class Meta:
         model = Employee
         fields = ('title_id', 'job_desc', 'section_id', 'employee_SN', 'employee_FN', 'employee_MN', 'address', 'phone', 'sex', 'age', 'bank_num', 'bank_name', 'bvn', 'email', 'id_type', 'id_num', 'signed', 'nok_surname', 'nok_oname', 'nok_address', 'nok_phone', 'nok_relationship', 'guarantor', 'signed', 'verified', 'image_1')
+
+
+class CowBirthForm(forms.ModelForm):
+    class Meta:
+        model = CowBirth
+        fields = ('section', 'clavings_num', 'claves_num', 'still_birthc','weak_claves', 'defected_calf', 'comment_c' )
+
+
+class SheepBirthForm(forms.ModelForm):
+    class Meta:
+        model = SheepBirth
+        fields = ('section', 'lambings_num', 'lambs_num', 'still_births','weak_lamb', 'defected_lamb', 'comment_s' )
+
+
+class PigBirthForm(forms.ModelForm):
+    class Meta:
+        model = PigBirth
+        fields = ('section', 'farrowing_num', 'pigglets_num', 'still_birthp','weak_pigglet', 'defected_pigglet','devoured_pigglet','overlaying', 'comment_p' )
+
+
+class GoatBirthForm(forms.ModelForm):
+    class Meta:
+        model = GoatBirth
+        fields = ('section', 'kiddings_num', 'kids_num', 'still_birthg','weak_kid', 'defected_kid', 'comment_g' )
+
+

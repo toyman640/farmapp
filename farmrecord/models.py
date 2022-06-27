@@ -509,5 +509,65 @@ class SheepCensusPop(models.Model):
     def adds(self):
         return self.ewe_population + self.ram_population + self.lamb_population
 
+class CowBirth(models.Model):
+    date = models.DateTimeField(default=timezone.now)
+    section = models.ForeignKey(Section, verbose_name='Section', related_name='category17', null=True, on_delete=models.CASCADE)
+    clavings_num = models.IntegerField(verbose_name='Calvings Amount', default=0)
+    claves_num = models.IntegerField(verbose_name='Calves Amount', default=0)
+    still_birthc = models.IntegerField(verbose_name='Stillbirth', default=0)
+    weak_claves = models.IntegerField(verbose_name='Weak Calf/ves', default=0)
+    defected_calf = models.IntegerField(verbose_name='Defected Claf/ves', default=0)
+    comment_c  = models.TextField(max_length=500, verbose_name='Comment' , blank=True)
+
+    def __str__(self):
+        return str(self.calvings_num)
+
+
+class SheepBirth(models.Model):
+    date = models.DateTimeField(default=timezone.now)
+    section = models.ForeignKey(Section, verbose_name='Section', related_name='category18', null=True, on_delete=models.CASCADE)
+    lambings_num = models.IntegerField(verbose_name='Lambings Amount', default=0)
+    lambs_num = models.IntegerField(verbose_name='Lambs Amount', default=0)
+    still_births = models.IntegerField(verbose_name='Stillbirth ', default=0)
+    weak_lamb = models.IntegerField(verbose_name='Weak Lamb(s)', default=0)
+    defected_lamb = models.IntegerField(verbose_name='Defected Lamb(s)', default=0)
+    comment_s = models.TextField(max_length=500, verbose_name='Comment' , blank=True)
+
+
+    def __str__(self):
+        return str(self.lambings_num)
+
+
+class GoatBirth(models.Model):
+    date = models.DateTimeField(default=timezone.now)
+    section = models.ForeignKey(Section, verbose_name='Section', related_name='category19', null=True, on_delete=models.CASCADE)
+    kiddings_num = models.IntegerField(verbose_name='Kiddings Amount', default=0)
+    kids_num = models.IntegerField(verbose_name='Kids Amount', default=0)
+    still_birthg = models.IntegerField(verbose_name='Stillbirth ', default=0)
+    weak_kid = models.IntegerField(verbose_name='Weak Kid(s)', default=0)
+    defected_kid = models.IntegerField(verbose_name='Defected Kid(s)', default=0)
+    comment_g = models.TextField(max_length=500, verbose_name='Comment' , blank=True)
+
+    def __str__(self):
+        return str(self.kiddings_num)
+
+
+class PigBirth(models.Model):
+    date = models.DateTimeField(default=timezone.now)
+    section = models.ForeignKey(Section, verbose_name='Section', related_name='category20', null=True, on_delete=models.CASCADE)
+    farrowing_num = models.IntegerField(verbose_name='Farrowing Amount', default=0)
+    pigglets_num = models.IntegerField(verbose_name='Pigglets Amount', default=0)
+    still_birthp = models.IntegerField(verbose_name='Stillbirth ', default=0)
+    weak_pigglet = models.IntegerField(verbose_name='Weak Pigglet(s)', default=0)
+    defected_pigglet = models.IntegerField(verbose_name='Defected Pigglet(s)', default=0)
+    devoured_pigglet = models.IntegerField(verbose_name='Devoured Pigglet(s)', default=0)
+    overlaying = models.IntegerField(verbose_name='Overlaying', default=0)
+    comment_p = models.TextField(max_length=500, verbose_name='Comment' , blank=True)
+
+
+    def __str__(self):
+        return str(self.farrowing_num)
+    
+
 
 

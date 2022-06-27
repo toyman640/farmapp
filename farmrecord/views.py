@@ -119,7 +119,15 @@ def cow_sales(request):
 
 @login_required(login_url='/admin-page/login')
 def cow_birth(request):
-    return render(request, 'cow-birth.html')
+    if request.method == 'POST':
+        cow_birth = CowBirth(request.POST, request.FILES)
+        if cow_birth.is_valid():
+            cow_birth.save()
+            messages.success(request, 'Entry Saved')
+            cow_birth = CowBirth()
+    else:
+        cow_birth = CowBirth()
+    return render(request, 'cow-birth.html', {'cow_birth': cow_birth})
 
 @login_required(login_url='/admin-page/login')
 def cow_motrec(request):
@@ -1467,6 +1475,9 @@ def review_com(request):
 def comlist_view(request, slug):
     comment_view = Notification.objects.get(slug=slug)
     return render(request, 'message-view-note.html', {'Mesview': comment_view})
+
+
+
 
 
 
