@@ -143,6 +143,13 @@ Skaal
                 {% endif %}
                 {% endfor %}
               </span></h5>
+              <h5 class="card-title text-white">Total <span class="float-right">
+                {% for c in count %}
+                {% if forloop.last %}
+                  {{ c.total }}
+                {% endif %}
+                {% endfor %}
+              </span></h5>
             </div>
           </div>
         </div>
@@ -156,7 +163,7 @@ Skaal
                 {% endif %}
                 {% endfor %}
               </span></h5>
-              <h5 class="card-title text-white">Sow <span class="float-right">
+              <h5 class="card-title text-white"><marquee behavior="" direction="">weaners, growers</marquee> <span class="float-right">
                 {% for v in sdn %}
                 {% if forloop.last %}
                   {{ v.total }}
@@ -165,6 +172,13 @@ Skaal
               </span></h5>
               <h5 class="card-title text-white">Pigglet <span class="float-right">
                 {% for o in pltdn %}
+                {% if forloop.last %}
+                  {{ o.total }}
+                {% endif %}
+                {% endfor %}
+              </span></h5>
+              <h5 class="card-title text-white">Total <span class="float-right">
+                {% for o in countp %}
                 {% if forloop.last %}
                   {{ o.total }}
                 {% endif %}
@@ -197,6 +211,13 @@ Skaal
                 {% endif %}
                 {% endfor %}
               </span></h5>
+              <h5 class="card-title text-white">Total <span class="float-right">
+                {% for m in counts %}
+                {% if forloop.last %}
+                  {{ m.total }}
+                {% endif %}
+                {% endfor %}
+              </span></h5>
             </div>
           </div>
         </div>
@@ -219,6 +240,13 @@ Skaal
               </span></h5>
               <h5 class="card-title text-white">Kid <span class="float-right">
                 {% for w in kdn %}
+                {% if forloop.last %}
+                  {{ w.total }}
+                {% endif %}
+                {% endfor %}
+              </span></h5>
+              <h5 class="card-title text-white">Total<span class="float-right">
+                {% for w in countg %}
                 {% if forloop.last %}
                   {{ w.total }}
                 {% endif %}
