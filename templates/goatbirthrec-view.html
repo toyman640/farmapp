@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Goat-Kidding
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Goat Kidding</li>
+      </ol>
+		<div class="box_general padding_bottom">
+			<div class="container">
+        <div class="row">
+          {% if Bview %}
+            <div class="container">
+              <div>
+                <h3 class="h3 mt-5">{{ Bview.date|date:"M d, Y" }}</mview></h3>
+                <hr>
+                <h4 class="h4 mt">kiddings:</h4>
+                <p><b> {{ Bview.kiddings_num }}</b></p>
+                <hr>
+                <h4 class="h4 mt">Kid(s):</h4>
+                <p><strong>  {{ Bview.kids_num }} </strong></p>
+                <hr>
+                <h4 class="h4 mt">Stillbirth(s):</h4>
+                <p><strong>  {{ Bview.still_birthg }} </strong></p>
+                <hr>
+                <h4 class="h4 mt">Weak Kid(s):</h4>
+                <p><b> {{ Bview.weak_kid }} </b></p>
+                <hr>
+                <h4 class="h4 mt"> Defected Kid:</h4>
+                <p>{{ Bview.defected_kid }}</p>
+                <hr>
+                <h4 class="h4 mt">Comment(s):</h4>
+                <p>{{ Bview.comment_g }}</p>
+                <hr>
+                <a href="{% url 'farmrecord:goat_birthrec' %}" class="btn btn-secondary">Go Back</a>
+                
+                <a href="{% url 'farmrecord:delete_postbirthg' Bview.id %}" class="btn btn-danger float-right">Delete</a>
+                <a href="{% url 'farmrecord:edit_goatmot' Bview.id %}" class="btn btn-warning float-right mr-2">Edit</a>
+                
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+    <!-- /.container-wrapper-->
+
+{% endblock %}
