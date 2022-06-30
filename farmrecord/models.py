@@ -541,7 +541,7 @@ class SheepBirth(models.Model):
 class GoatBirth(models.Model):
     date = models.DateTimeField(default=timezone.now)
     section = models.ForeignKey(Section, verbose_name='Section', related_name='category19', null=True, on_delete=models.CASCADE)
-    kiddings_num = models.IntegerField(verbose_name='Kiddings Amount', default=0)
+    kiddings_num = models.IntegerField(verbose_name='Kidding Amount', default=0)
     kids_num = models.IntegerField(verbose_name='Kids Amount', default=0)
     still_birthg = models.IntegerField(verbose_name='Stillbirth ', default=0)
     weak_kid = models.IntegerField(verbose_name='Weak Kid(s)', default=0)

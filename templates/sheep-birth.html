@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 <!Doctype html>
 {% block title %}
-Sheep-birth
+Sheep-Lambing
 {% endblock %}
 
 {% block content %}
@@ -14,11 +15,20 @@ Sheep-birth
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">Small ruminant(goat)</li>
+        <li class="breadcrumb-item active">Sheep Lambing</li>
       </ol>
 	  <!-- Icon Cards-->
 		<div class="box_general padding_bottom">
-
+      {% if messages %}
+      {% for m in messages %}
+        <div class="alert {{ m.tags }}">{{ m }}</div>
+      {% endfor %}
+      {% endif %}
+          <form method="post" enctype="multipart/form-data" action="">
+            {{ sheep_birth | crispy }}
+            {% csrf_token %}
+              <button class="btn btn-success" value="submit">Submit</button>
+          </form>
 		</div>
 	  </div>
 	  <!-- /.container-fluid-->

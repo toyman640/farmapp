@@ -194,7 +194,27 @@ class EditsheepSale(forms.ModelForm):
         model = SheepSale
         fields =('ewe_num', 'size', 'price' ,'ram_num', 'size1', 'price1' ,'section', 'weight', 'total_price')
         
-    
+
+class EditcowBirth(forms.ModelForm):
+    class Meta:
+        model = CowBirth
+        fields = ('section', 'clavings_num', 'claves_num', 'still_birthc', 'weak_claves', 'defected_calf', 'comment_c')
+
+class EditpigBirth(forms.ModelForm):
+    class Meta:
+        model = PigBirth
+        fields = ('section', 'farrowing_num', 'pigglets_num', 'still_birthp', 'weak_pigglet', 'defected_pigglet', 'devoured_pigglet', 'overlaying', 'comment_p')
+
+class EditsheepBirth(forms.ModelForm):
+    class Meta:
+        model = SheepBirth
+        fields = ('section', 'lambings_num', 'lambs_num', 'still_births', 'weak_lamb', 'defected_lamb', 'comment_s' )
+
+class EditgoatBirth(forms.ModelForm):
+    class Meta:
+        model = GoatBirth
+        fields = ('section', 'kiddings_num', 'kids_num', 'still_birthg', 'weak_kid', 'defected_kid', 'comment_g')
+
 class CowmotFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
     start_date = forms.DateField(
@@ -387,6 +407,54 @@ class GoatprocFilter(forms.ModelForm):
         model = GoatProcurement
         fields =('date','export_to_CSV')
 
+class CowbirthFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
+
+    class Meta:
+        model = CowBirth
+        fields =('date','export_to_CSV')
+
+class GoatbirthFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
+
+    class Meta:
+        model = GoatBirth
+        fields =('date','export_to_CSV')
+
+class PigbirthFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
+
+    class Meta:
+        model = PigBirth
+        fields =('date','export_to_CSV')
+
+class SheepbirthFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
+
+    class Meta:
+        model = SheepBirth
+        fields =('date','export_to_CSV')
+
 class RemarkForm(forms.ModelForm):
     title = forms.CharField(label='Title', widget=forms.TextInput(
         attrs={'class': 'form-control'}))
@@ -436,7 +504,7 @@ class SheepBirthForm(forms.ModelForm):
 class PigBirthForm(forms.ModelForm):
     class Meta:
         model = PigBirth
-        fields = ('section', 'farrowing_num', 'pigglets_num', 'still_birthp','weak_pigglet', 'defected_pigglet','devoured_pigglet','overlaying', 'comment_p' )
+        fields = ('section', 'farrowing_num', 'pigglets_num', 'still_birthp', 'defected_pigglet','devoured_pigglet','overlaying', 'comment_p' )
 
 
 class GoatBirthForm(forms.ModelForm):

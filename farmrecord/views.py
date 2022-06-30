@@ -126,13 +126,13 @@ def cow_sales(request):
 @login_required(login_url='/admin-page/login')
 def cow_birth(request):
     if request.method == 'POST':
-        cow_birth = CowBirth(request.POST, request.FILES)
+        cow_birth = CowBirthForm(request.POST, request.FILES)
         if cow_birth.is_valid():
             cow_birth.save()
             messages.success(request, 'Entry Saved')
-            cow_birth = CowBirth()
+            cow_birth = CowBirthForm()
     else:
-        cow_birth = CowBirth()
+        cow_birth = CowBirthForm()
     return render(request, 'cow-birth.html', {'cow_birth': cow_birth})
 
 @login_required(login_url='/admin-page/login')
@@ -152,6 +152,26 @@ def cow_motrec(request):
     }
     context['cm_page_obj'] = cm_page_obj
     return render(request, 'cowmotrec.html',context)
+
+@login_required(login_url='/admin-page/login')
+def cow_birthrec(request):
+    cow_birthrec =   CowBirth.objects.order_by('-date')
+    query_form = CowbirthFilter()
+    paginated_filtercb = Paginator(cow_birthrec, 10)
+    page_number = request.GET.get('page')
+    cb_page_obj = paginated_filtercb.get_page(page_number)
+    context = {
+        'cb_page_obj': cow_birthrec,
+        'q': query_form,  
+    }
+    context['cb_page_obj'] = cb_page_obj
+    return render(request, 'cowbirthrec.html',context)
+
+
+@login_required(login_url='/admin-page/login')
+def cow_birthrec_view(request, abt_id):
+    bview = CowBirth.objects.get(id=abt_id)
+    return render(request, 'cowbirthrec-view.html', {'bview':bview})
 
 @login_required(login_url='/admin-page/login')
 def cow_motrec_view(request, abt_id):
@@ -220,7 +240,15 @@ def cow_salerec(request):
 
 @login_required(login_url='/admin-page/login')
 def goat_birth(request):
-    return render(request, 'goat-birth.html')
+    if request.method == 'POST':
+        goat_birth = GoatBirthForm(request.POST, request.FILES)
+        if goat_birth.is_valid():
+            goat_birth.save()
+            messages.success(request, 'Entry Saved')
+            goat_birth = GoatBirthForm()
+    else:
+        goat_birth = GoatBirthForm()
+    return render(request, 'goat-birth.html', {'goat_birth' : goat_birth})
 
 @login_required(login_url='/admin-page/login')
 def goat_cull(request):
@@ -269,6 +297,22 @@ def goat_sales(request):
     else:
         goat_sale = GoatsaleForm()
     return render(request, 'goat-sale.html', {'goat_sale': goat_sale})
+
+@login_required(login_url='/admin-page/login')
+def goat_birthrec(request):
+    goat_birthrec =   GoatBirth.objects.order_by('-date')
+    query_form = GoatbirthFilter()
+    paginated_filtergb = Paginator(goat_birthrec, 10)
+    page_number = request.GET.get('page')
+    gb_page_obj = paginated_filtergb.get_page(page_number)
+    context = {
+        'gb_page_obj': goat_birthrec,
+        'q': query_form,  
+    }
+    context['gb_page_obj'] = gb_page_obj
+    return render(request, 'goatbirthrec.html',context)
+
+
 
 @login_required(login_url='/admin-page/login')
 def goat_motrec(request):
@@ -331,6 +375,11 @@ def goat_salerec(request):
     return render(request, 'goatsalerec.html',context)
 
 @login_required(login_url='/admin-page/login')
+def goat_birthrec_view(request, abt_id):
+    Bview = GoatBirth.objects.get(id=abt_id)
+    return render(request, 'goatbirthrec-view.html', {'Bview':Bview})
+
+@login_required(login_url='/admin-page/login')
 def goat_motrec_view(request, abt_id):
     Mview = GoatMortality.objects.get(id=abt_id)
     return render(request, 'goatmotrec-view.html', {'Mview':Mview})
@@ -364,7 +413,15 @@ def pig_sales(request):
 
 @login_required(login_url='/admin-page/login')
 def pig_birth(request):
-    return render(request, 'pig-birth.html')
+    if request.method == 'POST':
+        pig_birth = PigBirthForm(request.POST, request.FILES)
+        if pig_birth.is_valid():
+            pig_birth.save()
+            messages.success(request, 'Entry Saved')
+            pig_birth = PigBirthForm()
+    else:
+        pig_birth = PigBirthForm()
+    return render(request, 'pig-birth.html', {'pig_birth' : pig_birth})
 
 @login_required(login_url='/admin-page/login')
 def pig_cull(request):
@@ -401,6 +458,21 @@ def pig_proc(request):
     else:
         pig_proc = PigprocForm()
     return render(request, 'pig-proc.html', {'pig_proc': pig_proc})
+
+@login_required(login_url='/admin-page/login')
+def pig_birthrec(request):
+    pig_birthrec =   PigBirth.objects.order_by('-date')
+    query_form = PigbirthFilter()
+    paginated_filterpb = Paginator(pig_birthrec, 10)
+    page_number = request.GET.get('page')
+    pb_page_obj = paginated_filterpb.get_page(page_number)
+    context = {
+        'pb_page_obj': pig_birthrec,
+        'q': query_form,  
+    }
+    context['pb_page_obj'] = pb_page_obj
+    return render(request, 'pigbirthrec.html',context)
+
 
 @login_required(login_url='/admin-page/login')
 def pig_motrec(request):
@@ -462,6 +534,12 @@ def pig_cullrec(request):
     context['pc_page_obj'] = pc_page_obj
     return render(request, 'pigcullrec.html', context)
 
+
+@login_required(login_url='/admin-page/login')
+def pig_birthrec_view(request, abt_id):
+    Bview = PigBirth.objects.get(id=abt_id)
+    return render(request, 'pigbirthrec-view.html', {'Bview':Bview})
+
 @login_required(login_url='/admin-page/login')
 def pig_procrec_view(request, abt_id):
     Pview = PigProcurement.objects.get(id=abt_id)
@@ -484,7 +562,15 @@ def pig_cullrec_view(request, abt_id):
 
 @login_required(login_url='/admin-page/login')
 def sheep_birth(request):
-    return render(request, 'sheep-birth.html')
+    if request.method == 'POST':
+        sheep_birth = SheepBirthForm(request.POST, request.FILES)
+        if sheep_birth.is_valid():
+            sheep_birth.save()
+            messages.success(request, 'Entry Saved')
+            sheep_birth = SheepBirthForm()
+    else:
+        sheep_birth = SheepBirthForm()
+    return render(request, 'sheep-birth.html', {'sheep_birth' : sheep_birth})
 
 @login_required(login_url='/admin-page/login')
 def sheep_cull(request):
@@ -533,6 +619,22 @@ def sheep_sales(request):
     else:
         sheep_sale = SheepsaleForm()
     return render(request, 'sheep-sales.html', {'sheep_sale': sheep_sale})
+
+@login_required(login_url='/admin-page/login')
+def sheep_birthrec(request):
+    sheep_birthrec =   SheepBirth.objects.order_by('-date')
+    query_form = SheepbirthFilter()
+    paginated_filtersb = Paginator(sheep_birthrec, 10)
+    page_number = request.GET.get('page')
+    sb_page_obj = paginated_filtersb.get_page(page_number)
+    context = {
+        'sb_page_obj': sheep_birthrec,
+        'q': query_form,  
+    }
+    context['sb_page_obj'] = sb_page_obj
+    return render(request, 'sheepbirthrec.html',context)
+
+
 
 @login_required(login_url='/admin-page/login')
 def sheep_motrec(request):
@@ -594,6 +696,12 @@ def sheep_salerec(request):
     context['ss_page_obj'] = ss_page_obj
     return render(request, 'sheepsalerec.html',context)
 
+
+@login_required(login_url='/admin-page/login')
+def sheep_birthrec_view(request, abt_id):
+    Bview = SheepBirth.objects.get(id=abt_id)
+    return render(request, 'sheepbirthrec-view.html', {'Bview':Bview})
+
 @login_required(login_url='/admin-page/login')
 def sheep_motrec_view(request, abt_id):
     Mview = SheepMortality.objects.get(id=abt_id)
@@ -651,10 +759,23 @@ def delete_postcullp(request, listcullp_id):
     return redirect('farmrecord:pig_cullrec')
 
 @login_required(login_url='/admin-page/login')
+def delete_postbirths(request, listbirths_id):
+    post_record = get_object_or_404(SheepBirth, id=listbirths_id)
+    post_record.delete()
+    return redirect('farmrecord:sheep_birthrec')
+
+
+@login_required(login_url='/admin-page/login')
 def delete_postculls(request, listculls_id):
     post_record = get_object_or_404(SheepCulling, id=listculls_id)
     post_record.delete()
     return redirect('farmrecord:sheep_cullrec')
+
+@login_required(login_url='/admin-page/login')
+def delete_postbirthc(request, listbirthc_id):
+    post_record = get_object_or_404(CowBirth, id=listbirthc_id)
+    post_record.delete()
+    return redirect('farmrecord:cow_birthrec')
 
 @login_required(login_url='/admin-page/login')
 def delete_postcullc(request, listcullc_id):
@@ -669,10 +790,23 @@ def delete_postsalec(request, listsalec_id):
     return redirect('farmrecord:cow_salerec')
 
 @login_required(login_url='/admin-page/login')
+def delete_postbirthg(request, listbirthg_id):
+    post_record = get_object_or_404(GoatBirth, id=listbirthg_id)
+    post_record.delete()
+    return redirect('farmrecord:goat_birthrec')
+
+@login_required(login_url='/admin-page/login')
 def delete_postsaleg(request, listsaleg_id):
     post_record = get_object_or_404(GoatSale, id=listsaleg_id)
     post_record.delete()
     return redirect('farmrecord:goat_salerec')
+
+@login_required(login_url='/admin-page/login')
+def delete_postbirthp(request, listbirthp_id):
+    post_record = get_object_or_404(PigBirth, id=listbirthp_id)
+    post_record.delete()
+    return redirect('farmrecord:pig_birthrec')
+
 
 @login_required(login_url='/admin-page/login')
 def delete_postsalep(request, listsalep_id):
