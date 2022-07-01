@@ -26,7 +26,8 @@ def index(request):
     sheepcen = SheepCensusPop.objects.all()
     goatcen = GoatCensusPop.objects.all()
     aggregated = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('bull_num') + F('cow_num') + F('calves')))
-    month_pig = pigmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num') + F('pigglet')))
+    month_pig = pigmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num') + F('pigglet') + F('nursing_num') + F('hogs_num') + F('growers_num') + F('weaners_num') + F('drysows_num')))
+    month_pigx = pigmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num') + F('nursing_num') + F('hogs_num') + F('growers_num') + F('weaners_num') + F('drysows_num')))
     month_goat = goatmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('buck_num') + F('doe_num') + F('kid')))
     month_sheep = sheepmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('ram_num') + F('ewe_num') + F('lamb')))
     cowmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
@@ -51,6 +52,7 @@ def index(request):
         'goatcen' : goatcen,
         'count' : aggregated,
         'countp' : month_pig,
+        'matx' : month_pigx,
         'counts' : month_sheep,
         'countg' : month_goat,
         'cdn' : cowmot_amt,
@@ -536,9 +538,9 @@ def pig_cullrec(request):
 
 
 @login_required(login_url='/admin-page/login')
-def pig_birthrec_view(request, abt_id):
-    Bview = PigBirth.objects.get(id=abt_id)
-    return render(request, 'pigbirthrec-view.html', {'Bview':Bview})
+def pig_birthrec_view(request, abt_idp):
+    Pview = PigBirth.objects.get(id=abt_idp)
+    return render(request, 'pigbirthrec-view.html', {'Pview':Pview})
 
 @login_required(login_url='/admin-page/login')
 def pig_procrec_view(request, abt_id):
@@ -857,6 +859,19 @@ def edit_cowmot(request, post_id):
     return render(request, 'Ecowmot.html', {'edit_keycm': edit_motc})
 
 @login_required(login_url='/admin-page/login')
+def edit_cowbirth(request, post_idcb):
+    single_log = get_object_or_404(CowBirth, id=post_idcb)
+    if request.method == 'POST':
+        edit_birthc = EditcowBirth(request.POST, request.FILES, instance=single_log)
+        if edit_birthc.is_valid():
+            edit_birthc.save()
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/cow-calving-records">click here to go back </a>'))
+    else:
+        edit_birthc = EditcowBirth(instance=single_log)
+    return render(request, 'Ecowbirth.html', {'edit_keycb': edit_birthc})
+
+
+@login_required(login_url='/admin-page/login')
 def edit_goatmot(request, post_id):
     single_log = get_object_or_404(GoatMortality, id=post_id)
     if request.method == 'POST':
@@ -867,6 +882,18 @@ def edit_goatmot(request, post_id):
     else:
         edit_motc = EditgoatMot(instance=single_log)
     return render(request, 'Egoatmot.html', {'edit_keycm': edit_motc})
+
+@login_required(login_url='/admin-page/login')
+def edit_goatbirth(request, post_idgb):
+    single_log = get_object_or_404(GoatBirth, id=post_idgb)
+    if request.method == 'POST':
+        edit_birthg = EditgoatBirth(request.POST, request.FILES, instance=single_log)
+        if edit_birthg.is_valid():
+            edit_birthg.save()
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/goat-kidding-records">click here to go back</a>'))
+    else:
+        edit_birthg = EditgoatBirth(instance=single_log)
+    return render(request, 'Egoatbirth.html', {'edit_keygb': edit_birthg})
 
 @login_required(login_url='/admin-page/login')
 def edit_sheepmot(request, post_id):
@@ -881,6 +908,19 @@ def edit_sheepmot(request, post_id):
     return render(request, 'Esheepmot.html', {'edit_keycm': edit_motc})
 
 @login_required(login_url='/admin-page/login')
+def edit_sheepbirth(request, post_idsb):
+    single_log = get_object_or_404(SheepBirth, id=post_idsb)
+    if request.method == 'POST':
+        edit_births = EditsheepBirth(request.POST, request.FILES, instance=single_log)
+        if edit_births.is_valid():
+            edit_births.save()
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/sheep-lambing-records">click here to go back</a>'))
+    else:
+        edit_births = EditsheepBirth(instance=single_log)
+    return render(request, 'Esheepbirth.html', {'edit_keysb': edit_births})
+
+
+@login_required(login_url='/admin-page/login')
 def edit_pigmot(request, post_id):
     single_log = get_object_or_404(PigMortality, id=post_id)
     if request.method == 'POST':
@@ -891,6 +931,18 @@ def edit_pigmot(request, post_id):
     else:
         edit_motc = EditpigMot(instance=single_log)
     return render(request, 'Epigmot.html', {'edit_keycm': edit_motc})
+
+@login_required(login_url='/admin-page/login')
+def edit_pigbirth(request, post_idpb):
+    single_log = get_object_or_404(PigBirth, id=post_idpb)
+    if request.method == 'POST':
+        edit_birthp = EditpigBirth(request.POST, request.FILES, instance=single_log)
+        if edit_birthp.is_valid():
+            edit_birthp.save()
+            messages.success(request, format_html('Edited Successfully,<a href="/pages/pig-farrowing-records">click here to go back</a>'))
+    else:
+        edit_birthp = EditpigBirth(instance=single_log)
+    return render(request, 'Epigbirth.html', {'edit_keypb': edit_birthp})
 
 @login_required(login_url='/admin-page/login')
 def edit_cowsale(request, post_id):
@@ -1037,6 +1089,33 @@ def edit_pigcull(request, post_id):
         edit_motc = EditpigCull(instance=single_log)
     return render(request, 'Epigcull.html', {'edit_keycm': edit_motc})
 
+
+@login_required(login_url='/admin-page/login')
+def cowbirth_filter(request):
+    if request.method == 'GET':
+        cowbirth_query = CowbirthFilter(request.GET)
+        if cowbirth_query.is_valid():
+            start_date = cowbirth_query.cleaned_data.get('start_date')
+            end_date = cowbirth_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = CowBirth.objects.filter(date__range=[start_date, new_end])
+            if cowbirth_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Cow-Calving-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Calving(s)', 'Calf/ves', 'Stillbirth(s)', 'Weak Calf/ves', 'Defected Calf/ves'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.clavings_num, row.claves_num, row.still_birthc, row.weak_claves, row.defected_calf])
+                return response
+            return render(request, 'filter-cowbirth.html', {'queryset': result, 'q': cowbirth_query})
+            
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        cowbirth_query = CowbirthFilter()
+    return render(request, 'filter-cowbirth.html', {'q': cowbirth_query})
+
 @login_required(login_url='/admin-page/login')
 def cowmot_filter(request):
     if request.method == 'GET':
@@ -1063,6 +1142,33 @@ def cowmot_filter(request):
         cowmot_query = CowmotFilter()
     return render(request, 'filter-cowmot.html', {'q': cowmot_query})
 
+
+@login_required(login_url='/admin-page/login')
+def goatbirth_filter(request):
+    if request.method == 'GET':
+        goatbirth_query = GoatbirthFilter(request.GET)
+        if goatbirth_query.is_valid():
+            start_date = goatbirth_query.cleaned_data.get('start_date')
+            end_date = goatbirth_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = GoatBirth.objects.filter(date__range=[start_date, new_end])
+            if goatbirth_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Goat-Kidding-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Kidding(s)', 'Kid(s)', 'Stillbirth', 'Weak kid', 'Defected Kid'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.kiddings_num, row.kids_num, row.still_birthg, row.weak_kid, row.defected_kid])
+                return response
+            return render(request, 'filter-goatbirth.html', {'queryset': result, 'q': goatbirth_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        goatbirth_query = GoatbirthFilter()
+    return render(request, 'filter-goatbirth.html', {'q': goatbirth_query})
+
+
 @login_required(login_url='/admin-page/login')
 def goatmot_filter(request):
     if request.method == 'GET':
@@ -1088,6 +1194,32 @@ def goatmot_filter(request):
         goatmot_query = GoatmotFilter()
     return render(request, 'filter-goatmot.html', {'q': goatmot_query})
 
+
+@login_required(login_url='/admin-page/login')
+def pigbirth_filter(request):
+    if request.method == 'GET':
+        pigbirth_query = PigbirthFilter(request.GET)
+        if pigbirth_query.is_valid():
+            start_date = pigbirth_query.cleaned_data.get('start_date')
+            end_date = pigbirth_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = PigBirth.objects.filter(date__range=[start_date, new_end])
+            if pigbirth_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Pig-Farrowing-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Farrowing(s)', 'Pigglet(s)', 'Stillbirth(s)', 'Defected Pigglet(s)', 'Devoured Pigglet(s)', 'Overlaying(s)'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.farrowing_num, row.pigglets_num, row.still_birthp, row.defected_pigglet, row.devoured_pigglet, row.overlaying])
+                return response
+            return render(request, 'filter-pigbirth.html', {'queryset': result, 'q': pigbirth_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        pigbirth_query = PigbirthFilter()
+    return render(request, 'filter-pigbirth.html', {'q': pigbirth_query})
+
 @login_required(login_url='/admin-page/login')
 def pigmot_filter(request):
     if request.method == 'GET':
@@ -1112,6 +1244,33 @@ def pigmot_filter(request):
     else:
         pigmot_query = PigmotFilter()
     return render(request, 'filter-pigmot.html', {'q': pigmot_query})
+
+
+@login_required(login_url='/admin-page/login')
+def sheepbirth_filter(request):
+    if request.method == 'GET':
+        sheepbirth_query = SheepbirthFilter(request.GET)
+        if sheepbirth_query.is_valid():
+            start_date = sheepbirth_query.cleaned_data.get('start_date')
+            end_date = sheepbirth_query.cleaned_data.get('end_date')
+            new_end = end_date + timedelta(days=1)
+            result = SheepBirth.objects.filter(date__range=[start_date, new_end])
+            if sheepbirth_query['export_to_CSV'].value() == True:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="Sheep-Lambing-Records.csv"'
+                writer = csv.writer(response)
+                writer.writerow(['Date', 'Lambing(s)', 'Lamb(s)', 'Stillbirth(s)', 'Weak Lamb(s)', 'Defected Lamb(s)'])
+                instance = result
+                for row in instance:
+                    writer.writerow([row.date, row.lambings_num, row.lambs_num, row.still_births, row.weak_lamb, row.defected_lamb])
+                return response
+            return render(request, 'filter-sheepbirth.html', {'queryset': result, 'q': sheepbirth_query})
+        else:
+            messages.error(request, 'Out of range')
+    else:
+        sheepbirth_query = SheepbirthFilter()
+    return render(request, 'filter-sheepbirth.html', {'q': sheepbirth_query})
+
 
 @login_required(login_url='/admin-page/login')
 def sheepmot_filter(request):

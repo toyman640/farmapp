@@ -455,18 +455,14 @@ class PigCensusPop(models.Model):
     ]
     date = models.DateTimeField(default=timezone.now)
     month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
-    sow_population = models.PositiveIntegerField(verbose_name='Sow Population', null=True, blank=True)
-    boar_population = models.PositiveIntegerField(verbose_name='Boar Population', null=True, blank=True)
-    hog_population = models.PositiveIntegerField(verbose_name='Hogs Population', null=True, blank=True)
-    weaner_population = models.PositiveIntegerField(verbose_name='Weaners Population', null=True, blank=True)
-    grower_population = models.PositiveIntegerField(verbose_name='Growers Population', null=True, blank=True)
-    dry_population = models.PositiveIntegerField(verbose_name='Dry Sows Population', null=True, blank=True)
+    matured_pigs = models.PositiveIntegerField(verbose_name='Matured Pigs', null=True, blank=True)
+    pigglets = models.PositiveIntegerField(verbose_name='Pigglets', null=True, blank=True)
 
     def __str__(self):
-        return self.month , self.sow_population , self.boar_population, self.hog_population, self.weaner_population, self.grower_population, self.dry_population
+        return self.month , self.matured_pigs, self.pigglets
 
     def addp(self):
-        return self.sow_population + self.boar_population + self.hog_population + self.weaner_population + self.grower_population + self.dry_population
+        return self.matured_pigs + self.pigglets
 
 class SheepCensusPop(models.Model):
     JANUARY = 'January'

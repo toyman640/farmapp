@@ -156,20 +156,14 @@ Skaal
         <div class="col-sm-3 pt-2">
           <div class="card pig">
             <div class="card-body">
-              <h5 class="card-title text-white">Boar <span class="float-right">
-                {% for p in brdn %}
+              <h5 class="card-title text-white">Matured Pigs<span class="float-right">
+                {% for p in matx %}
                 {% if forloop.last %}
                   {{ p.total }}
                 {% endif %}
                 {% endfor %}
               </span></h5>
-              <h5 class="card-title text-white"><marquee behavior="" direction="">weaners, growers</marquee> <span class="float-right">
-                {% for v in sdn %}
-                {% if forloop.last %}
-                  {{ v.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
+              <h5 class="card-title text-white">  <marquee behavior="" direction="">(weaners, growers, boars, sows, hogs, dry sows, nursing mother)</marquee> </h5>
               <h5 class="card-title text-white">Pigglet <span class="float-right">
                 {% for o in pltdn %}
                 {% if forloop.last %}

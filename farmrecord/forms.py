@@ -106,7 +106,7 @@ class GoatCen(forms.ModelForm):
 class PigCen(forms.ModelForm):
     class Meta:
         model = PigCensusPop
-        fields = ('month', 'sow_population', 'boar_population', 'hog_population', 'weaner_population', 'grower_population', 'dry_population')
+        fields = ('month', 'matured_pigs', 'pigglets')
 
 class SheepCen(forms.ModelForm):
     class Meta:

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Sheep Lambing
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Sheep Lambing(DETAILS)</li>
+      </ol>
+		<div class="box_general padding_bottom">
+			<div class="container">
+        <div class="row">
+          {% if Bview %}
+            <div class="container">
+              <div>
+                <h3 class="h3 mt-5">{{ Bview.date|date:"M d, Y" }}</mview></h3>
+                <hr>
+                <h4 class="h4 mt">Lambing(s):</h4>
+                <p><strong>  {{ Bview.lambings_num }} </strong></p>
+                <hr>
+                <h4 class="h4 mt">Lamb(s):</h4>
+                <p><strong>  {{ Bview.lambs_num }} </strong></p>
+                <hr>
+                <h4 class="h4 mt">Stillbirth(s):</h4>
+                <p><b> {{ Bview.still_births }} </b></p>
+                <hr>
+                <h4 class="h4 mt">Weak Lamb(s):</h4>
+                <p>{{ Bview.weak_lamb }}</p>
+                <hr>
+                <h4 class="h4 mt">Defected Lamb(s):</h4>
+                <p>{{ Bview.defected_lamb }}</p>
+                <hr>
+                <h4 class="h4 mt">Comment(s):</h4>
+                <p>{{ Bview.comment_s }}</p>
+                <hr>
+                <a href="{% url 'farmrecord:pig_birthrec' %}" class="btn btn-secondary">Go Back</a>
+                
+                <a href="{% url 'farmrecord:delete_postbirths' Bview.id %}" class="btn btn-danger float-right">Delete</a>
+                <a href="{% url 'farmrecord:edit_sheepbirth' Bview.id %}" class="btn btn-warning float-right mr-2">Edit</a>
+                
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+    <!-- /.container-wrapper-->
+
+{% endblock %}

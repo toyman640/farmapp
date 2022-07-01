@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Sheep-Lambing
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Sheep Lambing</li>
+      </ol>
+		<div class="box_general padding_bottom">
+      <h5>Show only from:</h5>
+      <form class="mb-5" action="{% url 'farmrecord:cowmot_filter' %}">
+        <div class="row">
+          <div class="col-lg-4 col-md-12 form-group">
+            {{ q.start_date }}
+          </div>
+          <div class="col-lg-4 col-md-12 form-group">
+            {{ q.end_date }}
+          </div>
+        </div>
+        <div class="col-lg-12 col-md-12 form-group">
+          <label for="">Export to csv</label>
+          {{ q.export_to_CSV }}
+        </div>
+        <input type="submit" class="btn btn-outline-info btn-sm" value="Show">
+      </form>
+			      <table>
+                <caption>Birth Records</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Lambings</th>
+                    <th scope="col">Lamb(s)</th>
+                    <th scope="col">Still birth(s)</th>
+                    <th scope="col">Weak Lamb(s)</th>
+                    <th scope="col">Defected Lamb(s)</th>
+                    <th scope="col">ACTION(View others)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if  queryset %}
+                  {% for a in queryset %}
+                  <tr>
+                    <td data-label="Date">{{ a.date|date:"M d, Y" }}</td>
+                    <td data-label="Lambings">{{ a.lambings_num }}</td>
+                    <td data-label="Lamb(s)">{{ a.lambs_num }}</td>
+                    <td data-label="Still birth(s)">{{ a.still_births }}</td>
+                    <td data-label="Weak Lamb(s)">{{ a.weak_lamb }}</td>
+                    <td data-label="Defected Lamb(s)">{{ a.defected_lamb }}</td>
+                    <th data-label="Action" class="table"><a href="{% url 'farmrecord:sheep_birthrec_view' a.id %}" >View</a></th>
+                  {% endfor %}
+                  {% endif %} 
+                  </tr>
+                </tbody>
+            </table>
+            
+            
+            
+           
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+    <!-- /.container-wrapper-->
+<!-- table view Modal Cow-->
+
+{% endblock %}

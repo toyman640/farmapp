@@ -3,7 +3,7 @@
 {% load static %}
 <!Doctype html>
 {% block title %}
- Sheep-culling
+ Cow-Calving
 {% endblock %}
 
 {% block content %}
@@ -15,19 +15,17 @@
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">Small ruminant(sheep) Edit</li>
+        <li class="breadcrumb-item active">Large ruminant(cow) Calving Edit</li>
       </ol>
 	  <!-- Icon Cards-->
 		<div class="box_general padding_bottom">
         {% if messages %}
         {% for m in messages %}
-        {% autoescape off %}
           <div class="alert {{ m.tags }}">{{ m }}</div>
-        {% endautoescape %}
         {% endfor %}
         {% endif %}
             <form method="post" enctype="multipart/form-data">
-                {{ edit_keycm | crispy }}
+                {{ edit_keycb | crispy }}
                 {% csrf_token %}
                 <button class="btn btn-success" value="submit">Submit</button>
             </form>
