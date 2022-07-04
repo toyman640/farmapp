@@ -130,7 +130,7 @@ class EditsheepMot(forms.ModelForm):
 class EditpigMot(forms.ModelForm):
     class Meta:
         model = PigMortality
-        fields = ('mortality', 'location', 'sow_num', 'boar_num', 'pigglet', 'section', 'size', 'comment', 'image_1', 'image_2')
+        fields = ('mortality', 'location', 'sow_num', 'boar_num', 'nursing_num', 'hogs_num', 'growers_num', 'weaners_num', 'drysows_num', 'section', 'size', 'comment', 'pigglet',  'commentp', 'image_1', 'image_2')
 
 class EditcowCull(forms.ModelForm):
     class Meta:
