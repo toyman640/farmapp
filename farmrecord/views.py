@@ -30,6 +30,7 @@ def index(request):
     month_pigx = pigmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num') + F('nursing_num') + F('hogs_num') + F('growers_num') + F('weaners_num') + F('drysows_num')))
     month_goat = goatmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('buck_num') + F('doe_num') + F('kid')))
     month_sheep = sheepmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('ram_num') + F('ewe_num') + F('lamb')))
+    
     cowmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('cow_num'))
     bullmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('bull_num'))
     calfmot_amt = cowmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('calves'))
@@ -43,6 +44,7 @@ def index(request):
     ewemot_amt = sheepmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('ewe_num'))
     lambmot_amt = sheepmot_count.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('lamb'))
     n = Notification.objects.filter(user=request.user, viewed=False)
+    
     
     
     context = {

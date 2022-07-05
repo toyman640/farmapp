@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load mathfilters %}
 <!Doctype html>
 {% block title %}
 Skaal
@@ -338,6 +339,26 @@ Skaal
     {% for a in count %}
      {{ a.addcmot }}
     {% endfor %}
+
+    <div class="box_general padding_bottom">
+      <h1>Basic math filters</h1>
+
+      <ul>
+          <li>8 + 3 = {{ 8|add:3 }}</li>
+      
+          <li>13 - 17 = {{ 13|sub:17 }}</li>
+      
+          {% with answer=40 %}
+          <li>42 * 0.5 = {{ answer|mul:0.5 }}</li>
+          {% endwith %}
+      
+          {% with numerator=12 denominator=3 %}
+          <li>12 / 3 = {{ numerator|div:denominator }}</li>
+          {% endwith %}
+      
+          <li>|-13| = {{ -13|abs }}</li>
+      </ul>
+    </div>
 
     
    
