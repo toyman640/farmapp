@@ -372,9 +372,9 @@ class CowCensusPop(models.Model):
     ]
     date = models.DateTimeField(default=timezone.now)
     month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
-    cow_population = models.PositiveIntegerField(verbose_name='Cows Population', null=True, blank=True)
-    bull_population = models.PositiveIntegerField(verbose_name='Bulls Population', null=True, blank=True)
-    calf_population = models.PositiveIntegerField(verbose_name='Calves Population', null=True, blank=True)
+    cow_population = models.PositiveIntegerField(verbose_name='Cows Population', null=True, blank=True, default=0)
+    bull_population = models.PositiveIntegerField(verbose_name='Bulls Population', null=True, blank=True, default=0)
+    calf_population = models.PositiveIntegerField(verbose_name='Calves Population', null=True, blank=True, default=0)
 
     def __str__(self):
         return self.month
@@ -414,12 +414,12 @@ class GoatCensusPop(models.Model):
     ]
     date = models.DateTimeField(default=timezone.now)
     month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
-    doe_population = models.PositiveIntegerField(verbose_name='Does Population', null=True, blank=True)
-    buck_population = models.PositiveIntegerField(verbose_name='Bucks Population', null=True, blank=True)
-    kid_population = models.PositiveIntegerField(verbose_name='Kids Population', null=True, blank=True)
+    doe_population = models.PositiveIntegerField(verbose_name='Does Population', null=True, blank=True, default=0)
+    buck_population = models.PositiveIntegerField(verbose_name='Bucks Population', null=True, blank=True, default=0)
+    kid_population = models.PositiveIntegerField(verbose_name='Kids Population', null=True, blank=True, default=0)
 
     def __str__(self):
-        return self.month , self.doe_population , self.kid_population, self.buck_population
+        return self.month 
 
     def addg(self):
         return self.doe_population + self.kid_population + self.buck_population
@@ -455,11 +455,11 @@ class PigCensusPop(models.Model):
     ]
     date = models.DateTimeField(default=timezone.now)
     month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
-    matured_pigs = models.PositiveIntegerField(verbose_name='Matured Pigs', null=True, blank=True)
-    pigglets = models.PositiveIntegerField(verbose_name='Pigglets', null=True, blank=True)
+    matured_pigs = models.PositiveIntegerField(verbose_name='Matured Pigs', null=True, blank=True, default=0)
+    pigglets = models.PositiveIntegerField(verbose_name='Pigglets', null=True, blank=True, default=0)
 
     def __str__(self):
-        return self.month , self.matured_pigs, self.pigglets
+        return self.month 
 
     def addp(self):
         return self.matured_pigs + self.pigglets
@@ -495,12 +495,12 @@ class SheepCensusPop(models.Model):
     ]
     date = models.DateTimeField(default=timezone.now)
     month = models.CharField(max_length=50, choices=MONTHS, default=CHOOSE)
-    ewe_population = models.PositiveIntegerField(verbose_name='Ewes Population', null=True, blank=True)
-    ram_population = models.PositiveIntegerField(verbose_name='Rams Population', null=True, blank=True)
-    lamb_population = models.PositiveIntegerField(verbose_name='Lambs Population', null=True, blank=True)
+    ewe_population = models.PositiveIntegerField(verbose_name='Ewes Population', null=True, blank=True, default=0)
+    ram_population = models.PositiveIntegerField(verbose_name='Rams Population', null=True, blank=True, default=0)
+    lamb_population = models.PositiveIntegerField(verbose_name='Lambs Population', null=True, blank=True, default=0)
 
     def __str__(self):
-        return self.month , self.ewe_population , self.ram_population, self.lamb_population
+        return self.month 
 
     def adds(self):
         return self.ewe_population + self.ram_population + self.lamb_population
