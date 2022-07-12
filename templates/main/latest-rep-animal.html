@@ -19,70 +19,113 @@ Home
 	  <!-- Icon Cards-->
 		<!-- /cards -->
 		<div class="box_general padding_bottom">
-      <h3 class="text-center mb-2"> Latest Mortality Records</h3>
-      <div class="card-deck">
+      <h1 class="badge badge-primary">{% now "jS \o\f F" %}</h1>
+      <h3 class="text-center mb-2"> Latest Mortality Records(Animal Death) </h3>
+      <div class="row" >
         {% if cml %}
         {% for a in cml %}
-        <div class="card col-lg-3">
-          <img src="{{ a.post_img }}" class="card-img-top" alt="No image available">
-          <div class="card-body">
-            <h5 class="card-title">{{ a.section }}</h5>
-            <p class="card-text">{{ a.comment }}</p>
-            <p class="card-text"><small class="text-muted">{{ a.date }}</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white border border-success">
+            <div class="card-body">
+              <img src="{{ a.post_img }}" class="card-img-top" alt="No image available">
+              <div class="mr-5"><h5>{{ a.section }}</h5></div>
+              <h6>Bull <span class="float-right">{{ a.bull_num }}</span></h6>
+              <h6>Cow  <span class="float-right"> {{ a.cow_num }} </span></h6>
+              <h6>Calf/ves<span class="float-right">{{ a.calves }}</span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
         {% endif %}
-        
+
         {% if gml %}
         {% for b in gml %}
-        <div class="card col-lg-3">
-          <img src="{{ b.post_img }}" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">{{ b.section }}</h5>
-            <p class="card-text">{{ b.comment }}</p>
-            <p class="card-text"><small class="text-muted">{{ b.date }}</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <img src="{{ a.post_img }}" class="card-img-top" alt="No image available">
+              <div class="mr-5"><h5>{{ b.section }}</h5></div>
+              <h6>Buck <span class="float-right">{{ a.buck_num }}</span></h6>
+              <h6>Doe  <span class="float-right"> {{ a.doe_num }} </span></h6>
+              <h6>Kid(s)<span class="float-right">{{ a.kid }}</span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
         {% endif %}
-
         {% if pml %}
         {% for c in pml %}
-        <div class="card col-lg-3">
-          <img src="{{ c.post_img }}" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">{{ c.section }}</h5>
-            <p class="card-text">{{ c.comment }}</p>
-            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <img src="{{ a.post_img }}" class="card-img-top" alt="No image available">
+              <div class="mr-5"><h5>{{ c.section }}</h5></div>
+              <h6>Matured Pigs <span class="float-right">{{ a.buck_num }}</span></h6>
+              <marquee behavior="" direction="">(weaners, growers, boars, sows, hogs, dry sows, nursing mother)</marquee> </h5>
+              <h6>Pigglets  <span class="float-right"> {{ a.doe_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
         {% endif %}
-
         {% if sml %}
         {% for d in sml %}
-        <div class="card col-lg-3">
-          <img src="{{ d.post_img }}" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">{{ d.section }}</h5>
-            <p class="card-text">{{ d.comment }}</p>
-            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <img src="{{ a.post_img }}" class="card-img-top" alt="No image available">
+              <div class="mr-5"><h5>{{ d.section }}</h5></div>
+              <h6>Ram <span class="float-right">{{ a.ram_num }}</span></h6>
+              <h6>Ewe  <span class="float-right"> {{ a.ewe_num }} </span></h6>
+              <h6>Lamb<span class="float-right">{{ a.lamb }}</span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
         {% endif %}
-      </div>
+		</div>
       <hr>
       <h3 class="text-center mt-2"> Latest Culling Records</h3>
       <div class="card-deck">
         {% if ccl %}
         {% for q in ccl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ q.section }}</h5>
-            <p class="card-text">{{ q.reason }}</p>
-            <p class="card-text"><small class="text-muted">{{ q.date }}</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ q.section }}</h5></div>
+              <h6>Bull <span class="float-right">{{ q.bull_num }}</span></h6>
+              <h6>Cow  <span class="float-right"> {{ q.cow_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
@@ -90,11 +133,19 @@ Home
         
         {% if gcl %}
         {% for b in gcl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ b.section }}</h5>
-            <p class="card-text">{{ b.reason }}</p>
-            <p class="card-text"><small class="text-muted">{{ b.date }}</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ b.section }}</h5></div>
+              <h6>Buck <span class="float-right">{{ b.buck_num }}</span></h6>
+              <h6>Doe  <span class="float-right"> {{ b.doe_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
@@ -102,11 +153,19 @@ Home
 
         {% if scl %}
         {% for j in scl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ j.section }}</h5>
-            <p class="card-text">{{ j.reason }}</p>
-            <p class="card-text"><small class="text-muted">{{ j.date }}</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ j.section }}</h5></div>
+              <h6>Ram <span class="float-right">{{ j.ram_num }}</span></h6>
+              <h6>Ewe  <span class="float-right"> {{ j.ewe_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
@@ -114,11 +173,19 @@ Home
 
         {% if pcl %}
         {% for d in pcl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ d.section }}</h5>
-            <p class="card-text">{{ d.reason }}</p>
-            <p class="card-text"><small class="text-muted">{{ d.date }}</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ d.section }}</h5></div>
+              <h6>Boar <span class="float-right">{{ d.boar_num }}</span></h6>
+              <h6>Sow  <span class="float-right"> {{ d.sow_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
@@ -128,48 +195,80 @@ Home
       <h3 class="text-center mt-2"> Latest Procurement Records</h3>
       <div class="card-deck">
         {% if cpl %}
-        {% for q in ccl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ q.section }}</h5>
-            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-            <p class="card-text"><small class="text-muted">{{ q.date }}</small></p>
+        {% for q in cpl %}
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ q.section }}</h5></div>
+              <h6>Bull <span class="float-right">{{ q.bull_num }}</span></h6>
+              <h6>Cow  <span class="float-right"> {{ q.cow_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
         {% endif %}
         
         {% if gpl %}
-        {% for b in gcl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ b.section }}</h5>
-            <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
-            <p class="card-text"><small class="text-muted">{{ b.date }}</small></p>
+        {% for b in gpl %}
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ b.section }}</h5></div>
+              <h6>Buck <span class="float-right">{{ b.buck_num }}</span></h6>
+              <h6>Doe  <span class="float-right"> {{ b.doe_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
         {% endif %}
 
         {% if spl %}
-        {% for j in scl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ j.section }}</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
-            <p class="card-text"><small class="text-muted">{{ cjdate }}</small></p>
+        {% for j in spl %}
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ j.section }}</h5></div>
+              <h6>Ram <span class="float-right">{{ j.ram_num }}</span></h6>
+              <h6>Ewe  <span class="float-right"> {{ j.ewe_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
         {% endif %}
 
-        {% if pcl %}
-        {% for d in pcl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ d.section }}</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
-            <p class="card-text"><small class="text-muted">{{ d.date }}</small></p>
+        {% if ppl %}
+        {% for d in ppl %}
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ d.section }}</h5></div>
+              <h6>Boar <span class="float-right">{{ d.boar_num }}</span></h6>
+              <h6>Sow  <span class="float-right"> {{ d.sow_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
@@ -180,11 +279,19 @@ Home
       <div class="card-deck">
         {% if csl %}
         {% for q in csl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ q.section }}</h5>
-            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-            <p class="card-text"><small class="text-muted">{{ q.date }}</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ q.section }}</h5></div>
+              <h6>Bull <span class="float-right">{{ q.bull_num }}</span></h6>
+              <h6>Cow  <span class="float-right"> {{ q.cow_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
@@ -192,11 +299,19 @@ Home
         
         {% if gsl %}
         {% for b in gsl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ b.section }}</h5>
-            <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
-            <p class="card-text"><small class="text-muted">{{ b.date }}</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ b.section }}</h5></div>
+              <h6>Buck <span class="float-right">{{ b.buck_num }}</span></h6>
+              <h6>Doe  <span class="float-right"> {{ b.doe_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
@@ -204,11 +319,19 @@ Home
 
         {% if ssl %}
         {% for j in ssl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ j.section }}</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
-            <p class="card-text"><small class="text-muted">{{ cjdate }}</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ j.section }}</h5></div>
+              <h6>Ram <span class="float-right">{{ j.ram_num }}</span></h6>
+              <h6>Ewe  <span class="float-right"> {{ j.ewe_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
@@ -216,11 +339,19 @@ Home
 
         {% if psl %}
         {% for d in psl %}
-        <div class="card col-lg-3">
-          <div class="card-body">
-            <h5 class="card-title">{{ d.section }}</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
-            <p class="card-text"><small class="text-muted">{{ d.date }}</small></p>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard text-white bg-info">
+            <div class="card-body">
+              <div class="mr-5"><h5>{{ d.section }}</h5></div>
+              <h6>Boar <span class="float-right">{{ d.boar_num }}</span></h6>
+              <h6>Sow  <span class="float-right"> {{ d.sow_num }} </span></h6>
+            </div>
+            <a class="card-footer text-white clearfix small z-1" href="{% url 'main:latest_page' %}">
+              <span class="float-left">{{ a.date }}</span>
+              <span class="float-right">
+                <i class="fa fa-angle-right"></i>
+              </span>
+            </a>
           </div>
         </div>
         {% endfor %}
