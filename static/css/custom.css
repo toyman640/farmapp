@@ -260,3 +260,24 @@
 .lightgreen{
     background-color: #30a5ff;
 }
+
+.latest1{
+    background-color: #03C03C !important;
+    box-shadow: 3px 0px 5px 0px rgba(0, 0, 0, 1) !important;
+}
+
+.latest2{
+    background-color:  #4C9141 !important;
+    box-shadow: 3px 0px 5px 0px rgba(0, 0, 0, 1) !important;
+}
+
+.latest3{
+    background-color: #00703C !important;
+    box-shadow: 3px 0px 5px 0px rgba(0, 0, 0, 1) !important;
+}
+
+.latest4{
+    background-color: #50C878 !important;
+    box-shadow: 3px 0px 5px 0px rgba(0, 0, 0, 1) !important;
+}
+
