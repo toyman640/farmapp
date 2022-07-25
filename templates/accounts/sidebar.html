@@ -9,7 +9,7 @@
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
-          <a class="nav-link" href="index.html">
+          <a class="nav-link" href="{% url 'accounts:account' %}">
             <i class="fa fa-fw fa-dashboard"></i>
             <span class="nav-link-text">Dashboard</span>
           </a>
@@ -21,9 +21,9 @@
           </a>
         </li>
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="" data-original-title="Bookings">
-          <a class="nav-link" href="bookings.html">
+          <a class="nav-link" href="{% url 'accounts:purchase_list' %}">
             <i class="fa fa-fw fa-calendar-check-o"></i>
-            <span class="nav-link-text">Procurement <span class="badge badge-pill badge-primary">6 New</span></span>
+            <span class="nav-link-text">Procurement </span>
           </a>
         </li>
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">

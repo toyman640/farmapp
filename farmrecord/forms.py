@@ -7,6 +7,8 @@ from farmrecord.models import *
 from humanR.models import *
 from django.core import validators
 from notification.models import Notification
+from accounts.models import *
+from django.forms import modelformset_factory
 
 
 class CowmotForm(forms.ModelForm):
@@ -513,3 +515,6 @@ class GoatBirthForm(forms.ModelForm):
         fields = ('section', 'kiddings_num', 'kids_num', 'still_birthg','weak_kid', 'defected_kid', 'comment_g' )
 
 
+PurchaseFormSet = modelformset_factory(
+    Purchases, fields=("section", "item", "quantity", "i_price", "price"), extra=1
+)

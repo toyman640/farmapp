@@ -1,0 +1,122 @@
+{% extends 'accounts/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Purchse Entry
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Purchases</li>
+      </ol>
+	  <!-- Icon Cards-->
+    <div class="box_general padding_bottom">
+      <a href="{% url 'accounts:purchase_add'%}" class="btn btn-info">Add record</a>
+      <h5>Show only from:</h5>
+      <form class="mb-5" action="{% url 'farmrecord:cowmot_filter' %}">
+        <div class="row">
+          <div class="col-lg-4 col-md-12 form-group">
+            {{ q.start_date }}
+          </div>
+          <div class="col-lg-4 col-md-12 form-group">
+            {{ q.end_date }}
+          </div>
+        </div>
+        <div class="col-lg-12 col-md-12 form-group">
+          <label for="">Export to csv</label>
+          {{ q.export_to_CSV }}
+        </div>
+        <input type="submit" class="btn btn-outline-info btn-sm" value="Show">
+      </form>
+			      <table>
+                <caption>Purchase Records</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Purchase For</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price per quantity</th>
+                    <th scope="col">Total Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if  object_list %}
+                  {% for a in object_list %}
+                  <tr>
+                    <td data-label="Date:">{{ a.date|date:"M d, Y" }}</td>
+                    <td data-label="Purchase For:">{{ a.section }}</td>
+                    <td data-label="Item:">{{ a.item }}</td>
+                    <td data-label="Quantity:">{{ a.quantity }}</td>
+                    <td data-label="Price per quantity:">{{ a.i_price }}</td>
+                    <td data-label="Total Price:">{{ a.price }}</td>
+                  {% endfor %}
+                  {% endif %} 
+                  </tr>
+                </tbody>
+            </table>
+            
+            
+            
+           
+            <div>
+              
+              <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  
+                  {% if cm_page_obj.has_previous %}
+                    
+                  <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ cm_page_obj.previous_page_number }}"> Previous</a></li>
+                  
+                  {% endif %}
+                  
+                  
+                   
+                  {% for i in cm_page_obj.paginator.page_range %}
+                  {% if cm_page_obj.number == i %}
+                    <li class="page-item active" aria-current="page">
+                      <span class="page-link">
+                        {{ i }}
+                        <span class="sr-only">(current)</span>
+                      </span>
+                    </li>
+                    {% elif i > cm_page_obj.number|add:'-5' and i < cm_page_obj.number|add:'5' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                  {% endif %}
+                {% endfor %}
+                  
+                  {% if cm_page_obj.has_next %}
+                    
+                  <li class="page-item"><a class="page-link" href="?page={{ cm_page_obj.next_page_number }}">Next</a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ cm_page_obj.paginator.num_pages }}">&laquo; Last</a></li>
+                    
+                  {% endif %}
+                  
+                </ul>
+              </nav>
+              <!-- /pagination -->
+            </div>
+		</div>
+		<!-- <div class="box_general padding_bottom">
+            <a href="{% url 'accounts:purchase_add'%}">Add Bird</a>
+            {% for list in object_list %}
+             <p> {{ list.item }} </p>
+             <p> {{ list.quantity }} </p>
+             <p> {{ list.price }} </p>
+             <p> {{ list.section }} </p>
+            {% endfor %}
+		</div> -->
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+    <!-- /.container-wrapper-->
+{% endblock %}
