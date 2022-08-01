@@ -217,6 +217,11 @@ class EditgoatBirth(forms.ModelForm):
         model = GoatBirth
         fields = ('section', 'kiddings_num', 'kids_num', 'still_birthg', 'weak_kid', 'defected_kid', 'comment_g')
 
+class EditPurchase(forms.ModelForm):
+    class Meta:
+        model = Purchases
+        fields = ('section', 'item', 'quantity', 'i_price', 'price')
+
 class CowmotFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
     start_date = forms.DateField(
@@ -484,6 +489,20 @@ class EmployeeFilter(forms.ModelForm):
     class Meta:
         model = Employee
         fields = ('section_id', 'title_id', 'employee_SN', 'employee_FN') 
+
+class PurchaseFilter(forms.ModelForm):
+    date = forms.DateField(widget=forms.HiddenInput(), required=False)
+    start_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
+    end_date = forms.DateField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
+    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
+
+    class Meta:
+        model = Purchases
+        fields =('date','export_to_CSV')
+
+
 
 class EditempRec(forms.ModelForm):
     class Meta:

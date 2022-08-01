@@ -18,6 +18,7 @@ class Purchases(models.Model):
     quantity = models.CharField(max_length=50, verbose_name='Quantity/Amount')
     i_price = models.IntegerField(verbose_name='Price per Quantity', blank=True, null=True)
     price = models.IntegerField(verbose_name='Total Price')
+    export_to_CSV = models.BooleanField(default=False)
 
     def __str__(self):
         return self.item
