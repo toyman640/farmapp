@@ -73,7 +73,10 @@ def login_page(request):
             return redirect('humanR:index')
         elif user is not None and user.profile.is_account:
             login(request, user)
-            return redirect('accounts:account')   
+            return redirect('accounts:account')  
+        elif user is not None and user.profile.is_maintenance:
+            login(request, user)
+            return redirect('logistics:transport_home')
         else:
             messages.error(request, 'Username OR Password is incorrect')
            

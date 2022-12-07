@@ -54,7 +54,9 @@ INSTALLED_APPS = [
     'main',
     'humanR',
     'accounts',
-    'notification'
+    'notification',
+    'transport',
+    'logistics',
 
 ]
 
