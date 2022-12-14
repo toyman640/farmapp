@@ -1,0 +1,79 @@
+{% extends 'logistics/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+<!Doctype html>
+{% block title %}
+Skaal
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard user</li>
+      </ol>
+	  
+    
+   
+    <div class="box_general padding_bottom">
+      {% if messages %}
+      {% for m in messages %}
+        <div class="alert {{ m.tags }}">{{ m }}</div>
+      {% endfor %}
+      {% endif %}
+          <form method="post" enctype="multipart/form-data" action="">
+            {{ feed_rec | crispy }}
+            {% csrf_token %}
+              <button class="btn btn-success" value="submit">Submit</button>
+          </form>
+    </div>
+		<!-- /cards -->
+    <!-- <div class="box_general padding_bottom">
+      <div class="row">
+        <div class="col-lg-3 col-sm-6 cow">
+          <div class="row">
+            <div class="col-6 ">hello <h4>6</h4></div>
+            <div class="col-6 ">hello</div>
+            <div class="col-6 pt-5">hello4 <h4>3</h4></div>
+            <div class="col-6 pt-5">hello</div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 bg-warning">
+          <div class="row">
+            <div class="col-6 ">hello <h4>6</h4></div>
+            <div class="col-6 ">hello</div>
+            <div class="col-6 pt-5">hello4 <h4>3</h4></div>
+            <div class="col-6 pt-5">hello</div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 bg-danger">
+          <div class="row">
+            <div class="col-6 ">hello <h4>6</h4></div>
+            <div class="col-6 ">hello</div>
+            <div class="col-6 pt-5">hello4 <h4>3</h4></div>
+            <div class="col-6 pt-5">hello</div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 bg-primary">
+          <div class="row">
+            <div class="col-6 ">hello <h4>6</h4></div>
+            <div class="col-6 ">hello</div>
+            <div class="col-6 pt-5">hello4 <h4>3</h4></div>
+            <div class="col-6 pt-5">hello</div>
+          </div>
+        </div>
+      </div>
+    </div> -->
+		
+    
+   
+    
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+      {% endblock %}

@@ -1,4 +1,5 @@
 {% extends 'logistics/base.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 <!Doctype html>
 {% block title %}
@@ -14,13 +15,22 @@ Skaal
         <li class="breadcrumb-item">
           <a href="#">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard user</li>
+        <li class="breadcrumb-item active">New Vehicle</li>
       </ol>
 	  
     
    
     <div class="box_general padding_bottom">
-      <h2>transport page</h2>
+        {% if messages %}
+        {% for m in messages %}
+          <div class="alert {{ m.tags }}">{{ m }}</div>
+        {% endfor %}
+        {% endif %}
+            <form method="post" enctype="multipart/form-data" action="">
+              {{ new_truck | crispy }}
+              {% csrf_token %}
+                <button class="btn btn-success" value="submit">Submit</button>
+            </form>
     </div>
 		<!-- /cards -->
     <!-- <div class="box_general padding_bottom">

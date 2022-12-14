@@ -1,0 +1,55 @@
+{% extends 'logistics/base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Skaal
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Feed Records</li>
+      </ol>
+	  
+    
+   
+    <div class="box_general padding_bottom">
+      <table>
+        <caption>Feed Records</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Vehicle Name</th>
+            <th scope="col">Location</th>
+            <th scope="col">Item</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if  feed_post %}
+          {% for a in feed_post %}
+          <tr>
+            <td data-label="Date">{{ a.date|date:"M d, Y" }}</td>
+            <td data-label="Vehicle Name">{{ a.truck }}</td>
+            <td data-label="Location">{{ a.checkout }}</td>
+            <td data-label="Item">{{ a.item | truncatewords:3}}</td>
+            <td data-label="Edit">Edit</td>
+            <th data-label="Action" class="table"><a href="" class="btn btn-danger btn-sm">Delete</a></th>
+          {% endfor %}
+          {% endif %} 
+          </tr>
+        </tbody>
+    </table>
+    </div>
+		
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+      {% endblock %}
