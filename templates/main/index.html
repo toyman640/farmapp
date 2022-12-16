@@ -176,15 +176,29 @@ Home
             });
         </script>
       </div>
-      <div class="box_general padding_bottom col-lg-6 col-sm-12 disabled">
-        <div class="row">
-         
-          {% for work in workers %}
-          {% if not forloop.first%}
-          <tr class="{% cycle 'lightgreen' 'purple' 'darkgreen' 'lightblue' 'darkblue' 'yellow'}"></tr>
-          <div  class="col-4 pb-5 pt-5"> {{ work.sec_count }} {{ work.section_name }} </div>
+      <div class=" diesel box_general padding_bottom col-lg-6 col-sm-12 disabled ">
+        <div class="row ">
+          <h4 class="col-12 text-center">Fuel Records for {% now "jS F" %}</h4>
+          <hr style="height: 5px;">
+          <p class="col-4"> <i class="fas fa-car"></i> </p><p class="col-4"> <i class="fas fa-gas-pump text-secondary" ></i> </p><p class="col-4 text-success h5"> &#8358; </p>
+        {% if today_fuel %}
+        {% for b in today_fuel %}
+
+        <p class="col-4"> {{ b.motor }} </p><p class="col-4 number"> {{ b.liters }}</p><p class="col-4 number"> {{ b.price }}</p>
+        
+        {% endfor %}
+        {% endif %}
+        <p class="h4 col-6">Total </p><br>
+        <p class="col-6 text-right number">
+          {% if today_agg %}
+          {% for r in today_agg %}
+          {% if forloop.last %}
+            {{ r.total }}
           {% endif %}
           {% endfor %}
+          {% endif %}
+        </p>
+
         </div>
       </div>
     </div>
