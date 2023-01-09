@@ -12,9 +12,14 @@ Sheep Culling
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+          <a href="{% url 'farmrecord:index' %}">Home</a>
         </li>
-        <li class="breadcrumb-item active">Sheep Cullling</li>
+        <li class="breadcrumb-item active">
+          <a href="{% url 'farmrecord:sheep_cullrec' %}" a>Sheep cull records</a>
+        </li>
+        <li class="breadcrumb-item active">
+          <a >Sheep cull results</a>
+        </li>
       </ol>
 		<div class="box_general padding_bottom">
       <table>

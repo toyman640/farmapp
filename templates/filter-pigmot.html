@@ -12,9 +12,14 @@ Pig Mortality
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+          <a href="{% url 'farmrecord:index' %}">Home</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">
+          <a href="{% url 'farmrecord:pig_motrec' %}" a>Pig mortality records</a>
+        </li>
+        <li class="breadcrumb-item active">
+          <a >Pig mortality results</a>
+        </li>
       </ol>
 		<div class="box_general padding_bottom">
 			<table>
@@ -43,7 +48,7 @@ Pig Mortality
             <td data-label="Sow(s)">{{ q.sow_num }}</td>
             <td data-label="Pigglet(s)">{{ q.pigglet }}</td>
             <td data-label="Size(s)">{{ q.size }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:pig_motrec_view' q.slug %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:pig_motrec_view' q.id %}" >View</a></th>
           </tr>
         </tbody>
         {% endfor %}

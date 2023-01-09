@@ -12,9 +12,14 @@ Pig Culling
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+          <a href="{% url 'farmrecord:index' %}">Home</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">
+          <a href="{% url 'farmrecord:pig_cullrec' %}" a>Pig Culling records</a>
+        </li>
+        <li class="breadcrumb-item active">
+          <a >Pig culling results</a>
+        </li>
       </ol>
 		<div class="box_general padding_bottom">
 			<table>

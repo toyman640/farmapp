@@ -12,9 +12,14 @@ Cow Culling
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+          <a href="{% url 'farmrecord:index' %}">Home</a>
         </li>
-        <li class="breadcrumb-item active">Cow Culling</li>
+        <li class="breadcrumb-item active">
+          <a href="{% url 'farmrecord:cow_cullrec' %}">Cow Culling Records</a>
+        </li>
+        <li class="breadcrumb-item active">
+          <a >Cow Culling results</a>
+        </li>
       </ol>
 		<div class="box_general padding_bottom">
 			<table>
@@ -37,10 +42,10 @@ Cow Culling
             <td data-label="Bull(s)">{{ p.bull_num }}</td>
             <td data-label="Cow(s)">{{ p.cow_num }}</td>
             <td data-label="Location(s)">{{ p.location }}</td>
-            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_cullrec_view' p.slug %}" >View</a></th>
+            <th data-label="Action" class="table"><a href="{% url 'farmrecord:cow_cullrec_view' p.id %}" >View</a></th>
           </tr>
         </tbody>
-        % endfor %}
+        {% endfor %}
         {% else %}
         <h4>There is no record for the dates you enetred, check the dates and try again</h4>
         {% endif %}

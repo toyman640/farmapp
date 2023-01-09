@@ -12,13 +12,13 @@ Sheep Procurement
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+          <a href="{% url 'farmrecord:index' %}">Home</a>
         </li>
         <li class="breadcrumb-item active">Sheep Procurement</li>
       </ol>
 		<div class="box_general padding_bottom">
       <h5>Show only from:</h5>
-      <form class="mb-5" action="{% url 'farmrecord:cowmot_filter' %}">
+      <form class="mb-5" action="{% url 'farmrecord:sheepproc_filter' %}">
         <div class="row">
           <div class="col-lg-4 col-md-12 form-group">
             {{ q.start_date }}

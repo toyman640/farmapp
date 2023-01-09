@@ -1392,12 +1392,12 @@ def goatsale_filter(request):
                 for row in instance:
                     writer.writerow([row.date, row.doe_num, row.size, row.price, row.buck_num, row.size1, row.price1, row.weight, row.total_price])
                 return response
-            return render(request, 'filter-sheepsale.html', {'queryset': result, 'q': goatsale_query})
+            return render(request, 'filter-goatsale.html', {'queryset': result, 'q': goatsale_query})
         else:
             messages.error(request, 'Out of range')
     else:
         goatsale_query = GoatsaleFilter()
-    return render(request, 'filter-sheepsale.html', {'q': goatsale_query})
+    return render(request, 'filter-goatsale.html', {'q': goatsale_query})
 
 @login_required(login_url='/')
 def sheepproc_filter(request):

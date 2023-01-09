@@ -12,9 +12,14 @@ Goat Mortality
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+          <a href="{% url 'farmrecord:index' %}">Home</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">
+          <a href="{% url 'farmrecord:goat_motrec' %}" a>Goat mortality records</a>
+        </li>
+        <li class="breadcrumb-item active">
+          <a >Goat mortality results</a>
+        </li>
       </ol>
 		<div class="box_general padding_bottom">
 	 <table>
