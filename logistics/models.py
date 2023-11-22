@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
-from autoslug import AutoSlugField
+# from autoslug import AutoSlugField
 
 # Create your models here.
 
