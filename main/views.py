@@ -94,7 +94,7 @@ def login_page(request):
             return redirect('logistics:transport_home')
         else:
             messages.error(request, 'Username OR Password is incorrect')
-            return redirect('main :login_page')
+            return redirect('login_page')
            
     return render(request, 'main/login.html')
 

@@ -16,16 +16,28 @@ class CowmotForm(forms.ModelForm):
         model = CowMortality
         fields = ('mortality', 'location', 'cow_num', 'bull_num', 'calves', 'section', 'size', 'comment', 'image_1', 'image_2')
 
+    def __init__(self, *args, **kwargs):
+        super(CowmotForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
+
 
 class GoatmotForm(forms.ModelForm):
     class Meta:
         model = GoatMortality
         fields = ('mortality', 'location', 'doe_num', 'buck_num', 'kid', 'section', 'size', 'comment', 'image_1', 'image_2')
+    
+    def __init__(self, *args, **kwargs):
+        super(GoatmotForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
 
 class SheepmotForm(forms.ModelForm):
     class Meta:
         model = SheepMortality
         fields = ('mortality', 'location', 'ram_num', 'ewe_num', 'lamb', 'section', 'size', 'comment', 'image_1', 'image_2')
+
+    def __init__(self, *args, **kwargs):
+        super(SheepmotForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
 
 class PigmotForm(forms.ModelForm):
     class Meta:
@@ -35,65 +47,117 @@ class PigmotForm(forms.ModelForm):
             "comment" : "Cause of mortality"
         }
 
+    def __init__(self, *args, **kwargs):
+        super(PigmotForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
+
 class CowcullForm(forms.ModelForm):
     class Meta:
         model = CowCulling
         fields =('cow_num', 'bull_num', 'section', 'location', 'reason')
 
+    def __init__(self, *args, **kwargs):
+        super(CowcullForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
+
 class GoatcullForm(forms.ModelForm):
     class Meta:
         model = GoatCulling
         fields =('doe_num', 'buck_num', 'section', 'location', 'reason')
+    
+    def __init__(self, *args, **kwargs):
+        super(GoatcullForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
 
 class SheepcullForm(forms.ModelForm):
     class Meta:
         model = SheepCulling
         fields =('ewe_num', 'ram_num', 'section', 'location', 'reason')
 
+    def __init__(self, *args, **kwargs):
+        super(SheepcullForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
+
 class PigcullForm(forms.ModelForm):
     class Meta:
         model = PigCulling
         fields =('sow_num', 'boar_num', 'section', 'location', 'reason')
+
+    def __init__(self, *args, **kwargs):
+        super(PigcullForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
 
 class CowsaleForm(forms.ModelForm):
     class Meta:
         model = CowSale
         fields =('cow_num', 'size', 'price', 'bull_num', 'size1', 'price1', 'section', 'weight', 'total_price')
 
+    def __init__(self, *args, **kwargs):
+        super(CowsaleForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
+
 class GoatsaleForm(forms.ModelForm):
     class Meta:
         model = GoatSale
         fields =('doe_num', 'size', 'price', 'buck_num', 'size1', 'price1' ,'section', 'weight', 'total_price')
+
+    def __init__(self, *args, **kwargs):
+        super(GoatsaleForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
 
 class SheepsaleForm(forms.ModelForm):
     class Meta:
         model = SheepSale
         fields =('ewe_num', 'size', 'price', 'ram_num', 'size1', 'price1', 'section', 'weight', 'total_price')
 
+    def __init__(self, *args, **kwargs):
+        super(SheepsaleForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
+
 class PigsaleForm(forms.ModelForm):
     class Meta:
         model = PigSale
         fields =('sow_num', 'size', 'price', 'boar_num', 'size1', 'price1', 'section', 'weight', 'total_price')
+
+    def __init__(self, *args, **kwargs):
+        super(PigsaleForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
 
 class CowprocForm(forms.ModelForm):
     class Meta:
         model = CowProcurement
         fields = ('cow_num', 'size', 'bull_num', 'size1', 'section' )
 
+    def __init__(self, *args, **kwargs):
+        super(CowprocForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
+
 class GoatprocForm(forms.ModelForm):
     class Meta:
         model = GoatProcurement
         fields = ('buck_num', 'size', 'doe_num', 'size1', 'section' )
+
+    def __init__(self, *args, **kwargs):
+        super(GoatprocForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
 
 class SheepprocForm(forms.ModelForm):
     class Meta:
         model = SheepProcurement
         fields = ('ewe_num', 'size', 'ram_num', 'size1', 'section' )
 
+    def __init__(self, *args, **kwargs):
+        super(SheepprocForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
+
 class PigprocForm(forms.ModelForm):
     class Meta:
         model = PigProcurement
         fields = ('sow_num', 'size', 'boar_num', 'size1', 'section' )
+
+    def __init__(self, *args, **kwargs):
+        super(PigprocForm, self).__init__(*args, **kwargs)
+        self.fields['section'].widget.attrs['disabled'] = True
 
 class CowCen(forms.ModelForm):
     class Meta:
