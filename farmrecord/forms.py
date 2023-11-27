@@ -19,6 +19,9 @@ class CowmotForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CowmotForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 
 class GoatmotForm(forms.ModelForm):
@@ -29,6 +32,9 @@ class GoatmotForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(GoatmotForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class SheepmotForm(forms.ModelForm):
     class Meta:
@@ -38,6 +44,9 @@ class SheepmotForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SheepmotForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class PigmotForm(forms.ModelForm):
     class Meta:
@@ -50,6 +59,10 @@ class PigmotForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PigmotForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class CowcullForm(forms.ModelForm):
     class Meta:
@@ -59,6 +72,9 @@ class CowcullForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CowcullForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class GoatcullForm(forms.ModelForm):
     class Meta:
@@ -68,6 +84,9 @@ class GoatcullForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(GoatcullForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class SheepcullForm(forms.ModelForm):
     class Meta:
@@ -77,6 +96,9 @@ class SheepcullForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SheepcullForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class PigcullForm(forms.ModelForm):
     class Meta:
@@ -86,6 +108,9 @@ class PigcullForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PigcullForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class CowsaleForm(forms.ModelForm):
     class Meta:
@@ -95,6 +120,9 @@ class CowsaleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CowsaleForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class GoatsaleForm(forms.ModelForm):
     class Meta:
@@ -104,6 +132,9 @@ class GoatsaleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(GoatsaleForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class SheepsaleForm(forms.ModelForm):
     class Meta:
@@ -113,6 +144,9 @@ class SheepsaleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SheepsaleForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class PigsaleForm(forms.ModelForm):
     class Meta:
@@ -122,6 +156,9 @@ class PigsaleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PigsaleForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class CowprocForm(forms.ModelForm):
     class Meta:
@@ -131,6 +168,9 @@ class CowprocForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CowprocForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class GoatprocForm(forms.ModelForm):
     class Meta:
@@ -140,6 +180,9 @@ class GoatprocForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(GoatprocForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class SheepprocForm(forms.ModelForm):
     class Meta:
@@ -149,6 +192,9 @@ class SheepprocForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SheepprocForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class PigprocForm(forms.ModelForm):
     class Meta:
@@ -158,6 +204,9 @@ class PigprocForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PigprocForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class CowCen(forms.ModelForm):
     class Meta:
@@ -187,6 +236,9 @@ class EditcowMot(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditcowMot, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditgoatMot(forms.ModelForm):
     class Meta:
@@ -196,6 +248,9 @@ class EditgoatMot(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditgoatMot, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditsheepMot(forms.ModelForm):
     class Meta:
@@ -205,6 +260,9 @@ class EditsheepMot(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditsheepMot, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditpigMot(forms.ModelForm):
     class Meta:
@@ -214,6 +272,9 @@ class EditpigMot(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditpigMot, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditcowCull(forms.ModelForm):
     class Meta:
@@ -223,6 +284,9 @@ class EditcowCull(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditcowCull, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditsheepCull(forms.ModelForm):
     class Meta:
@@ -232,6 +296,9 @@ class EditsheepCull(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditsheepCull, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditpigCull(forms.ModelForm):
     class Meta:
@@ -241,6 +308,9 @@ class EditpigCull(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditpigCull, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditgoatCull(forms.ModelForm):
     class Meta:
@@ -250,6 +320,9 @@ class EditgoatCull(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditgoatCull, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 
 class EditcowProc(forms.ModelForm):
@@ -260,6 +333,9 @@ class EditcowProc(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditcowProc, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditpigProc(forms.ModelForm):
     class Meta:
@@ -269,6 +345,9 @@ class EditpigProc(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditpigProc, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditsheepProc(forms.ModelForm):
     class Meta:
@@ -278,6 +357,9 @@ class EditsheepProc(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditsheepProc, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditgoatProc(forms.ModelForm):
     class Meta:
@@ -287,6 +369,9 @@ class EditgoatProc(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditgoatProc, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 
 class EditcowSale(forms.ModelForm):
@@ -297,6 +382,9 @@ class EditcowSale(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditcowSale, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditgoatSale(forms.ModelForm):
     class Meta:
@@ -306,6 +394,9 @@ class EditgoatSale(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditgoatSale, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditpigSale(forms.ModelForm):
     class Meta:
@@ -315,6 +406,9 @@ class EditpigSale(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditpigSale, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditsheepSale(forms.ModelForm):
     class Meta:
@@ -324,6 +418,9 @@ class EditsheepSale(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditsheepSale, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
         
 
 class EditcowBirth(forms.ModelForm):
@@ -334,6 +431,9 @@ class EditcowBirth(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditcowBirth, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditpigBirth(forms.ModelForm):
     class Meta:
@@ -343,6 +443,9 @@ class EditpigBirth(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditpigBirth, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditsheepBirth(forms.ModelForm):
     class Meta:
@@ -352,6 +455,9 @@ class EditsheepBirth(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditsheepBirth, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditgoatBirth(forms.ModelForm):
     class Meta:
@@ -361,6 +467,9 @@ class EditgoatBirth(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditgoatBirth, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class EditPurchase(forms.ModelForm):
     class Meta:
@@ -663,6 +772,9 @@ class CowBirthForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CowBirthForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 
 class SheepBirthForm(forms.ModelForm):
@@ -673,6 +785,9 @@ class SheepBirthForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SheepBirthForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 
 class PigBirthForm(forms.ModelForm):
@@ -683,6 +798,9 @@ class PigBirthForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PigBirthForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 class GoatBirthForm(forms.ModelForm):
     class Meta:
@@ -692,6 +810,9 @@ class GoatBirthForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(GoatBirthForm, self).__init__(*args, **kwargs)
         self.fields['section'].widget.attrs['disabled'] = True
+        self.fields['section'].required = False
+        if self.instance and self.instance.section:
+            self.fields['section'].initial = self.instance.section.id
 
 
 PurchaseFormSet = modelformset_factory(
