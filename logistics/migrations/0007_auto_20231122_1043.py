@@ -4,6 +4,29 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
+def create_default_sections(apps, schema_editor):
+    Section = apps.get_model('farmrecord', 'Section')
+    Section.objects.create(sec_name='Cow Mortality', sec_desc='Description for Default Section 1')
+    Section.objects.create(sec_name='Pig Mortality', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Sheep Mortality', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Goat Mortality', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Farrowing', sec_desc='Description for Default Section 1')
+    Section.objects.create(sec_name='Calving', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Lambing', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Kidding', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Cow Culling', sec_desc='Description for Default Section 1')
+    Section.objects.create(sec_name='Pig Culling', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Sheep Culling', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Goat Culling', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Cow Procurement', sec_desc='Description for Default Section 1')
+    Section.objects.create(sec_name='Pig Procurement', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Sheep Procurement', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Goat Procurement', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Cow Sales', sec_desc='Description for Default Section 1')
+    Section.objects.create(sec_name='Pig Sales', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Sheep Sales', sec_desc='Description for Default Section 2')
+    Section.objects.create(sec_name='Goat Sales', sec_desc='Description for Default Section 2')
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -26,4 +49,5 @@ class Migration(migrations.Migration):
             name='truck',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='logistics.Vehicle', verbose_name='Truck'),
         ),
+        migrations.RunPython(create_default_sections),
     ]
