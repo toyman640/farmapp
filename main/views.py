@@ -101,6 +101,7 @@ def login_page(request):
 @staff_required(login_url="/")
 @login_required(login_url='/')
 def logout_view(request):
+    logout(request)
     return redirect('login_page')
 
 
