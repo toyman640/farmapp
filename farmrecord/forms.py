@@ -7,7 +7,6 @@ from farmrecord.models import *
 from humanR.models import *
 from django.core import validators
 from notification.models import Notification
-from accounts.models import *
 from django.forms import modelformset_factory
 
 
@@ -471,11 +470,6 @@ class EditgoatBirth(forms.ModelForm):
         if self.instance and self.instance.section:
             self.fields['section'].initial = self.instance.section.id
 
-class EditPurchase(forms.ModelForm):
-    class Meta:
-        model = Purchases
-        fields = ('section', 'item', 'quantity', 'i_price', 'price')
-
 class CowmotFilter(forms.ModelForm):
     date = forms.DateField(widget=forms.HiddenInput(), required=False)
     start_date = forms.DateField(
@@ -744,19 +738,6 @@ class EmployeeFilter(forms.ModelForm):
         model = Employee
         fields = ('section_id', 'title_id', 'employee_SN', 'employee_FN') 
 
-class PurchaseFilter(forms.ModelForm):
-    date = forms.DateField(widget=forms.HiddenInput(), required=False)
-    start_date = forms.DateField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'From'}))
-    end_date = forms.DateField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'type' : 'date', 'placeholder': 'To'}))
-    export_to_CSV = forms.BooleanField(required=False, label="Export to CSV")
-
-    class Meta:
-        model = Purchases
-        fields =('date','export_to_CSV')
-
-
 
 class EditempRec(forms.ModelForm):
     class Meta:
@@ -813,8 +794,3 @@ class GoatBirthForm(forms.ModelForm):
         self.fields['section'].required = False
         if self.instance and self.instance.section:
             self.fields['section'].initial = self.instance.section.id
-
-
-PurchaseFormSet = modelformset_factory(
-    Purchases, fields=("section", "item", "quantity", "i_price", "price"), extra=1
-)

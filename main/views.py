@@ -9,7 +9,6 @@ from farmrecord.models import *
 from django.core.paginator import Paginator
 from farmrecord.forms import *
 from datetime import timedelta
-from logistics.models import *
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import F
 from humanR.models import FarmSection, Employee
@@ -86,12 +85,6 @@ def login_page(request):
         elif user is not None and user.profile.is_hr:
             login(request, user)
             return redirect('humanR:index')
-        elif user is not None and user.profile.is_account:
-            login(request, user)
-            return redirect('accounts:account')  
-        elif user is not None and user.profile.is_maintenance:
-            login(request, user)
-            return redirect('logistics:transport_home')
         else:
             messages.error(request, 'Username OR Password is incorrect')
             return redirect('login_page')
