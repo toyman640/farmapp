@@ -9,7 +9,7 @@
 {% block content %}
   <!-- /Navigation-->
   <div class="content-wrapper cow-a">
-    <div class="container-fluid ">
+    <div class="container-fluid overall">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb top-label">
         <li class="breadcrumb-item">
@@ -31,7 +31,7 @@
             </div>
         </div>
 	  <!-- Icon Cards-->
-		<div class="box_general padding_bottom">
+		<div class="box_general padding_bottom mortality">
             <div class="panel panel-container">
                 {% for s in bullc %}
                 {% if forloop.last %}
@@ -77,15 +77,19 @@
             </div>
             <a href="{% url 'main:cow_mota' %}" class="btn btn-warning btn-sm ">View all Mortality Records</a>
 		</div>
-        <div class="box_general padding_bottom">
+        <div class="box_general padding_bottom culling">
             <div class="panel panel-container">
                 {% for s in bullcull %}
                 {% if forloop.last %}
-                <h3 class=" all-head text-center mb-5">Culling Records For {{ s.month|date:"M" }}</h3>
+                <h3 class="text-center mb-5 all-head">Culling Records For {{ s.month|date:"M" }}</h3>
+                {% endif %}
+                {% endfor %}
                 <div class="row">
                     <div class="col-xs-6 col-md-4 col-lg-6 no-padding">
                         <div class="panel panel-teal panel-widget border-right">
-                            <div class="row no-padding">                             
+                            <div class="row no-padding">
+                                {% for s in bullcull %}
+                                {% if forloop.last %}                           
                                 <div class="large value counter">{{ s.total }}</div>
                                 {% endif %}
                                 {% endfor %}
@@ -99,13 +103,13 @@
                                 {% for h in cowcull %}
                                 {% if forloop.last %}
                                 <div class="large value counter">{{ h.total }}</div>
-                                <div class="text-muted">Cow(s)</div>
                                 {% endif %}
                                 {% endfor %}
+                                <div class="text-muted">Cow(s)</div>
                             </div>
                         </div>
                     </div>
-                </div><!--/.row-->
+                </div>
             </div>
             <a href="{% url 'main:cow_culla' %}" class="btn btn-warning btn-sm ">View all Culling Records</a>
 		</div>

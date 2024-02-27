@@ -36,9 +36,6 @@ def dashboard(request):
     goatpop = GoatCensusPop.objects.order_by('-date')
     worker = Employee.objects.all().count()
     section = FarmSection.objects.all().annotate(sec_count=Count('employee'))
-    fuel = Diesel.objects.all()
-    diesel_today = Diesel.objects.filter(date__year=year, date__month=month, date__day=day)
-    today_agg = fuel.annotate(day=TruncDay('date')).values('day').annotate(total=Sum('price'))
     context ={
         'ctotal' : cowpop,
         'ptotal' : pigpop,
@@ -46,9 +43,6 @@ def dashboard(request):
         'gtotal' : goatpop,
         'workers' : section,
         'sec' : worker,
-        'fuel' : fuel,
-        'today_fuel' : diesel_today,
-        'today_agg' : today_agg
     }
     return render(request, 'main/index.html', context)
 
