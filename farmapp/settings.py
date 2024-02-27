@@ -53,10 +53,7 @@ INSTALLED_APPS = [
     'mathfilters',
     'main',
     'humanR',
-    'accounts',
     'notification',
-    'transport',
-    'logistics',
 
 ]
 

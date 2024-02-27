@@ -26,8 +26,6 @@ urlpatterns = [
     path('pages/', include('farmrecord.urls')),
     path('admin-page/', include('main.urls')),
     path('human-resources/', include('humanR.urls')),
-    path('accounts/', include('accounts.urls')),
-    path('logistics/', include('logistics.urls')),
     path('ping/', include('notification.urls')),
     path('admin/', admin.site.urls),
 ]

@@ -9,7 +9,6 @@ from farmrecord.models import *
 from django.core.paginator import Paginator
 from farmrecord.forms import *
 from datetime import timedelta
-from logistics.models import *
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import F
 from humanR.models import FarmSection, Employee
@@ -37,9 +36,6 @@ def dashboard(request):
     goatpop = GoatCensusPop.objects.order_by('-date')
     worker = Employee.objects.all().count()
     section = FarmSection.objects.all().annotate(sec_count=Count('employee'))
-    fuel = Diesel.objects.all()
-    diesel_today = Diesel.objects.filter(date__year=year, date__month=month, date__day=day)
-    today_agg = fuel.annotate(day=TruncDay('date')).values('day').annotate(total=Sum('price'))
     context ={
         'ctotal' : cowpop,
         'ptotal' : pigpop,
@@ -47,9 +43,6 @@ def dashboard(request):
         'gtotal' : goatpop,
         'workers' : section,
         'sec' : worker,
-        'fuel' : fuel,
-        'today_fuel' : diesel_today,
-        'today_agg' : today_agg
     }
     return render(request, 'main/index.html', context)
 
@@ -86,12 +79,6 @@ def login_page(request):
         elif user is not None and user.profile.is_hr:
             login(request, user)
             return redirect('humanR:index')
-        elif user is not None and user.profile.is_account:
-            login(request, user)
-            return redirect('accounts:account')  
-        elif user is not None and user.profile.is_maintenance:
-            login(request, user)
-            return redirect('logistics:transport_home')
         else:
             messages.error(request, 'Username OR Password is incorrect')
             return redirect('login_page')
@@ -101,6 +88,7 @@ def login_page(request):
 @staff_required(login_url="/")
 @login_required(login_url='/')
 def logout_view(request):
+    logout(request)
     return redirect('login_page')
 
 
