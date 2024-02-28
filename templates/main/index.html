@@ -17,6 +17,78 @@ Home
         <li class="breadcrumb-item active">My Dashboard admin</li>
       </ol>
 	  <!-- Icon Cards-->
+    <div>
+      <h3 class="text-center pt-3">Daily Report</h3>
+      <div class="underline"></div>
+      <div class="row" >
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
+          <div class="card dashboard o-hidden h-100 animate__animated animate__backInLeft">
+            <div class="card-body">
+              <div class="card-body-icon">
+                <img class="card-animal-icon" src="{% static 'img/pig.png' %}" alt="">
+              </div>
+              <div class="mr-5"><h2 class="text-dark">Piggery</h2></div>
+              <hr>
+              <div class="value-box-admin"><p class="text-success">Farrowing</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-danger">Mortality</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-warning">Culling</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-success">Procurement</p><p>0</p></div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInUp">
+          <div class="card dashboard o-hidden h-100">
+            <div class="card-body">
+              <div class="card-body-icon">
+                <img class="card-animal-icon" src="{% static 'img/cow.png' %}" alt="">
+              </div>
+              <div class="mr-5"><h2 class="text-dark">Paddock</h2></div>
+              <hr>
+              <div class="value-box-admin"><p class="text-success">Calving</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-danger">Mortality</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-warning"> Culling</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-success">Procurement</p><p>0</p></div>
+            </div>
+        
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInDown">
+          <div class="card dashboard  o-hidden h-100">
+            <div class="card-body">
+              <div class="card-body-icon">
+                <img class="card-animal-icon" src="{% static 'img/sheep.png' %}" alt="">
+              </div>
+				      <div class="mr-5"><h2 class="text-dark">Ewe</h2></div>
+              <hr>
+              <div class="value-box-admin"><p class="text-success"> Lambing</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-danger">Mortality</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-warning">Culling</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-success">Procurement</p><p>0</p></div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInRight">
+          <div class="card dashboard o-hidden h-100">
+            <div class="card-body">
+              <div class="card-body-icon">
+                <img class="card-animal-icon" src="{% static 'img/goat.png' %}" alt="">
+              </div>
+              <div class="mr-5"><h2 class="text-dark">Goat</h2></div>
+              <hr>
+              <div class="value-box-admin"><p class="text-success">Kidding</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-danger">Mortality</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-warning">Culling</p><p>0</p></div>
+              <div class="value-box-admin"><p class="text-success">Procurement</p><p>0</p></div>
+            </div>
+          </div>
+        </div>
+		  </div>
+    </div>
+    <div>
+      <h3 class="text-center pt-5">Monthly Report</h3>
+      <div class="underline"></div>
       <div class="row" >
         <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
           <div class="card dashboard text-white bg-primary o-hidden h-100 animate__animated animate__backInLeft">
@@ -56,7 +128,7 @@ Home
               <div class="card-body-icon">
                 <i class="fa fa-fw fa-inbox"></i>
               </div>
-				<div class="mr-5"><h5>Maintenance Report</h5></div>
+				      <div class="mr-5"><h5>Maintenance Report</h5></div>
             </div>
             <a class="card-footer text-white clearfix small z-1" href="culling-report.html" onclick="return false" class="text-muted">
               <span class="float-left">View Details</span>
@@ -82,54 +154,57 @@ Home
             </a>
           </div>
         </div>
-		</div>
+		  </div>
+    </div>
+
+
 		<!-- /cards -->
     <div class="box_general padding_bottom">
       {% for c in ctotal %}
       {% if forloop.first %}
       <h3 class="text-center "><b class=""> Total Census For {{ c.month }} </b></h3>
-		<div class="jumbotron  animate__animated  animate__backInLeft">
-           
-      
-      <div class="row">
-        <div class="col-12">
-          <div class="d-inline col-3">
-           
-            <span style="font-size: 100px;" class=" number">{{ c.addc }}</span>
-            {% endif %}
-            {% endfor %}
-            <label for="">CATTLE</label>
-          </div>
-          <div class="d-inline col-3">
-            {% for d in ptotal %}
-            {% if forloop.first %}
-            <span  style="font-size: 100px;" class=" number">{{ d.addp }}</span>
-            {% endif %}
-            {% endfor %}
-            <label for="">PIGS</label>
-          </div>
-          <div class="d-inline col-3 ">
-            {% for i in stotal %}
-            {% if forloop.first %}
-            <span  style="font-size: 100px;" class=" number">{{ i.adds }}</span>
-            {% endif %}
-            {% endfor %}
-            <label for="">SHEEP</label>
-          </div>
-          <div class="d-inline col-3">
-            {% for h in gtotal %}
-            {% if forloop.first %}
-            <span  style="font-size: 100px;" class=" number">{{ h.addg }}</span>
-            {% endif %}
-            {% endfor %}
-            <label for="">GOATS</label>
+      <div class="jumbotron  animate__animated  animate__backInLeft">
+            
+        
+        <div class="row">
+          <div class="col-12">
+            <div class="d-inline col-3">
+            
+              <span style="font-size: 100px;" class=" number">{{ c.addc }}</span>
+              {% endif %}
+              {% endfor %}
+              <label for="">CATTLE</label>
+            </div>
+            <div class="d-inline col-3">
+              {% for d in ptotal %}
+              {% if forloop.first %}
+              <span  style="font-size: 100px;" class=" number">{{ d.addp }}</span>
+              {% endif %}
+              {% endfor %}
+              <label for="">PIGS</label>
+            </div>
+            <div class="d-inline col-3 ">
+              {% for i in stotal %}
+              {% if forloop.first %}
+              <span  style="font-size: 100px;" class=" number">{{ i.adds }}</span>
+              {% endif %}
+              {% endfor %}
+              <label for="">SHEEP</label>
+            </div>
+            <div class="d-inline col-3">
+              {% for h in gtotal %}
+              {% if forloop.first %}
+              <span  style="font-size: 100px;" class=" number">{{ h.addg }}</span>
+              {% endif %}
+              {% endfor %}
+              <label for="">GOATS</label>
+            </div>
           </div>
         </div>
-      </div>
+          
         
-      
-      
-    </div>
+        
+      </div>
 		</div>
 		
     <div class="row">

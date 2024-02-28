@@ -408,6 +408,7 @@ body.sidenav-toggled .navbar-sidenav-tooltip.show {
 /*-------- Cards and footer --------*/
 .card.dashboard {
   border: none;
+  box-shadow: 1px 4px 8px rgba(0, 0, 0, 0.3);
 }
 .card.dashboard h5 {
   color: #fff !important;
@@ -415,12 +416,10 @@ body.sidenav-toggled .navbar-sidenav-tooltip.show {
 
 .card-body-icon {
   position: absolute;
-  z-index: 0;
   top: 10px;
   right: 10px;
   font-size: 32px;
   font-size: 2rem;
-  opacity: 0.3;
 }
 
 @media (min-width: 576px) {

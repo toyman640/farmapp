@@ -281,7 +281,20 @@
     box-shadow: 3px 0px 5px 0px rgba(0, 0, 0, 1) !important;
 }
 
-.diesel{
-    /* background: url('../img/fuel-gauge.jpg') !important; */
+.underline {
+    border: 1px solid #3cb043;
+    width: 10%;
+    height: 2px;
+    margin-bottom: 20px;
+    margin-left: 45%;
 }
 
+.card-animal-icon {
+  height: 35px;
+}
+
+.value-box-admin {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+}
