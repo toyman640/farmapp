@@ -127,7 +127,6 @@ def dashboard(request):
     cow_month_cull = CowCulling.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('bull_num') + F('cow_num')))
     # calving monthly
     cow_month_birth = CowBirth.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('clavings_num')))
-    print(cow_month_birth)
     # pig mortality monthly
     pig_month_mot = PigMortality.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num') + F('pigglet') + F('nursing_num') + F('hogs_num') + F('growers_num') + F('weaners_num') + F('drysows_num')))
     # pig procurement monthly
