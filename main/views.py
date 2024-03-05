@@ -30,6 +30,8 @@ def staff_required(login_url=None):
 @staff_required(login_url="/")
 @login_required(login_url='/')
 def dashboard(request):
+    current_datetime = datetime.now()
+    current_month = datetime.now().month
     cowpop = CowCensusPop.objects.order_by('-date')
     pigpop = PigCensusPop.objects.order_by('-date')
     sheeppop = SheepCensusPop.objects.order_by('-date')
@@ -117,7 +119,42 @@ def dashboard(request):
     # goat birth daily
     today_goat_births = GoatBirth.objects.filter(date__date=timezone.now().date())
     total_kidding = today_goat_births.aggregate(Sum('kiddings_num'))['kiddings_num__sum'] or 0
+    # cow mortality monthly
+    cow_month_mot = CowMortality.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('bull_num') + F('cow_num') + F('calves')))
+    # cow procurement monthly
+    cow_month_proc = CowProcurement.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('bull_num') + F('cow_num')))
+    # cow culling monthly
+    cow_month_cull = CowCulling.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('bull_num') + F('cow_num')))
+    # calving monthly
+    cow_month_birth = CowBirth.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('clavings_num')))
+    print(cow_month_birth)
+    # pig mortality monthly
+    pig_month_mot = PigMortality.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num') + F('pigglet') + F('nursing_num') + F('hogs_num') + F('growers_num') + F('weaners_num') + F('drysows_num')))
+    # pig procurement monthly
+    pig_month_proc = PigProcurement.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num')))
+    # pig culling monthly
+    pig_month_cull = PigCulling.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num')))
+    # farrowing monthly
+    pig_month_birth = PigBirth.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('farrowing_num')))
+    # sheep mortality monthly
+    sheep_month_mot = SheepMortality.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('ram_num') + F('ewe_num') + F('lamb')))
+    # sheep procurement monthly
+    sheep_month_proc = SheepProcurement.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('ram_num') + F('ewe_num')))
+    # sheep culling monthly
+    sheep_month_cull = SheepCulling.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('ram_num') + F('ewe_num')))
+    # lambing monthly
+    sheep_month_birth = SheepBirth.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('lambings_num')))
+    # goat mortality monthly
+    goat_month_mot = GoatMortality.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('buck_num') + F('doe_num') + F('kid')))
+    # goat procurement monthly
+    goat_month_proc = GoatProcurement.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('buck_num') + F('doe_num')))
+    # goat culling monthly
+    goat_month_cull = GoatCulling.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('buck_num') + F('doe_num')))
+    # kidding monthly
+    goat_month_birth = GoatBirth.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('kiddings_num')))
+
     context ={
+        'current_datetime' : current_datetime,
         'ctotal' : cowpop,
         'ptotal' : pigpop,
         'stotal' : sheeppop,
@@ -139,7 +176,23 @@ def dashboard(request):
         'total_goat_mot' : total_goat_mot,
         'total_goat_cull' : total_goat_cull,
         'total_kidding' : total_kidding,
-        'total_goat_proc' : total_goat_proc
+        'total_goat_proc' : total_goat_proc,
+        'cow_month_mot' : cow_month_mot,
+        'cow_month_proc' : cow_month_proc,
+        'cow_month_cull' : cow_month_cull,
+        'cow_month_birth' : cow_month_birth,
+        'pig_month_mot' : pig_month_mot,
+        'pig_month_proc' : pig_month_proc,
+        'pig_month_cull' : pig_month_cull,
+        'pig_month_birth' : pig_month_birth,
+        'sheep_month_mot' : sheep_month_mot,
+        'sheep_month_proc' : sheep_month_proc,
+        'sheep_month_cull' : sheep_month_cull,
+        'sheep_month_birth' : sheep_month_birth,
+        ' goat_month_mot' :  goat_month_mot,
+        'goat_month_proc' : goat_month_proc,
+        'goat_month_cull' : goat_month_cull,
+        'goat_month_birth' : goat_month_birth
     }
     return render(request, 'main/index.html', context)
 

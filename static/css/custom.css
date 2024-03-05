@@ -298,3 +298,19 @@
   justify-content: space-between;
   font-weight: 700;
 }
+
+.monthly-records {
+    background: linear-gradient(to right, 
+    #f9f343 0%, 
+    #f87f21 10%, 
+    #e7f2b9 20%, 
+    #f14919 30%, 
+    #eaeb7f 40%, 
+    #daca1f 50%, 
+    #12a64f 60%, 
+    #0e844c 70%, 
+    #54d09c 80%, 
+    #80c749 100%
+  );
+  
+}
