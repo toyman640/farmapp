@@ -30,19 +30,168 @@ def staff_required(login_url=None):
 @staff_required(login_url="/")
 @login_required(login_url='/')
 def dashboard(request):
+    current_datetime = datetime.now()
+    current_month = datetime.now().month
     cowpop = CowCensusPop.objects.order_by('-date')
     pigpop = PigCensusPop.objects.order_by('-date')
     sheeppop = SheepCensusPop.objects.order_by('-date')
     goatpop = GoatCensusPop.objects.order_by('-date')
     worker = Employee.objects.all().count()
     section = FarmSection.objects.all().annotate(sec_count=Count('employee'))
+    # cattle mortality daily
+    today_cow_mortality = CowMortality.objects.filter(date__date=timezone.now().date())
+    total_cow = today_cow_mortality.aggregate(Sum('cow_num'))['cow_num__sum'] or 0
+    total_bull = today_cow_mortality.aggregate(Sum('bull_num'))['bull_num__sum'] or 0
+    total_calves = today_cow_mortality.aggregate(Sum('calves'))['calves__sum'] or 0
+    total_cattle_mortality = total_cow + total_bull + total_calves
+    # calttle birth daily
+    today_cow_birth = CowBirth.objects.filter(date__date=timezone.now().date())
+    total_clavings = today_cow_birth.aggregate(Sum('clavings_num'))['clavings_num__sum'] or 0
+    # cattle cull daily
+    today_cow_cull = CowCulling.objects.filter(date__date=timezone.now().date())
+    total_cow_cullings = today_cow_cull.aggregate(Sum('cow_num'))['cow_num__sum'] or 0
+    total_bull_cullings = today_cow_cull.aggregate(Sum('bull_num'))['bull_num__sum'] or 0
+    total_cow_cull = total_cow_cullings + total_bull_cullings
+    # cattle procurement daily
+    today_cow_proc = CowProcurement.objects.filter(date__date=timezone.now().date())
+    total_cow_procurements = today_cow_proc.aggregate(Sum('cow_num'))['cow_num__sum'] or 0
+    total_bull_procurements = today_cow_proc.aggregate(Sum('bull_num'))['bull_num__sum'] or 0
+    total_cattle_procurements = total_bull_procurements + total_cow_procurements
+    # pig mortality daily
+    today_pig_mortalities = PigMortality.objects.filter(date__date=timezone.now().date())
+    total_sow_mot = today_pig_mortalities.aggregate(Sum('sow_num'))['sow_num__sum'] or 0
+    total_boar_mot = today_pig_mortalities.aggregate(Sum('boar_num'))['boar_num__sum'] or 0
+    total_nursing_mot = today_pig_mortalities.aggregate(Sum('nursing_num'))['nursing_num__sum'] or 0
+    total_hogs_mot = today_pig_mortalities.aggregate(Sum('hogs_num'))['hogs_num__sum'] or 0
+    total_growers_mot = today_pig_mortalities.aggregate(Sum('growers_num'))['growers_num__sum'] or 0
+    total_weaners_mot = today_pig_mortalities.aggregate(Sum('weaners_num'))['weaners_num__sum'] or 0
+    total_drysows_mot = today_pig_mortalities.aggregate(Sum('drysows_num'))['drysows_num__sum'] or 0
+    total_pigglet_mot = today_pig_mortalities.aggregate(Sum('pigglet'))['pigglet__sum'] or 0
+    total_pig_mortality = total_sow_mot + total_boar_mot + total_nursing_mot + total_hogs_mot + total_growers_mot + total_weaners_mot + total_drysows_mot + total_pigglet_mot
+    # pig culling daily
+    today_pig_cullings = PigCulling.objects.filter(date__date=timezone.now().date())
+    total_sow_cull = today_pig_cullings.aggregate(Sum('sow_num'))['sow_num__sum'] or 0
+    total_boar_cull = today_pig_cullings.aggregate(Sum('boar_num'))['boar_num__sum'] or 0
+    total_pig_cull = total_sow_cull + total_boar_cull
+    # pig procurement daily
+    today_pig_procurements = PigProcurement.objects.filter(date__date=timezone.now().date())
+    total_sow_proc = today_pig_procurements.aggregate(Sum('sow_num'))['sow_num__sum'] or 0
+    total_boar_proc = today_pig_procurements.aggregate(Sum('boar_num'))['boar_num__sum'] or 0
+    total_pig_proc = total_sow_proc + total_boar_proc
+    # pig birth daily
+    today_pig_births = PigBirth.objects.filter(date__date=timezone.now().date())
+    total_farrowing = today_pig_births.aggregate(Sum('farrowing_num'))['farrowing_num__sum'] or 0
+    # sheep mortality daily
+    today_sheep_mortalities = SheepMortality.objects.filter(date__date=timezone.now().date())
+    total_ewe_mot = today_sheep_mortalities.aggregate(Sum('ewe_num'))['ewe_num__sum'] or 0
+    total_ram_mot = today_sheep_mortalities.aggregate(Sum('ram_num'))['ram_num__sum'] or 0
+    total_lamb_mot = today_sheep_mortalities.aggregate(Sum('lamb'))['lamb__sum'] or 0
+    total_sheep_mot = total_ewe_mot + total_ram_mot + total_lamb_mot
+    # sheep cull daily
+    today_sheep_cullings = SheepCulling.objects.filter(date__date=timezone.now().date())
+    total_ewe_cull = today_sheep_cullings.aggregate(Sum('ewe_num'))['ewe_num__sum'] or 0
+    total_ram_cull = today_sheep_cullings.aggregate(Sum('ram_num'))['ram_num__sum'] or 0
+    total_sheep_cull = total_ewe_cull + total_ram_cull
+    # sheep procurement daily
+    today_sheep_procurements = SheepProcurement.objects.filter(date__date=timezone.now().date())
+    total_ewe_proc = today_sheep_procurements.aggregate(Sum('ewe_num'))['ewe_num__sum'] or 0
+    total_ram_proc = today_sheep_procurements.aggregate(Sum('ram_num'))['ram_num__sum'] or 0
+    total_sheep_proc = total_ewe_proc + total_ram_proc
+    # sheep birth daily
+    today_sheep_births = SheepBirth.objects.filter(date__date=timezone.now().date())
+    total_lambing = today_sheep_births.aggregate(Sum('lambings_num'))['lambings_num__sum'] or 0
+    # goat mortality daily
+    today_goat_mortalities = GoatMortality.objects.filter(date__date=timezone.now().date())
+    total_doe_mot = today_goat_mortalities.aggregate(Sum('doe_num'))['doe_num__sum'] or 0
+    total_buck_mot = today_goat_mortalities.aggregate(Sum('buck_num'))['buck_num__sum'] or 0
+    total_kid_mot = today_goat_mortalities.aggregate(Sum('kid'))['kid__sum'] or 0
+    total_goat_mot = total_doe_mot + total_buck_mot + total_kid_mot
+    # goat culling daily
+    today_goat_cullings = GoatCulling.objects.filter(date__date=timezone.now().date())
+    total_doe_cull = today_goat_cullings.aggregate(Sum('doe_num'))['doe_num__sum'] or 0
+    total_buck_cull = today_goat_cullings.aggregate(Sum('buck_num'))['buck_num__sum'] or 0
+    total_goat_cull = total_doe_cull + total_buck_cull
+    # goat procurement daily
+    today_goat_procurements = GoatProcurement.objects.filter(date__date=timezone.now().date())
+    total_doe_proc = today_goat_procurements.aggregate(Sum('doe_num'))['doe_num__sum'] or 0
+    total_buck_proc = today_goat_procurements.aggregate(Sum('buck_num'))['buck_num__sum'] or 0
+    total_goat_proc = total_doe_proc + total_buck_proc
+    # goat birth daily
+    today_goat_births = GoatBirth.objects.filter(date__date=timezone.now().date())
+    total_kidding = today_goat_births.aggregate(Sum('kiddings_num'))['kiddings_num__sum'] or 0
+    # cow mortality monthly
+    cow_month_mot = CowMortality.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('bull_num') + F('cow_num') + F('calves')))
+    # cow procurement monthly
+    cow_month_proc = CowProcurement.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('bull_num') + F('cow_num')))
+    # cow culling monthly
+    cow_month_cull = CowCulling.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('bull_num') + F('cow_num')))
+    # calving monthly
+    cow_month_birth = CowBirth.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('clavings_num')))
+    # pig mortality monthly
+    pig_month_mot = PigMortality.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num') + F('pigglet') + F('nursing_num') + F('hogs_num') + F('growers_num') + F('weaners_num') + F('drysows_num')))
+    # pig procurement monthly
+    pig_month_proc = PigProcurement.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num')))
+    # pig culling monthly
+    pig_month_cull = PigCulling.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num')))
+    # farrowing monthly
+    pig_month_birth = PigBirth.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('farrowing_num')))
+    # sheep mortality monthly
+    sheep_month_mot = SheepMortality.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('ram_num') + F('ewe_num') + F('lamb')))
+    # sheep procurement monthly
+    sheep_month_proc = SheepProcurement.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('ram_num') + F('ewe_num')))
+    # sheep culling monthly
+    sheep_month_cull = SheepCulling.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('ram_num') + F('ewe_num')))
+    # lambing monthly
+    sheep_month_birth = SheepBirth.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('lambings_num')))
+    # goat mortality monthly
+    goat_month_mot = GoatMortality.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('buck_num') + F('doe_num') + F('kid')))
+    # goat procurement monthly
+    goat_month_proc = GoatProcurement.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('buck_num') + F('doe_num')))
+    # goat culling monthly
+    goat_month_cull = GoatCulling.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('buck_num') + F('doe_num')))
+    # kidding monthly
+    goat_month_birth = GoatBirth.objects.filter(date__month=current_month).annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('kiddings_num')))
+
     context ={
+        'current_datetime' : current_datetime,
         'ctotal' : cowpop,
         'ptotal' : pigpop,
         'stotal' : sheeppop,
         'gtotal' : goatpop,
         'workers' : section,
         'sec' : worker,
+        'total_cattle_mortality': total_cattle_mortality,
+        'total_cattle_procurements' : total_cattle_procurements,
+        'total_clavings' : total_clavings,
+        'total_cow_cull' : total_cow_cull,
+        'total_pig_mortality' : total_pig_mortality,
+        'total_pig_cull' : total_pig_cull,
+        'total_pig_proc' : total_pig_proc,
+        'total_farrowing' : total_farrowing,
+        'total_sheep_mot' : total_sheep_mot,
+        'total_sheep_cull' : total_sheep_cull,
+        'total_sheep_proc' : total_sheep_proc,
+        'total_lambing' : total_lambing,
+        'total_goat_mot' : total_goat_mot,
+        'total_goat_cull' : total_goat_cull,
+        'total_kidding' : total_kidding,
+        'total_goat_proc' : total_goat_proc,
+        'cow_month_mot' : cow_month_mot,
+        'cow_month_proc' : cow_month_proc,
+        'cow_month_cull' : cow_month_cull,
+        'cow_month_birth' : cow_month_birth,
+        'pig_month_mot' : pig_month_mot,
+        'pig_month_proc' : pig_month_proc,
+        'pig_month_cull' : pig_month_cull,
+        'pig_month_birth' : pig_month_birth,
+        'sheep_month_mot' : sheep_month_mot,
+        'sheep_month_proc' : sheep_month_proc,
+        'sheep_month_cull' : sheep_month_cull,
+        'sheep_month_birth' : sheep_month_birth,
+        ' goat_month_mot' :  goat_month_mot,
+        'goat_month_proc' : goat_month_proc,
+        'goat_month_cull' : goat_month_cull,
+        'goat_month_birth' : goat_month_birth
     }
     return render(request, 'main/index.html', context)
 
@@ -127,7 +276,7 @@ def latest_page(request):
         'ccl' : cowcull,
         'gcl' : goatcull,
         'pcl' : pigcull,
-        'scl' : sheepcull
+        'scl' : sheepcull,
 
     }
 
