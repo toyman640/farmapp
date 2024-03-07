@@ -9,88 +9,38 @@
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
           <a class="nav-link" href="{% url 'main:dashboard' %}">
-            <i class="fa fa-fw fa-dashboard"></i>
+            <i class="fa fa-fw fa-home"></i>
             <span class="nav-link-text">Dashboard</span>
           </a>
         </li>
-		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#mortality" data-parent="#mylistings">
-            <i class="fa fa-fw fa-list"></i>
-            <span class="nav-link-text">Animal Section</span>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'main:pig_all' %}">
+            <i class="fa fa-fw fa-clipboard"></i>
+            <span class="nav-link-text">Piggery</span>
           </a>
-          <ul class="sidenav-second-level collapse" id="mortality">
-            <li>
-              <a class="nav-link" href="{% url 'main:pig_all' %}">Piggery</a>
-            </li>
-			<li>
-              <a class="nav-link" href="{% url 'main:cow_all' %}">Cattle</a>
-            </li>
-			<li>
-              <a class="nav-link" href="{% url 'main:sheep_all' %}">Sheep</a>
-            </li>
-      <li>
-            <a class="nav-link" href="{% url 'main:goat_all' %}">Goat</a>
-            <li>
-              <a class="nav-link"  href="{% url 'main:review_page' %}">Write remark</a>
-            </li>
-          </ul>
-      
-    </li>
-    <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-          <a class="nav-link nav-link-collapse collapsed disabled text-muted" data-toggle="collapse" href="#sheep" data-parent="#mylistings" >
-            <i class="fa fa-fw fa-list"></i>
-            <span class="nav-link-text">Maintanance Section</span>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+          <a class="nav-link" href="{% url 'main:cow_all' %}">
+            <i class="fa fa-fw fa-clipboard"></i>
+            <span class="nav-link-text">Paddock</span>
           </a>
-          <ul class="sidenav-second-level collapse" id="sheep">
-            <li>
-              <a href="{% url 'farmrecord:sheep_motrep' %}">Mortality</a>
-            </li>
-			<li>
-              <a href="{% url 'farmrecord:sheep_cull' %}">Culling</a>
-            </li>
-			<li>
-              <a href="{% url 'farmrecord:sheep_birth' %}">Lambing</a>
-            </li>
-      <li>
-            <a href="{% url 'farmrecord:sheep_proc' %}">Procurement</a>
-
-          <li>
-              <a href="{% url 'farmrecord:sheep_sales' %}">Sales</a>
-            </li>
-            <li>
-              <a  class="nav-link" data-toggle="modal" data-target="#exampleModalS">Records</a>
-            </li>
-          </ul>
-    </li>
-<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-  <a class="nav-link nav-link-collapse collapsed disabled text-muted" data-toggle="collapse" href="#goat" data-parent="#mylistings">
-    <i class="fa fa-fw fa-list"></i>
-    <span class="nav-link-text">HR Section</span>
-  </a>
-          <ul class="sidenav-second-level collapse" id="goat">
-            <li>
-              <a href="{% url 'farmrecord:goat_motrep' %}">Mortality</a>
-            </li>
-      <li>
-              <a href="{% url 'farmrecord:goat_cull' %}">Culling</a>
-            </li>
-      <li>
-              <a href="{% url 'farmrecord:goat_birth' %}">Kidding</a>
-            </li>
-      <li>
-            <a href="{% url 'farmrecord:goat_proc' %}">Procurement</a>
-
-          <li>
-              <a href="{% url 'farmrecord:goat_sales' %}">Sales</a>
-            </li>
-            <li>
-              <a  class="nav-link" data-toggle="modal" data-target="#exampleModalG">Records</a>
-            </li>
-          </ul>
-</li>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+          <a class="nav-link" href="{% url 'main:sheep_all' %}">
+            <i class="fa fa-fw fa-clipboard"></i>
+            <span class="nav-link-text">Ewe</span>
+          </a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+          <a class="nav-link" href="{% url 'main:goat_all' %}">
+            <i class="fa fa-fw fa-clipboard"></i>
+            <span class="nav-link-text">Goat</span>
+          </a>
+        </li>
 
 
-		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Add listing">
+
+		    <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Add listing" hidden>
           <a class="nav-link disabled text-muted" href="#">
             <i class="fa fa-fw fa-plus-circle"></i>
             <span class="nav-link-text">Supervisors</span>
@@ -105,7 +55,7 @@
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
-        <li class="nav-item">
+        <li class="nav-item  text-white">
           <span style="line-height: 35px;">{{ request.user.get_full_name }}</span>
         </li>
         <li class="nav-item">
