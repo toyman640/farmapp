@@ -1735,7 +1735,7 @@ def sheep_chart(request):
 def pig_chart(request):
     pigmot_char = PigMortality.objects.all()
     month_pig = pigmot_char.annotate(month=TruncMonth('date')).values('month').annotate(total=Sum(F('boar_num') + F('sow_num') + F('pigglet')))
-    pigpop_char = PigCensusPop.objects.order_by('-date')[:12]
+    pigpop_char = PigCensusPop.objects.order_by('date')[:12]
     context ={
         'pmot' : month_pig,
         'ppop' : pigpop_char,
