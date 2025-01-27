@@ -72,7 +72,7 @@
       const myChart = new Chart(ctx, {
           type: 'bar',
           data: {
-              labels: [{% for countc in ppop %}'{{ countc.month }}', {% endfor %}],
+              labels: [{% for countc in ppop %}'{{ countc.month }} {{ countc.date|date:"Y" }}', {% endfor %}],
               datasets: [{
                   label: 'Population',
                   data: [{% for countc in ppop %} {{ countc.addp }}, {% endfor %}],
