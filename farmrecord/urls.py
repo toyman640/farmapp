@@ -5,7 +5,7 @@ from farmrecord import views
 app_name = 'farmrecord'
 
 urlpatterns = [
-     path('test/index', views.dash_index, name='dash_index'),
+    path('test/index', views.dash_index, name='dash_index'),
     # path('', views.index, name='index'),
     # path('test-page', views.test, name='test'),
     # path('cow-claving/', views.cow_birth, name='cow_birth'),
