@@ -32,6 +32,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
+from django.contrib.auth.decorators import login_required
 
 
 class CustomLoginView(LoginView):
@@ -51,16 +52,12 @@ class CustomLoginView(LoginView):
                 return redirect('farmrecord:dash_index')
         return response
 
-# class CustomLogoutView(LogoutView):
-#     def get(self, request, *args, **kwargs):
-#         return self.post(request, *args, **kwargs)
-
-#     def get_success_url(self):
-#         return reverse_lazy('main:login')
 
 class CustomLogoutView(LogoutView):
     next_page = reverse_lazy('login') 
 
+
+@login_required
 def main_index(request):
     return render(request, 'main/index.html')
 
