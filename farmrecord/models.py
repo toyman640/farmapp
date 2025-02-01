@@ -17,7 +17,13 @@ class Userp(models.Model):
 
 
 class Animals(models.Model):
-    animal_name = models.CharField(max_length=50)
+    ANIMAL_CHOICES = [
+        ('pig', 'Pig'),
+        ('cattle', 'Cattle'),
+        ('sheep', 'Sheep'),
+        ('goat', 'Goat'),
+    ]
+    animal_name = models.CharField(max_length=20, choices=ANIMAL_CHOICES, unique=True)
     describe_animal = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -25,8 +31,26 @@ class Animals(models.Model):
 
 
 class AnimalType(models.Model):
+    ANIMAL_TYPE_CHOICES = [
+        ('sow', 'Sow'),
+        ('boar', 'Boar'),
+        ('weaner_pig', 'Weaner (Pig)'),
+        ('piglet', 'Piglet'),
+        ('cow', 'Cow'),
+        ('bull', 'Bull'),
+        ('weaner_cattle', 'Weaner (Cattle)'),
+        ('calf', 'Calf'),
+        ('ewe', 'Ewe'),
+        ('ram', 'Ram'),
+        ('weaner_sheep', 'Weaner (Sheep)'),
+        ('lamb', 'Lamb'),
+        ('buck', 'Buck'),
+        ('doe', 'Doe'),
+        ('weaner_goat', 'Weaner (Goat)'),
+        ('kid', 'Kid'),
+    ]
     animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="animal_types")
-    animal_type_name = models.CharField(max_length=200)
+    animal_type_name = models.CharField(max_length=30, choices=ANIMAL_TYPE_CHOICES, unique=True)
     animal_type_description = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -34,13 +58,26 @@ class AnimalType(models.Model):
 
 
 class EventType(models.Model):
+    EVENT_CHOICES = [
+        ('mortality', 'Mortality'),
+        ('farrowing', 'Farrowing'),
+        ('calving', 'Calving'),
+        ('lambing', 'Lambing'),
+        ('kidding', 'Kidding'),
+        ('procurement', 'Procurement'),
+        ('culling', 'Culling'),
+        ('sale', 'Sale'),
+    ]
     animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="events", null=True, blank=True)
     animal_type = models.ForeignKey(AnimalType, on_delete=models.CASCADE, related_name="events", null=True, blank=True)
-    event_name = models.CharField(max_length=200)
+    event_name = models.CharField(max_length=20, choices=EVENT_CHOICES, unique=True)
+    location = models.CharField(max_length=100)
+    designation = models.TextField(max_length=500, null=True, blank=True)
+    description = models.TextField(max_length=1000, null=True, blank=True)
     event_description = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return self.event_name  # Fixed the incorrect field reference
+        return self.event_name
 
 
 class EventImage(models.Model):
