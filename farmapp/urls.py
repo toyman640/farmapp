@@ -15,18 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from main import views
+from main.views import CustomLoginView
+# from farmrecord import views
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path('', views.login_page, name='login_page'),
+    # path('', views.login_page, name='login_page'),
+    path('', CustomLoginView.as_view(), name='login'),
     path('pages/', include('farmrecord.urls')),
     path('admin-page/', include('main.urls')),
-    path('human-resources/', include('humanR.urls')),
-    path('ping/', include('notification.urls')),
+    # path('human-resources/', include('humanR.urls')),
+    # path('ping/', include('notification.urls')),
     path('admin/', admin.site.urls),
 ]
 

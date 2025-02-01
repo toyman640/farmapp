@@ -2,14 +2,14 @@
 {% load tz %}
 <!-- Navigation-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-default fixed-top" id="mainNav">
-    <a class="navbar-brand" href="{% url 'farmrecord:index' %}"><img src="{% static 'img/dark-test.png' %}" data-retina="true" alt="logo" width="150" height="36"></a>
+    <a class="navbar-brand" href="{% url 'farmrecord:dash_index' %}"><img src="{% static 'img/dark-test.png' %}" data-retina="true" alt="logo" width="150" height="36"></a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
-          <a class="nav-link" href="{% url 'farmrecord:index' %}">
+          <a class="nav-link" href="{% url 'farmrecord:dash_index' %}">
             <i class="fa fa-fw fa-home"></i>
             <span class="nav-link-text">Dashboard</span>
           </a>
@@ -21,19 +21,19 @@
           </a>
           <ul class="sidenav-second-level collapse" id="mortality">
             <li>
-              <a href="{% url 'farmrecord:pig_motrep' %}">Mortality</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Mortality</a>
             </li>
 			<li>
-              <a href="{% url 'farmrecord:pig_cull' %}">Culling</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Culling</a>
             </li>
 			<li>
-              <a href="{% url 'farmrecord:pig_birth' %}" >Farrowing</a>
+              <a href="{% url 'farmrecord:dash_index' %}" >Farrowing</a>
             </li>
       <li>
-            <a href="{% url 'farmrecord:pig_proc' %}">Procurement</a>
+            <a href="{% url 'farmrecord:dash_index' %}">Procurement</a>
 
           <li>
-              <a href="{% url 'farmrecord:pig_sales' %}">Sales</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Sales</a>
             </li>
             <li>
               <a  class="nav-link" data-toggle="modal" data-target="#exampleModalP">Records</a>
@@ -47,19 +47,19 @@
           </a>
           <ul class="sidenav-second-level collapse" id="sheep">
             <li>
-              <a href="{% url 'farmrecord:sheep_motrep' %}">Mortality</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Mortality</a>
             </li>
 			<li>
-              <a href="{% url 'farmrecord:sheep_cull' %}">Culling</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Culling</a>
             </li>
 			<li>
-              <a href="{% url 'farmrecord:sheep_birth' %}" >Lambing</a>
+              <a href="{% url 'farmrecord:dash_index' %}" >Lambing</a>
             </li>
       <li>
-            <a href="{% url 'farmrecord:sheep_proc' %}">Procurement</a>
+            <a href="{% url 'farmrecord:dash_index' %}">Procurement</a>
 
           <li>
-              <a href="{% url 'farmrecord:sheep_sales' %}">Sales</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Sales</a>
             </li>
             <li>
               <a  class="nav-link" data-toggle="modal" data-target="#exampleModalS">Records</a>
@@ -73,19 +73,19 @@
   </a>
           <ul class="sidenav-second-level collapse" id="goat">
             <li>
-              <a href="{% url 'farmrecord:goat_motrep' %}">Mortality</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Mortality</a>
             </li>
       <li>
-              <a href="{% url 'farmrecord:goat_cull' %}">Culling</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Culling</a>
             </li>
       <li>
-              <a href="{% url 'farmrecord:goat_birth' %}">Kidding</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Kidding</a>
             </li>
       <li>
-            <a href="{% url 'farmrecord:goat_proc' %}">Procurement</a>
+            <a href="{% url 'farmrecord:dash_index' %}">Procurement</a>
 
           <li>
-              <a href="{% url 'farmrecord:goat_sales' %}">Sales</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Sales</a>
             </li>
             <li>
               <a  class="nav-link" data-toggle="modal" data-target="#exampleModalG">Records</a>
@@ -99,19 +99,19 @@
   </a>
       <ul class="sidenav-second-level collapse" id="cow">
         <li>
-          <a href="{% url 'farmrecord:cow_motrep' %}">Mortality</a>
+          <a href="{% url 'farmrecord:dash_index' %}">Mortality</a>
         </li>
     <li>
-          <a href="{% url 'farmrecord:cow_cull' %}">Culling</a>
+          <a href="{% url 'farmrecord:dash_index' %}">Culling</a>
         </li>
     <li>
-          <a href="{% url 'farmrecord:cow_birth' %}">Calving</a>
+          <a href="{% url 'farmrecord:dash_index' %}">Calving</a>
         </li>
     <li>
-        <a href="{% url 'farmrecord:cow_proc' %}">Procurement</a>
+        <a href="{% url 'farmrecord:dash_index' %}">Procurement</a>
 
       <li>
-          <a href="{% url 'farmrecord:cow_sales' %}">Sales</a>
+          <a href="{% url 'farmrecord:dash_index' %}">Sales</a>
         </li>
         <li>
           <a  class="nav-link" data-toggle="modal" data-target="#exampleModalC">Records</a>
@@ -125,16 +125,16 @@
   </a>
   <ul class="sidenav-second-level collapse" id="Procurement">
     <li>
-      <a href="{% url 'farmrecord:cen_pig' %}">Piggery</a>
+      <a href="{% url 'farmrecord:dash_index' %}">Piggery</a>
     </li>
 <li>
-      <a href="{% url 'farmrecord:cen_cow' %}">Paddock</a>
+      <a href="{% url 'farmrecord:dash_index' %}">Paddock</a>
     </li>
 <li>
-      <a href="{% url 'farmrecord:cen_goat' %}">Small ruminant(goat)</a>
+      <a href="{% url 'farmrecord:dash_index' %}">Small ruminant(goat)</a>
     </li>
 <li>
-    <a href="{% url 'farmrecord:cen_sheep' %}">Small ruminant(sheep)</a>
+    <a href="{% url 'farmrecord:dash_index' %}">Small ruminant(sheep)</a>
     <li>
       <a class="nav-link" data-toggle="modal" data-target="#exampleModalCen">Records</a>
     </li>
@@ -150,22 +150,22 @@
           </a>
           <ul class="sidenav-second-level collapse" id="chart"> 
             <li>
-              <a href="{% url 'farmrecord:pig_chart' %}">Piggery</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Piggery</a>
             </li>
         <li>
-              <a href="{% url 'farmrecord:cow_chart' %}">Paddock</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Paddock</a>
             </li>
         <li>
-              <a href="{% url 'farmrecord:goat_chart' %}">Small Ruminant Goat</a>
+              <a href="{% url 'farmrecord:dash_index' %}">Small Ruminant Goat</a>
             </li>
         <li>
-            <a href="{% url 'farmrecord:sheep_chart' %}">Small Ruminant Sheep</a>
+            <a href="{% url 'farmrecord:dash_index' %}">Small Ruminant Sheep</a>
             
           </ul>
         
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
-          <a class="nav-link" href="{% url 'farmrecord:review_com' %}">
+          <a class="nav-link" href="{% url 'farmrecord:dash_index' %}">
             <i class="fa fa-envelope" aria-hidden="true"></i>
             <span class="nav-link-text">Messages
               
@@ -226,6 +226,8 @@
       </ul>
     </div>
   </nav>
+
+  {% comment %}
 
    <!-- Report Modal Cow-->
    <div class="modal fade" id="exampleModalC" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -313,6 +315,7 @@
       </div>
     </div>
   </div>
+  {% endcomment %}
 
   <!-- message modal -->
 
