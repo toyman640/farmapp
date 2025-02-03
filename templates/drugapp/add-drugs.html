@@ -1,0 +1,86 @@
+{% extends 'drugapp/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<!Doctype html>
+{% block title %} Home {% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+      <li class="breadcrumb-item active">My Dashboard</li>
+    </ol>
+
+    <!-- 🚀 Alert Messages (Hidden by Default) -->
+    <div id="alert-container"></div>
+
+    <!-- New drug form section -->
+    <div class="box_general padding_bottom">
+      <h3>Add New Unit</h3>
+
+      <form method="post" id="drugForm">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-primary">Save Record</button>
+        </div>
+      </form>
+    </div>
+    
+  </div>
+</div>
+
+<!-- jQuery & AJAX for Form Submission -->
+<script>
+$(document).ready(function () {
+    $("#drugForm").submit(function (e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
+        var csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+        $.ajax({
+            url: "{% url 'drugapp:add_drug' %}",
+            type: "POST",
+            data: formData,
+            headers: {
+                "X-CSRFToken": csrfToken
+            },
+            success: function (data) {
+                if (data.success) {
+                    showMessage("success", "✅ Unit added successfully!");
+                    $("#drugForm")[0].reset();  // Reset form fields
+                    // Optionally, update the units list without refreshing the page
+                    // You can append the new unit to the DOM here
+                } else {
+                    showMessage("danger", "❌ Error adding drug. Please check your input.");
+                }
+            },
+            error: function () {
+                showMessage("danger", "⚠️ Something went wrong. Please try again.");
+            }
+        });
+    });
+
+    // Function to show Bootstrap alert messages dynamically
+    function showMessage(type, message) {
+        var alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span>&times;</span>
+                </button>
+            </div>`;
+        $("#alert-container").html(alertHtml);
+
+        // Auto-hide alert after 5 seconds
+        setTimeout(function () {
+            $(".alert").fadeOut();
+        }, 5000);
+    }
+});
+</script>
+
+{% endblock %}

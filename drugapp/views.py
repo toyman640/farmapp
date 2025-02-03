@@ -73,9 +73,14 @@ def add_drug(request):
             messages.success(request, "Drug added successfully!")
             return redirect('add_drug')
     else:
-        form = DrugForm()
+      form = DrugForm()
     
-    return render(request, 'inventory/add_drug.html', {'form': form})
+    return render(request, 'drugapp/add-drugs.html', {'form': form})
+
+
+def drugs_list(request):
+  drugs = Drug.objects.all()
+  return render(request, 'drugapp/drug-records.html', {'drugs': drugs})
 
 def dispatch_drug(request):
     DispatchFormSet = formset_factory(DispatchForm, extra=3)

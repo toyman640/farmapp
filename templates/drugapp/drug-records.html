@@ -15,13 +15,51 @@
     </ol>
 
     <div id="alert-container"></div>
-
-    <!-- Button to trigger modal -->
-    <div class="box_general padding_bottom">
-      
-    </div>
     
+    <div class="box_general padding_bottom">
+      <h2>try this</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>One</th>
+            <th>TWO</th>
+            <th>Three</th>
+            <th>Four</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+
+    <div class="box_general">
+      <div class="table-responsive">
+        {% if drugs %}
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Drug Manufacturer</th>
+              <th scope="col">Drug Name</th>
+              <th scope="col">Batch Number</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Expiry Date</th>
+            </tr>
+          </thead>
+          {% for d in drugs %}
+          <tbody>
+            <tr>
+              <td scope="row">{{ d.manufacturer_name }} </td>
+              <td>{{ d.drug_name }}</td>
+              <td>{{ d.batch_number }}</td>
+              <td>{{ d.quantity }}</td>
+              <td>{{ d.expiry_date }}</td>
+            </tr>
+          </tbody>
+          {% endfor %}
+        </table>
+        {% endif %}
+      </div>
+    </div>
   </div>
+  
 </div>
 
 {% endblock %}
