@@ -50,6 +50,8 @@ class CustomLoginView(LoginView):
                 return redirect('main:main_index')
             elif user.profile.is_supervisor:
                 return redirect('farmrecord:dash_index')
+            elif user.profile.is_drug:
+                return redirect('drugapp:drug_index')
         return response
 
 

@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'main',
     'humanR',
     'notification',
+    'drugapp',
 
 ]
 

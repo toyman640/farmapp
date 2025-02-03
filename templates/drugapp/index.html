@@ -1,0 +1,53 @@
+{% extends 'drugapp/base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% load static %}
+<!Doctype html>
+{% block title %}
+ Home
+{% endblock %}
+
+{% block content %}
+  <!-- Navigation-->
+  
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard</li>
+      </ol>
+	  <!-- Icon Cards-->
+      <div class="row">
+        
+		</div>
+   
+		<!-- /cards -->
+    <div class="box_general padding_bottom">
+      
+		</div>
+   
+		<h2></h2>
+    <div class="row">
+      <div class="box_general padding_bottom col-6">
+        <div class="header_box version_2">
+          <h2><i class="fa fa-bar-chart"></i>Statistic</h2>
+        </div>
+       <canvas id="myAreaChart" width="100%" height="30" style="margin:45px 0 15px 0;"></canvas>
+      </div>
+      <div class="box_general padding_bottom col-6">
+        <div class="header_box version_2">
+          <h2><i class="fa fa-bar-chart"></i>Reminder</h2>
+        </div>
+       <canvas id="myAreaChart" width="100%" height="30" style="margin:45px 0 15px 0;"></canvas>
+      </div>
+    </div>
+		
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+{% endblock %}
