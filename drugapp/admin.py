@@ -4,3 +4,4 @@ from drugapp.models import *
 # Register your models here.
 admin.site.register(Unit)
 admin.site.register(Drug)
+admin.site.register(Dispatch)

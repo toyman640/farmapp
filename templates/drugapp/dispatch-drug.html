@@ -1,0 +1,72 @@
+{% extends 'drugapp/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %} Dispatch Drugs {% endblock %}
+
+{% block content %}
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs -->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+        <li class="breadcrumb-item active">My Dashboard</li>
+      </ol>
+
+      <div class="box_general padding_bottom">
+
+        <!-- Button to add more forms -->
+        <button class="btn btn-outline-success" id="add-form-btn">
+            <i class="bi bi-plus-circle"></i> Add Another Form
+        </button>
+      
+        <!-- Dispatch Drug Formset -->
+        {% if messages %}
+          <div class="alert-messages">
+            {% for message in messages %}
+              <div class="alert {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        <form method="post" id="dispatchFormSet">
+          {% csrf_token %}
+          <div id="formset-container">
+            <!-- Dynamically added forms will go here -->
+            {% for form in formset %}
+                <div class="form-row">
+                  {% crispy form %}
+                </div>
+            {% endfor %}
+          </div>
+          {{ formset.management_form }}
+          <button type="submit" class="btn btn-primary">Submit Dispatch</button>
+        </form>
+      </div>
+    </div>
+    
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var formsetContainer = document.getElementById("formset-container");
+        var addFormBtn = document.getElementById("add-form-btn");
+        var totalForms = document.getElementById("id_form-TOTAL_FORMS"); // Hidden management form field
+
+        addFormBtn.addEventListener("click", function () {
+            var formIndex = Number(totalForms.value); // Get current total form count
+            var emptyForm = `{{ formset.empty_form.as_p|escapejs }}`; // Render empty form correctly
+            
+            // Replace __prefix__ with correct index
+            var newFormHTML = emptyForm.replace(/__prefix__/g, formIndex);
+            var newFormDiv = document.createElement("div");
+            newFormDiv.classList.add("form-row");
+            newFormDiv.innerHTML = newFormHTML;
+
+            formsetContainer.appendChild(newFormDiv);
+            totalForms.value = formIndex + 1; // Increase TOTAL_FORMS count
+        });
+    });
+  </script>
+    
+
+{% endblock %}

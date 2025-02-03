@@ -38,3 +38,14 @@ class Dispatch(models.Model):
 
   def __str__(self):
     return f"Dispatched {self.quantity} {self.unit} of {self.drug.drug_name}"
+
+  def save(self, *args, **kwargs):
+    if self.pk is None:
+        drug = self.drug
+        if drug.quantity >= self.quantity:
+            drug.quantity -= self.quantity
+            drug.save()
+        else:
+            raise ValueError("Not enough stock to dispatch")
+
+    super().save(*args, **kwargs)

@@ -19,19 +19,42 @@
 
     <!-- Button to trigger modal -->
     <div class="box_general padding_bottom">
-      <div class="d-flex justify-content-end">
+      <div class="d-flex justify-content-between">
+        <button class="btn btn-outline-success" data-toggle="modal" data-target="#dispatchDrugModal">
+          <i class="bi bi-plus-circle"></i> Dispatch Drug
+        </button>
         <button class="btn btn-outline-success" data-toggle="modal" data-target="#addUnitModal">
           <i class="bi bi-plus-circle"></i> Add Unit
         </button>
       </div>
-      <div>
-        {% for a in units %}
-          {{ a.name }}
-        {% endfor %}
-      </div>
+      
     </div>
 
-    <!-- Bootstrap Modal -->
+    
+   <!-- Dispatch Drug Modal -->
+   <div class="modal fade" id="dispatchDrugModal" tabindex="-1" aria-labelledby="dispatchDrugModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="dispatchDrugModalLabel">Dispatch Drug</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post" id="dispatchDrugForm">
+              {% csrf_token %}
+              {{ dispatch_form|crispy }}
+              <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Dispatch</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bootstrap Modal for unit -->
     <div class="modal fade" id="addUnitModal" tabindex="-1" aria-labelledby="addUnitModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
