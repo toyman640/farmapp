@@ -3,46 +3,13 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Drug, Dispatch, Unit
 from .forms import DrugForm, DispatchForm, UnitForm
-from django.forms import formset_factory
+from django.core.paginator import Paginator
 
 # Create your views here.
 def drug_index(request):
   unit_form = UnitForm()
   units = Unit.objects.all()
   return render(request, 'drugapp/index.html', {'unit_form': unit_form, 'units': units})
-
-# def add_unit(request):
-#     """ View to create a new Unit """
-#     if request.method == 'POST':
-#         form = UnitForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, "Unit added successfully!")
-#             return redirect('add_unit')
-#     else:
-#         form = UnitForm()
-    
-#     return render(request, 'inventory/add_unit.html', {'form': form})
-
-
-# def add_unit(request):
-#   """ View to create a new Unit via modal """
-#   if request.method == 'POST':
-#     form = UnitForm(request.POST)
-#     if form.is_valid():
-#       form.save()
-#       if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-#         return JsonResponse({'success': True})
-#       messages.success(request, "Unit added successfully!")
-#       return redirect('home')
-#     else:
-#       if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-#         return JsonResponse({'success': False, 'errors': form.errors})
-
-#   else:
-#     form = UnitForm()
-  
-#   return render(request, 'drupapp/index.html', {'form': form})
 
 
 def add_unit(request):
@@ -80,7 +47,10 @@ def add_drug(request):
 
 def drugs_list(request):
   drugs = Drug.objects.all()
-  return render(request, 'drugapp/drug-records.html', {'drugs': drugs})
+  paginator = Paginator(drugs, 1)
+  page_number = request.GET.get('page')
+  page_obj = paginator.get_page(page_number)
+  return render(request, 'drugapp/drug-records.html', {'page_obj': page_obj})
 
 def dispatch_drug(request):
     DispatchFormSet = formset_factory(DispatchForm, extra=3)
