@@ -15,12 +15,15 @@
   </title>
 	
   <!-- Favicons-->
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   
   <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
   <link rel="apple-touch-icon" type="image/x-icon" href="{% static 'img/apple-touch-icon-57x57-precomposed.png' %}">
   <link rel="apple-touch-icon" type="image/x-icon" sizes="72x72" href="{% static 'img/apple-touch-icon-72x72-precomposed.png' %}">
   <link rel="apple-touch-icon" type="image/x-icon" sizes="114x114" href="{% static 'img/apple-touch-icon-114x114-precomposed.png' %}">
   <link rel="apple-touch-icon" type="image/x-icon" sizes="144x144" href="{% static 'img/apple-touch-icon-144x144-precomposed.png' %}">
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
  
 	
   <!-- Bootstrap core CSS-->
@@ -48,7 +51,7 @@
 
 <body class="fixed-nav sticky-footer" id="page-top">
   
-    {% include 'sidebar.html' %}
+    {% include 'drugapp/sidebar.html' %}
  
 {% block content %}
 

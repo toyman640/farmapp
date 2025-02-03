@@ -1,53 +1,129 @@
 {% extends 'drugapp/base.html' %}
 {% load crispy_forms_tags %}
-
-
 {% load static %}
+
 <!Doctype html>
-{% block title %}
- Home
-{% endblock %}
+{% block title %} Home {% endblock %}
 
 {% block content %}
-  <!-- Navigation-->
-  
-  <!-- /Navigation-->
-  <div class="content-wrapper">
-    <div class="container-fluid">
-      <!-- Breadcrumbs-->
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
-      </ol>
-	  <!-- Icon Cards-->
-      <div class="row">
-        
-		</div>
-   
-		<!-- /cards -->
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+      <li class="breadcrumb-item active">My Dashboard</li>
+    </ol>
+
+    <!-- 🚀 Alert Messages (Hidden by Default) -->
+    <div id="alert-container"></div>
+
+    <!-- Button to trigger modal -->
     <div class="box_general padding_bottom">
-      
-		</div>
-   
-		<h2></h2>
-    <div class="row">
-      <div class="box_general padding_bottom col-6">
-        <div class="header_box version_2">
-          <h2><i class="fa fa-bar-chart"></i>Statistic</h2>
-        </div>
-       <canvas id="myAreaChart" width="100%" height="30" style="margin:45px 0 15px 0;"></canvas>
+      <div class="d-flex justify-content-end">
+        <button class="btn btn-outline-success" data-toggle="modal" data-target="#addUnitModal">
+          <i class="bi bi-plus-circle"></i> Add Unit
+        </button>
       </div>
-      <div class="box_general padding_bottom col-6">
-        <div class="header_box version_2">
-          <h2><i class="fa fa-bar-chart"></i>Reminder</h2>
-        </div>
-       <canvas id="myAreaChart" width="100%" height="30" style="margin:45px 0 15px 0;"></canvas>
+      <div>
+        {% for a in units %}
+          {{ a.name }}
+        {% endfor %}
       </div>
     </div>
-		
-	  </div>
-	  <!-- /.container-fluid-->
-   	</div>
+
+    <!-- Bootstrap Modal -->
+    <div class="modal fade" id="addUnitModal" tabindex="-1" aria-labelledby="addUnitModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addUnitModalLabel">Add New Unit</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post" id="unitForm">
+              {% csrf_token %}
+              {{ unit_form|crispy }}
+              <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Save Unit</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Responsive Statistics and Reminders -->
+    <div class="row">
+      <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+        <div class="box_general padding_bottom">
+          <div class="header_box version_2">
+            <h2><i class="fa fa-bar-chart"></i> Statistic</h2>
+          </div>
+          <canvas id="myAreaChart" width="100%" height="30"></canvas>
+        </div>
+      </div>
+
+      <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+        <div class="box_general padding_bottom">
+          <div class="header_box version_2">
+            <h2><i class="fa fa-bell"></i> Reminder</h2>
+          </div>
+          <canvas id="myAreaChart" width="100%" height="30"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery & AJAX for Form Submission -->
+<script>
+$(document).ready(function () {
+    $("#unitForm").submit(function (e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
+        var csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+        $.ajax({
+            url: "{% url 'drugapp:add_unit' %}",
+            type: "POST",
+            data: formData,
+            headers: {
+                "X-CSRFToken": csrfToken
+            },
+            success: function (data) {
+                if (data.success) {
+                    showMessage("success", "✅ Unit added successfully!");
+                    $("#unitForm")[0].reset();  // Reset form fields
+                    $("#addUnitModal").modal("hide");  // Close modal
+                } else {
+                    showMessage("danger", "❌ Error adding unit. Please check your input.");
+                }
+            },
+            error: function () {
+                showMessage("danger", "⚠️ Something went wrong. Please try again.");
+            }
+        });
+    });
+
+    // Function to show Bootstrap alert messages dynamically
+    function showMessage(type, message) {
+        var alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span>&times;</span>
+                </button>
+            </div>`;
+        $("#alert-container").html(alertHtml);
+
+        // Auto-hide alert after 5 seconds
+        setTimeout(function () {
+            $(".alert").fadeOut();
+        }, 5000);
+    }
+});
+</script>
 {% endblock %}
