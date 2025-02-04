@@ -21,11 +21,13 @@
         </div>
         <div class="collapse" id="dispatchCollapse">
           <div class="container row">
+            {% with colors="primary,success,danger,warning,info,secondary" %}
             {% for date, dispatches in grouped_dispatches.items %}
+            {% with color=colors.split|slice:forloop.counter0|first %}
               <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-                <div class="card" >
+                <div class="card bg-{{ color }}" >
                   <div class="card-header text-center font-weight-bold">
-                    {{ date }}  <!-- Date as Header -->
+                    {{ date }}
                   </div>
                   <ul class="list-group list-group-flush dispatch-card" style="height: 300px; overflow-y: auto;">
                     {% for d in dispatches %}
@@ -40,9 +42,12 @@
                   </div>
                 </div>
               </div>
+              {% endwith %}
+            
             {% empty %}
               <p class="text-center text-muted">No dispatch records available in the last 5 days.</p>
             {% endfor %}
+            {% endwith %}
           </div>
         </div>
       </div>
