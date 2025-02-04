@@ -92,9 +92,35 @@
       <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
         <div class="box_general padding_bottom">
           <div class="header_box version_2">
-            <h2><i class="fa fa-bell"></i> Reminder</h2>
+            <h2><i class="fa fa-bell text-danger"></i> Low Stock</h2>
+            <div>
+
+              {% for l in low_stock_drugs %}
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th scope="col">Drug</th>
+                      <th scope="col">Quantity</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- <tr>
+                      <td>  {{ l.drug_name }}</td>
+                      <td class="text-danger font-weight-bold">  {{ l.quantity }}</td>
+                    </tr> -->
+                    <tr id="drug-{{ l.id }}">
+                      <td>{{ l.drug_name }}</td>
+                      <td class="text-danger font-weight-bold">{{ l.quantity }}</td>
+                      <td>
+                        <button class="btn btn-sm btn-danger dismiss-drug" data-drug-id="{{ l.id }}">Dismiss</button>
+                      </td>
+                    </tr>
+                  </tbody>
+
+                </table>
+              {% endfor %}
+            </div>
           </div>
-          <canvas id="myAreaChart" width="100%" height="30"></canvas>
         </div>
       </div>
     </div>
@@ -103,50 +129,70 @@
 
 <!-- jQuery & AJAX for Form Submission -->
 <script>
-$(document).ready(function () {
-    $("#unitForm").submit(function (e) {
-        e.preventDefault();
-        var formData = $(this).serialize();
-        var csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+  $(document).ready(function () {
+      $("#unitForm").submit(function (e) {
+          e.preventDefault();
+          var formData = $(this).serialize();
+          var csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+          $.ajax({
+              url: "{% url 'drugapp:add_unit' %}",
+              type: "POST",
+              data: formData,
+              headers: {
+                  "X-CSRFToken": csrfToken
+              },
+              success: function (data) {
+                  if (data.success) {
+                      showMessage("success", "✅ Unit added successfully!");
+                      $("#unitForm")[0].reset();  // Reset form fields
+                      $("#addUnitModal").modal("hide");  // Close modal
+                  } else {
+                      showMessage("danger", "❌ Error adding unit. Please check your input.");
+                  }
+              },
+              error: function () {
+                  showMessage("danger", "⚠️ Something went wrong. Please try again.");
+              }
+          });
+      });
+
+      // Function to show Bootstrap alert messages dynamically
+      function showMessage(type, message) {
+          var alertHtml = `
+              <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                  ${message}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span>&times;</span>
+                  </button>
+              </div>`;
+          $("#alert-container").html(alertHtml);
+
+          // Auto-hide alert after 5 seconds
+          setTimeout(function () {
+              $(".alert").fadeOut();
+          }, 5000);
+      }
+  });
+  $(document).ready(function () {
+    $(".dismiss-drug").click(function () {
+        var drugId = $(this).data("drug-id");
 
         $.ajax({
-            url: "{% url 'drugapp:add_unit' %}",
+            url: "{% url 'drugapp:dismiss_low_stock' %}",
             type: "POST",
-            data: formData,
-            headers: {
-                "X-CSRFToken": csrfToken
-            },
-            success: function (data) {
-                if (data.success) {
-                    showMessage("success", "✅ Unit added successfully!");
-                    $("#unitForm")[0].reset();  // Reset form fields
-                    $("#addUnitModal").modal("hide");  // Close modal
-                } else {
-                    showMessage("danger", "❌ Error adding unit. Please check your input.");
+            data: { drug_id: drugId },
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            success: function (response) {
+                if (response.success) {
+                    $("#drug-" + drugId).remove(); // Remove drug row from table
                 }
             },
             error: function () {
-                showMessage("danger", "⚠️ Something went wrong. Please try again.");
+                alert("Error removing drug.");
             }
         });
     });
-
-    // Function to show Bootstrap alert messages dynamically
-    function showMessage(type, message) {
-        var alertHtml = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                ${message}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span>&times;</span>
-                </button>
-            </div>`;
-        $("#alert-container").html(alertHtml);
-
-        // Auto-hide alert after 5 seconds
-        setTimeout(function () {
-            $(".alert").fadeOut();
-        }, 5000);
-    }
-});
+  });
 </script>
 {% endblock %}

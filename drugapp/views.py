@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.db.models import F
 from django.contrib import messages
 from django.forms import formset_factory
 from .models import Drug, Dispatch, Unit
@@ -7,11 +8,27 @@ from .forms import DrugForm, DispatchForm, UnitForm
 from django.core.paginator import Paginator
 
 # Create your views here.
+# def drug_index(request):
+#   unit_form = UnitForm()
+#   dispatch_form = DispatchForm()
+#   units = Unit.objects.all()
+#   low_stock_drugs = Drug.objects.filter(restock_quantity_notify__gte=F('quantity'))
+#   return render(request, 'drugapp/index.html', {'unit_form': unit_form, 'units': units, 'dispatch_form': dispatch_form})
+
 def drug_index(request):
   unit_form = UnitForm()
   dispatch_form = DispatchForm()
   units = Unit.objects.all()
-  return render(request, 'drugapp/index.html', {'unit_form': unit_form, 'units': units, 'dispatch_form': dispatch_form})
+  low_stock_drugs = Drug.objects.filter(restock_quantity_notify__gte=F('quantity'))
+
+  context = {
+      'unit_form': unit_form,
+      'dispatch_form': dispatch_form,
+      'units': units,
+      'low_stock_drugs': low_stock_drugs,  # Include the filtered drugs in the context
+  }
+
+  return render(request, 'drugapp/index.html', context)
 
 
 def add_unit(request):
@@ -109,4 +126,11 @@ def dispatch_drug(request):
     else:
         formset = DispatchFormSet()
     return render(request, 'drugapp/dispatch-drug.html', {'formset': formset})
+
+def dismiss_low_stock(request):
+  if request.method == "POST":
+    drug_id = request.POST.get("drug_id")
+    Drug.objects.filter(id=drug_id).update(restock_quantity_notify=0)  # Set notify level to 0 (hidden)
+    return JsonResponse({"success": True})
+  return JsonResponse({"success": False})
 
