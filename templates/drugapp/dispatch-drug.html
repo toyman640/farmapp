@@ -12,14 +12,47 @@
         <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
         <li class="breadcrumb-item active">My Dashboard</li>
       </ol>
+      <div class="box_general padding_bottom">
+        <div class="d-flex justify-content-between">
+          <h2 class="text-primary mb-3" >
+            Latest Dispatch
+          </h2>
+          <i class="fa fa-angle-down" style="font-size: 2rem; cursor: pointer;" data-toggle="collapse" data-target="#dispatchCollapse" aria-expanded="false" aria-controls="dispatchCollapse"></i>
+        </div>
+        <div class="collapse" id="dispatchCollapse">
+          <div class="container row">
+            {% for date, dispatches in grouped_dispatches.items %}
+              <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                <div class="card" >
+                  <div class="card-header text-center font-weight-bold">
+                    {{ date }}  <!-- Date as Header -->
+                  </div>
+                  <ul class="list-group list-group-flush dispatch-card" style="height: 300px; overflow-y: auto;">
+                    {% for d in dispatches %}
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ d.drug.drug_name }}</span>
+                        <span><strong>{{ d.quantity }}</strong></span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                  <div class="card-footer text-center">
+                    <small>Dispatched by: {{ dispatches.0.dispatched_by.username|default:"Unknown" }}</small>
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <p class="text-center text-muted">No dispatch records available in the last 5 days.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
 
       <div class="box_general padding_bottom">
-
         <!-- Button to add more forms -->
         <button class="btn btn-outline-success" id="add-form-btn">
-            <i class="bi bi-plus-circle"></i> Add Another Form
+          <i class="bi bi-plus-circle"></i> Add Another Form
         </button>
-      
+
         <!-- Dispatch Drug Formset -->
         {% if messages %}
           <div class="alert-messages">
@@ -28,51 +61,118 @@
             {% endfor %}
           </div>
         {% endif %}
+
         <form method="post" id="dispatchFormSet">
           {% csrf_token %}
-          <div id="formset-container">
-            <!-- Dynamically added forms will go here -->
+          <div id="formset-container" class="row">
             {% for form in formset %}
-                <div class="form-row">
+              <div class="col-lg-4 col-md-6 col-sm-12 mb-3 form-row">
+                <div class="form-card p-3">
                   {% crispy form %}
+                  <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
                 </div>
+              </div>
             {% endfor %}
           </div>
+
           {{ formset.management_form }}
-          <button type="submit" class="btn btn-primary">Submit Dispatch</button>
+          <button type="submit" class="btn btn-primary" id="submit-btn">Submit Dispatch</button>
         </form>
       </div>
     </div>
-    
   </div>
+
+
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      var formsetContainer = document.getElementById("formset-container");
-      var addFormBtn = document.getElementById("add-form-btn");
-      var totalForms = document.getElementById("id_form-TOTAL_FORMS"); // Hidden management form field
-      var maxForms = 5; // Set maximum number of forms
+        var formsetContainer = document.getElementById("formset-container");
+        var addFormBtn = document.getElementById("add-form-btn");
+        var totalForms = document.getElementById("id_form-TOTAL_FORMS");
+        var submitBtn = document.getElementById("submit-btn");
+        var maxForms = 3;
 
-      addFormBtn.addEventListener("click", function () {
-          var formIndex = Number(totalForms.value); // Get current total form count
+        function updateSubmitButton() {
+            submitBtn.style.display = formsetContainer.children.length > 0 ? "block" : "none";
+        }
 
-          if (formIndex < maxForms) { // Check if max limit reached
-              var emptyForm = `{{ formset.empty_form.as_p|escapejs }}`; // Render empty form correctly
+        function addRemoveFormEvent(removeBtn) {
+            removeBtn.addEventListener("click", function () {
+                this.closest(".form-row").remove();
+                totalForms.value = formsetContainer.children.length;
+                updateSubmitButton();
+            });
+        }
 
-              // Replace __prefix__ with correct index
-              var newFormHTML = emptyForm.replace(/__prefix__/g, formIndex);
-              var newFormDiv = document.createElement("div");
-              newFormDiv.classList.add("form-row");
-              newFormDiv.innerHTML = newFormHTML;
+        // Attach remove event to existing forms
+        document.querySelectorAll(".remove-form").forEach(addRemoveFormEvent);
+        updateSubmitButton();
 
-              formsetContainer.appendChild(newFormDiv);
-              totalForms.value = formIndex + 1; // Increase TOTAL_FORMS count
+        addFormBtn.addEventListener("click", function () {
+            var formIndex = Number(totalForms.value);
+
+            if (formIndex < maxForms) {
+                var emptyForm = `{{ formset.empty_form|crispy|escapejs }}`;
+                var newFormHTML = emptyForm.replace(/__prefix__/g, formIndex);
+
+                var newFormDiv = document.createElement("div");
+                newFormDiv.classList.add("col-lg-4", "col-md-6", "col-sm-12", "mb-3", "form-row");
+                newFormDiv.innerHTML = `
+                  <div class="form-card p-3">
+                    ${newFormHTML}
+                    <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
+                  </div>
+                `;
+
+                formsetContainer.appendChild(newFormDiv);
+                totalForms.value = formsetContainer.children.length;
+
+                // Attach event to the newly added remove button
+                addRemoveFormEvent(newFormDiv.querySelector(".remove-form"));
+
+                updateSubmitButton();
+            } else {
+                alert("Maximum of 3 forms allowed!");
+            }
+        });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+      var collapseIcon = document.querySelector(".fa-angle-down");
+      var dispatchCollapse = document.getElementById("dispatchCollapse");
+
+      collapseIcon.style.cursor = "pointer"; // Set cursor to pointer
+
+      collapseIcon.addEventListener("click", function () {
+          if (dispatchCollapse.classList.contains("show")) {
+              this.classList.remove("fa-angle-up");
+              this.classList.add("fa-angle-down");
           } else {
-              alert("Maximum of 5 forms allowed!"); // Show alert if limit reached
+              this.classList.remove("fa-angle-down");
+              this.classList.add("fa-angle-up");
           }
       });
-    });
-  </script>
-    
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    const scrollableCards = document.querySelectorAll(".dispatch-card");
 
+    scrollableCards.forEach(card => {
+        let timeout;
+
+        card.addEventListener("scroll", function () {
+            // Show scrollbar when scrolling
+            card.style.scrollbarColor = "#888 #f1f1f1"; // For Firefox
+            card.querySelector("::-webkit-scrollbar-thumb")?.style.setProperty("opacity", "1");
+            
+            // Clear previous timeout
+            clearTimeout(timeout);
+
+            // Hide scrollbar after 1 second of inactivity
+            timeout = setTimeout(() => {
+                card.style.scrollbarColor = "transparent transparent"; // For Firefox
+                card.querySelector("::-webkit-scrollbar-thumb")?.style.setProperty("opacity", "0");
+            }, 1000);
+        });
+    });
+});
+  </script>
 {% endblock %}

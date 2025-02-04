@@ -1,5 +1,9 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from collections import defaultdict
+from django.utils.timezone import localtime, now
+from django.db.models import Sum
+from datetime import timedelta
 from django.db.models import F
 from django.contrib import messages
 from django.forms import formset_factory
@@ -108,24 +112,35 @@ def drugs_list(request):
 #   return render(request, 'drugapp/dispatch-drug.html', {'formset': formset})
 
 def dispatch_drug(request):
-    DispatchFormSet = formset_factory(DispatchForm, extra=0)  # No extra forms initially
+    five_days_ago = now().date() - timedelta(days=5)
+    dispatched = Dispatch.objects.filter(dispatched_at__date__gte=five_days_ago).order_by('-dispatched_at')
+    DispatchFormSet = formset_factory(DispatchForm, extra=0)
+
+    grouped_dispatches = defaultdict(list)
+    for dispatch in dispatched:
+      dispatch_date = localtime(dispatch.dispatched_at).date()
+      grouped_dispatches[dispatch_date].append(dispatch)
 
     if request.method == 'POST':
-        formset = DispatchFormSet(request.POST)
-        if formset.is_valid():
-            for form in formset:
-                if form.cleaned_data:
-                    dispatch = form.save(commit=False)
-                    dispatch.dispatched_by = request.user  # Assign the user
-                    dispatch.save()  # Save dispatch record (stock reduction happens in `save()` method)
-            messages.success(request, "Drugs dispatched successfully!")
-            return redirect('drugapp:dispatch_drug')  
-        else:
-            messages.error(request, "There was an error in the form.")
+      formset = DispatchFormSet(request.POST)
+      if formset.is_valid():
+        for form in formset:
+          if form.cleaned_data:
+            dispatch = form.save(commit=False)
+            dispatch.dispatched_by = request.user
+            dispatch.save()
+        messages.success(request, "Drugs dispatched successfully!")
+        return redirect('drugapp:dispatch_drug')  
+      else:
+          messages.error(request, "There was an error in the form.")
 
     else:
         formset = DispatchFormSet()
-    return render(request, 'drugapp/dispatch-drug.html', {'formset': formset})
+    return render(request, 'drugapp/dispatch-drug.html', {'formset': formset,  'grouped_dispatches': dict(grouped_dispatches) })
+
+# def disptach_list(request):
+#   dispatched = Dispatch.objects.all()
+#   return render(request, 'drugapp/dispatch-drug.html', {'dispatched': dispatched})
 
 def dismiss_low_stock(request):
   if request.method == "POST":
