@@ -48,23 +48,29 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-        var formsetContainer = document.getElementById("formset-container");
-        var addFormBtn = document.getElementById("add-form-btn");
-        var totalForms = document.getElementById("id_form-TOTAL_FORMS"); // Hidden management form field
+      var formsetContainer = document.getElementById("formset-container");
+      var addFormBtn = document.getElementById("add-form-btn");
+      var totalForms = document.getElementById("id_form-TOTAL_FORMS"); // Hidden management form field
+      var maxForms = 5; // Set maximum number of forms
 
-        addFormBtn.addEventListener("click", function () {
-            var formIndex = Number(totalForms.value); // Get current total form count
-            var emptyForm = `{{ formset.empty_form.as_p|escapejs }}`; // Render empty form correctly
-            
-            // Replace __prefix__ with correct index
-            var newFormHTML = emptyForm.replace(/__prefix__/g, formIndex);
-            var newFormDiv = document.createElement("div");
-            newFormDiv.classList.add("form-row");
-            newFormDiv.innerHTML = newFormHTML;
+      addFormBtn.addEventListener("click", function () {
+          var formIndex = Number(totalForms.value); // Get current total form count
 
-            formsetContainer.appendChild(newFormDiv);
-            totalForms.value = formIndex + 1; // Increase TOTAL_FORMS count
-        });
+          if (formIndex < maxForms) { // Check if max limit reached
+              var emptyForm = `{{ formset.empty_form.as_p|escapejs }}`; // Render empty form correctly
+
+              // Replace __prefix__ with correct index
+              var newFormHTML = emptyForm.replace(/__prefix__/g, formIndex);
+              var newFormDiv = document.createElement("div");
+              newFormDiv.classList.add("form-row");
+              newFormDiv.innerHTML = newFormHTML;
+
+              formsetContainer.appendChild(newFormDiv);
+              totalForms.value = formIndex + 1; // Increase TOTAL_FORMS count
+          } else {
+              alert("Maximum of 5 forms allowed!"); // Show alert if limit reached
+          }
+      });
     });
   </script>
     
