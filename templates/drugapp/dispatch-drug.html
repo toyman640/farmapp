@@ -101,22 +101,21 @@
       </form>
     </div>
     <div class="box_general padding_bottom">
-      <form method="get" action="{% url 'drugapp:dispatch_filter' %}">
+      <form method="get" action="{% url 'drugapp:dispatch_filter' %}" id="filter-form">
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
         <div class="row">
-            From
             <div class="col-lg-3 col-md-12 form-group">
-                {{ dispatch_filter.start_date }}
+              {{ dispatch_filter.start_date }}
             </div>
-              <p>To</p>
             <div class="col-lg-3 col-md-12 form-group">
-                {{ dispatch_filter.end_date }}
+              {{ dispatch_filter.end_date }}
             </div>
             <div class="col-lg-4 col-md-12 form-group">
-                {{ dispatch_filter.drug_name }}
+              {{ dispatch_filter.drug_name }}
             </div>
         </div>
         <input type="submit" class="btn btn-outline-info btn-sm" value="Filter">
-    </form>
+      </form>
       <div class="d-flex justify-content-between">
         <h2 class="text-primary">Dispatch Records</h2>
         <i
@@ -425,5 +424,64 @@
       });
     });
   });
+  // document.getElementById("filter-form").addEventListener("submit", function (event) {
+  //   const startDate = document.querySelector("[name='start_date']").value;
+  //   const endDate = document.querySelector("[name='end_date']").value;
+
+  //   // If the user enters one date but not the other, show an error message
+  //   if ((startDate && !endDate) || (!startDate && endDate)) {
+  //       event.preventDefault(); // Stop form submission
+  //       showError("Please select both the start and end dates.");
+  //   }
+  // });
+
+// function showError(message) {
+//     let errorContainer = document.getElementById("error-message");
+
+//     // If error container does not exist, create it
+//     if (!errorContainer) {
+//         errorContainer = document.createElement("div");
+//         errorContainer.id = "error-message";
+//         errorContainer.className = "alert alert-danger"; // Bootstrap styling
+//         document.getElementById("filter-form").insertAdjacentElement("beforebegin", errorContainer);
+//     }
+
+//     errorContainer.textContent = message;
+//     errorContainer.style.display = "block";
+
+//     setTimeout(() => {
+//         errorContainer.style.display = "none";
+//     }, 3000);
+document.addEventListener("DOMContentLoaded", function () {
+    const today = new Date().toISOString().split("T")[0];
+
+    // Set max date to today
+    document.querySelector("[name='start_date']").setAttribute("max", today);
+    document.querySelector("[name='end_date']").setAttribute("max", today);
+
+    document.getElementById("filter-form").addEventListener("submit", function (event) {
+        const startDate = document.querySelector("[name='start_date']").value;
+        const endDate = document.querySelector("[name='end_date']").value;
+
+        // If the user enters one date but not the other, show an error message
+        if ((startDate && !endDate) || (!startDate && endDate)) {
+            event.preventDefault();
+            showError("Please select both the start and end dates.");
+        }
+    });
+
+    function showError(message) {
+        const errorContainer = document.getElementById("error-message");
+        errorContainer.textContent = message;
+        errorContainer.style.display = "block";
+
+        // Remove the error message after 3 seconds
+        setTimeout(() => {
+            errorContainer.style.display = "none";
+        }, 3000);
+    }
+});
+
+
 </script>
 {% endblock %}
