@@ -29,6 +29,28 @@ class Drug(models.Model):
   def is_expiring_soon(self):
     return now().date() >= self.expiry_date - timedelta(days=7)
 
+# class Dispatch(models.Model):
+#   drug = models.ForeignKey(Drug, on_delete=models.CASCADE)
+#   quantity = models.PositiveIntegerField()
+#   unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
+#   dispatched_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+#   dispatched_at = models.DateTimeField(auto_now_add=True)
+
+#   def __str__(self):
+#     return f"Dispatched {self.quantity} {self.unit} of {self.drug.drug_name}"
+
+#   def save(self, *args, **kwargs):
+#     if self.pk is None:
+#         drug = self.drug
+#         if drug.quantity >= self.quantity:
+#             drug.quantity -= self.quantity
+#             drug.save()
+#         else:
+#             raise ValueError("Not enough stock to dispatch")
+
+#     super().save(*args, **kwargs)
+
+
 class Dispatch(models.Model):
   drug = models.ForeignKey(Drug, on_delete=models.CASCADE)
   quantity = models.PositiveIntegerField()
@@ -40,12 +62,22 @@ class Dispatch(models.Model):
     return f"Dispatched {self.quantity} {self.unit} of {self.drug.drug_name}"
 
   def save(self, *args, **kwargs):
-    if self.pk is None:
-        drug = self.drug
-        if drug.quantity >= self.quantity:
-            drug.quantity -= self.quantity
-            drug.save()
-        else:
-            raise ValueError("Not enough stock to dispatch")
+    if self.pk:  # If updating an existing dispatch
+      original = Dispatch.objects.get(pk=self.pk)
+      quantity_diff = self.quantity - original.quantity  # Find the difference
+
+      # Update the drug quantity accordingly
+      if self.drug.quantity >= quantity_diff:
+        self.drug.quantity -= quantity_diff
+        self.drug.save()
+      else:
+        raise ValueError("Not enough stock to update dispatch quantity")
+
+    else:  # If creating a new dispatch
+      if self.drug.quantity >= self.quantity:
+        self.drug.quantity -= self.quantity
+        self.drug.save()
+      else:
+        raise ValueError("Not enough stock to dispatch")
 
     super().save(*args, **kwargs)

@@ -10,7 +10,7 @@
       <!-- Breadcrumbs -->
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">Dispatch Drug</li>
       </ol>
       <div class="box_general padding_bottom">
         <div class="d-flex justify-content-between">
@@ -54,8 +54,8 @@
 
       <div class="box_general padding_bottom">
         <!-- Button to add more forms -->
-        <button class="btn btn-outline-success" id="add-form-btn">
-          <i class="bi bi-plus-circle"></i> Add Another Form
+        <button class="btn text-success" id="add-form-btn">
+          <i class="bi bi-plus-circle"></i> Dispatch drug
         </button>
 
         <!-- Dispatch Drug Formset -->
@@ -84,6 +84,80 @@
           <button type="submit" class="btn btn-primary" id="submit-btn">Submit Dispatch</button>
         </form>
       </div>
+      <div class="box_general padding_bottom">
+        <div class="d-flex justify-content-between">
+          <h2 class="text-primary">Dispatch Records</h2>
+          <i class="fa fa-angle-down" data-toggle="collapse" data-target="#dispatchTable" aria-expanded="false" aria-controls="dispatchTable" style="cursor: pointer; font-size: 1.5rem;"></i>
+        </div>
+      
+        <div class="collapse show" id="dispatchTable">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Drug Name</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Dispatched on</th>
+                <th scope="col">Dispatched By</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in page_obj %}
+              <tr data-toggle="modal" data-target="#viewModal" onclick="showDetails('{{ a.id }}', '{{ a.drug.drug_name }}', '{{ a.quantity }}', '{{ a.unit }}', '{{ a.dispatched_at|date:"Y-m-d" }}', '{{ a.dispatched_by }}')">
+                <td>{{ a.drug.drug_name }}</td>
+                <td>{{ a.quantity }} {{ a.unit }}</td>
+                <td>{{ a.dispatched_at|date:"Y-m-d" }}</td>
+                <td>{{ a.dispatched_by }}</td>
+                <td>
+                  <a href="{% url 'drugapp:edit_dispatch' a.id %}" class="btn btn-warning btn-sm">Edit</a>
+              </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted">No dispatch records available.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+      
+          <!-- Pagination -->
+          <nav>
+            <ul class="pagination justify-content-center">
+              {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+              {% endif %}
+      
+              <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+      
+              {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+      </div>
+      
+      <!-- View Drug Details Modal -->
+      <div class="modal fade" id="viewModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Drug Details</h5>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p><strong>Drug Name:</strong> <span id="viewDrugName"></span></p>
+              <p><strong>Quantity:</strong> <span id="viewQuantity"></span></p>
+              <p><strong>Dispatched on:</strong> <span id="viewDate"></span></p>
+              <p><strong>Dispatched by:</strong> <span id="viewDispatcher"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+         
+      
     </div>
   </div>
 
@@ -178,6 +252,13 @@
             }, 1000);
         });
     });
-});
+  });
+  function showDetails(id, name, quantity, unit, date, dispatcher) {
+    document.getElementById("viewDrugName").textContent = name;
+    document.getElementById("viewQuantity").textContent = quantity + " " + unit;
+    document.getElementById("viewDate").textContent = date;
+    document.getElementById("viewDispatcher").textContent = dispatcher;
+  }
+
   </script>
 {% endblock %}

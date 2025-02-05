@@ -19,3 +19,23 @@ class DispatchForm(forms.ModelForm):
   class Meta:
     model = Dispatch
     fields = ['drug', 'quantity', 'unit']
+
+class DispatchEditForm(forms.ModelForm):
+  drug = forms.ModelChoiceField(
+    queryset=Drug.objects.all(),
+    label="Drug Name",
+    widget=forms.Select(attrs={'class': 'form-control'})
+  )
+  unit = forms.ModelChoiceField(
+    queryset=Unit.objects.all(),
+    label="Unit",
+    widget=forms.Select(attrs={'class': 'form-control'})
+  )
+
+  class Meta:
+    model = Dispatch
+    fields = ['drug', 'quantity', 'unit']
+    widgets = {
+      'quantity': forms.NumberInput(attrs={'class': 'form-control'})
+    }
+
