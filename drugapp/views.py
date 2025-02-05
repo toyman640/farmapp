@@ -49,22 +49,40 @@ def view_unit(request, unit_id):
   unit = get_object_or_404(Unit, id=unit_id)
   return render(request, 'drugapp/drug-records.html', {'unit': unit})
 
-def add_drug(request):
-    if request.method == 'POST':
-        form = DrugForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Drug added successfully!")
-            return redirect('drugapp:add_drug')
-    else:
-      form = DrugForm()
+# def add_drug(request):
+#     if request.method == 'POST':
+#         form = DrugForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "Drug added successfully!")
+#             return redirect('drugapp:add_drug')
+#     else:
+#       form = DrugForm()
     
-    return render(request, 'drugapp/add-drugs.html', {'form': form})
+#     return render(request, 'drugapp/add-drugs.html', {'form': form})
+
+def add_drug(request):
+  if request.method == 'POST':
+    form = DrugForm(request.POST)
+    if form.is_valid():
+      form.save()
+      if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Check if AJAX
+        return JsonResponse({"success": True, "message": "Drug added successfully!"})
+      messages.success(request, "Drug added successfully!")
+      return redirect('drugapp:add_drug')
+    else:
+      if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Handle AJAX errors
+        return JsonResponse({"success": False, "message": "Error adding drug. Please check your input."})
+  
+  else:
+    form = DrugForm()
+
+  return render(request, 'drugapp/add-drugs.html', {'form': form})
 
 
 def drugs_list(request):
   drugs = Drug.objects.all()
-  paginator = Paginator(drugs, 1)
+  paginator = Paginator(drugs, 10)
   page_number = request.GET.get('page')
   page_obj = paginator.get_page(page_number)
   return render(request, 'drugapp/drug-records.html', {'page_obj': page_obj})
@@ -107,43 +125,6 @@ def dismiss_low_stock(request):
     return JsonResponse({"success": True})
   return JsonResponse({"success": False})
 
-
-# def edit_dispatch(request, dispatch_id):
-#   dispatch = get_object_or_404(Dispatch, id=dispatch_id)
-
-#   if request.method == "POST":
-#       form = DispatchEditForm(request.POST, instance=dispatch)
-#       if form.is_valid():
-#           form.save()
-#           return redirect('drugapp:dispatch_drug')
-#   else:
-#       form = DispatchEditForm(instance=dispatch)
-
-#   return render(request, 'drugapp/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
-
-# def edit_dispatch(request, dispatch_id):
-#   dispatch = get_object_or_404(Dispatch, id=dispatch_id)
-
-#   if request.method == "POST":
-#     form = DispatchEditForm(request.POST, instance=dispatch)
-#     if form.is_valid():
-#       new_dispatch = form.save(commit=False)
-
-#       # Restore the original quantity back to the drug before saving new changes
-#       original_quantity = dispatch.quantity
-#       dispatch.drug.quantity += original_quantity  # Add back the old quantity
-      
-#       if dispatch.drug.quantity >= new_dispatch.quantity:
-#         dispatch.drug.quantity -= new_dispatch.quantity  # Deduct new quantity
-#         dispatch.drug.save()
-#         new_dispatch.save()
-#         return redirect('drugapp:dispatch_drug')
-#       else:
-#         messages.error(request, "Not enough stock to update dispatch.")
-#   else:
-#     form = DispatchEditForm(instance=dispatch)
-
-#   return render(request, 'drugapp/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
 
 def edit_dispatch(request, dispatch_id):
   dispatch = get_object_or_404(Dispatch, id=dispatch_id)

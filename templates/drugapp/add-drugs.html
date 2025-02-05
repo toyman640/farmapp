@@ -41,6 +41,25 @@ $(document).ready(function () {
         var formData = $(this).serialize();
         var csrfToken = $("input[name=csrfmiddlewaretoken]").val();
 
+        // $.ajax({
+        //     url: "{% url 'drugapp:add_drug' %}",
+        //     type: "POST",
+        //     data: formData,
+        //     headers: {
+        //         "X-CSRFToken": csrfToken
+        //     },
+        //     success: function (data) {
+        //         if (data.success) {
+        //             showMessage("success", "✅ Drug added successfully!");
+        //             $("#drugForm")[0].reset();
+        //         } else {
+        //             showMessage("danger", "❌ Error adding drug. Please check your input.");
+        //         }
+        //     },
+        //     error: function () {
+        //         showMessage("danger", "⚠️ Something went wrong. Please try again.");
+        //     }
+        // });
         $.ajax({
             url: "{% url 'drugapp:add_drug' %}",
             type: "POST",
@@ -50,18 +69,17 @@ $(document).ready(function () {
             },
             success: function (data) {
                 if (data.success) {
-                    showMessage("success", "✅ Drug added successfully!");
-                    $("#drugForm")[0].reset();  // Reset form fields
-                    // Optionally, update the units list without refreshing the page
-                    // You can append the new unit to the DOM here
+                    showMessage("success", data.message);
+                    $("#drugForm")[0].reset();
                 } else {
-                    showMessage("danger", "❌ Error adding drug. Please check your input.");
+                    showMessage("danger", data.message);
                 }
             },
             error: function () {
                 showMessage("danger", "⚠️ Something went wrong. Please try again.");
             }
         });
+        
     });
 
     // Function to show Bootstrap alert messages dynamically
