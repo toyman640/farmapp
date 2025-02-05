@@ -63,28 +63,33 @@ class Dispatch(models.Model):
 
   def save(self, *args, **kwargs):
     if self.pk:  # If updating an existing dispatch
-      original = Dispatch.objects.get(pk=self.pk)
-      quantity_diff = self.quantity - original.quantity  # Find the difference
+        original = Dispatch.objects.get(pk=self.pk)
 
-      # Update the drug quantity accordingly
-      if self.drug.quantity >= quantity_diff:
-        self.drug.quantity -= quantity_diff
-        self.drug.save()
-      else:
-        raise ValueError("Not enough stock to update dispatch quantity")
+        # First, restore the previous dispatch quantity back to the drug stock
+        if original.quantity != self.quantity:
+            self.drug.quantity += original.quantity  # Add the old quantity back to stock
+            self.drug.save()
+
+            # Now check if the new quantity is valid (not greater than the available stock)
+            if self.drug.quantity >= self.quantity:
+                self.drug.quantity -= self.quantity  # Subtract the new quantity
+                self.drug.save()
+            else:
+                raise ValueError("Not enough stock to update dispatch quantity")
 
     else:  # If creating a new dispatch
-      if self.drug.quantity >= self.quantity:
-        self.drug.quantity -= self.quantity
-        self.drug.save()
-      else:
-        raise ValueError("Not enough stock to dispatch")
+        if self.drug.quantity >= self.quantity:
+            self.drug.quantity -= self.quantity
+            self.drug.save()
+        else:
+            raise ValueError("Not enough stock to dispatch")
 
     super().save(*args, **kwargs)
-  
+
+
   def delete(self, *args, **kwargs):
     """Restore quantity to the drug when dispatch is deleted"""
     drug = self.drug
-    drug.quantity += self.quantity  # Restore stock
+    drug.quantity += self.quantity
     drug.save()
     super().delete(*args, **kwargs)

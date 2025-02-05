@@ -126,7 +126,7 @@ def dismiss_low_stock(request):
   return JsonResponse({"success": False})
 
 
-def edit_dispatch(request, dispatch_id):
+# def edit_dispatch(request, dispatch_id):
   dispatch = get_object_or_404(Dispatch, id=dispatch_id)
   original_drug = dispatch.drug  # Store the original drug
   original_quantity = dispatch.quantity  # Store the original quantity
@@ -154,6 +154,22 @@ def edit_dispatch(request, dispatch_id):
   return render(request, 'drugapp/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
 
 
+def edit_dispatch(request, dispatch_id):
+  dispatch = get_object_or_404(Dispatch, id=dispatch_id)
+  
+  if request.method == "POST":
+      form = DispatchEditForm(request.POST, instance=dispatch)
+      if form.is_valid():
+          # Save the form, which will trigger the save method on the Dispatch model
+          try:
+              form.save()  # The model logic handles stock updates
+              return redirect('drugapp:dispatch_drug')  # Redirect to dispatch list page or wherever
+          except ValueError as e:
+              messages.error(request, str(e))  # Display error message if not enough stock
+  else:
+      form = DispatchEditForm(instance=dispatch)
+
+  return render(request, 'drugapp/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
 
 def delete_dispatch(request, dispatch_id):
   dispatch = get_object_or_404(Dispatch, id=dispatch_id)
