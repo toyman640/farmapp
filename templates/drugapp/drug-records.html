@@ -31,13 +31,13 @@
           </thead>
           <tbody>
             {% for d in page_obj %}
-            <tr>
-              <td scope="row">{{ d.manufacturer_name }} </td>
-              <td>{{ d.drug_name }}</td>
-              <td>{{ d.batch_number }}</td>
-              <td>{{ d.quantity }}</td>
-              <td>{{ d.expiry_date }}</td>
-            </tr>
+              <tr>
+                <td scope="row"><a href="{% url 'drugapp:drug_detail' d.id %}">{{ d.manufacturer_name }}</a></td>
+                <td>{{ d.drug_name }}</td>
+                <td>{{ d.batch_number }}</td>
+                <td>{{ d.quantity }}</td>
+                <td>{{ d.expiry_date }}</td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>

@@ -87,6 +87,10 @@ def drugs_list(request):
   page_obj = paginator.get_page(page_number)
   return render(request, 'drugapp/drug-records.html', {'page_obj': page_obj})
 
+def drug_detail(request, drug_id):
+  drug = get_object_or_404(Drug, id=drug_id)
+  return render(request, 'drugapp/drug-info.html', {'drug': drug})
+
 def dispatch_drug(request):
     five_days_ago = now().date() - timedelta(days=5)
     dispatched = Dispatch.objects.filter(dispatched_at__date__gte=five_days_ago).order_by('-dispatched_at')
@@ -121,53 +125,26 @@ def dispatch_drug(request):
 def dismiss_low_stock(request):
   if request.method == "POST":
     drug_id = request.POST.get("drug_id")
-    Drug.objects.filter(id=drug_id).update(restock_quantity_notify=0)  # Set notify level to 0 (hidden)
+    Drug.objects.filter(id=drug_id).update(restock_quantity_notify=0)
     return JsonResponse({"success": True})
   return JsonResponse({"success": False})
 
-
-# def edit_dispatch(request, dispatch_id):
-  dispatch = get_object_or_404(Dispatch, id=dispatch_id)
-  original_drug = dispatch.drug  # Store the original drug
-  original_quantity = dispatch.quantity  # Store the original quantity
-
-  if request.method == "POST":
-      form = DispatchEditForm(request.POST, instance=dispatch)
-      if form.is_valid():
-          new_dispatch = form.save(commit=False)
-
-          # Restore the previous drug's quantity
-          original_drug.quantity += original_quantity
-          original_drug.save()
-
-          # Check if the new drug has enough stock
-          if new_dispatch.drug.quantity >= new_dispatch.quantity:
-              new_dispatch.drug.quantity -= new_dispatch.quantity
-              new_dispatch.drug.save()
-              new_dispatch.save()
-              return redirect('drugapp:dispatch_drug')
-          else:
-              messages.error(request, "Not enough stock for the new drug.")
-  else:
-      form = DispatchEditForm(instance=dispatch)
-
-  return render(request, 'drugapp/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
 
 
 def edit_dispatch(request, dispatch_id):
   dispatch = get_object_or_404(Dispatch, id=dispatch_id)
   
   if request.method == "POST":
-      form = DispatchEditForm(request.POST, instance=dispatch)
-      if form.is_valid():
-          # Save the form, which will trigger the save method on the Dispatch model
-          try:
-              form.save()  # The model logic handles stock updates
-              return redirect('drugapp:dispatch_drug')  # Redirect to dispatch list page or wherever
-          except ValueError as e:
-              messages.error(request, str(e))  # Display error message if not enough stock
+    form = DispatchEditForm(request.POST, instance=dispatch)
+    if form.is_valid():
+      # Save the form, which will trigger the save method on the Dispatch model
+      try:
+        form.save()  # The model logic handles stock updates
+        return redirect('drugapp:dispatch_drug')  # Redirect to dispatch list page or wherever
+      except ValueError as e:
+        messages.error(request, str(e))  # Display error message if not enough stock
   else:
-      form = DispatchEditForm(instance=dispatch)
+    form = DispatchEditForm(instance=dispatch)
 
   return render(request, 'drugapp/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
 
@@ -180,3 +157,24 @@ def delete_dispatch(request, dispatch_id):
     return JsonResponse({"success": True, "message": "Dispatch record deleted successfully!"})
 
   return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+def edit_drug(request, drug_id):
+  drug = get_object_or_404(Drug, id=drug_id)
+  if request.method == 'POST':
+    form = DrugForm(request.POST, instance=drug)
+    if form.is_valid():
+      form.save()
+      return redirect('drugapp:drugs_list')
+  else:
+    form = DrugForm(instance=drug)
+  return render(request, 'drugapp/edit-drug.html', {'form': form, 'drug': drug})
+
+
+def delete_drug(request, drug_id):
+  drug = get_object_or_404(Drug, id=drug_id)
+
+  if request.method == 'POST':
+    drug.delete()
+    return redirect('drugapp:drugs_list')
+
+  return render(request, 'drugapp/confirm_delete.html', {'drug': drug})

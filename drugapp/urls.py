@@ -12,5 +12,8 @@ urlpatterns = [
   path('dispatch-drug/', views.dispatch_drug, name='dispatch_drug'),
   path('dismis-low-stock', views.dismiss_low_stock, name='dismiss_low_stock'),
   path('dispatch/edit/<int:dispatch_id>/', views.edit_dispatch, name='edit_dispatch'),
-   path("dispatch/delete/<int:dispatch_id>/", views.delete_dispatch, name="delete_dispatch"),
+  path("dispatch/delete/<int:dispatch_id>/", views.delete_dispatch, name="delete_dispatch"),
+  path('drug/<int:drug_id>/', views.drug_detail, name='drug_detail'),
+  path('drug/edit/<int:drug_id>/', views.edit_drug, name='edit_drug'),
+  path('drug/<int:drug_id>/delete/', views.delete_drug, name='delete_drug'),
 ]
