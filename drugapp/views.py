@@ -121,28 +121,56 @@ def dismiss_low_stock(request):
 
 #   return render(request, 'drugapp/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
 
+# def edit_dispatch(request, dispatch_id):
+#   dispatch = get_object_or_404(Dispatch, id=dispatch_id)
+
+#   if request.method == "POST":
+#     form = DispatchEditForm(request.POST, instance=dispatch)
+#     if form.is_valid():
+#       new_dispatch = form.save(commit=False)
+
+#       # Restore the original quantity back to the drug before saving new changes
+#       original_quantity = dispatch.quantity
+#       dispatch.drug.quantity += original_quantity  # Add back the old quantity
+      
+#       if dispatch.drug.quantity >= new_dispatch.quantity:
+#         dispatch.drug.quantity -= new_dispatch.quantity  # Deduct new quantity
+#         dispatch.drug.save()
+#         new_dispatch.save()
+#         return redirect('drugapp:dispatch_drug')
+#       else:
+#         messages.error(request, "Not enough stock to update dispatch.")
+#   else:
+#     form = DispatchEditForm(instance=dispatch)
+
+#   return render(request, 'drugapp/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
+
 def edit_dispatch(request, dispatch_id):
   dispatch = get_object_or_404(Dispatch, id=dispatch_id)
+  original_drug = dispatch.drug  # Store the original drug
+  original_quantity = dispatch.quantity  # Store the original quantity
 
   if request.method == "POST":
-    form = DispatchEditForm(request.POST, instance=dispatch)
-    if form.is_valid():
-      new_dispatch = form.save(commit=False)
+      form = DispatchEditForm(request.POST, instance=dispatch)
+      if form.is_valid():
+          new_dispatch = form.save(commit=False)
 
-      # Restore the original quantity back to the drug before saving new changes
-      original_quantity = dispatch.quantity
-      dispatch.drug.quantity += original_quantity  # Add back the old quantity
-      
-      if dispatch.drug.quantity >= new_dispatch.quantity:
-        dispatch.drug.quantity -= new_dispatch.quantity  # Deduct new quantity
-        dispatch.drug.save()
-        new_dispatch.save()
-        return redirect('drugapp:dispatch_drug')
-      else:
-        messages.error(request, "Not enough stock to update dispatch.")
+          # Restore the previous drug's quantity
+          original_drug.quantity += original_quantity
+          original_drug.save()
+
+          # Check if the new drug has enough stock
+          if new_dispatch.drug.quantity >= new_dispatch.quantity:
+              new_dispatch.drug.quantity -= new_dispatch.quantity
+              new_dispatch.drug.save()
+              new_dispatch.save()
+              return redirect('drugapp:dispatch_drug')
+          else:
+              messages.error(request, "Not enough stock for the new drug.")
   else:
-    form = DispatchEditForm(instance=dispatch)
+      form = DispatchEditForm(instance=dispatch)
 
   return render(request, 'drugapp/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
+
 
 
