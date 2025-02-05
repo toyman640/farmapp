@@ -25,8 +25,7 @@
       <div class="collapse" id="dispatchCollapse">
         <div class="container row">
           {% with colors="primary,success,danger,warning,info,secondary" %} 
-          {% for date, dispatches in grouped_dispatches.items %} {% with
-          color=colors.split|slice:forloop.counter0|first %}
+          {% for date, dispatches in grouped_dispatches.items %}
           <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
             <div class="card bg-{{ color }}">
               <div class="card-header text-center font-weight-bold">
@@ -60,7 +59,7 @@
           </p>
          
           {% endfor %}
-          {% endwith %}
+          {%endwith%}
         </div>
       </div>
     </div>
@@ -102,6 +101,22 @@
       </form>
     </div>
     <div class="box_general padding_bottom">
+      <form method="get" action="{% url 'drugapp:dispatch_filter' %}">
+        <div class="row">
+            From
+            <div class="col-lg-3 col-md-12 form-group">
+                {{ dispatch_filter.start_date }}
+            </div>
+              <p>To</p>
+            <div class="col-lg-3 col-md-12 form-group">
+                {{ dispatch_filter.end_date }}
+            </div>
+            <div class="col-lg-4 col-md-12 form-group">
+                {{ dispatch_filter.drug_name }}
+            </div>
+        </div>
+        <input type="submit" class="btn btn-outline-info btn-sm" value="Filter">
+    </form>
       <div class="d-flex justify-content-between">
         <h2 class="text-primary">Dispatch Records</h2>
         <i
@@ -115,6 +130,7 @@
       </div>
 
       <div class="collapse show" id="dispatchTable">
+        
         <div class="table-responsive">
           <table class="table table-hover">
             <thead>
@@ -187,8 +203,7 @@
 
             <li class="page-item disabled">
               <span class="page-link"
-                >Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages
-                }}</span
+                >Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages}}</span
               >
             </li>
 
@@ -206,6 +221,7 @@
               >
             </li>
             {% endif %}
+          
           </ul>
         </nav>
       </div>

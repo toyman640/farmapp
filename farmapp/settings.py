@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'crispy_forms',
     'cloudinary',
+    'django_filters',
     'mathfilters',
     'main',
     'humanR',

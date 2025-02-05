@@ -21,13 +21,22 @@
       {% if drug %}
         <h3>{{ drug.drug_name }}</h3>
         <p><strong>Manufacturer:</strong> {{ drug.manufacturer_name }}</p>
+        <p><strong>Drug Name:</strong> {{ drug.drug_name }}</p>
         <p><strong>Batch Number:</strong> {{ drug.batch_number }}</p>
         <p><strong>Stock Quantity:</strong> {{ drug.quantity }} {{ drug.unit }}</p>
+        <p><strong>Manufacturing Date:</strong> {{ drug.manufacturing_date }}</p>
+        <p><strong>Expiry Date:</strong> {{ drug.expiry_date }}</p>
+        <p><strong>Restock Notification Quantity:</strong> {{ drug.restock_quantity_notify }} {{ drug.unit }}</p>
+        <p><strong>Entered By:</strong> {{ drug.logged_by }}</p>
 
         <!-- Action Buttons -->
-        <a class="btn btn-warning" href="{% url 'drugapp:drugs_list' %}">Back</a>
-        <a class="btn btn-primary" href="{% url 'drugapp:edit_drug' drug.id %}">Edit</a>
-        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Delete</button>
+        <div class="d-flex justify-content-between">
+          <div>
+            <a class="btn btn-warning" href="{% url 'drugapp:drugs_list' %}">Back</a>
+            <a class="btn btn-primary" href="{% url 'drugapp:edit_drug' drug.id %}">Edit</a>
+          </div>
+          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Delete</button>
+        </div>
       {% endif %}
     </div>
   </div>
@@ -39,13 +48,15 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <div class="modal-body">
         Are you sure you want to delete <strong>{{ drug.drug_name }}</strong>?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
         <form method="POST" action="{% url 'drugapp:delete_drug' drug.id %}">
           {% csrf_token %}
           <button type="submit" class="btn btn-danger">Delete</button>

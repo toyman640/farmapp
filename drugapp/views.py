@@ -8,8 +8,9 @@ from django.db.models import F
 from django.contrib import messages
 from django.forms import formset_factory
 from .models import Drug, Dispatch, Unit
-from .forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm
+from .forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter
 from django.core.paginator import Paginator
+
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -49,17 +50,6 @@ def view_unit(request, unit_id):
   unit = get_object_or_404(Unit, id=unit_id)
   return render(request, 'drugapp/drug-records.html', {'unit': unit})
 
-# def add_drug(request):
-#     if request.method == 'POST':
-#         form = DrugForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, "Drug added successfully!")
-#             return redirect('drugapp:add_drug')
-#     else:
-#       form = DrugForm()
-    
-#     return render(request, 'drugapp/add-drugs.html', {'form': form})
 
 def add_drug(request):
   if request.method == 'POST':
@@ -92,35 +82,36 @@ def drug_detail(request, drug_id):
   return render(request, 'drugapp/drug-info.html', {'drug': drug})
 
 def dispatch_drug(request):
-    five_days_ago = now().date() - timedelta(days=5)
-    dispatched = Dispatch.objects.filter(dispatched_at__date__gte=five_days_ago).order_by('-dispatched_at')
-    all_dispatch = Dispatch.objects.all().order_by('-dispatched_at')
-    paginator = Paginator(all_dispatch, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    DispatchFormSet = formset_factory(DispatchForm, extra=0)
+  five_days_ago = now().date() - timedelta(days=5)
+  dispatched = Dispatch.objects.filter(dispatched_at__date__gte=five_days_ago).order_by('-dispatched_at')
+  all_dispatch = Dispatch.objects.all().order_by('-dispatched_at')
+  dispatch_filter = DispatchFilter()
+  paginator = Paginator(all_dispatch, 10)
+  page_number = request.GET.get('page')
+  page_obj = paginator.get_page(page_number)
+  DispatchFormSet = formset_factory(DispatchForm, extra=0)
 
-    grouped_dispatches = defaultdict(list)
-    for dispatch in dispatched:
-      dispatch_date = localtime(dispatch.dispatched_at).date()
-      grouped_dispatches[dispatch_date].append(dispatch)
+  grouped_dispatches = defaultdict(list)
+  for dispatch in dispatched:
+    dispatch_date = localtime(dispatch.dispatched_at).date()
+    grouped_dispatches[dispatch_date].append(dispatch)
 
-    if request.method == 'POST':
-      formset = DispatchFormSet(request.POST)
-      if formset.is_valid():
-        for form in formset:
-          if form.cleaned_data:
-            dispatch = form.save(commit=False)
-            dispatch.dispatched_by = request.user
-            dispatch.save()
-        messages.success(request, "Drugs dispatched successfully!")
-        return redirect('drugapp:dispatch_drug')  
-      else:
-          messages.error(request, "There was an error in the form.")
-
+  if request.method == 'POST':
+    formset = DispatchFormSet(request.POST)
+    if formset.is_valid():
+      for form in formset:
+        if form.cleaned_data:
+          dispatch = form.save(commit=False)
+          dispatch.dispatched_by = request.user
+          dispatch.save()
+      messages.success(request, "Drugs dispatched successfully!")
+      return redirect('drugapp:dispatch_drug')  
     else:
-        formset = DispatchFormSet()
-    return render(request, 'drugapp/dispatch-drug.html', {'formset': formset, 'page_obj': page_obj, 'grouped_dispatches': dict(grouped_dispatches) })
+        messages.error(request, "There was an error in the form.")
+
+  else:
+      formset = DispatchFormSet()
+  return render(request, 'drugapp/dispatch-drug.html', {'formset': formset, 'dispatch_filter': dispatch_filter, 'page_obj': page_obj,'grouped_dispatches': dict(grouped_dispatches) })
 
 def dismiss_low_stock(request):
   if request.method == "POST":
@@ -178,3 +169,32 @@ def delete_drug(request, drug_id):
     return redirect('drugapp:drugs_list')
 
   return render(request, 'drugapp/confirm_delete.html', {'drug': drug})
+
+
+def dispatch_filter(request):
+  if request.method == 'GET':
+      dispatch_query = DispatchFilter(request.GET)
+      if dispatch_query.is_valid():
+          start_date = dispatch_query.cleaned_data.get('start_date')
+          end_date = dispatch_query.cleaned_data.get('end_date')
+          drug_name = dispatch_query.cleaned_data.get('drug_name')
+          filters = {}
+
+          # Apply filters
+          if start_date:
+              filters['dispatched_at__gte'] = start_date
+          if end_date:
+              filters['dispatched_at__lte'] = end_date
+          if drug_name:
+              filters['drug__drug_name__icontains'] = drug_name
+
+          # Query the filtered dispatches
+          result = Dispatch.objects.filter(**filters).order_by('-dispatched_at')
+          print(result)
+
+          return render(request, 'drugapp/filter-dispatch-list.html', {'dispatches': result, 'dispatch_filter': dispatch_query})
+
+  else:
+    dispatch_query = DispatchFilter()
+
+  return render(request, 'drugapp/filter-dispatch-list.html', {'dispatch_filter': dispatch_query})

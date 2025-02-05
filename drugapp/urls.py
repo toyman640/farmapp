@@ -16,4 +16,5 @@ urlpatterns = [
   path('drug/<int:drug_id>/', views.drug_detail, name='drug_detail'),
   path('drug/edit/<int:drug_id>/', views.edit_drug, name='edit_drug'),
   path('drug/<int:drug_id>/delete/', views.delete_drug, name='delete_drug'),
+  path('dispatch/filter/', views.dispatch_filter, name='dispatch_filter'),
 ]

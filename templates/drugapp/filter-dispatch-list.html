@@ -1,0 +1,51 @@
+{% extends 'drugapp/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<!Doctype html>
+{% block title %} Dispatch List {% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+      <li class="breadcrumb-item active">Dispatch List</li>
+    </ol>
+
+    <div id="alert-container"></div>
+
+    <div class="box_general">
+      <div class="table-responsive">
+        
+        {% if dispatches %}
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Drug Name</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Unit</th>
+              <th scope="col">Dispatched At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for dispatch in dispatches  %}
+              <tr>
+                <td>{{ dispatch.drug.drug_name }}</td>
+                <td>{{ dispatch.quantity }}</td>
+                <td>{{ dispatch.unit }}</td>
+                <td>{{ dispatch.dispatched_at }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+          <p>No records found.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
