@@ -155,3 +155,12 @@ def edit_dispatch(request, dispatch_id):
 
 
 
+def delete_dispatch(request, dispatch_id):
+  dispatch = get_object_or_404(Dispatch, id=dispatch_id)
+
+  if request.method == "POST":
+    dispatch.delete()  # This will also restore the quantity in the `Drug` model
+    messages.success(request, "Dispatch record deleted successfully!")
+    return JsonResponse({"success": True, "message": "Dispatch record deleted successfully!"})
+
+  return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)

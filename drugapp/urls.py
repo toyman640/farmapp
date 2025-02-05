@@ -12,4 +12,5 @@ urlpatterns = [
   path('dispatch-drug/', views.dispatch_drug, name='dispatch_drug'),
   path('dismis-low-stock', views.dismiss_low_stock, name='dismiss_low_stock'),
   path('dispatch/edit/<int:dispatch_id>/', views.edit_dispatch, name='edit_dispatch'),
+   path("dispatch/delete/<int:dispatch_id>/", views.delete_dispatch, name="delete_dispatch"),
 ]

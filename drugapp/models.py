@@ -81,3 +81,10 @@ class Dispatch(models.Model):
         raise ValueError("Not enough stock to dispatch")
 
     super().save(*args, **kwargs)
+  
+  def delete(self, *args, **kwargs):
+    """Restore quantity to the drug when dispatch is deleted"""
+    drug = self.drug
+    drug.quantity += self.quantity  # Restore stock
+    drug.save()
+    super().delete(*args, **kwargs)

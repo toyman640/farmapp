@@ -1,96 +1,121 @@
-{% extends 'drugapp/base.html' %}
-{% load crispy_forms_tags %}
-{% load static %}
+{% extends 'drugapp/base.html' %} {% load crispy_forms_tags %} {% load static %}
+{% block title %} Dispatch Drugs {% endblock %} 
 
-{% block title %} Dispatch Drugs {% endblock %}
 
 {% block content %}
-  <div class="content-wrapper">
-    <div class="container-fluid">
-      <!-- Breadcrumbs -->
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-        <li class="breadcrumb-item active">Dispatch Drug</li>
-      </ol>
-      <div class="box_general padding_bottom">
-        <div class="d-flex justify-content-between">
-          <h2 class="text-primary mb-3" >
-            Latest Dispatch
-          </h2>
-          <i class="fa fa-angle-down" style="font-size: 2rem; cursor: pointer;" data-toggle="collapse" data-target="#dispatchCollapse" aria-expanded="false" aria-controls="dispatchCollapse"></i>
-        </div>
-        <div class="collapse" id="dispatchCollapse">
-          <div class="container row">
-            {% with colors="primary,success,danger,warning,info,secondary" %}
-            {% for date, dispatches in grouped_dispatches.items %}
-            {% with color=colors.split|slice:forloop.counter0|first %}
-              <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-                <div class="card bg-{{ color }}" >
-                  <div class="card-header text-center font-weight-bold">
-                    {{ date }}
-                  </div>
-                  <ul class="list-group list-group-flush dispatch-card" style="height: 300px; overflow-y: auto;">
-                    {% for d in dispatches %}
-                      <li class="list-group-item d-flex justify-content-between">
-                        <span>{{ d.drug.drug_name }}</span>
-                        <span><strong>{{ d.quantity }}</strong></span>
-                      </li>
-                    {% endfor %}
-                  </ul>
-                  <div class="card-footer text-center">
-                    <small>Dispatched by: {{ dispatches.0.dispatched_by.username|default:"Unknown" }}</small>
-                  </div>
-                </div>
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+      <li class="breadcrumb-item active">Dispatch Drug</li>
+    </ol>
+    <div class="box_general padding_bottom">
+      <div class="d-flex justify-content-between">
+        <h2 class="text-primary mb-3">Latest Dispatch</h2>
+        <i
+          class="fa fa-angle-down"
+          style="font-size: 2rem; cursor: pointer"
+          data-toggle="collapse"
+          data-target="#dispatchCollapse"
+          aria-expanded="false"
+          aria-controls="dispatchCollapse"
+        ></i>
+      </div>
+      <div class="collapse" id="dispatchCollapse">
+        <div class="container row">
+          {% with colors="primary,success,danger,warning,info,secondary" %} 
+          {% for date, dispatches in grouped_dispatches.items %} {% with
+          color=colors.split|slice:forloop.counter0|first %}
+          <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+            <div class="card bg-{{ color }}">
+              <div class="card-header text-center font-weight-bold">
+                {{ date }}
               </div>
-              {% endwith %}
-            
-            {% empty %}
-              <p class="text-center text-muted">No dispatch records available in the last 5 days.</p>
-            {% endfor %}
-            {% endwith %}
+              <ul
+                class="list-group list-group-flush dispatch-card"
+                style="height: 300px; overflow-y: auto"
+              >
+                {% for d in dispatches %}
+                <li class="list-group-item d-flex justify-content-between">
+                  <span>{{ d.drug.drug_name }}</span>
+                  <span><strong>{{ d.quantity }}</strong></span>
+                </li>
+                {% endfor %}
+              </ul>
+              <div class="card-footer text-center">
+                <small
+                  >Dispatched by: {{
+                  dispatches.0.dispatched_by.username|default:"Unknown"
+                  }}</small
+                >
+              </div>
+            </div>
           </div>
+
+         
+          {% empty %}
+          <p class="text-center text-muted">
+            No dispatch records available in the last 5 days.
+          </p>
+         
+          {% endfor %}
+          {% endwith %}
         </div>
       </div>
+    </div>
 
-      <div class="box_general padding_bottom">
-        <!-- Button to add more forms -->
-        <button class="btn text-success" id="add-form-btn">
-          <i class="bi bi-plus-circle"></i> Dispatch drug
+    <div class="box_general padding_bottom">
+      <!-- Button to add more forms -->
+      <button class="btn text-success" id="add-form-btn">
+        <i class="bi bi-plus-circle"></i> Dispatch drug
+      </button>
+
+      <!-- Dispatch Drug Formset -->
+      {% if messages %}
+      <div class="alert-messages">
+        {% for message in messages %}
+        <div class="alert {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post" id="dispatchFormSet">
+        {% csrf_token %}
+        <div id="formset-container" class="row">
+          {% for form in formset %}
+          <div class="col-lg-4 col-md-6 col-sm-12 mb-3 form-row">
+            <div class="form-card p-3">
+              {% crispy form %}
+              <button type="button" class="btn btn-danger btn-sm remove-form">
+                Remove
+              </button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        {{ formset.management_form }}
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          Submit Dispatch
         </button>
-
-        <!-- Dispatch Drug Formset -->
-        {% if messages %}
-          <div class="alert-messages">
-            {% for message in messages %}
-              <div class="alert {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-          </div>
-        {% endif %}
-
-        <form method="post" id="dispatchFormSet">
-          {% csrf_token %}
-          <div id="formset-container" class="row">
-            {% for form in formset %}
-              <div class="col-lg-4 col-md-6 col-sm-12 mb-3 form-row">
-                <div class="form-card p-3">
-                  {% crispy form %}
-                  <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
-
-          {{ formset.management_form }}
-          <button type="submit" class="btn btn-primary" id="submit-btn">Submit Dispatch</button>
-        </form>
+      </form>
+    </div>
+    <div class="box_general padding_bottom">
+      <div class="d-flex justify-content-between">
+        <h2 class="text-primary">Dispatch Records</h2>
+        <i
+          class="fa fa-angle-down"
+          data-toggle="collapse"
+          data-target="#dispatchTable"
+          aria-expanded="false"
+          aria-controls="dispatchTable"
+          style="cursor: pointer; font-size: 1.5rem"
+        ></i>
       </div>
-      <div class="box_general padding_bottom">
-        <div class="d-flex justify-content-between">
-          <h2 class="text-primary">Dispatch Records</h2>
-          <i class="fa fa-angle-down" data-toggle="collapse" data-target="#dispatchTable" aria-expanded="false" aria-controls="dispatchTable" style="cursor: pointer; font-size: 1.5rem;"></i>
-        </div>
-      
-        <div class="collapse show" id="dispatchTable">
+
+      <div class="collapse show" id="dispatchTable">
+        <div class="table-responsive">
           <table class="table table-hover">
             <thead>
               <tr>
@@ -103,162 +128,286 @@
             </thead>
             <tbody>
               {% for a in page_obj %}
-              <tr data-toggle="modal" data-target="#viewModal" onclick="showDetails('{{ a.id }}', '{{ a.drug.drug_name }}', '{{ a.quantity }}', '{{ a.unit }}', '{{ a.dispatched_at|date:"Y-m-d" }}', '{{ a.dispatched_by }}')">
-                <td>{{ a.drug.drug_name }}</td>
+              <tr>
+                <td
+                  data-toggle="modal"
+                  data-target="#viewModal"
+                  onclick="showDetails('{{ a.id }}', '{{ a.drug.drug_name }}', '{{ a.quantity }}', '{{ a.unit }}', '{{ a.dispatched_at|date:'Y-m-d' }}', '{{ a.dispatched_by }}')"
+                >
+                  {{ a.drug.drug_name }}
+                </td>
                 <td>{{ a.quantity }} {{ a.unit }}</td>
                 <td>{{ a.dispatched_at|date:"Y-m-d" }}</td>
                 <td>{{ a.dispatched_by }}</td>
                 <td>
-                  <a href="{% url 'drugapp:edit_dispatch' a.id %}" class="btn btn-warning btn-sm">Edit</a>
-              </td>
+                  <a
+                    href="{% url 'drugapp:edit_dispatch' a.id %}"
+                    class="btn btn-warning btn-sm"
+                    >Edit</a
+                  >
+                </td>
+                <td>
+                  <a
+                    href="#"
+                    class="btn btn-danger btn-sm delete-dispatch"
+                    data-toggle="modal"
+                    data-target="#deleteModal"
+                    data-id="{{ a.id }}"
+                  >
+                    Delete
+                  </a>
+                </td>
               </tr>
               {% empty %}
               <tr>
-                <td colspan="5" class="text-center text-muted">No dispatch records available.</td>
+                <td colspan="5" class="text-center text-muted">
+                  No dispatch records available.
+                </td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
-      
-          <!-- Pagination -->
-          <nav>
-            <ul class="pagination justify-content-center">
-              {% if page_obj.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
-              {% endif %}
-      
-              <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
-      
-              {% if page_obj.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
-              {% endif %}
-            </ul>
-          </nav>
         </div>
+
+        <!-- Pagination -->
+        <nav>
+          <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1">&laquo; First</a>
+            </li>
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{ page_obj.previous_page_number }}"
+                >Previous</a
+              >
+            </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+              <span class="page-link"
+                >Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages
+                }}</span
+              >
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}"
+                >Next</a
+              >
+            </li>
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{ page_obj.paginator.num_pages }}"
+                >Last &raquo;</a
+              >
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
       </div>
-      
-      <!-- View Drug Details Modal -->
-      <div class="modal fade" id="viewModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Drug Details</h5>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-              <p><strong>Drug Name:</strong> <span id="viewDrugName"></span></p>
-              <p><strong>Quantity:</strong> <span id="viewQuantity"></span></p>
-              <p><strong>Dispatched on:</strong> <span id="viewDate"></span></p>
-              <p><strong>Dispatched by:</strong> <span id="viewDispatcher"></span></p>
-            </div>
+    </div>
+
+    <!-- View Drug Details Modal -->
+    <div class="modal fade" id="viewModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Drug Details</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              &times;
+            </button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Drug Name:</strong> <span id="viewDrugName"></span></p>
+            <p><strong>Quantity:</strong> <span id="viewQuantity"></span></p>
+            <p><strong>Dispatched on:</strong> <span id="viewDate"></span></p>
+            <p>
+              <strong>Dispatched by:</strong> <span id="viewDispatcher"></span>
+            </p>
           </div>
         </div>
       </div>
-         
-      
     </div>
   </div>
 
+  <!-- Delete Confirmation Modal -->
+  <div
+    class="modal fade"
+    id="deleteModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="deleteModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete this dispatch record?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
+<script>
+      document.addEventListener("DOMContentLoaded", function () {
+          var formsetContainer = document.getElementById("formset-container");
+          var addFormBtn = document.getElementById("add-form-btn");
+          var totalForms = document.getElementById("id_form-TOTAL_FORMS");
+          var submitBtn = document.getElementById("submit-btn");
+          var maxForms = 3;
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var formsetContainer = document.getElementById("formset-container");
-        var addFormBtn = document.getElementById("add-form-btn");
-        var totalForms = document.getElementById("id_form-TOTAL_FORMS");
-        var submitBtn = document.getElementById("submit-btn");
-        var maxForms = 3;
+          function updateSubmitButton() {
+              submitBtn.style.display = formsetContainer.children.length > 0 ? "block" : "none";
+          }
 
-        function updateSubmitButton() {
-            submitBtn.style.display = formsetContainer.children.length > 0 ? "block" : "none";
-        }
+          function addRemoveFormEvent(removeBtn) {
+              removeBtn.addEventListener("click", function () {
+                  this.closest(".form-row").remove();
+                  totalForms.value = formsetContainer.children.length;
+                  updateSubmitButton();
+              });
+          }
 
-        function addRemoveFormEvent(removeBtn) {
-            removeBtn.addEventListener("click", function () {
-                this.closest(".form-row").remove();
-                totalForms.value = formsetContainer.children.length;
-                updateSubmitButton();
-            });
-        }
+          // Attach remove event to existing forms
+          document.querySelectorAll(".remove-form").forEach(addRemoveFormEvent);
+          updateSubmitButton();
 
-        // Attach remove event to existing forms
-        document.querySelectorAll(".remove-form").forEach(addRemoveFormEvent);
-        updateSubmitButton();
+          addFormBtn.addEventListener("click", function () {
+              var formIndex = Number(totalForms.value);
 
-        addFormBtn.addEventListener("click", function () {
-            var formIndex = Number(totalForms.value);
+              if (formIndex < maxForms) {
+                  var emptyForm = `{{ formset.empty_form|crispy|escapejs }}`;
+                  var newFormHTML = emptyForm.replace(/__prefix__/g, formIndex);
 
-            if (formIndex < maxForms) {
-                var emptyForm = `{{ formset.empty_form|crispy|escapejs }}`;
-                var newFormHTML = emptyForm.replace(/__prefix__/g, formIndex);
+                  var newFormDiv = document.createElement("div");
+                  newFormDiv.classList.add("col-lg-4", "col-md-6", "col-sm-12", "mb-3", "form-row");
+                  newFormDiv.innerHTML = `
+                    <div class="form-card p-3">
+                      ${newFormHTML}
+                      <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
+                    </div>
+                  `;
 
-                var newFormDiv = document.createElement("div");
-                newFormDiv.classList.add("col-lg-4", "col-md-6", "col-sm-12", "mb-3", "form-row");
-                newFormDiv.innerHTML = `
-                  <div class="form-card p-3">
-                    ${newFormHTML}
-                    <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
-                  </div>
-                `;
+                  formsetContainer.appendChild(newFormDiv);
+                  totalForms.value = formsetContainer.children.length;
 
-                formsetContainer.appendChild(newFormDiv);
-                totalForms.value = formsetContainer.children.length;
+                  // Attach event to the newly added remove button
+                  addRemoveFormEvent(newFormDiv.querySelector(".remove-form"));
 
-                // Attach event to the newly added remove button
-                addRemoveFormEvent(newFormDiv.querySelector(".remove-form"));
+                  updateSubmitButton();
+              } else {
+                  alert("Maximum of 3 forms allowed!");
+              }
+          });
+      });
+      document.addEventListener("DOMContentLoaded", function () {
+        var collapseIcon = document.querySelector(".fa-angle-down");
+        var dispatchCollapse = document.getElementById("dispatchCollapse");
 
-                updateSubmitButton();
+        collapseIcon.style.cursor = "pointer"; // Set cursor to pointer
+
+        collapseIcon.addEventListener("click", function () {
+            if (dispatchCollapse.classList.contains("show")) {
+                this.classList.remove("fa-angle-up");
+                this.classList.add("fa-angle-down");
             } else {
-                alert("Maximum of 3 forms allowed!");
+                this.classList.remove("fa-angle-down");
+                this.classList.add("fa-angle-up");
             }
         });
     });
-    document.addEventListener("DOMContentLoaded", function () {
-      var collapseIcon = document.querySelector(".fa-angle-down");
-      var dispatchCollapse = document.getElementById("dispatchCollapse");
+      document.addEventListener("DOMContentLoaded", function () {
+        const scrollableCards = document.querySelectorAll(".dispatch-card");
 
-      collapseIcon.style.cursor = "pointer"; // Set cursor to pointer
+        scrollableCards.forEach(card => {
+            let timeout;
 
-      collapseIcon.addEventListener("click", function () {
-          if (dispatchCollapse.classList.contains("show")) {
-              this.classList.remove("fa-angle-up");
-              this.classList.add("fa-angle-down");
-          } else {
-              this.classList.remove("fa-angle-down");
-              this.classList.add("fa-angle-up");
-          }
-      });
-  });
-  document.addEventListener("DOMContentLoaded", function () {
-    const scrollableCards = document.querySelectorAll(".dispatch-card");
+            card.addEventListener("scroll", function () {
+                // Show scrollbar when scrolling
+                card.style.scrollbarColor = "#888 #f1f1f1"; // For Firefox
+                card.querySelector("::-webkit-scrollbar-thumb")?.style.setProperty("opacity", "1");
 
-    scrollableCards.forEach(card => {
-        let timeout;
+                // Clear previous timeout
+                clearTimeout(timeout);
 
-        card.addEventListener("scroll", function () {
-            // Show scrollbar when scrolling
-            card.style.scrollbarColor = "#888 #f1f1f1"; // For Firefox
-            card.querySelector("::-webkit-scrollbar-thumb")?.style.setProperty("opacity", "1");
-            
-            // Clear previous timeout
-            clearTimeout(timeout);
-
-            // Hide scrollbar after 1 second of inactivity
-            timeout = setTimeout(() => {
-                card.style.scrollbarColor = "transparent transparent"; // For Firefox
-                card.querySelector("::-webkit-scrollbar-thumb")?.style.setProperty("opacity", "0");
-            }, 1000);
+                // Hide scrollbar after 1 second of inactivity
+                timeout = setTimeout(() => {
+                    card.style.scrollbarColor = "transparent transparent"; // For Firefox
+                    card.querySelector("::-webkit-scrollbar-thumb")?.style.setProperty("opacity", "0");
+                }, 1000);
+            });
         });
+      });
+      function showDetails(id, name, quantity, unit, date, dispatcher) {
+      document.getElementById("viewDrugName").textContent = name;
+      document.getElementById("viewQuantity").textContent = quantity + " " + unit;
+      document.getElementById("viewDate").textContent = date;
+      document.getElementById("viewDispatcher").textContent = dispatcher;
+    }
+    $(document).ready(function () {
+    var dispatchIdToDelete = null; // Store the ID of the dispatch to delete
+
+    // Event listener for delete buttons
+    $(".delete-dispatch").click(function (event) {
+      event.preventDefault(); // Prevent the default link action
+
+      // Get the dispatch ID from the data-id attribute
+      dispatchIdToDelete = $(this).data("id");
+      console.log(dispatchIdToDelete);
+    });
+
+    // Handle the confirm delete action
+    $("#confirmDeleteBtn").click(function () {
+      var csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+      var row = $(".delete-dispatch[data-id='" + dispatchIdToDelete + "']").closest("tr");
+
+      // Perform the AJAX request to delete the dispatch record
+      $.ajax({
+        url: `/drug-inventory/dispatch/delete/${dispatchIdToDelete}/`,
+
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: csrfToken
+        },
+        success: function (data) {
+          if (data.success) {
+            alert(data.message);
+            row.remove(); // Remove the row from the table
+          } else {
+            alert("Failed to delete dispatch.");
+          }
+          $('#deleteModal').modal('hide'); // Close the modal
+        },
+        error: function () {
+          alert("An error occurred. Please try again.");
+          $('#deleteModal').modal('hide'); // Close the modal in case of error
+        }
+      });
     });
   });
-  function showDetails(id, name, quantity, unit, date, dispatcher) {
-    document.getElementById("viewDrugName").textContent = name;
-    document.getElementById("viewQuantity").textContent = quantity + " " + unit;
-    document.getElementById("viewDate").textContent = date;
-    document.getElementById("viewDispatcher").textContent = dispatcher;
-  }
-
-  </script>
+</script>
 {% endblock %}
