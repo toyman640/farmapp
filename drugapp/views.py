@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from collections import defaultdict
-from django.utils.timezone import localtime, now
+from django.utils.timezone import localtime, now, localdate
 from django.db.models import Sum
 from datetime import timedelta
 from django.db.models import F
@@ -16,15 +16,16 @@ from django.views.decorators.csrf import csrf_exempt
 
 def drug_index(request):
   unit_form = UnitForm()
-  dispatch_form = DispatchForm()
   units = Unit.objects.all()
   low_stock_drugs = Drug.objects.filter(restock_quantity_notify__gte=F('quantity'))
+  today = localdate()
+  today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
 
   context = {
-      'unit_form': unit_form,
-      'dispatch_form': dispatch_form,
-      'units': units,
-      'low_stock_drugs': low_stock_drugs,
+    'unit_form': unit_form,
+    'units': units,
+    'low_stock_drugs': low_stock_drugs,
+    'today_dispatches': today_dispatches, 
   }
 
   return render(request, 'drugapp/index.html', context)

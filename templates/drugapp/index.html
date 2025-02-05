@@ -30,7 +30,7 @@
 
     <div class="box_general padding_bottom">
       <div class="d-flex justify-content-between">
-        <h4 class="text-center">Latest Drugs Dispatched</h4>
+        <h4 class="text-center">Recent Drugs Dispatched</h4>
 
 
       </div>
@@ -90,9 +90,35 @@
       <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
         <div class="box_general padding_bottom">
           <div class="header_box version_2">
-            <h2><i class="fa fa-bar-chart"></i> Statistic</h2>
+            <h2><i class="fa fa-bar-chart"></i> Today's Dispatch</h2>
           </div>
-          <canvas id="myAreaChart" width="100%" height="30"></canvas>
+          <div class="dispatch-card" style="height: 200px; overflow-y: auto">
+
+            <table class="table ">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Drug</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">By</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for dispatch in today_dispatches %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ dispatch.drug.drug_name }}</td>
+                    <td>{{ dispatch.quantity }}</td>
+                    <td>{{ dispatch.dispatched_by }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center">No dispatch records for today.</td>
+              </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
