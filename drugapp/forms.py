@@ -54,3 +54,9 @@ class DispatchFilter(forms.Form):
       required=False
   )
 
+
+class UpdateDrugQuantityForm(forms.ModelForm):
+  class Meta:
+    model = Drug
+    fields = ["quantity"]
+

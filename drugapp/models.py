@@ -11,7 +11,7 @@ class Unit(models.Model):
 
 class Drug(models.Model):
   manufacturer_name = models.CharField(max_length=255)
-  drug_name = models.CharField(max_length=255)
+  drug_name = models.CharField(max_length=255, unique=True)
   batch_number = models.CharField(max_length=100, unique=True)
   manufacturing_date = models.DateField()
   expiry_date = models.DateField()
@@ -19,6 +19,7 @@ class Drug(models.Model):
   unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
   logged_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
   restock_quantity_notify = models.PositiveIntegerField()
+  entered_at = models.DateTimeField(auto_now_add=True)
 
   def __str__(self):
     return f"{self.drug_name} ({self.batch_number})"
@@ -28,6 +29,87 @@ class Drug(models.Model):
 
   def is_expiring_soon(self):
     return now().date() >= self.expiry_date - timedelta(days=7)
+
+  def update_stock(self, new_quantity, user):
+    """
+    Update stock correctly:
+    - If increasing stock, add to previous quantity.
+    - If correcting a mistake, allow user to adjust last entry.
+    """
+    if new_quantity < 0:
+        raise ValueError("Stock quantity cannot be negative")
+
+    # Log previous quantity before updating
+    previous_quantity = self.quantity
+
+    # Update drug stock
+    self.quantity = new_quantity
+    self.save()
+
+    # Log the inventory change
+    InventoryLog.objects.create(
+        drug=self,
+        previous_quantity=previous_quantity,
+        new_quantity=new_quantity,
+        updated_by=user
+    )
+
+  def correct_stock(self, correct_quantity, user):
+    """
+    Correct stock in case of data entry errors.
+    - If there's a previous stock update, revert to the quantity before that update.
+    - Then apply the new correction.
+    - If no previous stock updates exist, adjust based on the original quantity.
+    """
+    last_log = self.inventory_logs.order_by('-updated_at').first()  # Get last stock update
+    print("last log", last_log)
+    print("last log new quantity", last_log.new_quantity)
+    print("last log old quantity", last_log.previous_quantity)
+    print("correct_quantity", correct_quantity)
+
+    if last_log:
+      # Get the correct reverted quantity
+      print("self.quantity", self.quantity)
+      reverted_quantity = last_log.previous_quantity + self.quantity
+      print("reverted_quantity", reverted_quantity)
+    else:
+        # If no previous updates, use the existing quantity
+      reverted_quantity = self.quantity
+
+    # Compute new stock level correctly
+    new_stock_level = reverted_quantity
+    print('new_stock_level', new_stock_level)
+
+    # Ensure stock is not negative
+    if new_stock_level < 0:
+        raise ValueError("Stock quantity cannot be negative.")
+
+    # Log previous quantity
+    previous_quantity = self.quantity
+
+    # Update drug stock
+    self.quantity = new_stock_level
+    self.save()
+
+    # Log the inventory correction
+    InventoryLog.objects.create(
+        drug=self,
+        previous_quantity=previous_quantity,
+        new_quantity=self.quantity,
+        updated_by=user
+    )
+
+
+
+class InventoryLog(models.Model):
+  drug = models.ForeignKey(Drug, on_delete=models.CASCADE, related_name="inventory_logs")
+  previous_quantity = models.PositiveIntegerField()
+  new_quantity = models.PositiveIntegerField()
+  updated_at = models.DateTimeField(auto_now=True)
+  updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+  def __str__(self):
+    return f"{self.drug.drug_name}: {self.previous_quantity} → {self.new_quantity}"
 
 
 class Dispatch(models.Model):

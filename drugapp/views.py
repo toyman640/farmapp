@@ -7,8 +7,8 @@ from datetime import timedelta
 from django.db.models import F
 from django.contrib import messages
 from django.forms import formset_factory
-from .models import Drug, Dispatch, Unit
-from .forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter
+from .models import Drug, Dispatch, Unit, InventoryLog
+from .forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm
 from django.core.paginator import Paginator
 
 from django.views.decorators.csrf import csrf_exempt
@@ -52,24 +52,82 @@ def view_unit(request, unit_id):
   return render(request, 'drugapp/drug-records.html', {'unit': unit})
 
 
+
+
+# def add_drug(request):
+#   if request.method == 'POST':
+#     form = DrugForm(request.POST)
+#     if form.is_valid():
+#       form.save()
+#       if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Check if AJAX
+#         return JsonResponse({"success": True, "message": "Drug added successfully!"})
+#       messages.success(request, "Drug added successfully!")
+#       return redirect('drugapp:add_drug')
+#     else:
+#       if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Handle AJAX errors
+#         return JsonResponse({"success": False, "message": "Error adding drug. Please check your input."})
+  
+#   else:
+#     form = DrugForm()
+
+#   return render(request, 'drugapp/add-drugs.html', {'form': form})
+
 def add_drug(request):
   if request.method == 'POST':
-    form = DrugForm(request.POST)
-    if form.is_valid():
-      form.save()
-      if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Check if AJAX
-        return JsonResponse({"success": True, "message": "Drug added successfully!"})
-      messages.success(request, "Drug added successfully!")
-      return redirect('drugapp:add_drug')
-    else:
-      if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Handle AJAX errors
-        return JsonResponse({"success": False, "message": "Error adding drug. Please check your input."})
-  
+      form = DrugForm(request.POST)
+      if form.is_valid():
+          drug = form.save(commit=False)  # Don't save yet
+          existing_drug = Drug.objects.filter(batch_number=drug.batch_number).first()
+          
+          if existing_drug:
+              # If drug exists, update stock
+              previous_quantity = existing_drug.quantity
+              existing_drug.update_stock(previous_quantity + drug.quantity, request.user)
+              messages.success(request, "Stock updated successfully!")
+              return redirect('drugapp:drugs_list')
+          else:
+              # If new drug, save normally
+              drug.save()
+              InventoryLog.objects.create(
+                  drug=drug,
+                  previous_quantity=0,
+                  new_quantity=drug.quantity,
+                  updated_by=request.user
+              )
+              messages.success(request, "Drug added successfully!")
+
+          if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # AJAX response
+              return JsonResponse({"success": True, "message": "Drug added successfully!"})
+
+          return redirect('drugapp:add_drug')
+
+      else:
+          if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Handle AJAX errors
+              return JsonResponse({"success": False, "message": "Error adding drug. Please check your input."})
+
   else:
-    form = DrugForm()
+      form = DrugForm()
 
   return render(request, 'drugapp/add-drugs.html', {'form': form})
 
+
+def update_drug_quantity(request, drug_id):
+    drug = get_object_or_404(Drug, id=drug_id)
+
+    if request.method == "POST":
+        form = UpdateDrugQuantityForm(request.POST)
+        if form.is_valid():
+            added_quantity = form.cleaned_data["quantity"]
+            new_quantity = drug.quantity + added_quantity  # Add stock
+
+            drug.update_stock(new_quantity, request.user)  # Use model method
+
+            messages.success(request, "Stock updated successfully!")
+            return redirect("drugapp:drugs_list")
+    else:
+        form = UpdateDrugQuantityForm()
+
+    return render(request, "drugapp/update-drug.html", {"form": form, "drug": drug})
 
 def drugs_list(request):
   drugs = Drug.objects.all()
@@ -140,6 +198,25 @@ def edit_dispatch(request, dispatch_id):
 
   return render(request, 'drugapp/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
 
+
+def edit_drug(request, drug_id):
+    drug = get_object_or_404(Drug, id=drug_id)
+
+    if request.method == 'POST':
+        form = DrugForm(request.POST, instance=drug)
+        if form.is_valid():
+          correct_quantity = form.cleaned_data['quantity']
+
+          drug.correct_stock(correct_quantity, request.user)
+
+          messages.success(request, "Drug stock corrected successfully!")
+          return redirect('drugapp:drugs_list')
+    else:
+        form = DrugForm(instance=drug)
+
+    return render(request, 'drugapp/edit-drug.html', {'form': form, 'drug': drug})
+
+
 def delete_dispatch(request, dispatch_id):
   dispatch = get_object_or_404(Dispatch, id=dispatch_id)
 
@@ -150,16 +227,16 @@ def delete_dispatch(request, dispatch_id):
 
   return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
-def edit_drug(request, drug_id):
-  drug = get_object_or_404(Drug, id=drug_id)
-  if request.method == 'POST':
-    form = DrugForm(request.POST, instance=drug)
-    if form.is_valid():
-      form.save()
-      return redirect('drugapp:drugs_list')
-  else:
-    form = DrugForm(instance=drug)
-  return render(request, 'drugapp/edit-drug.html', {'form': form, 'drug': drug})
+# def edit_drug(request, drug_id):
+#   drug = get_object_or_404(Drug, id=drug_id)
+#   if request.method == 'POST':
+#     form = DrugForm(request.POST, instance=drug)
+#     if form.is_valid():
+#       form.save()
+#       return redirect('drugapp:drugs_list')
+#   else:
+#     form = DrugForm(instance=drug)
+#   return render(request, 'drugapp/edit-drug.html', {'form': form, 'drug': drug})
 
 
 def delete_drug(request, drug_id):

@@ -5,3 +5,4 @@ from drugapp.models import *
 admin.site.register(Unit)
 admin.site.register(Drug)
 admin.site.register(Dispatch)
+admin.site.register(InventoryLog)
