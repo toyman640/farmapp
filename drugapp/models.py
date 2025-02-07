@@ -20,6 +20,7 @@ class Drug(models.Model):
   logged_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
   restock_quantity_notify = models.PositiveIntegerField()
   entered_at = models.DateTimeField(auto_now_add=True)
+  has_been_edited = models.BooleanField(default=False)
 
   def __str__(self):
     return f"{self.drug_name} ({self.batch_number})"
@@ -44,6 +45,7 @@ class Drug(models.Model):
 
     # Update drug stock
     self.quantity = new_quantity
+    self.has_been_edited = False
     self.save()
 
     # Log the inventory change
@@ -89,6 +91,7 @@ class Drug(models.Model):
 
     # Update drug stock
     self.quantity = new_stock_level
+    self.has_been_edited = True
     self.save()
 
     # Log the inventory correction

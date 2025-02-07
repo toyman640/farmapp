@@ -33,7 +33,11 @@
         <div class="d-flex justify-content-between">
           <div>
             <a class="btn btn-warning" href="{% url 'drugapp:drugs_list' %}">Back</a>
+            {% if not drug.has_been_edited %}
             <a class="btn btn-primary" href="{% url 'drugapp:edit_drug' drug.id %}">Edit</a>
+            {% else %}
+            <button class="btn btn-primary" disabled>Edit</button>
+            {% endif %}
             <a class="btn btn-primary" href="{% url 'drugapp:update_drug_quantity' drug.id %}">Update quantity</a>
           </div>
           <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Delete</button>
