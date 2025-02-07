@@ -19,18 +19,16 @@
     <div id="alert-container"></div>
     <div class="box_general padding_bottom">
       <div class="container mt-4">
-        <h2>Edit Dispatch</h2>
-        <div class="content-wrapper">
-          <div class="container-fluid">
+       
+      
             <h2>Update Stock For: {{ drug.drug_name }}</h2>
             <form method="POST">
               {% csrf_token %}
-              {{ form.as_p }}
+              {{ form| crispy }}
               <button type="submit" class="btn btn-primary">Update Stock</button>
-              <a href="{% url 'drugapp:drugs_list' %}">Back</a>
-            </form>
-          </div>
-        </div>
+              <a class="btn btn-secondary" href="{% url 'drugapp:drugs_list' %}">Back</a>
+      
+
     </div>
   </div>
 </div>
