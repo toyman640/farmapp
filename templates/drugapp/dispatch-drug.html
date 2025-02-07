@@ -101,7 +101,7 @@
       </form>
     </div>
     <div class="box_general padding_bottom">
-      <form method="get" action="{% url 'drugapp:dispatch_filter' %}" id="filter-form">
+      <form class="mb-3 border p-3" method="get" action="{% url 'drugapp:dispatch_filter' %}" id="filter-form">
         <div id="error-message" class="alert alert-danger" style="display: none;"></div>
         <div class="row">
             <div class="col-lg-3 col-md-12 form-group">
@@ -110,7 +110,7 @@
             <div class="col-lg-3 col-md-12 form-group">
               {{ dispatch_filter.end_date }}
             </div>
-            <div class="col-lg-4 col-md-12 form-group">
+            <div class="col-lg-3 col-md-12 form-group">
               {{ dispatch_filter.drug_name }}
             </div>
         </div>

@@ -60,3 +60,18 @@ class UpdateDrugQuantityForm(forms.ModelForm):
     model = Drug
     fields = ["quantity"]
 
+
+class DrugFilterForm(forms.Form):
+  start_date = forms.DateField(
+    widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'placeholder': 'From'}),
+    required=False
+  )
+  end_date = forms.DateField(
+    widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'placeholder': 'To'}),
+    required=False
+  )
+  drug_name = forms.CharField(
+    widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Drug Name'}),
+    required=False
+  )
+

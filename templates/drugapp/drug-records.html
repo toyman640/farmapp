@@ -17,6 +17,21 @@
     <div id="alert-container"></div>
 
     <div class="box_general">
+      <form method="get" class="mb-3" action="{% url 'drugapp:drug_filter' %}" id="drug-filter-form">
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+        <div class="row">
+            <div class="col-lg-3 col-md-12 form-group">
+              {{ drug_filter.start_date }}
+            </div>
+            <div class="col-lg-3 col-md-12 form-group">
+              {{ drug_filter.end_date }}
+            </div>
+            <div class="col-lg-3 col-md-12 form-group">
+              {{ drug_filter.drug_name }}
+            </div>
+        </div>
+        <input type="submit" class="btn btn-outline-info btn-sm" value="Filter">
+      </form>
       <div class="table-responsive">
         {% if page_obj %}
         <table class="table">
@@ -79,5 +94,34 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const startDate = document.querySelector("input[name='start_date']");
+    const endDate = document.querySelector("input[name='end_date']");
+    const form = document.getElementById("drug-filter-form");
+    const errorMessage = document.getElementById("error-message");
+
+    // Restrict future dates in the end date field
+    const today = new Date().toISOString().split("T")[0];
+    endDate.setAttribute("max", today);
+
+    form.addEventListener("submit", function (event) {
+      errorMessage.style.display = "none"; // Hide previous errors
+
+      if ((startDate.value && !endDate.value) || (!startDate.value && endDate.value)) {
+        event.preventDefault();
+        errorMessage.textContent = "Please enter both start and end dates.";
+        errorMessage.style.display = "block";
+
+        // Hide the message after 3 seconds
+        setTimeout(() => {
+          errorMessage.style.display = "none";
+        }, 3000);
+      }
+    });
+  });
+</script>
+
 
 {% endblock %}

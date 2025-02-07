@@ -8,7 +8,7 @@ from django.db.models import F
 from django.contrib import messages
 from django.forms import formset_factory
 from .models import Drug, Dispatch, Unit, InventoryLog
-from .forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm
+from .forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from django.core.paginator import Paginator
 
 from django.views.decorators.csrf import csrf_exempt
@@ -131,10 +131,11 @@ def update_drug_quantity(request, drug_id):
 
 def drugs_list(request):
   drugs = Drug.objects.all()
+  drug_filter = DrugFilterForm()
   paginator = Paginator(drugs, 10)
   page_number = request.GET.get('page')
   page_obj = paginator.get_page(page_number)
-  return render(request, 'drugapp/drug-records.html', {'page_obj': page_obj})
+  return render(request, 'drugapp/drug-records.html', {'page_obj': page_obj, 'drug_filter': drug_filter})
 
 def drug_detail(request, drug_id):
   drug = get_object_or_404(Drug, id=drug_id)
@@ -268,7 +269,6 @@ def dispatch_filter(request):
 
           # Query the filtered dispatches
           result = Dispatch.objects.filter(**filters).order_by('-dispatched_at')
-          print(result)
 
           return render(request, 'drugapp/filter-dispatch-list.html', {'dispatches': result, 'dispatch_filter': dispatch_query})
 
@@ -276,3 +276,35 @@ def dispatch_filter(request):
     dispatch_query = DispatchFilter()
 
   return render(request, 'drugapp/filter-dispatch-list.html', {'dispatch_filter': dispatch_query})
+
+
+def drug_filter(request):
+  if request.method == 'GET':
+      drug_query = DrugFilterForm(request.GET)
+      if drug_query.is_valid():
+          start_date = drug_query.cleaned_data.get('start_date')
+          end_date = drug_query.cleaned_data.get('end_date')
+          drug_name = drug_query.cleaned_data.get('drug_name')
+          filters = {}
+
+          # Apply filters
+          if start_date:
+              filters['entered_at__gte'] = start_date
+          if end_date:
+              filters['entered_at__lte'] = end_date
+          if drug_name:
+              filters['drug_name__icontains'] = drug_name
+
+          # Query the filtered dispatches
+          result = Drug.objects.filter(**filters).order_by('-entered_at')
+          print(result)
+
+          return render(request, 'drugapp/filter-drug-list.html', {'drugs': result, 'drug_query': drug_query})
+
+  else:
+    drug_query = DrugFilterForm()
+
+  return render(request, 'drugapp/filter-drug-list.html', {'drug_query': drug_query})
+
+
+
