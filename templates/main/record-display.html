@@ -1,0 +1,127 @@
+{% extends 'main/base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Cow Culling
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a  class="" href="{% url 'main:drugs_inventory_land' %}"> Inventory Records</a>
+        </li>
+        <li class="breadcrumb-item active">Drugs records</li>
+      </ol>
+      
+		<div class="box_general padding_bottom">
+      {% if drugs_page_obj %}
+      <form method="get" class="mb-3" action="{% url 'main:drug_filter' %}" id="drug-filter-form">
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+        <div class="row">
+            <div class="col-lg-3 col-md-12 form-group">
+              {{ drug_filter.start_date }}
+            </div>
+            <div class="col-lg-3 col-md-12 form-group">
+              {{ drug_filter.end_date }}
+            </div>
+            <div class="col-lg-3 col-md-12 form-group">
+              {{ drug_filter.drug_name }}
+            </div>
+        </div>
+        <input type="submit" class="btn btn-outline-info btn-sm" value="Filter">
+      </form>
+      <div class="table-responsive">
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Drug Manufacturer</th>
+              <th scope="col">Drug Name</th>
+              <th scope="col">Batch Number</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Expiry Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in drugs_page_obj %}
+              <tr>
+                <td scope="row"><a href="{% url 'main:drug_detail' d.id %}">{{ d.manufacturer_name }}</a></td>
+                <td>{{ d.drug_name }}</td>
+                <td>{{ d.batch_number }}</td>
+                <td>{{ d.quantity }}</td>
+                <td>{{ d.expiry_date }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            {% if drugs_page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                  <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ drugs_page_obj.previous_page_number }}" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+            {% endif %}
+            <li class="page-item disabled">
+              <span class="page-link">Page {{ drugs_page_obj.number }} of {{ drugs_page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if drugs_page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ drugs_page_obj.next_page_number }}" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ drugs_page_obj.paginator.num_pages }}" aria-label="Last">
+                  <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+      
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const startDate = document.querySelector("input[name='start_date']");
+      const endDate = document.querySelector("input[name='end_date']");
+      const form = document.getElementById("drug-filter-form");
+      const errorMessage = document.getElementById("error-message");
+  
+      // Restrict future dates in the end date field
+      const today = new Date().toISOString().split("T")[0];
+      endDate.setAttribute("max", today);
+  
+      form.addEventListener("submit", function (event) {
+        errorMessage.style.display = "none"; // Hide previous errors
+  
+        if ((startDate.value && !endDate.value) || (!startDate.value && endDate.value)) {
+          event.preventDefault();
+          errorMessage.textContent = "Please enter both start and end dates.";
+          errorMessage.style.display = "block";
+  
+          // Hide the message after 3 seconds
+          setTimeout(() => {
+            errorMessage.style.display = "none";
+          }, 3000);
+        }
+      });
+    });
+  </script>
+{% endblock %}

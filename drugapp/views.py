@@ -10,10 +10,12 @@ from django.forms import formset_factory
 from .models import Drug, Dispatch, Unit, InventoryLog
 from .forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 
 from django.views.decorators.csrf import csrf_exempt
 
 
+@login_required
 def drug_index(request):
   unit_form = UnitForm()
   units = Unit.objects.all()
@@ -33,6 +35,7 @@ def drug_index(request):
   return render(request, 'drugapp/index.html', context)
 
 
+@login_required
 def add_unit(request):
   if request.method == 'POST':
     form = UnitForm(request.POST)
@@ -44,11 +47,13 @@ def add_unit(request):
   return JsonResponse({"success": False, "message": "Invalid request"})
 
 
+@login_required
 def list_units(request):
   units = Unit.objects.all()
   return render(request, 'inventory/list_units.html', {'units': units})
 
 
+@login_required
 def view_unit(request, unit_id):
   unit = get_object_or_404(Unit, id=unit_id)
   return render(request, 'drugapp/drug-records.html', {'unit': unit})
@@ -74,6 +79,7 @@ def view_unit(request, unit_id):
 
 #   return render(request, 'drugapp/add-drugs.html', {'form': form})
 
+@login_required
 def add_drug(request):
   if request.method == 'POST':
       form = DrugForm(request.POST)
@@ -113,6 +119,7 @@ def add_drug(request):
   return render(request, 'drugapp/add-drugs.html', {'form': form})
 
 
+@login_required
 def update_drug_quantity(request, drug_id):
     drug = get_object_or_404(Drug, id=drug_id)
 
@@ -131,6 +138,7 @@ def update_drug_quantity(request, drug_id):
 
     return render(request, "drugapp/update-drug.html", {"form": form, "drug": drug})
 
+@login_required
 def drugs_list(request):
   drugs = Drug.objects.all()
   drug_filter = DrugFilterForm()
@@ -139,10 +147,12 @@ def drugs_list(request):
   page_obj = paginator.get_page(page_number)
   return render(request, 'drugapp/drug-records.html', {'page_obj': page_obj, 'drug_filter': drug_filter})
 
+@login_required
 def drug_detail(request, drug_id):
   drug = get_object_or_404(Drug, id=drug_id)
   return render(request, 'drugapp/drug-info.html', {'drug': drug})
 
+@login_required
 def dispatch_drug(request):
   five_days_ago = now().date() - timedelta(days=5)
   dispatched = Dispatch.objects.filter(dispatched_at__date__gte=five_days_ago).order_by('-dispatched_at')
@@ -175,6 +185,7 @@ def dispatch_drug(request):
       formset = DispatchFormSet()
   return render(request, 'drugapp/dispatch-drug.html', {'formset': formset, 'dispatch_filter': dispatch_filter, 'page_obj': page_obj,'grouped_dispatches': dict(grouped_dispatches) })
 
+@login_required
 def dismiss_low_stock(request):
   if request.method == "POST":
     drug_id = request.POST.get("drug_id")
@@ -183,7 +194,7 @@ def dismiss_low_stock(request):
   return JsonResponse({"success": False})
 
 
-
+@login_required
 def edit_dispatch(request, dispatch_id):
   dispatch = get_object_or_404(Dispatch, id=dispatch_id)
   
@@ -202,6 +213,7 @@ def edit_dispatch(request, dispatch_id):
   return render(request, 'drugapp/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
 
 
+@login_required
 def edit_drug(request, drug_id):
     drug = get_object_or_404(Drug, id=drug_id)
 
@@ -220,6 +232,7 @@ def edit_drug(request, drug_id):
     return render(request, 'drugapp/edit-drug.html', {'form': form, 'drug': drug})
 
 
+@login_required
 def delete_dispatch(request, dispatch_id):
   dispatch = get_object_or_404(Dispatch, id=dispatch_id)
 
@@ -242,6 +255,7 @@ def delete_dispatch(request, dispatch_id):
 #   return render(request, 'drugapp/edit-drug.html', {'form': form, 'drug': drug})
 
 
+@login_required
 def delete_drug(request, drug_id):
   drug = get_object_or_404(Drug, id=drug_id)
 
@@ -252,6 +266,7 @@ def delete_drug(request, drug_id):
   return render(request, 'drugapp/confirm_delete.html', {'drug': drug})
 
 
+@login_required
 def dispatch_filter(request):
   if request.method == 'GET':
       dispatch_query = DispatchFilter(request.GET)
@@ -280,6 +295,7 @@ def dispatch_filter(request):
   return render(request, 'drugapp/filter-dispatch-list.html', {'dispatch_filter': dispatch_query})
 
 
+@login_required
 def drug_filter(request):
   if request.method == 'GET':
       drug_query = DrugFilterForm(request.GET)
