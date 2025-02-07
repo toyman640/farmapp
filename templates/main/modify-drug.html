@@ -28,7 +28,7 @@ Edit Drug
                 {% csrf_token %}
                 {{ edit_drug_form|crispy }}
                 <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{% url 'drugapp:drugs_list' %}">Back</a>
+                <a href="{% url 'main:drugs_inventory' %}">Back</a>
               </form>
             </div>
           </div>
@@ -37,9 +37,9 @@ Edit Drug
             <h2>Update Stock For: {{ drug.drug_name }}</h2>
             <form method="POST">
               {% csrf_token %}
-              {{ form| crispy }}
+              {{ update_drug_form| crispy }}
               <button type="submit" class="btn btn-primary">Update Stock</button>
-              <a class="btn btn-secondary" href="{% url 'drugapp:drugs_list' %}">Back</a>
+              <a class="btn btn-secondary" href="{% url 'main:drugs_inventory' %}">Back</a>
           </div>
           {% endif %}
       </div>

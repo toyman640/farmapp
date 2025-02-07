@@ -6,7 +6,8 @@ from django.utils.timezone import localtime, now, localdate
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
-from drugapp.models import Dispatch, Drug
+from drugapp.models import Dispatch, Drug, InventoryLog
+from django.contrib import messages
 from django.core.paginator import Paginator
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 
@@ -98,15 +99,21 @@ def drug_detail(request, drug_id):
 
 @login_required
 def edit_drug(request, drug_id):
-  drug = get_object_or_404(Drug, id=drug_id)
-  if request.method == 'POST':
-    form = DrugForm(request.POST, instance=drug)
-    if form.is_valid():
-      form.save()
-      return redirect('main:drugs_inventory')
-  else:
-    form = DrugForm(instance=drug)
-  return render(request, 'main/edit-drug.html', {'edit_drug_form': form, 'drug': drug})
+    drug = get_object_or_404(Drug, id=drug_id)
+
+    if request.method == 'POST':
+        form = DrugForm(request.POST, instance=drug)
+        if form.is_valid():
+          correct_quantity = form.cleaned_data['quantity']
+
+          drug.correct_stock(correct_quantity, request.user)
+
+          messages.success(request, "Drug stock corrected successfully!")
+          return redirect('main:drugs_inventory')
+    else:
+        form = DrugForm(instance=drug)
+
+    return render(request, 'main/modify-drug.html', {'edit_drug_form': form, 'drug': drug})
 
 
 @login_required
@@ -167,7 +174,7 @@ def update_drug_quantity(request, drug_id):
     else:
         form = UpdateDrugQuantityForm()
 
-    return render(request, "main/update-drug.html", {"update_drug_form": form, "drug": drug})
+    return render(request, "main/modify-drug.html", {"update_drug_form": form, "drug": drug})
 
 
 
