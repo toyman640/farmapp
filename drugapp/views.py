@@ -17,6 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 def drug_index(request):
   unit_form = UnitForm()
   units = Unit.objects.all()
+  drugs_count = Drug.objects.all().count
   low_stock_drugs = Drug.objects.filter(restock_quantity_notify__gte=F('quantity'))
   today = localdate()
   today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
@@ -25,7 +26,8 @@ def drug_index(request):
     'unit_form': unit_form,
     'units': units,
     'low_stock_drugs': low_stock_drugs,
-    'today_dispatches': today_dispatches, 
+    'today_dispatches': today_dispatches,
+    'drugs_count': drugs_count, 
   }
 
   return render(request, 'drugapp/index.html', context)
