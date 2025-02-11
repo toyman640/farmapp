@@ -1,6 +1,7 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect, render,  get_object_or_404
 from django.urls import reverse_lazy
+from datetime import timedelta,datetime
 from django.db.models import F
 from django.utils.timezone import localtime, now, localdate
 from django.contrib.auth.decorators import login_required
@@ -169,7 +170,7 @@ def drug_filter(request):
           if start_date:
               filters['entered_at__gte'] = start_date
           if end_date:
-              filters['entered_at__lte'] = end_date
+              filters['entered_at__lte'] = datetime.combine(end_date, datetime.max.time())
           if drug_name:
               filters['drug_name__icontains'] = drug_name
 
@@ -203,6 +204,81 @@ def update_drug_quantity(request, drug_id):
         form = UpdateDrugQuantityForm()
 
     return render(request, "main/modify-drug.html", {"update_drug_form": form, "drug": drug})
+
+
+@login_required
+def dispatch_drug_main(request):
+  all_dispatch = Dispatch.objects.all().order_by('-dispatched_at')
+  dispatch_filter = DispatchFilter()
+  paginator = Paginator(all_dispatch, 10)
+  page_number = request.GET.get('page')
+  page_obj = paginator.get_page(page_number)
+
+
+  return render(request, 'main/dispatch-records.html', {'dispatch_filter': dispatch_filter, 'page_obj': page_obj})
+
+
+@login_required
+def dispatch_filter_main(request):
+  if request.method == 'GET':
+      dispatch_query = DispatchFilter(request.GET)
+      if dispatch_query.is_valid():
+          start_date = dispatch_query.cleaned_data.get('start_date')
+          end_date = dispatch_query.cleaned_data.get('end_date')
+          drug_name = dispatch_query.cleaned_data.get('drug_name')
+          filters = {}
+
+          # Apply filters
+          if start_date:
+            filters['dispatched_at__gte'] = start_date
+          if end_date:
+            filters['dispatched_at__lte'] = datetime.combine(end_date, datetime.max.time())
+          if drug_name:
+              filters['drug__drug_name__icontains'] = drug_name
+
+          # Query the filtered dispatches
+          result = Dispatch.objects.filter(**filters).order_by('-dispatched_at')
+
+          return render(request, 'main/filter-dispatch-list.html', {'dispatches': result, 'dispatch_filter': dispatch_query})
+
+  else:
+    dispatch_query = DispatchFilter()
+
+  return render(request, 'main/filter-dispatch-list.html', {'dispatch_filter': dispatch_query})
+
+
+
+@login_required
+def edit_dispatch_main(request, dispatch_id):
+  dispatch = get_object_or_404(Dispatch, id=dispatch_id)
+  
+  if request.method == "POST":
+    form = DispatchEditForm(request.POST, instance=dispatch)
+    if form.is_valid():
+      # Save the form, which will trigger the save method on the Dispatch model
+      try:
+        form.save()  # The model logic handles stock updates
+        return redirect('main:dispatch_drug_main')  # Redirect to dispatch list page or wherever
+      except ValueError as e:
+        messages.error(request, str(e))  # Display error message if not enough stock
+  else:
+    form = DispatchEditForm(instance=dispatch)
+
+  return render(request, 'main/edit-dispatch.html', {'form': form, 'dispatch': dispatch})
+
+
+@login_required
+def delete_dispatch_main(request, dispatch_id):
+  dispatch = get_object_or_404(Dispatch, id=dispatch_id)
+
+  if request.method == "POST":
+    dispatch.delete()  # This will also restore the quantity in the `Drug` model
+    messages.success(request, "Dispatch record deleted successfully!")
+    return JsonResponse({"success": True, "message": "Dispatch record deleted successfully!"})
+
+  return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+
 
 
 

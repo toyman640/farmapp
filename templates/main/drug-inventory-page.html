@@ -12,7 +12,7 @@ Drug Records
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="{% url 'main:main_index' %}">Dashboard</a>
+          <a href="{% url 'main:drugs_inventory_land' %}">Inventory Records</a>
         </li>
         <li class="breadcrumb-item active">Inventory Records</li>
       </ol>
@@ -44,7 +44,7 @@ Drug Records
               {% endfor %}
               </tbody>
             </table>
-            <a class="btn btn-primary align-middle text-white">View all dispatch records</a>
+            <a class="btn btn-primary align-middle text-white" href="{% url 'main:dispatch_drug_main' %}">View all dispatch records</a>
           </div>
         </div>
         <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
