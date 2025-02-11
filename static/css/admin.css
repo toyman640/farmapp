@@ -169,7 +169,7 @@ body.fixed-nav {
     -webkit-flex-direction: column;
     -ms-flex-direction: column;
     flex-direction: column;
-    margin-top: 3.5%;
+    margin-top: 3%;
   }
   #mainNav .navbar-collapse .navbar-sidenav > .nav-item {
     width: 250px;
@@ -215,7 +215,7 @@ body.fixed-nav {
 }
 @media (min-width: 992px) {
   #mainNav.fixed-top .navbar-sidenav {
-    height: calc(100vh - 80px);
+    height: calc(100vh - 70px);
   }
   #mainNav.fixed-top .sidenav-toggler {
     position: absolute;
@@ -237,8 +237,11 @@ body.fixed-nav {
     padding: 1em;
   }
   .logo-image {
+    position: absolute;
     height: 50px;
     margin-left: 2%;
+    z-index: 1000;
+    /* top: -1px; */
   }
 }
 #mainNav.fixed-top.navbar-dark .sidenav-toggler {
@@ -508,8 +511,10 @@ strong {
   font-weight: 500;
 }
 .logo-image {
+  position: fixed;
   height: 50px;
   margin-left: 2%;
+  margin-top: -23px;
 }
 
 /*-------- 1.2 Buttons --------*/
