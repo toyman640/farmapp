@@ -19,5 +19,5 @@ urlpatterns = [
     path('dispatch-drug/', views.dispatch_drug_main, name='dispatch_drug_main'),
     path('dispatch-filter-records/', views.dispatch_filter_main, name='dispatch_filter_main'),
     path('dispatch/edit/<int:dispatch_id>/', views.edit_dispatch_main, name='edit_dispatch_main'),
-    path("dispatch/main-delete/<int:dispatch_id>/", views.delete_dispatch_main, name="delete_dispatch_main"),
+    path("dispatch/delete/<int:dispatch_id>/", views.delete_dispatch_main, name="delete_dispatch_main"),
 ]
