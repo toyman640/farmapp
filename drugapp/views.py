@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from collections import defaultdict
 from django.utils.timezone import localtime, now, localdate
 from django.db.models import Sum
-from datetime import timedelta
+from datetime import timedelta,datetime
 from django.db.models import F
 from django.contrib import messages
 from django.forms import formset_factory
@@ -128,9 +128,9 @@ def update_drug_quantity(request, drug_id):
         form = UpdateDrugQuantityForm(request.POST)
         if form.is_valid():
             added_quantity = form.cleaned_data["quantity"]
-            new_quantity = drug.quantity + added_quantity  # Add stock
+            new_quantity = drug.quantity + added_quantity
 
-            drug.update_stock(new_quantity, request.user)  # Use model method
+            drug.update_stock(new_quantity, request.user)
 
             messages.success(request, "Stock updated successfully!")
             return redirect("drugapp:drugs_list")
@@ -279,9 +279,9 @@ def dispatch_filter(request):
 
           # Apply filters
           if start_date:
-              filters['dispatched_at__gte'] = start_date
+            filters['dispatched_at__gte'] = start_date
           if end_date:
-              filters['dispatched_at__lte'] = end_date
+            filters['dispatched_at__lte'] = datetime.combine(end_date, datetime.max.time())
           if drug_name:
               filters['drug__drug_name__icontains'] = drug_name
 
@@ -310,13 +310,12 @@ def drug_filter(request):
           if start_date:
               filters['entered_at__gte'] = start_date
           if end_date:
-              filters['entered_at__lte'] = end_date
+              filters['entered_at__lte'] = datetime.combine(end_date, datetime.max.time())
           if drug_name:
               filters['drug_name__icontains'] = drug_name
 
           # Query the filtered dispatches
           result = Drug.objects.filter(**filters).order_by('-entered_at')
-          print(result)
 
           return render(request, 'drugapp/filter-drug-list.html', {'drugs': result, 'drug_query': drug_query})
 
