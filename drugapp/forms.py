@@ -7,14 +7,36 @@ class UnitForm(forms.ModelForm):
     model = Unit
     fields = ['name']
 
+# class DrugForm(forms.ModelForm):
+#   class Meta:
+#     model = Drug
+#     exclude = ['has_been_edited', 'logged_by'] 
+#     widgets = {
+#       'manufacturing_date': forms.DateInput(attrs={'type': 'date'}),
+#       'expiry_date': forms.DateInput(attrs={'type': 'date'}),
+#     }
+
 class DrugForm(forms.ModelForm):
-  class Meta:
-    model = Drug
-    fields = '__all__'
-    widgets = {
-      'manufacturing_date': forms.DateInput(attrs={'type': 'date'}),
-      'expiry_date': forms.DateInput(attrs={'type': 'date'}),
-    }
+    class Meta:
+        model = Drug
+        exclude = ['has_been_edited', 'logged_by']  # Exclude these fields
+        widgets = {
+            'manufacturing_date': forms.DateInput(attrs={'type': 'date'}),
+            'expiry_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        quantity = cleaned_data.get('quantity')
+        restock_quantity_notify = cleaned_data.get('restock_quantity_notify')
+
+        if restock_quantity_notify and quantity and restock_quantity_notify > quantity:
+            raise forms.ValidationError(
+                {"restock_quantity_notify": "Restock quantity cannot be greater than available stock quantity."}
+            )
+
+        return cleaned_data
+
 
 class DispatchForm(forms.ModelForm):
   class Meta:

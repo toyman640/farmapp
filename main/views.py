@@ -31,17 +31,45 @@ from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, Di
 #                 return redirect('drugapp:drug_index')
 #         return response
 
+# class CustomLoginView(LoginView):
+#     template_name = 'main/login.html'
+#     redirect_authenticated_user = True
+
+#     def form_valid(self, form):
+#         # Log the user in
+#         response = super().form_valid(form)
+#         return response
+
+#     def get_success_url(self):
+#         # Redirect based on roles
+#         user = self.request.user
+#         if hasattr(user, 'profile'):
+#             if user.profile.is_boss:
+#                 return reverse_lazy('main:main_index')
+#             elif user.profile.is_supervisor:
+#                 return reverse_lazy('farmrecord:dash_index')
+#             elif user.profile.is_drug:
+#                 return reverse_lazy('drugapp:drug_index')
+#         # Fallback URL if no role is matched
+#         return reverse_lazy('main:main_index')
+
+from django.contrib import messages
+from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
+
 class CustomLoginView(LoginView):
     template_name = 'main/login.html'
     redirect_authenticated_user = True
 
     def form_valid(self, form):
-        # Log the user in
         response = super().form_valid(form)
         return response
 
+    def form_invalid(self, form):
+        messages.error(self.request, "Invalid username or password. Please try again.")
+        return super().form_invalid(form)
+
     def get_success_url(self):
-        # Redirect based on roles
         user = self.request.user
         if hasattr(user, 'profile'):
             if user.profile.is_boss:
@@ -50,8 +78,8 @@ class CustomLoginView(LoginView):
                 return reverse_lazy('farmrecord:dash_index')
             elif user.profile.is_drug:
                 return reverse_lazy('drugapp:drug_index')
-        # Fallback URL if no role is matched
         return reverse_lazy('main:main_index')
+
 
 
 

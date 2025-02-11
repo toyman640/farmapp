@@ -1,54 +1,81 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
     <!-- Bootstrap core CSS-->
-    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
-  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/custom.css' %}">
-</head>
-<body class="log-page">
-    <div class="container ">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="jumbotron mt-5 log-big text-white text-center">Solomon Kesinton Agro Allied Limited</h1>
-                <form class="col-md-4 col-md-offset-4" method="post">
-                    {% if messages %}
-                {% for mes in messages %}
-                  <div class="alert {{ mes.tags }}">{{ mes }}</div>
-                {% endfor %}
-              {% endif %}
-                    <div class="form-group">
-                    <label for="exampleInputEmail1" class="text-dark">Username</label>
-                    <input type="text" class="form-control" name="username" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else</small>
-                    </div>
-                    <div class="form-group" class="text-white">
-                    <label for="exampleInputPassword1">Password</label>
-                    <input type="password" class="form-control" name="password" id="exampleInputPassword1" placeholder="Password">
-                    </div>
-                    <div class="form-check">
-                    <input type="checkbox" onclick="myFunction()">Show Password
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    {% csrf_token %}
-                </form>
-                <script>
-                    function myFunction() {
-  var x = document.getElementById("exampleInputPassword1");
-  if (x.type === "password") {
-    x.type = "text";
-  } else {
-    x.type = "password";
-  }
-}
-                </script>
+    <link
+      rel="shortcut icon"
+      href="{% static 'img/favicon.png' %}"
+      type="image/x-icon"
+    />
+    <link
+      href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+  </head>
+  <body class="log-page">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <h1 class="jumbotron mt-5 log-big text-white text-center">
+            Solomon Kesinton Agro Allied Limited
+          </h1>
+          <form class="col-md-4 col-md-offset-4" method="post">
+            <div  id="message-container">
+              {% if messages %} {% for mes in messages %}
+              <div class="alert {{ mes.tags }}">{{ mes }}</div>
+              {% endfor %} {% endif %}
             </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1" class="text-dark">Username</label>
+              <input
+                type="text"
+                class="form-control"
+                name="username"
+                id="exampleInputEmail1"
+                aria-describedby="emailHelp"
+                placeholder="Enter email"
+              />
+              <small id="emailHelp" class="form-text text-muted"
+                >We'll never share your email with anyone else</small
+              >
+            </div>
+            <div class="form-group" class="text-white">
+              <label for="exampleInputPassword1">Password</label>
+              <input
+                type="password"
+                class="form-control"
+                name="password"
+                id="exampleInputPassword1"
+                placeholder="Password"
+              />
+            </div>
+            <div class="form-check">
+              <input type="checkbox" onclick="myFunction()" />Show Password
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+            {% csrf_token %}
+          </form>
+          <script>
+            function myFunction() {
+              var x = document.getElementById("exampleInputPassword1");
+              if (x.type === "password") {
+                x.type = "text";
+              } else {
+                x.type = "password";
+              }
+            }
+            setTimeout(function() {
+              document.getElementById('message-container').style.display = 'none';
+            }, 3000);
+          </script>
         </div>
-    </div> 
-</body>
+      </div>
+    </div>
+  </body>
 </html>

@@ -64,23 +64,16 @@ class Drug(models.Model):
     - If no previous stock updates exist, adjust based on the original quantity.
     """
     last_log = self.inventory_logs.order_by('-updated_at').first()  # Get last stock update
-    print("last log", last_log)
-    print("last log new quantity", last_log.new_quantity)
-    print("last log old quantity", last_log.previous_quantity)
-    print("correct_quantity", correct_quantity)
 
     if last_log:
       # Get the correct reverted quantity
-      print("self.quantity", self.quantity)
       reverted_quantity = last_log.previous_quantity + self.quantity
-      print("reverted_quantity", reverted_quantity)
     else:
         # If no previous updates, use the existing quantity
       reverted_quantity = self.quantity
 
     # Compute new stock level correctly
     new_stock_level = reverted_quantity
-    print('new_stock_level', new_stock_level)
 
     # Ensure stock is not negative
     if new_stock_level < 0:

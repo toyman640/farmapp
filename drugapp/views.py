@@ -84,7 +84,8 @@ def add_drug(request):
   if request.method == 'POST':
       form = DrugForm(request.POST)
       if form.is_valid():
-          drug = form.save(commit=False)  # Don't save yet
+          drug = form.save(commit=False)
+          drug.logged_by = request.user 
           existing_drug = Drug.objects.filter(batch_number=drug.batch_number).first()
           
           if existing_drug:
@@ -140,7 +141,7 @@ def update_drug_quantity(request, drug_id):
 
 @login_required
 def drugs_list(request):
-  drugs = Drug.objects.all()
+  drugs = Drug.objects.all().order_by('-entered_at')
   drug_filter = DrugFilterForm()
   paginator = Paginator(drugs, 10)
   page_number = request.GET.get('page')
