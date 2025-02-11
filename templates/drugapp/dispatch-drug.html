@@ -72,10 +72,12 @@
 
       <!-- Dispatch Drug Formset -->
       {% if messages %}
-      <div class="alert-messages">
-        {% for message in messages %}
-        <div class="alert {{ message.tags }}">{{ message }}</div>
-        {% endfor %}
+      <div id="message-container">
+        <div class="alert-messages">
+          {% for message in messages %}
+          <div class="alert {{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
       </div>
       {% endif %}
 
@@ -480,8 +482,11 @@ document.addEventListener("DOMContentLoaded", function () {
             errorContainer.style.display = "none";
         }, 3000);
     }
+
 });
 
-
+setTimeout(function() {
+        document.getElementById('message-container').style.display = 'none';
+    }, 2000);
 </script>
 {% endblock %}
