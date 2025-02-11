@@ -187,14 +187,29 @@
     color: #12a55c !important;
 }
 
-.log-page{
-    background: linear-gradient(0deg, rgba(223, 198, 61, 0.2), rgba(223, 198, 61, 0.2)), url('../img/pass-4.jpg');
+.log-page {
+    background: url('../img/pass-4.jpg');
     background-size: cover;
-    
-      
+    background-position: center;
+    position: relative;
+    min-height: 100vh;
 }
-      
 
+.log-page::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+}
+
+.inner-login {
+    position: relative;
+    z-index: 2;
+}
 
 .page-item.active .page-link {
     color: rgb(5, 5, 5) !important;
@@ -248,7 +263,7 @@
 }
 
 .log-big{
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),url('../img/jumbo-bg1.jpg');
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),url('../img/log-bg.jpg');
     background-size: cover;
 }
 

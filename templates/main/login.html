@@ -19,12 +19,13 @@
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
   </head>
   <body class="log-page">
-    <div class="container">
+    <div class="container inner-login">
       <div class="row">
         <div class="col-12">
           <h1 class="jumbotron mt-5 log-big text-white text-center">
             Solomon Kesinton Agro Allied Limited
           </h1>
+          <!-- <img src="{% static 'img/image-trans-removebg3.png' %}" alt=""> -->
           <form class="col-md-4 col-md-offset-4" method="post">
             <div  id="message-container">
               {% if messages %} {% for mes in messages %}
@@ -32,7 +33,7 @@
               {% endfor %} {% endif %}
             </div>
             <div class="form-group">
-              <label for="exampleInputEmail1" class="text-dark">Username</label>
+              <label for="exampleInputEmail1" class="text-light">Username</label>
               <input
                 type="text"
                 class="form-control"
@@ -46,7 +47,7 @@
               >
             </div>
             <div class="form-group" class="text-white">
-              <label for="exampleInputPassword1">Password</label>
+              <label class="text-light" for="exampleInputPassword1">Password</label>
               <input
                 type="password"
                 class="form-control"
