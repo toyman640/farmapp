@@ -140,7 +140,7 @@
                 <th scope="col">Quantity</th>
                 <th scope="col">Dispatched on</th>
                 <th scope="col">Dispatched By</th>
-                <th scope="col">Actions</th>
+                <!-- <th scope="col">Actions</th> -->
               </tr>
             </thead>
             <tbody>
@@ -156,24 +156,7 @@
                 <td>{{ a.quantity }} {{ a.unit }}</td>
                 <td>{{ a.dispatched_at|date:"Y-m-d" }}</td>
                 <td>{{ a.dispatched_by }}</td>
-                <td>
-                  <a
-                    href="{% url 'drugapp:edit_dispatch' a.id %}"
-                    class="btn btn-warning btn-sm"
-                    >Edit</a
-                  >
-                </td>
-                <td>
-                  <a
-                    href="#"
-                    class="btn btn-danger btn-sm delete-dispatch"
-                    data-toggle="modal"
-                    data-target="#deleteModal"
-                    data-id="{{ a.id }}"
-                  >
-                    Delete
-                  </a>
-                </td>
+               
               </tr>
               {% empty %}
               <tr>

@@ -1,91 +1,89 @@
-{% extends 'main/base.html' %}
-{% load static %}
-<!Doctype html>
-{% block title %}
-Home
-{% endblock %}
+{% extends 'main/base.html' %} {% load static %}
+<!DOCTYPE html>
+{% block title %} Home {% endblock %} 
 
 {% block content %}
-  <!-- /Navigation-->
-  <div class="content-wrapper">
-    <div class="container-fluid">
-      <!-- Breadcrumbs-->
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="{% url 'main:main_index' %}">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
-      </ol>
-	  <!-- Icon Cards-->
-     <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
-          <div class="box_general padding_bottom"> 
-            <table class="table ">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Drug</th>
-                  <th scope="col">Quantity</th>
-                  <th scope="col">By</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for dispatch in today_dispatches %}
-                <tr>
-                    <th scope="row">{{ forloop.counter }}</th>
-                    <td>{{ dispatch.drug.drug_name }}</td>
-                    <td>{{ dispatch.quantity }}</td>
-                    <td>{{ dispatch.dispatched_by }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="4" class="text-center">No dispatch records for today.</td>
+<!-- /Navigation-->
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <!-- Breadcrumbs-->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'main:main_index' %}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active">My Dashboard</li>
+    </ol>
+    <!-- Icon Cards-->
+    <div class="row">
+      <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+        <div class="box_general padding_bottom">
+          <h4><i class="fa fa-file-text text-primary"></i> Dispatch records for today ( {% now "Y-m-d" %} )</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Drug</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">By</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for dispatch in today_dispatches %}
+              <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ dispatch.drug.drug_name }}</td>
+                <td>{{ dispatch.quantity }}</td>
+                <td>{{ dispatch.dispatched_by }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center">
+                  No dispatch records for today.
+                </td>
               </tr>
               {% endfor %}
-              </tbody>
-            </table>
-          </div>
+            </tbody>
+          </table>
         </div>
-        <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
-          <div class="box_general padding_bottom">
-            <div class="header_box version_2">
-              <h2><i class="fa fa-bell text-danger"></i> Low Stock(s)</h2>
-              <div>
-  
-                {% for l in low_stock_drugs %}
-                  <table class="table table-sm">
-                    <thead>
-                      <tr>
-                        <th scope="col">Drug</th>
-                        <th scope="col">Quantity</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <!-- <tr>
-                        <td>  {{ l.drug_name }}</td>
-                        <td class="text-danger font-weight-bold">  {{ l.quantity }}</td>
-                      </tr> -->
-                      <tr id="drug-{{ l.id }}">
-                        <td>{{ l.drug_name }}</td>
-                        <td class="text-danger font-weight-bold">{{ l.quantity }}</td>
-                        <td>
-                          <button class="btn btn-sm btn-danger dismiss-drug" data-drug-id="{{ l.id }}">Dismiss</button>
-                        </td>
-                      </tr>
-                      {% empty %}
-                      <tr>
-                        <td colspan="4" class="text-center">No dispatch records for today.</td>
-                      </tr>
-
-                    </tbody>
-  
-                  </table>
-                {% endfor %}
-              </div>
+      </div>
+      <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+        <div class="box_general padding_bottom">
+          <div class="header_box version_2">
+            <h2><i class="fa fa-bell text-danger"></i> Low Stock(s)</h2>
+            <div>
+              {% for l in low_stock_drugs %}
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th scope="col">Drug</th>
+                    <th scope="col">Quantity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                 
+                  <tr id="drug-{{ l.id }}">
+                    <td>{{ l.drug_name }}</td>
+                    <td class="text-danger font-weight-bold">
+                      {{ l.quantity }}
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-sm btn-danger dismiss-drug"
+                        data-drug-id="{{ l.id }}"
+                      >
+                        Dismiss
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              {% endfor %}
             </div>
           </div>
-        </div>   
-	    </div>
-	  <!-- /.container-fluid-->
+        </div>
+      </div>
+    </div>
   </div>
+  <!-- /.container-fluid-->
+</div>
 {% endblock %}

@@ -53,9 +53,7 @@ from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, Di
 #         # Fallback URL if no role is matched
 #         return reverse_lazy('main:main_index')
 
-from django.contrib import messages
-from django.contrib.auth.views import LoginView
-from django.urls import reverse_lazy
+
 
 class CustomLoginView(LoginView):
     template_name = 'main/login.html'
@@ -87,6 +85,7 @@ class CustomLogoutView(LogoutView):
     next_page = reverse_lazy('login') 
 
 
+@login_required
 def drugs_inventory_land(request):
   drugs_records = Drug.objects.all().order_by('-entered_at')
   dispatch_records = Dispatch.objects.all().order_by('-dispatched_at')
@@ -102,7 +101,8 @@ def main_index(request):
 
   context = {
     'low_stock_drugs': low_stock_drugs,
-    'today_dispatches': today_dispatches, 
+    'today_dispatches': today_dispatches,
+    'today_date': today,
   }
 
   return render(request, 'main/index.html', context)
