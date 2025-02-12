@@ -177,7 +177,7 @@ def dispatch_drug(request):
           dispatch = form.save(commit=False)
           dispatch.dispatched_by = request.user
           dispatch.save()
-      messages.success(request, "Drugs dispatched successfully!")
+      messages.success(request, "Item(s) dispatched successfully!")
       return redirect('drugapp:dispatch_drug')  
     else:
         messages.error(request, "There was an error in the form.")

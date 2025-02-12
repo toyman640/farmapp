@@ -17,25 +17,31 @@ class UnitForm(forms.ModelForm):
 #     }
 
 class DrugForm(forms.ModelForm):
-    class Meta:
-        model = Drug
-        exclude = ['has_been_edited', 'logged_by']  # Exclude these fields
-        widgets = {
-            'manufacturing_date': forms.DateInput(attrs={'type': 'date'}),
-            'expiry_date': forms.DateInput(attrs={'type': 'date'}),
-        }
+  def __init__(self, *args, **kwargs):
+    self.is_editing = kwargs.pop('is_editing', False)
+    super().__init__(*args, **kwargs)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        quantity = cleaned_data.get('quantity')
-        restock_quantity_notify = cleaned_data.get('restock_quantity_notify')
+  class Meta:
+    model = Drug
+    exclude = ['has_been_edited', 'logged_by']  # Exclude these fields
+    widgets = {
+        'manufacturing_date': forms.DateInput(attrs={'type': 'date'}),
+        'expiry_date': forms.DateInput(attrs={'type': 'date'}),
+    }
 
-        if restock_quantity_notify and quantity and restock_quantity_notify > quantity:
-            raise forms.ValidationError(
-                {"restock_quantity_notify": "Restock quantity cannot be greater than available stock quantity."}
-            )
+  def clean(self):
+    if self.is_editing:
+      return super().clean()
+    cleaned_data = super().clean()
+    quantity = cleaned_data.get('quantity')
+    restock_quantity_notify = cleaned_data.get('restock_quantity_notify')
 
-        return cleaned_data
+    if restock_quantity_notify and quantity and restock_quantity_notify > quantity:
+        raise forms.ValidationError(
+            {"restock_quantity_notify": "Restock quantity cannot be greater than available stock quantity."}
+        )
+
+    return cleaned_data
 
 
 class DispatchForm(forms.ModelForm):

@@ -132,7 +132,7 @@ def edit_drug(request, drug_id):
     drug = get_object_or_404(Drug, id=drug_id)
 
     if request.method == 'POST':
-        form = DrugForm(request.POST, instance=drug)
+        form = DrugForm(request.POST, instance=drug, is_editing=True)
         if form.is_valid():
           correct_quantity = form.cleaned_data['quantity']
 

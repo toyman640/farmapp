@@ -43,11 +43,11 @@
                 {% endfor %}
               </ul>
               <div class="card-footer text-center">
-                <small
+                <!-- <small
                   >Dispatched by: {{
                   dispatches.0.dispatched_by.username|default:"Unknown"
                   }}</small
-                >
+                > -->
               </div>
             </div>
           </div>
@@ -72,7 +72,7 @@
 
       <!-- Dispatch Drug Formset -->
       {% if messages %}
-      <div id="message-container">
+      <div id="message-container" class="mt-2">
         <div class="alert-messages">
           {% for message in messages %}
           <div class="alert {{ message.tags }}">{{ message }}</div>
@@ -140,7 +140,7 @@
                 <th scope="col">Quantity</th>
                 <th scope="col">Dispatched on</th>
                 <th scope="col">Dispatched By</th>
-                <th scope="col">Actions</th>
+                <!-- <th scope="col">Actions</th> -->
               </tr>
             </thead>
             <tbody>
@@ -156,7 +156,7 @@
                 <td>{{ a.quantity }} {{ a.unit }}</td>
                 <td>{{ a.dispatched_at|date:"Y-m-d" }}</td>
                 <td>{{ a.dispatched_by }}</td>
-                <td>
+                <!-- <td>
                   <a
                     href="{% url 'drugapp:edit_dispatch' a.id %}"
                     class="btn btn-warning btn-sm"
@@ -173,7 +173,7 @@
                   >
                     Delete
                   </a>
-                </td>
+                </td> -->
               </tr>
               {% empty %}
               <tr>
@@ -425,34 +425,7 @@
       });
     });
   });
-  // document.getElementById("filter-form").addEventListener("submit", function (event) {
-  //   const startDate = document.querySelector("[name='start_date']").value;
-  //   const endDate = document.querySelector("[name='end_date']").value;
 
-  //   // If the user enters one date but not the other, show an error message
-  //   if ((startDate && !endDate) || (!startDate && endDate)) {
-  //       event.preventDefault(); // Stop form submission
-  //       showError("Please select both the start and end dates.");
-  //   }
-  // });
-
-// function showError(message) {
-//     let errorContainer = document.getElementById("error-message");
-
-//     // If error container does not exist, create it
-//     if (!errorContainer) {
-//         errorContainer = document.createElement("div");
-//         errorContainer.id = "error-message";
-//         errorContainer.className = "alert alert-danger"; // Bootstrap styling
-//         document.getElementById("filter-form").insertAdjacentElement("beforebegin", errorContainer);
-//     }
-
-//     errorContainer.textContent = message;
-//     errorContainer.style.display = "block";
-
-//     setTimeout(() => {
-//         errorContainer.style.display = "none";
-//     }, 3000);
 document.addEventListener("DOMContentLoaded", function () {
     const today = new Date().toISOString().split("T")[0];
 
@@ -485,7 +458,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 setTimeout(function() {
-        document.getElementById('message-container').style.display = 'none';
-    }, 2000);
+  document.getElementById('message-container').style.display = 'none';
+}, 2000);
 </script>
 {% endblock %}
