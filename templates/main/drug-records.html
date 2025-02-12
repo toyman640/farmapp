@@ -23,7 +23,7 @@ Cow Culling
         <table class="table">
           <thead class="thead-dark">
             <tr>
-              <th scope="col">Drug Manufacturer</th>
+              <th scope="col">Drug Manufacturer1</th>
               <th scope="col">Drug Name</th>
               <th scope="col">Batch Number</th>
               <th scope="col">Quantity</th>
@@ -32,8 +32,8 @@ Cow Culling
           </thead>
           <tbody>
             {% for d in page_obj %}
-              <tr>
-                <td scope="row"><a href="{% url 'main:drug_detail' d.id %}">{{ d.manufacturer_name }}</a></td>
+              <tr onclick="window.location.href='{% url 'main:drug_detail' d.id %}';" style="cursor: pointer;">
+                <td scope="row">{{ d.manufacturer_name }} 1</td>
                 <td>{{ d.drug_name }}</td>
                 <td>{{ d.batch_number }}</td>
                 <td>{{ d.quantity }}</td>
