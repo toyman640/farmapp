@@ -25,8 +25,8 @@ class DrugForm(forms.ModelForm):
     model = Drug
     exclude = ['has_been_edited', 'logged_by']  # Exclude these fields
     widgets = {
-        'manufacturing_date': forms.DateInput(attrs={'type': 'date'}),
-        'expiry_date': forms.DateInput(attrs={'type': 'date'}),
+        'manufacturing_date': forms.DateInput(attrs={'type': 'date', 'class': 'col-lg-2'}),
+        'expiry_date': forms.DateInput(attrs={'type': 'date', 'class': 'col-lg-2'}),
     }
 
   def clean(self):
