@@ -8,7 +8,7 @@ from django.utils.timezone import localtime, now, localdate
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
-from drugapp.models import Dispatch, Drug, InventoryLog
+from drugapp.models import Dispatch, Drug, InventoryLog, PendingStockUpdate
 from django.contrib import messages
 from django.core.paginator import Paginator
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
@@ -117,8 +117,9 @@ def drugs_inventory(request):
     paginator = Paginator(dispatch_records, 10)
     page_number = request.GET.get('page')
     drugs_page_obj = paginator.get_page(page_number)
+    pending_updates = PendingStockUpdate.objects.filter(approved=False)
 
-    return render(request, 'main/record-display.html', {'drugs_page_obj':  drugs_page_obj, 'drug_filter':drug_filter})
+    return render(request, 'main/record-display.html', {'drugs_page_obj':  drugs_page_obj, 'drug_filter':drug_filter, "pending_updates": pending_updates})
 
 
 @login_required
@@ -278,6 +279,46 @@ def delete_dispatch_main(request, dispatch_id):
     return JsonResponse({"success": True, "message": "Dispatch record deleted successfully!"})
 
   return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+
+
+# @login_required
+# def pending_stock_updates(request):
+#   if not request.user.is_staff and not request.user.is_superuser:
+#     messages.error(request, "You are not authorized to view pending stock updates.")
+#     return redirect("main:drugs_list")
+
+#   pending_updates = PendingStockUpdate.objects.filter(approved=False)
+#   return render(request, "main/record-display.html", {"pending_updates": pending_updates})
+
+
+
+@login_required
+def approve_stock_update(request, pending_update_id):
+  if not request.user.is_staff and not request.user.is_superuser:
+      messages.error(request, "You are not authorized to approve stock updates.")
+      return redirect("main:pending_updates_list")
+
+  pending_update = get_object_or_404(PendingStockUpdate, id=pending_update_id)
+
+  drug = pending_update.drug
+  previous_quantity = drug.quantity
+  drug.quantity += pending_update.requested_quantity
+  drug.has_been_edited = False
+  drug.save()
+
+  InventoryLog.objects.create(
+    drug=drug,
+    previous_quantity=previous_quantity,
+    new_quantity=drug.quantity,
+    updated_by=request.user
+  )
+
+  pending_update.approved = True
+  pending_update.save()
+
+  messages.success(request, "Stock update approved successfully.")
+  return redirect("main:drugs_inventory")
 
 
 

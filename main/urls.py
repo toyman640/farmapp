@@ -20,4 +20,6 @@ urlpatterns = [
     path('dispatch-filter-records/', views.dispatch_filter_main, name='dispatch_filter_main'),
     path('dispatch/edit/<int:dispatch_id>/', views.edit_dispatch_main, name='edit_dispatch_main'),
     path("dispatch/delete/<int:dispatch_id>/", views.delete_dispatch_main, name="delete_dispatch_main"),
+    # path("pending-updates/", views.pending_stock_updates, name="pending_updates_list"),
+    path("approve-update/<int:pending_update_id>/", views.approve_stock_update, name="approve_stock_update"),
 ]

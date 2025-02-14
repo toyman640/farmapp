@@ -7,7 +7,7 @@ from datetime import timedelta,datetime
 from django.db.models import F
 from django.contrib import messages
 from django.forms import formset_factory
-from .models import Drug, Dispatch, Unit, InventoryLog
+from .models import Drug, Dispatch, Unit, InventoryLog, PendingStockUpdate
 from .forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
@@ -120,24 +120,49 @@ def add_drug(request):
   return render(request, 'drugapp/add-drugs.html', {'form': form})
 
 
+# @login_required
+# def update_drug_quantity(request, drug_id):
+  drug = get_object_or_404(Drug, id=drug_id)
+
+  if request.method == "POST":
+      form = UpdateDrugQuantityForm(request.POST)
+      if form.is_valid():
+          added_quantity = form.cleaned_data["quantity"]
+          new_quantity = drug.quantity + added_quantity
+
+          drug.update_stock(new_quantity, request.user)
+
+          messages.success(request, "Stock updated successfully!")
+          return redirect("drugapp:drugs_list")
+  else:
+      form = UpdateDrugQuantityForm()
+
+  return render(request, "drugapp/update-drug.html", {"form": form, "drug": drug})
+
 @login_required
 def update_drug_quantity(request, drug_id):
-    drug = get_object_or_404(Drug, id=drug_id)
+  drug = get_object_or_404(Drug, id=drug_id)
 
-    if request.method == "POST":
-        form = UpdateDrugQuantityForm(request.POST)
-        if form.is_valid():
-            added_quantity = form.cleaned_data["quantity"]
-            new_quantity = drug.quantity + added_quantity
+  if request.method == "POST":
+    form = UpdateDrugQuantityForm(request.POST)
+    if form.is_valid():
+      new_quantity = form.cleaned_data["quantity"]
+      
+      try:
+          drug.request_stock_update(new_quantity, request.user)
+          if request.user.is_staff or request.user.is_superuser:
+              messages.success(request, "Stock updated successfully!")
+          else:
+              messages.info(request, "Stock update request submitted for approval.")
+      except ValueError as e:
+          messages.error(request, str(e))
 
-            drug.update_stock(new_quantity, request.user)
+      return redirect("drugapp:drugs_list")
 
-            messages.success(request, "Stock updated successfully!")
-            return redirect("drugapp:drugs_list")
-    else:
-        form = UpdateDrugQuantityForm()
+  else:
+    form = UpdateDrugQuantityForm()
 
-    return render(request, "drugapp/update-drug.html", {"form": form, "drug": drug})
+  return render(request, "drugapp/update-drug.html", {"form": form, "drug": drug})
 
 @login_required
 def drugs_list(request):
