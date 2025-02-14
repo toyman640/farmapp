@@ -14,6 +14,7 @@ class Userp(models.Model):
     is_supervisor = models.BooleanField('Is supervisor', default=False)
     is_account = models.BooleanField('Is account', default=False)
     is_maintenance = models.BooleanField('Is maintenance', default=False)
+    is_drug = models.BooleanField("Is drug", default=False)
 
 
 class Animals(models.Model):
@@ -71,7 +72,7 @@ class EventType(models.Model):
     animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="events", null=True, blank=True)
     animal_type = models.ForeignKey(AnimalType, on_delete=models.CASCADE, related_name="events", null=True, blank=True)
     event_name = models.CharField(max_length=20, choices=EVENT_CHOICES, unique=True)
-    location = models.CharField(max_length=100)
+    location = models.CharField(max_length=100, null=True, blank=True)
     designation = models.TextField(max_length=500, null=True, blank=True)
     description = models.TextField(max_length=1000, null=True, blank=True)
     event_description = models.TextField(null=True, blank=True)

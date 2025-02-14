@@ -1,580 +1,89 @@
-{% extends 'main/base.html' %}
-{% load static %}
-<!Doctype html>
-{% block title %}
-Home
-{% endblock %}
+{% extends 'main/base.html' %} {% load static %}
+<!DOCTYPE html>
+{% block title %} Home {% endblock %} 
 
 {% block content %}
-  <!-- /Navigation-->
-  <div class="content-wrapper">
-    <div class="container-fluid">
-      <!-- Breadcrumbs-->
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="{% url 'main:main_index' %}">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item active">My Dashboard admin</li>
-      </ol>
-	  <!-- Icon Cards-->
-    <div>
-      <h3 class="text-center pt-3">Daily Report( {{ current_datetime|date:"l, F j, Y" }})</h3>
-      <div class="underline"></div>
-      <div class="row" >
-        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
-          <div class="card dashboard o-hidden h-100 animate__animated animate__backInLeft">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <img class="card-animal-icon" src="{% static 'img/pig.png' %}" alt="">
-              </div>
-              <div class="mr-5"><h2 class="text-dark">Piggery</h2></div>
-              <hr>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Farrowing
-                </p>
-                <p>
-                  {{ total_farrowing }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-danger">
-                  Mortality
-                </p>
-                <p>
-                  {{ total_pig_mortality }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-warning">
-                  Culling
-                </p>
-                <p>
-                  {{ total_pig_cull }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Procurement
-                </p>
-                <p>
-                  {{ total_pig_proc }}
-                </p>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInUp">
-          <div class="card dashboard o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <img class="card-animal-icon" src="{% static 'img/cow.png' %}" alt="">
-              </div>
-              <div class="mr-5"><h2 class="text-dark">Paddock</h2></div>
-              <hr>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Calving
-                </p>
-                <p>
-                  {{ total_clavings }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-danger">
-                  Mortality
-                </p>
-                <p>
-                  {{ total_cattle_mortality }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-warning"> 
-                  Culling
-                </p>
-                <p>
-                  {{ total_cow_cull }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Procurement
-                </p>
-                <p>
-                  {{ total_cattle_procurements }}
-                </p>
-              </div>
-            </div>
-        
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInDown">
-          <div class="card dashboard  o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <img class="card-animal-icon" src="{% static 'img/sheep.png' %}" alt="">
-              </div>
-				      <div class="mr-5"><h2 class="text-dark">Ewe</h2></div>
-              <hr>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Lambing
-                </p>
-                <p>
-                  {{ total_lambing }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-danger">
-                  Mortality
-                </p>
-                <p>
-                  {{ total_sheep_mot }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-warning">
-                  Culling
-                </p>
-                <p>
-                  {{ total_sheep_cull }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Procurement
-                </p>
-                <p>
-                  {{ total_sheep_proc }}
-                </p>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInRight">
-          <div class="card dashboard o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <img class="card-animal-icon" src="{% static 'img/goat.png' %}" alt="">
-              </div>
-              <div class="mr-5"><h2 class="text-dark">Goat</h2></div>
-              <hr>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Kidding
-                </p>
-                <p>
-                  {{ total_kidding }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-danger">
-                  Mortality
-                </p>
-                <p>
-                  {{ total_goat_mot }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-warning">
-                  Culling
-                </p>
-                <p>
-                  {{ total_goat_cull }}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Procurement
-                </p>
-                <p>
-                  {{ total_goat_proc }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-		  </div>
-    </div>
-    <div>
-      <h3 class="text-center pt-5">Monthly Report( {{ current_datetime|date:"F, Y" }})</h3>
-      <div class="underline"></div>
-      <div class="row" >
-        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInLeft__delay-5s">
-          <div class="card dashboard o-hidden h-100 animate__animated animate__backInLeft">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <img class="card-animal-icon" src="{% static 'img/pig.png' %}" alt="">
-              </div>
-              <div class="mr-5"><h2 class="text-dark">Piggery</h2></div>
-              <hr>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Farrowing
-                </p>
-                <p>
-                  {% if pig_month_birth %}
-                  {% for b in pig_month_birth %}
-                  {{ b.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-danger">
-                  Mortality
-                </p>
-                <p>
-                  {% if pig_month_mot %}
-                  {% for m in pig_month_mot %}
-                  {{ m.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-warning">
-                  Culling
-                </p>
-                <p>
-                  {% if pig_month_cull %}
-                  {% for c in pig_month_cull %}
-                  {{ c.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Procurement
-                </p>
-                <p>
-                  {% if pig_month_proc %}
-                  {% for p in pig_month_proc %}
-                  {{ p.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInUp">
-          <div class="card dashboard o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <img class="card-animal-icon" src="{% static 'img/cow.png' %}" alt="">
-              </div>
-              <div class="mr-5"><h2 class="text-dark">Paddock</h2></div>
-              <hr>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Calving
-                </p>
-                <p>
-                  {% if cow_month_birth %}
-                  {% for b in cow_month_birth %}
-                  {{ b.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-danger">
-                  Mortality
-                </p>
-                <p>
-                  {% if cow_month_mot %}
-                  {% for a in cow_month_mot %}
-                  {{ a.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-warning"> 
-                  Culling
-                </p>
-                <p>
-                  {% if cow_month_cull %}
-                  {% for d in cow_month_cull %}
-                  {{ d.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Procurement
-                </p>
-                <p>
-                  {% if cow_month_proc %}
-                  {% for p in cow_month_proc %}
-                  {{ p.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-            </div>
-        
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInDown">
-          <div class="card dashboard  o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <img class="card-animal-icon" src="{% static 'img/sheep.png' %}" alt="">
-              </div>
-				      <div class="mr-5"><h2 class="text-dark">Ewe</h2></div>
-              <hr>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Lambing
-                </p>
-                <p>
-                  {% if sheep_month_birth %}
-                  {% for b in sheep_month_birth %}
-                  {{ b.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-danger">
-                  Mortality
-                </p>
-                <p>
-                  {% if sheep_month_mot %}
-                  {% for m in sheep_month_mot %}
-                  {{ m.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-warning">
-                  Culling
-                </p>
-                <p>
-                  {% if sheep_month_cull %}
-                  {% for c in sheep_month_cull %}
-                  {{ c.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Procurement
-                </p>
-                <p>
-                  {% if sheep_month_proc %}
-                  {% for p in sheep_month_proc %}
-                  {{ p.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3 animate__animated animate__backInRight">
-          <div class="card dashboard o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <img class="card-animal-icon" src="{% static 'img/goat.png' %}" alt="">
-              </div>
-              <div class="mr-5"><h2 class="text-dark">Goat</h2></div>
-              <hr>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Kidding
-                </p>
-                <p>
-                  {% if goat_month_birth %}
-                  {% for b in goat_month_birth %}
-                  {{ b.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-danger">
-                  Mortality
-                </p>
-                <p>
-                  {% if goat_month_mot %}
-                  {% for m in goat_month_mot %}
-                  {{ m.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-warning">
-                  Culling
-                </p>
-                <p>
-                  {% if goat_month_cull %}
-                  {% for c in goat_month_cull %}
-                  {{ c.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {%endif %}
-                </p>
-              </div>
-              <div class="value-box-admin">
-                <p class="text-success">
-                  Procurement
-                </p>
-                <p>
-                  {% if goat_month_proc %}
-                  {% for p in goat_month_proc %}
-                  {{ p.total|default:0 }}
-                  {% endfor %}
-                  {% else %}
-                  0
-                  {% endif %}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-		  </div>
-    </div>
-
-
-		<!-- /cards -->
-    <div class="box_general padding_bottom">
-      {% for c in ctotal %}
-      {% if forloop.first %}
-      <h3 class="text-center "><b class=""> Total Census For {{ c.month }} </b></h3>
-      <div class="jumbotron  animate__animated  animate__backInLeft">
-            
-        
-        <div class="row">
-          <div class="col-12">
-            <div class="d-inline col-3">
-            
-              <span style="font-size: 100px;" class=" number">{{ c.addc }}</span>
-              {% endif %}
-              {% endfor %}
-              <label for="">CATTLE</label>
-            </div>
-            <div class="d-inline col-3">
-              {% for d in ptotal %}
-              {% if forloop.first %}
-              <span  style="font-size: 100px;" class=" number">{{ d.addp }}</span>
-              {% endif %}
-              {% endfor %}
-              <label for="">PIGS</label>
-            </div>
-            <div class="d-inline col-3 ">
-              {% for i in stotal %}
-              {% if forloop.first %}
-              <span  style="font-size: 100px;" class=" number">{{ i.adds }}</span>
-              {% endif %}
-              {% endfor %}
-              <label for="">SHEEP</label>
-            </div>
-            <div class="d-inline col-3">
-              {% for h in gtotal %}
-              {% if forloop.first %}
-              <span  style="font-size: 100px;" class=" number">{{ h.addg }}</span>
-              {% endif %}
-              {% endfor %}
-              <label for="">GOATS</label>
-            </div>
-          </div>
-        </div>
-          
-        
-        
-      </div>
-		</div>
-		
+<!-- /Navigation-->
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <!-- Breadcrumbs-->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'main:main_index' %}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active">My Dashboard</li>
+    </ol>
+    <!-- Icon Cards-->
     <div class="row">
-      <div class="box_general padding_bottom col-lg-12 col-sm-12">
-        <div class="header_box version_2">
-          <h2><i class="fa fa-bar-chart"></i>Total Census:{% for countc in ctotal %}{% if forloop.first %} {{ countc.month }} {% endif %}{% endfor %} </h2>
+      <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+        <div class="box_general padding_bottom">
+          <h4><i class="fa fa-file-text text-primary"></i> Dispatch records for today ( {% now "Y-m-d" %} )</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Drug</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">By</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for dispatch in today_dispatches %}
+              <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ dispatch.drug.drug_name }}</td>
+                <td>{{ dispatch.quantity }}</td>
+                <td>{{ dispatch.dispatched_by }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center">
+                  No dispatch records for today.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        <canvas id="myChart" width="400" height="150"></canvas>
-        <script>
-            const ctx = document.getElementById('myChart').getContext('2d');
-            const myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Cattles', 'Swine', 'Sheep', 'Goat'],
-                    datasets: [{
-                        label: 'Population',
-                        data: [{% for countc in ctotal %}{% if forloop.first %} {{ countc.addc }}, {% endif %}{% endfor %}{% for countp in ptotal %}{% if forloop.first %} {{ countp.addp }}, {% endif %}{% endfor %}{% for counts in stotal %}{% if forloop.first %} {{ counts.adds }}, {% endif %}{% endfor %}{% for countg in gtotal %}{% if forloop.first %} {{ countg.addg }}, {% endif %}{% endfor %}],
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.9)',
-                            'rgba(54, 162, 235, 0.9)',
-                            'rgba(255, 206, 86, 0.9)',
-                            'rgba(75, 192, 192, 0.9)',
-                            'rgba(153, 102, 255, 0.9)',
-                            'rgba(255, 159, 64, 0.9)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                        }
-                    }
-                }
-            });
-        </script>
+      </div>
+      <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+        <div class="box_general padding_bottom">
+          <div class="header_box version_2">
+            <h2><i class="fa fa-bell text-danger"></i> Low Stock(s)</h2>
+            <div>
+              {% for l in low_stock_drugs %}
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th scope="col">Drug</th>
+                    <th scope="col">Quantity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                 
+                  <tr id="drug-{{ l.id }}">
+                    <td>{{ l.drug_name }}</td>
+                    <td class="text-danger font-weight-bold">
+                      {{ l.quantity }}
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-sm btn-danger dismiss-drug"
+                        data-drug-id="{{ l.id }}"
+                      >
+                        Dismiss
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-	
-
-    
-	  </div>
-	  <!-- /.container-fluid-->
-   	</div>
-      {% endblock %}
+  </div>
+  <!-- /.container-fluid-->
+</div>
+{% endblock %}

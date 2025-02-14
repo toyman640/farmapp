@@ -1,0 +1,85 @@
+{% extends 'main/base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Cow Culling
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a  class="" href="{% url 'main:main_index' %}"> Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Drugs records</li>
+      </ol>
+      
+		<div class="box_general padding_bottom">
+      <div class="table-responsive">
+        {% if page_obj %}
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Drug Manufacturer1</th>
+              <th scope="col">Drug Name</th>
+              <th scope="col">Batch Number</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Expiry Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in page_obj %}
+              <tr onclick="window.location.href='{% url 'main:drug_detail' d.id %}';" style="cursor: pointer;">
+                <td scope="row">{{ d.manufacturer_name }} 1</td>
+                <td>{{ d.drug_name }}</td>
+                <td>{{ d.batch_number }}</td>
+                <td>{{ d.quantity }}</td>
+                <td>{{ d.expiry_date }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                  <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+            {% endif %}
+            <li class="page-item disabled">
+              <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                  <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+      
+		</div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+      {% endblock %}

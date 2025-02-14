@@ -1,0 +1,232 @@
+{% extends 'drugapp/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<!Doctype html>
+{% block title %} Home {% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+      <li class="breadcrumb-item active">My Dashboard</li>
+    </ol>
+
+    <!-- 🚀 Alert Messages (Hidden by Default) -->
+    <div id="alert-container"></div>
+
+    <!-- Button to trigger modal -->
+    <div class="box_general padding_bottom border ">
+      <div class="d-flex justify-content-between">
+        <h4>Total Inventory Count: {{ drugs_count }}</h4>
+        <button class="btn btn-outline-success" data-toggle="modal" data-target="#addUnitModal">
+          <i class="bi bi-plus-circle"></i> Add Unit
+        </button>
+        
+      </div>
+      
+    </div>
+
+    <!-- <div class="box_general padding_bottom">
+      <div class="d-flex justify-content-between">
+        <h4 class="text-center">Recent Drugs Dispatched</h4>
+
+
+      </div>
+      
+    </div> -->
+
+    
+   <!-- Dispatch Drug Modal -->
+   <div class="modal fade" id="dispatchDrugModal" tabindex="-1" aria-labelledby="dispatchDrugModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="dispatchDrugModalLabel">Dispatch Drug</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post" id="dispatchDrugForm">
+              {% csrf_token %}
+              {{ dispatch_form|crispy }}
+              <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Dispatch</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bootstrap Modal for unit -->
+    <div class="modal fade" id="addUnitModal" tabindex="-1" aria-labelledby="addUnitModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addUnitModalLabel">Add New Unit</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post" id="unitForm">
+              {% csrf_token %}
+              {{ unit_form|crispy }}
+              <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Save Unit</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Responsive Statistics and Reminders -->
+    <div class="row">
+      <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+        <div class="box_general padding_bottom">
+          <div class="header_box version_2">
+            <h2 class="text-success"><i class="fa fa-bar-chart text-warning"></i> Today's Dispatch</h2>
+          </div>
+          <div class="dispatch-card" style="height: 200px; overflow-y: auto">
+
+            <table class="table ">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Drug</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">By</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for dispatch in today_dispatches %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ dispatch.drug.drug_name }}</td>
+                    <td>{{ dispatch.quantity }}</td>
+                    <td>{{ dispatch.dispatched_by }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center">No dispatch records for today.</td>
+              </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+        <div class="box_general padding_bottom">
+          <div class="header_box version_2">
+            <h2><i class="fa fa-bell text-danger"></i> Low Stock</h2>
+            <div>
+
+              {% for l in low_stock_drugs %}
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th scope="col">Drug</th>
+                      <th scope="col">Quantity</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- <tr>
+                      <td>  {{ l.drug_name }}</td>
+                      <td class="text-danger font-weight-bold">  {{ l.quantity }}</td>
+                    </tr> -->
+                    <tr id="drug-{{ l.id }}">
+                      <td>{{ l.drug_name }}</td>
+                      <td class="text-danger font-weight-bold">{{ l.quantity }}</td>
+                      <td>
+                        <button class="btn btn-sm btn-danger dismiss-drug" data-drug-id="{{ l.id }}">Dismiss</button>
+                      </td>
+                    </tr>
+                  </tbody>
+
+                </table>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery & AJAX for Form Submission -->
+<script>
+  $(document).ready(function () {
+      $("#unitForm").submit(function (e) {
+          e.preventDefault();
+          var formData = $(this).serialize();
+          var csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+          $.ajax({
+              url: "{% url 'drugapp:add_unit' %}",
+              type: "POST",
+              data: formData,
+              headers: {
+                  "X-CSRFToken": csrfToken
+              },
+              success: function (data) {
+                  if (data.success) {
+                      showMessage("success", "✅ Unit added successfully!");
+                      $("#unitForm")[0].reset();  // Reset form fields
+                      $("#addUnitModal").modal("hide");  // Close modal
+                  } else {
+                      showMessage("danger", "❌ Error adding unit. Please check your input.");
+                  }
+              },
+              error: function () {
+                  showMessage("danger", "⚠️ Something went wrong. Please try again.");
+              }
+          });
+      });
+
+      // Function to show Bootstrap alert messages dynamically
+      function showMessage(type, message) {
+          var alertHtml = `
+              <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                  ${message}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span>&times;</span>
+                  </button>
+              </div>`;
+          $("#alert-container").html(alertHtml);
+
+          // Auto-hide alert after 5 seconds
+          setTimeout(function () {
+              $(".alert").fadeOut();
+          }, 5000);
+      }
+  });
+  $(document).ready(function () {
+    $(".dismiss-drug").click(function () {
+        var drugId = $(this).data("drug-id");
+
+        $.ajax({
+            url: "{% url 'drugapp:dismiss_low_stock' %}",
+            type: "POST",
+            data: { drug_id: drugId },
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            success: function (response) {
+                if (response.success) {
+                    $("#drug-" + drugId).remove(); // Remove drug row from table
+                }
+            },
+            error: function () {
+                alert("Error removing drug.");
+            }
+        });
+    });
+  });
+</script>
+{% endblock %}

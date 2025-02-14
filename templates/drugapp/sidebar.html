@@ -1,0 +1,288 @@
+{% load static %}
+{% load tz %}
+<!-- Navigation-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-default fixed-top" id="mainNav">
+    <a class="navbar-brand" href="{% url 'drugapp:drug_index' %}"><img class="logo-image" src="{% static 'img/try2.png' %}" data-retina="true" alt="logo" ></a>
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+          <a class="nav-link" href="{% url 'drugapp:drug_index' %}">
+            <i class="fa fa-fw fa-home"></i>
+            <span class="nav-link-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+          <a class="nav-link" href="{% url 'drugapp:dispatch_drug' %}">
+            <i class="fa fa-hospital-o"></i>
+            <span class="nav-link-text">Dispatch Drug</span>
+          </a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+          <a class="nav-link" href="{% url 'drugapp:drugs_list' %}">
+            <i class="fa fa-clipboard"></i>
+            <span class="nav-link-text">Drugs Records</span>
+          </a>
+        </li>
+        <!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+          <a class="nav-link" href="{% url 'drugapp:add_drug' %}">
+            <i class="fa fa-plus-square"></i>
+            <span class="nav-link-text">Restock Inventory</span>
+          </a>
+        </li> -->
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Restock Inventory">
+          <a class="nav-link" href="#" data-toggle="modal" data-target="#restockModal">
+              <i class="fa fa-plus-square"></i>
+              <span class="nav-link-text">Restock Inventory</span>
+          </a>
+      </li>
+        <!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#mortality" data-parent="#mylistings">
+            <i class="fa fa-fw fa-list"></i>
+            <span class="nav-link-text">Piggery1</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="mortality">
+            <li>
+              <a href="">Mortality</a>
+            </li>
+            <li>
+              <a href="">Culling</a>
+            </li>
+            <li>
+              <a href="">Farrowing</a>
+            </li>
+            <li>
+              <a href="">Procurement</a>
+      
+            <li>
+              <a href="">Sales</a>
+            </li>
+            <li>
+              <a class="nav-link" data-toggle="modal" data-target="#exampleModalP">Records</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#sheep" data-parent="#mylistings">
+            <i class="fa fa-fw fa-list"></i>
+            <span class="nav-link-text">Small Ruminant(sheep)</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="sheep">
+            <li>
+              <a href="">Mortality</a>
+            </li>
+            <li>
+              <a href="">Culling</a>
+            </li>
+            <li>
+              <a href="">Lambing</a>
+            </li>
+            <li>
+              <a href="">Procurement</a>
+      
+            <li>
+              <a href="">Sales</a>
+            </li>
+            <li>
+              <a class="nav-link" data-toggle="modal" data-target="#exampleModalS">Records</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#goat" data-parent="#mylistings">
+            <i class="fa fa-fw fa-list"></i>
+            <span class="nav-link-text">Small Ruminant(goat)</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="goat">
+            <li>
+              <a href="">Mortality</a>
+            </li>
+            <li>
+              <a href="">Culling</a>
+            </li>
+            <li>
+              <a href="">Kidding</a>
+            </li>
+            <li>
+              <a href="">Procurement</a>
+      
+            <li>
+              <a href="">Sales</a>
+            </li>
+            <li>
+              <a class="nav-link" data-toggle="modal" data-target="#exampleModalG">Records</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#cow" data-parent="#mylistings">
+            <i class="fa fa-fw fa-list"></i>
+            <span class="nav-link-text">Large Ruminant</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="cow">
+            <li>
+              <a href="">Mortality</a>
+            </li>
+            <li>
+              <a href="">Culling</a>
+            </li>
+            <li>
+              <a href="">Calving</a>
+            </li>
+            <li>
+              <a href="">Procurement</a>
+      
+            <li>
+              <a href="">Sales</a>
+            </li>
+            <li>
+              <a class="nav-link" data-toggle="modal" data-target="#exampleModalC">Records</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#Procurement"
+            data-parent="#mylistings">
+            <i class="fa fa-fw fa-list"></i>
+            <span class="nav-link-text">Monthly Census</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="Procurement">
+            <li>
+              <a href="">Piggery</a>
+            </li>
+            <li>
+              <a href="">Paddock</a>
+            </li>
+            <li>
+              <a href="">Small ruminant(goat)</a>
+            </li>
+            <li>
+              <a href="">Small ruminant(sheep)</a>
+            <li>
+              <a class="nav-link" data-toggle="modal" data-target="#exampleModalCen">Records</a>
+            </li>
+          </ul>
+      
+        </li>
+      
+      
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listingsc">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#chart" data-parent="#mylistingsc">
+            <i class="fa fa-fw fa-list"></i>
+            <span class="nav-link-text">Charts</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="chart">
+            <li>
+              <a href="">Piggery</a>
+            </li>
+            <li>
+              <a href="">Paddock</a>
+            </li>
+            <li>
+              <a href="">Small Ruminant Goat</a>
+            </li>
+            <li>
+              <a href="">Small Ruminant Sheep</a>
+      
+          </ul>
+      
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+          <a class="nav-link" href="">
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <span class="nav-link-text">Messages
+      
+            </span>
+          </a>
+        </li> -->
+      </ul>
+      <ul class="navbar-nav sidenav-toggler">
+        <li class="nav-item">
+          <a class="nav-link text-center" id="sidenavToggler">
+            <i class="fa fa-fw fa-angle-left"></i>
+          </a>
+        </li>
+      </ul>
+      
+      <ul class="navbar-nav ml-auto">
+        <!-- <li class="nav-item dropdown mr-5">
+          <a class="nav-link dropdown-toggle mr-lg-2" id="alertsDropdown" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-fw fa-bell"></i>
+            {% if notes.count > 0 %}
+            <span class="d-lg-none">Alerts
+              <span class="badge badge-pill badge-warning">{{ notes.count }} New</span>
+            </span>
+            <span class="indicator text-warning d-none d-lg-block">
+              <i class="fa fa-fw fa-circle"></i>
+            </span>
+            {% endif %}
+          </a>
+          <div class="dropdown-menu" aria-labelledby="alertsDropdown">
+            {% if notes.count > 0 %}
+            <h6 class="dropdown-header">New Messages:</h6>
+            <div class="dropdown-divider"></div>
+            {% for a in notes %}
+            <a class="dropdown-item" href="/ping/show/{{ a.slug }}/">
+              <span class="text-success">
+                <strong>
+                  {{ a.title }}</strong>
+              </span>
+              <span class="small float-right text-muted">{% localtime on %}{{ a.date|date:"M d,  H:i"  }}{% endlocaltime %}</span>
+              <div class="dropdown-message small">{{ a.message|truncatewords:10 }}</div>
+            </a>
+            <div class="dropdown-divider"></div>
+           
+            {% endfor %}
+            <div class="dropdown-divider"></div>
+            {% else %}
+            <a class="dropdown-item small" href="#">No new Messages</a> 
+            {% endif %}
+          </div>
+        </li> -->
+        <li class="nav-item pr-lg-5">
+          <span style="line-height: 35px;">{{ request.user.get_full_name }}</span>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link btn btn-outline-secondary" data-toggle="modal" data-target="#exampleModal">
+            <i class="fa fa-power-off text-danger"></i> 
+            Logout
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Restock Inventory Modal -->
+<div class="modal fade" id="restockModal" tabindex="-1" role="dialog" aria-labelledby="restockModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="restockModalLabel">Restock Inventory</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body text-center">
+              <p>Select the type of drug you want to restock:</p>
+              <button class="btn btn-primary btn-block my-2" onclick="window.location.href='{% url 'drugapp:add_drug' %}'">
+                  New Drug
+              </button>
+              <caption>(Click here to add new drug)</caption>
+              <button class="btn btn-secondary btn-block" onclick="window.location.href='{% url 'drugapp:drugs_list' %}'">
+                  Existing Drug
+              </button>
+              <caption>(To update quantity of existing Item, go to records and update quantity)</caption>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+

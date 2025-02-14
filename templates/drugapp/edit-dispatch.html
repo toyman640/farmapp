@@ -1,0 +1,44 @@
+{% extends 'drugapp/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<!Doctype html>
+{% block title %} Home {% endblock %}
+
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'drugapp:dispatch_drug' %}">Dispatch Records</a></li>
+      <li class="breadcrumb-item active">Edit Drug</li>
+    </ol>
+
+    <!-- 🚀 Alert Messages (Hidden by Default) -->
+    <div id="alert-container"></div>
+    <div class="box_general padding_bottom">
+      <div class="container mt-4">
+        <h2>Edit Dispatch</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="drug">Drug Name</label>
+                {{ form.drug }}
+            </div>
+            <div class="mb-3">
+                <label for="quantity">Quantity</label>
+                {{ form.quantity }}
+            </div>
+            <div class="mb-3">
+                <label for="unit">Unit</label>
+                {{ form.unit }}
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'drugapp:dispatch_drug' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

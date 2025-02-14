@@ -1,0 +1,38 @@
+{% extends 'main/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Edit Drug
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Edit Drug</li>
+      </ol>
+      <div class="box_general padding_bottom">
+        <div class="container mt-4">
+          <h2>Edit Dispatch</h2>
+          <div class="content-wrapper">
+            <div class="container-fluid">
+              <h2>Edit Drug: {{ drug.drug_name }}</h2>
+              <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{% url 'main:drugs_inventory' %}">Back</a>
+              </form>
+            </div>
+          </div>
+      </div>
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+      {% endblock %}

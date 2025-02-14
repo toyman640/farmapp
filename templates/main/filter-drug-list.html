@@ -1,0 +1,51 @@
+{% extends 'main/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<!Doctype html>
+{% block title %} Drug filter records{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'main:drugs_inventory' %}">Inventory Records</a></li>
+      <li class="breadcrumb-item active">Drug List</li>
+    </ol>
+
+    <div id="alert-container"></div>
+
+    <div class="box_general">
+      <div class="table-responsive">
+        
+        {% if drugs %}
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Drug Name</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Unit</th>
+              <th scope="col">Logged By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for drug in drugs  %}
+              <tr>
+                <td><a href="{% url 'main:drug_detail' drug.id %}">{{ drug.drug_name }}</a></td>
+                <td>{{ drug.quantity }}</td>
+                <td>{{ drug.unit }}</td>
+                <td>{{ drug.logged_by }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+          <p>No records found.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

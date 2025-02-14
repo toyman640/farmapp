@@ -1,0 +1,84 @@
+{% extends 'main/base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Drug Records
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'main:drugs_inventory_land' %}">Inventory Records</a>
+        </li>
+        <li class="breadcrumb-item active">Inventory Records</li>
+      </ol>
+     
+      <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+          <div class="box_general padding_bottom"> 
+            <table class="table ">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Drug</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">By</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for dispatch in dispatch_records %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ dispatch.drug.drug_name }}</td>
+                    <td>{{ dispatch.quantity }}</td>
+                    <td>{{ dispatch.dispatched_by }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center">No dispatch records yet.</td>
+              </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+            <a class="btn btn-primary align-middle text-white" href="{% url 'main:dispatch_drug_main' %}">View all dispatch records</a>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+          <div class="box_general padding_bottom">
+            <table class="table ">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Drug</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">By</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for dispatch in drugs_records %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ dispatch.drug_name }}</td>
+                    <td>{{ dispatch.quantity }}</td>
+                    <td>{{ dispatch.logged_by }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center">No inventory records yet.</td>
+              </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+            <a class="btn btn-primary align-middle text-white" href="{% url 'main:drugs_inventory' %}">View all inventory records</a>
+          </div>
+        </div>   
+	    </div>
+    
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+      {% endblock %}

@@ -1,54 +1,97 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-    <!-- Bootstrap core CSS-->
-    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
-  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/custom.css' %}">
-</head>
-<body class="log-page">
-    <div class="container ">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="jumbotron mt-5 log-big text-white text-center">Welcome to Farm Inventory Space</h1>
-                <form class="col-md-4 col-md-offset-4" method="post">
-                    {% if messages %}
+    <!-- Bootstrap core CSS -->
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon" />
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+    
+    <style>
+      /* Spinner overlay */
+      .loading-overlay {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+      
+      /* Hide content initially */
+      .content-wrapper {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="log-page">
+    
+    <!-- Spinner Overlay -->
+    <div class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container inner-login content-wrapper">
+      <div class="row">
+        <div class="col-12">
+          <h1 class="jumbotron mt-5 log-big text-white text-center">
+            Solomon Kesinton Agro Allied Limited
+          </h1>
+          <form class="col-md-4 col-md-offset-4" method="post">
+            <div id="message-container">
+              {% if messages %}
                 {% for mes in messages %}
                   <div class="alert {{ mes.tags }}">{{ mes }}</div>
                 {% endfor %}
               {% endif %}
-                    <div class="form-group">
-                    <label for="exampleInputEmail1" class="text-dark">Username</label>
-                    <input type="text" class="form-control" name="username" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else</small>
-                    </div>
-                    <div class="form-group" class="text-white">
-                    <label for="exampleInputPassword1">Password</label>
-                    <input type="password" class="form-control" name="password" id="exampleInputPassword1" placeholder="Password">
-                    </div>
-                    <div class="form-check">
-                    <input type="checkbox" onclick="myFunction()">Show Password
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    {% csrf_token %}
-                </form>
-                <script>
-                    function myFunction() {
-  var x = document.getElementById("exampleInputPassword1");
-  if (x.type === "password") {
-    x.type = "text";
-  } else {
-    x.type = "password";
-  }
-}
-                </script>
             </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1" class="text-light">Username</label>
+              <input type="text" class="form-control" name="username" id="exampleInputEmail1" placeholder="Enter email" />
+            </div>
+            <div class="form-group">
+              <label class="text-light" for="exampleInputPassword1">Password</label>
+              <input type="password" class="form-control" name="password" id="exampleInputPassword1" placeholder="Password" />
+            </div>
+            <div class="form-check">
+              <input type="checkbox" onclick="togglePassword()" /> Show Password
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+            {% csrf_token %}
+          </form>
         </div>
-    </div> 
-</body>
+      </div>
+    </div>
+
+    <script>
+      function togglePassword() {
+        var x = document.getElementById("exampleInputPassword1");
+        x.type = x.type === "password" ? "text" : "password";
+      }
+
+      function hideSpinner() {
+        document.querySelector(".loading-overlay").style.display = "none";
+        document.querySelector(".content-wrapper").style.display = "block";
+      }
+
+      // Create a new image object and wait for it to load
+      var bgImage = new Image();
+      bgImage.src = "{% static 'img/pass-4.jpg' %}";
+      bgImage.onload = hideSpinner; // Hide spinner when image loads
+
+      setTimeout(function() {
+        document.getElementById('message-container').style.display = 'none';
+      }, 2000);
+    </script>
+
+  </body>
 </html>
