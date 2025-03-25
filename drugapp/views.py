@@ -144,18 +144,18 @@ def add_drug(request):
 def update_drug_quantity(request, drug_id):
   drug = get_object_or_404(Drug, id=drug_id)
 
-    if request.method == "POST":
-        form = UpdateDrugQuantityForm(request.POST)
-        if form.is_valid():
-          added_quantity = form.cleaned_data["quantity"]
-          new_quantity = drug.quantity + added_quantity
+  if request.method == "POST":
+    form = UpdateDrugQuantityForm(request.POST)
+    if form.is_valid():
+      added_quantity = form.cleaned_data["quantity"]
+      new_quantity = drug.quantity + added_quantity
 
-          drug.update_stock(new_quantity, request.user)
+      drug.update_stock(new_quantity, request.user)
 
-          messages.success(request, "Stock updated successfully!")
-          return redirect("drugapp:drugs_list")
-    else:
-        form = UpdateDrugQuantityForm()
+      messages.success(request, "Stock updated successfully!")
+      return redirect("drugapp:drugs_list")
+  else:
+    form = UpdateDrugQuantityForm()
 
   return render(request, "drugapp/update-drug.html", {"form": form, "drug": drug})
 
