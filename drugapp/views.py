@@ -127,13 +127,13 @@ def update_drug_quantity(request, drug_id):
     if request.method == "POST":
         form = UpdateDrugQuantityForm(request.POST)
         if form.is_valid():
-            added_quantity = form.cleaned_data["quantity"]
-            new_quantity = drug.quantity + added_quantity
+          added_quantity = form.cleaned_data["quantity"]
+          new_quantity = drug.quantity + added_quantity
 
-            drug.update_stock(new_quantity, request.user)
+          drug.update_stock(new_quantity, request.user)
 
-            messages.success(request, "Stock updated successfully!")
-            return redirect("drugapp:drugs_list")
+          messages.success(request, "Stock updated successfully!")
+          return redirect("drugapp:drugs_list")
     else:
         form = UpdateDrugQuantityForm()
 
