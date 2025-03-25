@@ -23,6 +23,7 @@ def drug_index(request):
   low_stock_drugs = Drug.objects.filter(restock_quantity_notify__gte=F('quantity'))
   today = localdate()
   today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
+ 
 
   context = {
     'unit_form': unit_form,

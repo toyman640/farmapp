@@ -100,11 +100,19 @@ def main_index(request):
   low_stock_drugs = Drug.objects.filter(restock_quantity_notify__gte=F('quantity'))
   today = localdate()
   today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
+  pending_updates = PendingStockUpdate.objects.filter(approved=False)
+  pending_updates_count = 0
+  if request.user.is_staff or request.user.is_superuser:
+    pending_updates_count = pending_updates.count()
+  
+  print(pending_updates_count)
 
   context = {
     'low_stock_drugs': low_stock_drugs,
     'today_dispatches': today_dispatches,
     'today_date': today,
+    "pending_updates": pending_updates,
+    "pending_updates_count": pending_updates_count,
   }
 
   return render(request, 'main/index.html', context)
@@ -318,7 +326,7 @@ def approve_stock_update(request, pending_update_id):
   pending_update.save()
 
   messages.success(request, "Stock update approved successfully.")
-  return redirect("main:drugs_inventory")
+  return redirect("main:main_index")
 
 
 
