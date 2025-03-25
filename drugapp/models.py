@@ -31,7 +31,7 @@ class Drug(models.Model):
   def is_expiring_soon(self):
     return now().date() >= self.expiry_date - timedelta(days=7)
 
-  def update_stock(self, new_quantity, user):
+  # def update_stock(self, new_quantity, user):
     """
     Update stock correctly:
     - If increasing stock, add to previous quantity.
@@ -55,6 +55,31 @@ class Drug(models.Model):
         new_quantity=new_quantity,
         updated_by=user
     )
+
+  def request_stock_update(self, new_quantity, user):
+    if new_quantity < 0:
+      raise ValueError("Stock quantity cannot be negative")
+
+    if user.is_staff or user.is_superuser:
+      # Directly update stock for staff and superusers
+      previous_quantity = self.quantity
+      self.quantity = new_quantity
+      self.has_been_edited = False
+      self.save()
+
+      InventoryLog.objects.create(
+        drug=self,
+        previous_quantity=previous_quantity,
+        new_quantity=new_quantity,
+        updated_by=user
+      )
+    else:
+      # Store as pending update for non-staff users
+      PendingStockUpdate.objects.create(
+        drug=self,
+        requested_quantity=new_quantity,
+        requested_by=user
+      )
 
   def correct_stock(self, correct_quantity, user):
     """
@@ -106,6 +131,18 @@ class InventoryLog(models.Model):
 
   def __str__(self):
     return f"{self.drug.drug_name}: {self.previous_quantity} → {self.new_quantity}"
+
+
+class PendingStockUpdate(models.Model):
+  drug = models.ForeignKey(Drug, on_delete=models.CASCADE, related_name="pending_updates")
+  requested_quantity = models.PositiveIntegerField()
+  requested_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+  requested_at = models.DateTimeField(auto_now_add=True)
+  approved = models.BooleanField(default=False)
+
+  def __str__(self):
+    return f"Pending update for {self.drug.drug_name}: {self.requested_quantity}"
+
 
 
 class Dispatch(models.Model):
