@@ -143,8 +143,7 @@ def add_drug(request):
 @login_required
 def update_drug_quantity(request, drug_id):
   drug = get_object_or_404(Drug, id=drug_id)
-
-
+  
   if request.method == "POST":
     form = UpdateDrugQuantityForm(request.POST)
     if form.is_valid():
