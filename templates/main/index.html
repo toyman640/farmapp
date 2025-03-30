@@ -89,7 +89,7 @@
           <div class="header_box version_2">
             <h2><i class="fa fa-bell text-danger"></i> Stocks to approve</h2>
             <div>
-              {% for l in pending_updates %}
+             
               <table class="table table-sm">
                 <thead>
                   <tr>
@@ -99,6 +99,7 @@
                   </tr>
                 </thead>
                 <tbody>
+                     {% for l in pending_updates %}
                   <tr id="{{ l.id }}">
 
                     <td>{{ l.drug.drug_name }}</td>
@@ -111,18 +112,11 @@
                     <td class="text-danger font-weight-bold">
                       {{ l.quantity }}
                     </td>
-                    <td>
-                      <button
-                        class="btn btn-sm btn-danger dismiss-drug"
-                        data-drug-id="{{ l.id }}"
-                      >
-                        Dismiss
-                      </button>
-                    </td>
                   </tr>
+                   {% endfor %}
                 </tbody>
               </table>
-              {% endfor %}
+             
             </div>
           </div>
         </div>
