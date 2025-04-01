@@ -14,7 +14,7 @@ Cow Mortality
         <li class="breadcrumb-item">
           <a  class="" href="{% url 'main:main_index' %}"><i class="fa fa-angle-left"></i> Back to all Records Dashboard</a>
         </li>
-        <li class="breadcrumb-item active">Cow Mortality Results</li>
+        <li class="breadcrumb-item active">Drug Info</li>
       </ol>
       <div class="box_general padding_bottom">
         {% if drug %}
@@ -26,7 +26,7 @@ Cow Mortality
           <p><strong>Manufacturing Date:</strong> {{ drug.manufacturing_date }}</p>
           <p><strong>Expiry Date:</strong> {{ drug.expiry_date }}</p>
           <p><strong>Restock Notification Quantity:</strong> {{ drug.restock_quantity_notify }} {{ drug.unit }}</p>
-          <p><strong>Entered By:</strong> {{ drug.logged_by }}</p>
+          <p><strong>Entered By:</strong> {{ drug.logged_by.first_name }}</p>
   
           <!-- Action Buttons -->
           <div class="d-flex justify-content-between">

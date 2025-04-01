@@ -33,7 +33,7 @@
                 <th scope="row">{{ forloop.counter }}</th>
                 <td>{{ dispatch.drug.drug_name }}</td>
                 <td>{{ dispatch.quantity }}</td>
-                <td>{{ dispatch.dispatched_by }}</td>
+                <td>{{ dispatch.dispatched_by.first_name }}</td>
               </tr>
               {% empty %}
               <tr>
