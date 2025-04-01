@@ -95,7 +95,7 @@
                   <tr>
                     <th scope="col">Drug</th>
                     <th scope="col">Quantity</th>
-                    <th scope="col">Action</th>
+                    <th scope="col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -104,7 +104,10 @@
 
                     <td>{{ l.drug.drug_name }}</td>
                     <td>{{ l.requested_quantity }}</td>
-                    <td><a class="btn-sm btn-success" href="{% url 'main:approve_stock_update' l.id %}">Approve</a></td>
+                    <td>
+                      <a class="btn-sm btn-success" href="{% url 'main:approve_stock_update' l.id %}">Approve</a>
+                      <a class="btn-sm btn-danger" href="{% url 'main:dismiss_stock_update' l.id %}">Dismiss</a>
+                    </td>
                   </tr>
                  
                   <tr >

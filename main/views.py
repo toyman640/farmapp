@@ -329,6 +329,19 @@ def approve_stock_update(request, pending_update_id):
   return redirect("main:main_index")
 
 
+@login_required
+def dismiss_stock_update(request, pending_update_id):
+  if not request.user.is_staff and not request.user.is_superuser:
+    messages.error(request, "You are not authorized to dismiss stock updates.")
+    return redirect("main:pending_updates_list")
+
+  pending_update = get_object_or_404(PendingStockUpdate, id=pending_update_id)
+  pending_update.delete()  # Remove the request from pending updates
+
+  messages.success(request, "Stock update request dismissed successfully.")
+  return redirect("main:main_index")
+
+
 
 
 
