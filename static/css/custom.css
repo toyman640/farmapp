@@ -353,3 +353,7 @@
 .btn {
     cursor: pointer !important;
 }
+
+.data-card {
+    height: 50vh;
+}
