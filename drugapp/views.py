@@ -104,7 +104,7 @@ def add_drug(request):
                   new_quantity=drug.quantity,
                   updated_by=request.user
               )
-              messages.success(request, "Drug added successfully!")
+              # messages.success(request, "Drug added successfully!")
 
           if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # AJAX response
               return JsonResponse({"success": True, "message": "Drug added successfully!"})
