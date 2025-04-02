@@ -39,6 +39,7 @@
             <tr>
               <th scope="col">Drug Manufacturer</th>
               <th scope="col">Drug Name</th>
+              <th scope="col">Per Unit</th>
               <th scope="col">Batch Number</th>
               <th scope="col">Quantity</th>
               <th scope="col">Expiry Date</th>
@@ -51,6 +52,7 @@
                 
                 <td scope="row">{{ d.manufacturer_name }}</td>
                 <td>{{ d.drug_name }}</td>
+                <td>{{ d.unit_quantity_or_amount }}</td>
                 <td>{{ d.batch_number }}</td>
                 <td>{{ d.quantity }}</td>
                 <td>{{ d.expiry_date }}</td>
