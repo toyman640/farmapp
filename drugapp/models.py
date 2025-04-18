@@ -15,7 +15,7 @@ class Drug(models.Model):
   batch_number = models.CharField(max_length=100, unique=True)
   manufacturing_date = models.DateField()
   expiry_date = models.DateField()
-  unit_quantity_or_amount = models.CharField(max_length=100, unique=True, blank=True, null=True)
+  unit_quantity_or_amount = models.CharField(max_length=100, blank=True, null=True)
   quantity_per_pack = models.PositiveIntegerField(blank=True, null=True)
   quantity = models.PositiveIntegerField()
   unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
