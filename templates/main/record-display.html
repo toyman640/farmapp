@@ -18,31 +18,39 @@ Inventory Records
       </ol>
     
       <div class="box_general padding_bottom">
-        {% for update in pending_updates %}
         <h2>Pending Stock Updates</h2>
         <div class="table-responsive">
           <table class="table">
-            <tr>
-                <th scope="col">Drug</th>
-                <th scope="col">Requested Quantity</th>
-                <th scope="col">Requested By</th>
-                <th scope="col">Requested At</th>
-                <th scope="col">Actions</th>
-            </tr>
-            <tr>
-                <td>{{ update.drug.drug_name }}</td>
-                <td>{{ update.requested_quantity }}</td>
-                <td>{{ update.requested_by }}</td>
-                <td>{{ update.requested_at }}</td>
-                <td>
-                    <a href="{% url 'main:approve_stock_update' update.id %}" class="btn btn-success btn-sm">Approve</a>
-                </td>
-            </tr>   
+           
+            <thead>
+              <tr>
+                  <th scope="col">Drug</th>
+                  <th scope="col">Requested Quantity</th>
+                  <th scope="col">Requested By</th>
+                  <th scope="col">Requested At</th>
+                  <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for update in pending_updates %}
+              <tr>
+                  <td>{{ update.drug.drug_name }}</td>
+                  <td>{{ update.requested_quantity }}</td>
+                  <td>{{ update.requested_by }}</td>
+                  <td>{{ update.requested_at }}</td>
+                  <td>
+                    <a class="btn-sm btn-success" href="{% url 'main:approve_stock_update' update.id %}">Approve</a>
+                    <a class="btn-sm btn-danger" href="{% url 'main:dismiss_stock_update' update.id %}">Dismiss</a>
+                  </td>
+              </tr> 
+              {% empty %}
+              <tr>
+                <td>No Pending Records</td>
+              </tr>
+              {% endfor %}
+            </tbody>
           </table>
         </div>
-        {% empty %}
-        <h2>No Pending Records</h2>
-        {% endfor %}
       </div>
       <div class="box_general padding_bottom">
         {% if drugs_page_obj %}

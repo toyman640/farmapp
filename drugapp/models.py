@@ -15,6 +15,8 @@ class Drug(models.Model):
   batch_number = models.CharField(max_length=100, unique=True)
   manufacturing_date = models.DateField()
   expiry_date = models.DateField()
+  unit_quantity_or_amount = models.CharField(max_length=100, blank=True, null=True)
+  quantity_per_pack = models.PositiveIntegerField(blank=True, null=True)
   quantity = models.PositiveIntegerField()
   unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
   logged_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -24,6 +26,13 @@ class Drug(models.Model):
 
   def __str__(self):
     return f"{self.drug_name} ({self.batch_number})"
+
+  def get_pack_and_pieces(self):
+    if self.quantity_per_pack and self.quantity_per_pack > 0:
+      packs = self.quantity // self.quantity_per_pack
+      pieces = self.quantity % self.quantity_per_pack
+      return f"{packs} pack(s) {pieces} piece(s)"
+    return f"{self.quantity} piece(s)"
 
   def needs_restock(self):
     return self.quantity <= self.restock_quantity_notify

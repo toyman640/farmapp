@@ -85,35 +85,37 @@ def add_drug(request):
   if request.method == 'POST':
       form = DrugForm(request.POST)
       if form.is_valid():
-          drug = form.save(commit=False)
-          drug.logged_by = request.user 
-          existing_drug = Drug.objects.filter(batch_number=drug.batch_number).first()
-          
-          if existing_drug:
-              # If drug exists, update stock
-              previous_quantity = existing_drug.quantity
-              existing_drug.update_stock(previous_quantity + drug.quantity, request.user)
-              messages.success(request, "Stock updated successfully!")
-              return redirect('drugapp:drugs_list')
-          else:
-              # If new drug, save normally
-              drug.save()
-              InventoryLog.objects.create(
-                  drug=drug,
-                  previous_quantity=0,
-                  new_quantity=drug.quantity,
-                  updated_by=request.user
-              )
-              # messages.success(request, "Drug added successfully!")
+        drug = form.save(commit=False)
+        drug.logged_by = request.user 
+        existing_drug = Drug.objects.filter(batch_number=drug.batch_number).first()
+        
+        if existing_drug:
+          # If drug exists, update stock
+          previous_quantity = existing_drug.quantity
+          existing_drug.update_stock(previous_quantity + drug.quantity, request.user)
+          messages.success(request, "Stock updated successfully!")
+          return redirect('drugapp:drugs_list')
+        else:
+          # If new drug, save normally
+          drug.save()
+          InventoryLog.objects.create(
+            drug=drug,
+            previous_quantity=0,
+            new_quantity=drug.quantity,
+            updated_by=request.user
+          )
+          # messages.success(request, "Drug added successfully!")
 
-          if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # AJAX response
-              return JsonResponse({"success": True, "message": "Drug added successfully!"})
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # AJAX response
+          return JsonResponse({"success": True, "message": "Drug added successfully!"})
 
-          return redirect('drugapp:add_drug')
+        return redirect('drugapp:add_drug')
 
       else:
-          if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Handle AJAX errors
-              return JsonResponse({"success": False, "message": "Error adding drug. Please check your input."})
+        # print("Form errors:", form.errors)
+
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Handle AJAX errors
+          return JsonResponse({"success": False, "message": "Error adding drug. Please check your input."})
 
   else:
       form = DrugForm()
