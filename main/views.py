@@ -97,7 +97,7 @@ def drugs_inventory_land(request):
 
 @login_required
 def main_index(request):
-  low_stock_drugs = Drug.objects.filter(restock_quantity_notify__gte=F('quantity'))
+  low_stock_drugs = Drug.objects.filter(restock_quantity_notify__gt=0, quantity__lte=F('restock_quantity_notify'))
   today = localdate()
   today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
   pending_updates = PendingStockUpdate.objects.filter(approved=False)
