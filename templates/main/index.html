@@ -61,8 +61,8 @@
                       <th scope="col">Quantity</th>
                     </tr>
                   </thead>
-                  {% for l in low_stock_drugs %}
                   <tbody>
+                    {% for l in low_stock_drugs %}
                    
                     <tr id="drug-{{ l.id }}">
                       <td>{{ l.drug_name }}</td>
@@ -78,8 +78,8 @@
                         </button>
                       </td>
                     </tr>
+                    {% endfor %}
                   </tbody>
-                  {% endfor %}
                 </table>
               </div>
              
