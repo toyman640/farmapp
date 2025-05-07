@@ -160,7 +160,7 @@
         var drugId = $(this).data("drug-id");
 
         $.ajax({
-            url: "{% url 'drugapp:dismiss_low_stock' %}",
+            url: "{% url 'main:dismiss_low_stock' %}",
             type: "POST",
             data: { drug_id: drugId },
             headers: { "X-CSRFToken": "{{ csrf_token }}" },
