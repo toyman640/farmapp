@@ -51,9 +51,9 @@
           <div class="header_box version_2">
             <h2><i class="fa fa-bell text-danger"></i> Low Stock(s)</h2>
             <div>
-             
+              {% for l in low_stock_drugs %}
               <div class="table-responsive">
-                {% for l in low_stock_drugs %}
+                
                 <table class="table table-sm">
                   <thead>
                     <tr>
