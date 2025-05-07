@@ -105,7 +105,6 @@ def main_index(request):
   if request.user.is_staff or request.user.is_superuser:
     pending_updates_count = pending_updates.count()
   
-  print(pending_updates_count)
 
   context = {
     'low_stock_drugs': low_stock_drugs,
@@ -340,6 +339,15 @@ def dismiss_stock_update(request, pending_update_id):
 
   messages.success(request, "Stock update request dismissed successfully.")
   return redirect("main:main_index")
+
+
+@login_required
+def dismiss_low_stock(request):
+  if request.method == "POST":
+    drug_id = request.POST.get("drug_id")
+    Drug.objects.filter(id=drug_id).update(restock_quantity_notify=0)
+    return JsonResponse({"success": True})
+  return JsonResponse({"success": False})
 
 
 
