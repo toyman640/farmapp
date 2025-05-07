@@ -53,7 +53,7 @@
             <div>
              
               <div class="table-responsive">
-
+                {% for l in low_stock_drugs %}
                 <table class="table table-sm">
                   <thead>
                     <tr>
@@ -61,7 +61,7 @@
                       <th scope="col">Quantity</th>
                     </tr>
                   </thead>
-                  {% for l in low_stock_drugs %}
+               
                   <tbody>
                    
                     <tr id="drug-{{ l.id }}">
