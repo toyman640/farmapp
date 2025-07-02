@@ -15,6 +15,7 @@ class Userp(models.Model):
     is_account = models.BooleanField('Is account', default=False)
     is_maintenance = models.BooleanField('Is maintenance', default=False)
     is_drug = models.BooleanField("Is drug", default=False)
+    is_vet = models.BooleanField('Is vet', default=False)
 
 
 class Animals(models.Model):
