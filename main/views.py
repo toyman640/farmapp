@@ -73,11 +73,13 @@ class CustomLoginView(LoginView):
         user = self.request.user
         if hasattr(user, 'profile'):
             if user.profile.is_boss:
-                return reverse_lazy('main:main_index')
+              return reverse_lazy('main:main_index')
             elif user.profile.is_supervisor:
-                return reverse_lazy('farmrecord:dash_index')
+              return reverse_lazy('farmrecord:dash_index')
             elif user.profile.is_drug:
-                return reverse_lazy('drugapp:drug_index')
+              return reverse_lazy('drugapp:drug_index')
+            elif user.profile.is_vet:
+              return reverse_lazy('veterinary:vet_index')
         return reverse_lazy('main:main_index')
 
 
