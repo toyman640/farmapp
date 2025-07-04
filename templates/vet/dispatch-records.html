@@ -1,0 +1,167 @@
+{% extends 'vet/base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% load static %}
+<!Doctype html>
+{% block title %}
+ Home
+{% endblock %}
+
+{% block content %}
+  <!-- Navigation-->
+  
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard</li>
+      </ol>
+	  <!-- Icon Cards-->
+      <div class="row">
+        
+        
+		</div>
+   
+    <!-- <div class="box_general padding_bottom">
+      <h4 class="text-center">Vet Dashboard</h4>
+			
+		</div>
+    -->
+    <div class="form-group">
+      <input type="text" id="dispatch-search" class="form-control" placeholder="Search drug name...">
+    </div>
+    <div class="box_general padding_bottom">
+      <h5 class="mb-3">💊 Recent Dispatch Records</h5>
+
+      <div id="dispatch-list" class="table-responsive">
+        <table class="table table-bordered table-striped w-100">
+          <thead class="thead-dark">
+            <tr>
+              <th>Drug</th>
+              <th>Quantity</th>
+              <th>Unit</th>
+              <th>Dispatched At</th>
+            </tr>
+          </thead>
+          <tbody id="dispatch-body">
+            <!-- Rows will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="text-center mt-3">
+        <button id="load-more" class="btn btn-primary" data-page="1">Load More</button>
+      </div>
+    </div>
+
+    
+		
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+
+<!-- <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const loadBtn = document.getElementById('load-more');
+    const dispatchBody = document.getElementById('dispatch-body');
+
+    function loadDispatches(page) {
+      fetch(`/skaal-vet-hub/lazy-dispatched-drugs/?page=${page}`)
+        .then(res => res.json())
+        .then(data => {
+          data.results.forEach(d => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${d.drug}</td>
+              <td>${d.quantity}</td>
+              <td>${d.unit}</td>
+              <td>${d.dispatched_at}</td>
+            `;
+            dispatchBody.appendChild(row);
+          });
+
+          if (data.has_next) {
+            loadBtn.dataset.page = page + 1;
+          } else {
+            loadBtn.style.display = 'none';
+          }
+        });
+    }
+
+    loadBtn.addEventListener('click', () => {
+      const page = parseInt(loadBtn.dataset.page);
+      loadDispatches(page);
+    });
+
+    // Auto-load first batch
+    loadDispatches(1);
+  });
+</script> -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const dispatchBody = document.getElementById('dispatch-body');
+    const loadBtn = document.getElementById('load-more');
+    const searchInput = document.getElementById('dispatch-search');
+
+    let currentPage = 1;
+    let currentSearch = "";
+    let debounceTimeout;
+
+    function clearTable() {
+      dispatchBody.innerHTML = '';
+      loadBtn.style.display = 'none';
+    }
+
+    function loadDispatches(page = 1, search = "") {
+      fetch(`/skaal-vet-hub/lazy-dispatched-drugs/?page=${page}&search=${encodeURIComponent(search)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (page === 1) dispatchBody.innerHTML = ''; // Reset if new search
+          
+          data.results.forEach(d => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${d.drug}</td>
+              <td>${d.quantity}</td>
+              <td>${d.unit}</td>
+              <td>${d.dispatched_at}</td>
+            `;
+            dispatchBody.appendChild(row);
+          });
+
+          if (data.has_next) {
+            loadBtn.style.display = 'inline-block';
+            loadBtn.dataset.page = page + 1;
+          } else {
+            loadBtn.style.display = 'none';
+          }
+        });
+    }
+
+    // Initial load
+    loadDispatches();
+
+    loadBtn.addEventListener('click', () => {
+      const nextPage = parseInt(loadBtn.dataset.page || "1");
+      loadDispatches(nextPage, currentSearch);
+    });
+
+    // Debounced search
+    searchInput.addEventListener('input', () => {
+      const searchValue = searchInput.value.trim();
+      clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(() => {
+        currentPage = 1;
+        currentSearch = searchValue;
+        loadDispatches(currentPage, currentSearch);
+      }, 2000); // 2 seconds delay
+    });
+  });
+</script>
+
+{% endblock %}
