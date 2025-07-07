@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="content-wrapper">
+<div class="content-wrapper" >
   <div class="container-fluid">
     <!-- Breadcrumbs -->
     <ol class="breadcrumb">
@@ -20,7 +20,7 @@
     </div>
 
     <div class="box_general padding_bottom">
-      <h5 class="mb-3">💊 Recent Drug Records</h5>
+      <h5 class="mb-3">💊⚕️  Drug Records</h5>
 
       <div id="drug-list" class="table-responsive">
         <table class="table table-bordered table-striped w-100">
@@ -39,72 +39,135 @@
         </table>
       </div>
 
-      <div class="text-center mt-3">
-        <button id="load-more" class="btn btn-primary" data-page="1">Load More</button>
+    
+      <!-- Spinner Loader -->
+      <div class="text-center mt-3" id="spinner-wrapper" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
       </div>
+      <!-- Scroll trigger target -->
+      <div id="scroll-sentinel" class="text-center mb-5" style="height: 50px;"></div> 
+    </div>
     </div>
   </div>
 </div>
 
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const drugBody = document.getElementById('drug-body');
-    const loadBtn = document.getElementById('load-more');
     const searchInput = document.getElementById('drug-search');
+    const spinner = document.getElementById('spinner-wrapper');
+    const sentinel = document.getElementById('scroll-sentinel');
 
     let currentPage = 1;
     let currentSearch = "";
+    let hasNext = true;
+    let isLoading = false;
     let debounceTimeout;
 
-    function clearTable() {
-      drugBody.innerHTML = '';
-      loadBtn.style.display = 'none';
-    }
+    // function loadDrugs(page = 1, search = "") {
+    //   if (isLoading || !hasNext) return;
 
+    //   isLoading = true;
+    //   spinner.style.display = 'block';
+
+    //   fetch(`/skaal-vet-hub/lazy-drugs-records/?page=${page}&search=${encodeURIComponent(search)}`)
+    //     .then(res => res.json())
+    //     .then(data => {
+    //       if (page === 1) drugBody.innerHTML = '';
+
+    //       data.results.forEach(d => {
+    //         const row = document.createElement('tr');
+    //         row.innerHTML = `
+    //           <td>${d.drug_name}</td>
+    //           <td>${d.batch_number}</td>
+    //           <td>${d.quantity}</td>
+    //           <td>${d.unit}</td>
+    //           <td>${d.entered_at}</td>
+    //         `;
+    //         drugBody.appendChild(row);
+    //       });
+
+    //       hasNext = data.has_next;
+    //       currentPage += 1;
+    //       isLoading = false;
+    //       spinner.style.display = 'none';
+    //     })
+    //     .catch(() => {
+    //       isLoading = false;
+    //       spinner.style.display = 'none';
+    //     });
+    // }
     function loadDrugs(page = 1, search = "") {
-      fetch(`/skaal-vet-hub/lazy-drugs-records/?page=${page}&search=${encodeURIComponent(search)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (page === 1) drugBody.innerHTML = '';
+  if (isLoading || !hasNext) return;
 
-          data.results.forEach(d => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${d.drug_name}</td>
-              <td>${d.batch_number}</td>
-              <td>${d.quantity}</td>
-              <td>${d.unit}</td>
-              <td>${d.entered_at}</td>
-            `;
-            drugBody.appendChild(row);
-          });
+  isLoading = true;
+  spinner.style.display = 'block';
 
-          if (data.has_next) {
-            loadBtn.style.display = 'inline-block';
-            loadBtn.dataset.page = page + 1;
-          } else {
-            loadBtn.style.display = 'none';
-          }
-        });
-    }
+  fetch(`/skaal-vet-hub/lazy-drugs-records/?page=${page}&search=${encodeURIComponent(search)}`)
+    .then(res => res.json())
+    .then(data => {
+      if (page === 1) drugBody.innerHTML = '';
 
-    loadDrugs(); // initial load
+      data.results.forEach(d => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="Drug Name">${d.drug_name}</td>
+          <td data-label="Batch Number">${d.batch_number}</td>
+          <td data-label="Quantity">${d.quantity}</td>
+          <td data-label="Unit">${d.unit}</td>
+          <td data-label="Entered At">${d.entered_at}</td>
+        `;
+        drugBody.appendChild(row);
+      });
 
-    loadBtn.addEventListener('click', () => {
-      const nextPage = parseInt(loadBtn.dataset.page || "1");
-      loadDrugs(nextPage, currentSearch);
+      hasNext = data.has_next;
+      currentPage += 1;
+      isLoading = false;
+      spinner.style.display = 'none';
+
+      // 🛠️ Check if content still doesn't fill screen, load more
+      const documentHeight = document.documentElement.scrollHeight;
+      const viewportHeight = window.innerHeight;
+      if (documentHeight <= viewportHeight && hasNext) {
+        loadDrugs(currentPage, currentSearch);
+      }
+    })
+    .catch(() => {
+      isLoading = false;
+      spinner.style.display = 'none';
     });
+}
 
+
+    // Initial load
+    loadDrugs();
+
+    // Debounced search
     searchInput.addEventListener('input', () => {
       const searchValue = searchInput.value.trim();
       clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(() => {
         currentPage = 1;
         currentSearch = searchValue;
+        hasNext = true;
         loadDrugs(currentPage, currentSearch);
       }, 2000); // 2 seconds delay
     });
+
+    // Infinite Scroll via IntersectionObserver
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasNext && !isLoading) {
+        loadDrugs(currentPage, currentSearch);
+      }
+    });
+
+    observer.observe(sentinel);
   });
 </script>
+
+
 
 {% endblock %}

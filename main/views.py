@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from drugapp.models import Dispatch, Drug, InventoryLog, PendingStockUpdate
 from django.contrib import messages
 from django.core.paginator import Paginator
+from itertools import chain
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 
 
@@ -104,8 +105,19 @@ def main_index(request):
   today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
   pending_updates = PendingStockUpdate.objects.filter(approved=False)
   pending_updates_count = 0
+  now_time = now()
+  last_24_hours = now_time - timedelta(hours=24)
   if request.user.is_staff or request.user.is_superuser:
     pending_updates_count = pending_updates.count()
+
+  new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
+  restocked_logs = InventoryLog.objects.filter(
+      updated_at__gte=last_24_hours,
+      new_quantity__gt=F('previous_quantity')
+  ).select_related('drug')
+
+  restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
+  combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
   
 
   context = {
@@ -114,6 +126,7 @@ def main_index(request):
     'today_date': today,
     "pending_updates": pending_updates,
     "pending_updates_count": pending_updates_count,
+    "recent_drugs": combined_new_drugs,
   }
 
   return render(request, 'main/index.html', context)

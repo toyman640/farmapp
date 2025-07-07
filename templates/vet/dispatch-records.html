@@ -5,7 +5,7 @@
 {% load static %}
 <!Doctype html>
 {% block title %}
- Home
+ Dispatch Records
 {% endblock %}
 
 {% block content %}
@@ -26,20 +26,15 @@
         
         
 		</div>
-   
-    <!-- <div class="box_general padding_bottom">
-      <h4 class="text-center">Vet Dashboard</h4>
-			
-		</div>
-    -->
+
     <div class="form-group">
       <input type="text" id="dispatch-search" class="form-control" placeholder="Search drug name...">
     </div>
     <div class="box_general padding_bottom">
-      <h5 class="mb-3">💊 Recent Dispatch Records</h5>
+      <h5 class="mb-3">💊⚕️ Dispatch Records</h5>
 
-      <div id="dispatch-list" class="table-responsive">
-        <table class="table table-bordered table-striped w-100">
+      <div id="dispatch-list">
+        <table class="table  table-striped">
           <thead class="thead-dark">
             <tr>
               <th>Drug</th>
@@ -126,10 +121,10 @@
           data.results.forEach(d => {
             const row = document.createElement('tr');
             row.innerHTML = `
-              <td>${d.drug}</td>
-              <td>${d.quantity}</td>
-              <td>${d.unit}</td>
-              <td>${d.dispatched_at}</td>
+              <td data-label="Drug">${d.drug}</td>
+              <td data-label="Quantity">${d.quantity}</td>
+              <td data-label="Unit">${d.unit}</td>
+              <td data-label="Dispatched At">${d.dispatched_at}</td>
             `;
             dispatchBody.appendChild(row);
           });

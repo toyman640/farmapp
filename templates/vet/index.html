@@ -72,8 +72,12 @@
                 </tbody>
               </table>
             </div>
-            <div class="">
+            <hr class="line">
+            <!-- <div style="margin-bottom: 0; padding-bottom: 0;">
               <p>View dispatch records</p>
+            </div> -->
+            <div class="alert alert-light" role="alert">
+              <a href="{% url 'veterinary:dispatch_view' %}" class="alert-link">View dispatch records</a>
             </div>
           </div>
 
@@ -104,8 +108,12 @@
                  </div>
                {% endif %}
             </div>
-            <div class="">
-              <p>View dispatch records</p>
+            <hr class="line">
+            <!-- <div class="" style="margin-bottom: 0; padding-bottom: 0;">
+              <p>View drugs records</p>
+            </div> -->
+            <div class="alert alert-light" role="alert">
+              <a href="{% url 'veterinary:drugs_view' %}" class="alert-link">View drugs records</a>
             </div>
 
           </div>
