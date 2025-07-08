@@ -70,14 +70,64 @@ Inventory Records
           <input type="submit" class="btn btn-outline-info btn-sm" value="Filter">
         </form>
         <div class="table-responsive">
-          <table class="table">
+          <table class="table" id="drug-table">
             <thead class="thead-dark">
-              <tr>
+              <!-- <tr>
                 <th scope="col">Drug Manufacturer</th>
                 <th scope="col">Drug Name</th>
                 <th scope="col">Batch Number</th>
                 <th scope="col">Quantity</th>
                 <th scope="col">Expiry Date</th>
+              </tr> -->
+              <tr>
+                {% comment %} helper to toggle sort direction {% endcomment %}
+                {% with next_order='asc' %}
+                  {% if current_order == 'asc' %}
+                    {% with next_order='desc' %}
+                    {% endwith %}
+                  {% endif %}
+                {% endwith %}
+
+                <th>
+                  <a href="?sort=manufacturer_name&order={% if current_sort != 'manufacturer_name' %}asc{% else %}{{ next_order }}{% endif %}#drug-table">
+                    Manufacturer
+                    {% if current_sort == 'manufacturer_name' %}
+                      {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
+                    {% endif %}
+                  </a>
+                </th>
+                <th>
+                  <a href="?sort=drug_name&order={% if current_sort != 'drug_name' %}asc{% else %}{{ next_order }}{% endif %}#drug-table">
+                    Drug Name
+                    {% if current_sort == 'drug_name' %}
+                      {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
+                    {% endif %}
+                  </a>
+                </th>
+                <th>
+                  <a href="?sort=batch_number&order={% if current_sort != 'batch_number' %}asc{% else %}{{ next_order }}{% endif %}#drug-table">
+                    Batch Number
+                    {% if current_sort == 'batch_number' %}
+                      {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
+                    {% endif %}
+                  </a>
+                </th>
+                <th>
+                  <a href="?sort=quantity&order={% if current_sort != 'quantity' %}asc{% else %}{{ next_order }}{% endif %}#drug-table">
+                    Quantity
+                    {% if current_sort == 'quantity' %}
+                      {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
+                    {% endif %}
+                  </a>
+                </th>
+                <th>
+                  <a href="?sort=expiry_date&order={% if current_sort != 'expiry_date' %}asc{% else %}{{ next_order }}{% endif %}#drug-table">
+                    Expiry Date
+                    {% if current_sort == 'expiry_date' %}
+                      {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
+                    {% endif %}
+                  </a>
+                </th>
               </tr>
             </thead>
             <tbody>

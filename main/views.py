@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render,  get_object_or_404
 from django.urls import reverse_lazy
 from datetime import timedelta,datetime
 from django.db.models import F
+from django.db.models.functions import Lower
 from django.utils.timezone import localtime, now, localdate
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
@@ -13,6 +14,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from itertools import chain
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
+
 
 
 # class CustomLoginView(LoginView):
@@ -132,16 +134,61 @@ def main_index(request):
   return render(request, 'main/index.html', context)
 
 
-@login_required
+# @login_required
+# def drugs_inventory(request):
+#     dispatch_records = Drug.objects.all().order_by('-entered_at')
+#     drug_filter = DrugFilterForm()
+#     paginator = Paginator(dispatch_records, 10)
+#     page_number = request.GET.get('page')
+#     drugs_page_obj = paginator.get_page(page_number)
+#     pending_updates = PendingStockUpdate.objects.filter(approved=False)
+
+#     return render(request, 'main/record-display.html', {'drugs_page_obj':  drugs_page_obj, 'drug_filter':drug_filter, "pending_updates": pending_updates})
+
+@login_required 
 def drugs_inventory(request):
-    dispatch_records = Drug.objects.all().order_by('-entered_at')
+    sort = request.GET.get('sort', 'entered_at')
+    order = request.GET.get('order', 'desc')
+
+    # Compute next order (toggle)
+    next_order = 'desc' if order == 'asc' else 'asc'
+
+    # List of allowed sortable fields
+    sortable_fields = ['manufacturer_name', 'drug_name', 'batch_number', 'quantity', 'expiry_date', 'entered_at']
+
+    # Default queryset
+    dispatch_records = Drug.objects.all()
+
+    # Apply case-insensitive sorting if valid field
+    if sort in sortable_fields:
+        if sort in ['manufacturer_name', 'drug_name', 'batch_number']:  # String fields
+            sort_expr = Lower(sort)
+        else:  # Non-string fields
+            sort_expr = sort
+
+        if order == 'desc':
+            dispatch_records = dispatch_records.order_by(sort_expr.desc() if hasattr(sort_expr, 'desc') else f'-{sort}')
+        else:
+            dispatch_records = dispatch_records.order_by(sort_expr if hasattr(sort_expr, 'desc') else f'{sort}')
+    else:
+        dispatch_records = dispatch_records.order_by('-entered_at')
+
+    # Pagination and context setup
     drug_filter = DrugFilterForm()
     paginator = Paginator(dispatch_records, 10)
     page_number = request.GET.get('page')
     drugs_page_obj = paginator.get_page(page_number)
     pending_updates = PendingStockUpdate.objects.filter(approved=False)
 
-    return render(request, 'main/record-display.html', {'drugs_page_obj':  drugs_page_obj, 'drug_filter':drug_filter, "pending_updates": pending_updates})
+    context = {
+        'drugs_page_obj': drugs_page_obj,
+        'drug_filter': drug_filter,
+        'pending_updates': pending_updates,
+        'current_sort': sort,
+        'current_order': order,
+        'next_order': next_order,
+    }
+    return render(request, 'main/record-display.html', context)
 
 
 @login_required
@@ -230,16 +277,113 @@ def update_drug_quantity(request, drug_id):
     return render(request, "main/modify-drug.html", {"update_drug_form": form, "drug": drug})
 
 
+# @login_required
+# def dispatch_drug_main(request):
+#   all_dispatch = Dispatch.objects.all().order_by('-dispatched_at')
+#   dispatch_filter = DispatchFilter()
+#   paginator = Paginator(all_dispatch, 10)
+#   page_number = request.GET.get('page')
+#   page_obj = paginator.get_page(page_number)
+
+
+#   return render(request, 'main/dispatch-records.html', {'dispatch_filter': dispatch_filter, 'page_obj': page_obj})
+
+
+# @login_required
+# def dispatch_drug_main(request):
+#   sort = request.GET.get('sort', 'dispatched_at')
+#   order = request.GET.get('order', 'desc')
+#   next_order = 'desc' if order == 'asc' else 'asc'
+
+#   sortable_fields = ['drug__drug_name', 'quantity', 'dispatched_at', 'dispatched_by']
+#   dispatch_qs = Dispatch.objects.all()
+
+#   if sort in ['drug__drug_name', 'dispatched_by']:  # string fields
+#       sort_expr = Lower(sort)
+#   else:
+#       sort_expr = sort
+
+#   if sort in sortable_fields:
+#       if order == 'desc':
+#           dispatch_qs = dispatch_qs.order_by(sort_expr.desc() if hasattr(sort_expr, 'desc') else f'-{sort}')
+#       else:
+#           dispatch_qs = dispatch_qs.order_by(sort_expr if hasattr(sort_expr, 'desc') else f'{sort}')
+#   else:
+#       dispatch_qs = dispatch_qs.order_by('-dispatched_at')
+
+#   dispatch_filter = DispatchFilter()
+#   paginator = Paginator(dispatch_qs, 10)
+#   page_number = request.GET.get('page')
+#   page_obj = paginator.get_page(page_number)
+
+#   return render(request, 'main/dispatch-records.html', {
+#       'dispatch_filter': dispatch_filter,
+#       'page_obj': page_obj,
+#       'current_sort': sort,
+#       'current_order': order,
+#       'next_order': next_order,
+#   })
+
 @login_required
 def dispatch_drug_main(request):
-  all_dispatch = Dispatch.objects.all().order_by('-dispatched_at')
-  dispatch_filter = DispatchFilter()
-  paginator = Paginator(all_dispatch, 10)
-  page_number = request.GET.get('page')
-  page_obj = paginator.get_page(page_number)
 
+  return render(request, 'main/dispatch-records.html',)
 
-  return render(request, 'main/dispatch-records.html', {'dispatch_filter': dispatch_filter, 'page_obj': page_obj})
+@login_required
+def dispatch_drug_main_lazy(request):
+  sort = request.GET.get('sort', 'dispatched_at')
+  order = request.GET.get('order', 'desc')
+  page = int(request.GET.get('page', 1))
+  per_page = 10
+  search = request.GET.get('search', '').strip()
+
+  next_order = 'desc' if order == 'asc' else 'asc'
+  sortable_fields = ['drug__drug_name', 'quantity', 'dispatched_at', 'dispatched_by']
+
+  dispatch_qs = Dispatch.objects.select_related('drug', 'unit')
+
+  if search:
+      dispatch_qs = dispatch_qs.filter(drug__drug_name__icontains=search)
+
+  # Sorting
+  if sort in ['drug__drug_name', 'dispatched_by']:
+      sort_expr = Lower(sort)
+  else:
+      sort_expr = sort
+
+  if sort in sortable_fields:
+      if order == 'desc':
+          dispatch_qs = dispatch_qs.order_by(sort_expr.desc() if hasattr(sort_expr, 'desc') else f'-{sort}')
+      else:
+          dispatch_qs = dispatch_qs.order_by(sort_expr if hasattr(sort_expr, 'desc') else f'{sort}')
+  else:
+      dispatch_qs = dispatch_qs.order_by('-dispatched_at')
+
+  # Pagination
+  paginator = Paginator(dispatch_qs, per_page)
+  page_obj = paginator.get_page(page)
+
+  data = [
+      {
+          'id': d.id,
+          'drug_name': d.drug.drug_name,
+          'quantity': d.quantity,
+          'unit': d.unit.name,
+          'dispatched_at': d.dispatched_at.strftime('%Y-%m-%d'),
+          # 'dispatched_by': d.dispatched_by,
+          'dispatched_by': str(d.dispatched_by)
+      }
+      for d in page_obj
+  ]
+
+  return JsonResponse({
+      'results': data,
+      'has_next': page_obj.has_next(),
+      'has_previous': page_obj.has_previous(),
+      'current_page': page_obj.number,
+      'total_pages': paginator.num_pages,
+      'next_order': next_order,
+  })
 
 
 @login_required

@@ -24,4 +24,5 @@ urlpatterns = [
     path('dismis-low-stock-admin', views.dismiss_low_stock, name='dismiss_low_stock'),
     path("approve-update/<int:pending_update_id>/", views.approve_stock_update, name="approve_stock_update"),
     path("dismiss-update/<int:pending_update_id>/", views.dismiss_stock_update, name="dismiss_stock_update"),
+    path("dispatch-drug-records-lazy/", views.dispatch_drug_main_lazy, name="dispatch_drug_main_lazy")
 ]
