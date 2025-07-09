@@ -13,6 +13,7 @@ from drugapp.models import Dispatch, Drug, InventoryLog, PendingStockUpdate
 from django.contrib import messages
 from django.core.paginator import Paginator
 from itertools import chain
+from django.db.models import Q
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 
 
@@ -145,50 +146,105 @@ def main_index(request):
 
 #     return render(request, 'main/record-display.html', {'drugs_page_obj':  drugs_page_obj, 'drug_filter':drug_filter, "pending_updates": pending_updates})
 
+# @login_required 
+# def drugs_inventory(request):
+#     sort = request.GET.get('sort', 'entered_at')
+#     order = request.GET.get('order', 'desc')
+
+#     # Compute next order (toggle)
+#     next_order = 'desc' if order == 'asc' else 'asc'
+
+#     # List of allowed sortable fields
+#     sortable_fields = ['manufacturer_name', 'drug_name', 'batch_number', 'quantity', 'expiry_date', 'entered_at']
+
+#     # Default queryset
+#     dispatch_records = Drug.objects.all()
+
+#     # Apply case-insensitive sorting if valid field
+#     if sort in sortable_fields:
+#         if sort in ['manufacturer_name', 'drug_name', 'batch_number']:  # String fields
+#             sort_expr = Lower(sort)
+#         else:  # Non-string fields
+#             sort_expr = sort
+
+#         if order == 'desc':
+#             dispatch_records = dispatch_records.order_by(sort_expr.desc() if hasattr(sort_expr, 'desc') else f'-{sort}')
+#         else:
+#             dispatch_records = dispatch_records.order_by(sort_expr if hasattr(sort_expr, 'desc') else f'{sort}')
+#     else:
+#         dispatch_records = dispatch_records.order_by('-entered_at')
+
+#     # Pagination and context setup
+#     drug_filter = DrugFilterForm()
+#     paginator = Paginator(dispatch_records, 10)
+#     page_number = request.GET.get('page')
+#     drugs_page_obj = paginator.get_page(page_number)
+#     pending_updates = PendingStockUpdate.objects.filter(approved=False)
+
+#     context = {
+#         'drugs_page_obj': drugs_page_obj,
+#         'drug_filter': drug_filter,
+#         'pending_updates': pending_updates,
+#         'current_sort': sort,
+#         'current_order': order,
+#         'next_order': next_order,
+#     }
+#     return render(request, 'main/record-display.html', context)
+
+@login_required
+def drugs_inventory_lazy(request):
+  sort = request.GET.get('sort', 'entered_at')
+  order = request.GET.get('order', 'desc')
+  page = int(request.GET.get('page', 1))
+  search = request.GET.get('search', '').strip()
+  per_page = 10
+
+  next_order = 'desc' if order == 'asc' else 'asc'
+  sortable_fields = ['manufacturer_name', 'drug_name', 'batch_number', 'quantity', 'expiry_date', 'entered_at']
+
+  drug_qs = Drug.objects.all()
+
+  if search:
+      drug_qs = drug_qs.filter( Q(drug_name__icontains=search) | Q(manufacturer_name__icontains=search))
+
+  if sort in sortable_fields:
+      sort_expr = Lower(sort) if sort in ['manufacturer_name', 'drug_name', 'batch_number'] else sort
+      drug_qs = drug_qs.order_by(
+          sort_expr.desc() if order == 'desc' and hasattr(sort_expr, 'desc') else
+          sort_expr if order == 'asc' and hasattr(sort_expr, 'desc') else
+          f"-{sort}" if order == 'desc' else f"{sort}"
+      )
+  else:
+      drug_qs = drug_qs.order_by('-entered_at')
+
+  paginator = Paginator(drug_qs, per_page)
+  page_obj = paginator.get_page(page)
+
+  data = [
+      {
+          'id': drug.id,
+          'manufacturer_name': drug.manufacturer_name,
+          'drug_name': drug.drug_name,
+          'batch_number': drug.batch_number,
+          'quantity': drug.quantity,
+          'expiry_date': drug.expiry_date.strftime('%Y-%m-%d'),
+      }
+      for drug in page_obj
+  ]
+
+  return JsonResponse({
+      'results': data,
+      'current_page': page_obj.number,
+      'total_pages': paginator.num_pages,
+      'has_next': page_obj.has_next(),
+      'has_previous': page_obj.has_previous(),
+      'next_order': next_order,
+  })
+
+
 @login_required 
 def drugs_inventory(request):
-    sort = request.GET.get('sort', 'entered_at')
-    order = request.GET.get('order', 'desc')
-
-    # Compute next order (toggle)
-    next_order = 'desc' if order == 'asc' else 'asc'
-
-    # List of allowed sortable fields
-    sortable_fields = ['manufacturer_name', 'drug_name', 'batch_number', 'quantity', 'expiry_date', 'entered_at']
-
-    # Default queryset
-    dispatch_records = Drug.objects.all()
-
-    # Apply case-insensitive sorting if valid field
-    if sort in sortable_fields:
-        if sort in ['manufacturer_name', 'drug_name', 'batch_number']:  # String fields
-            sort_expr = Lower(sort)
-        else:  # Non-string fields
-            sort_expr = sort
-
-        if order == 'desc':
-            dispatch_records = dispatch_records.order_by(sort_expr.desc() if hasattr(sort_expr, 'desc') else f'-{sort}')
-        else:
-            dispatch_records = dispatch_records.order_by(sort_expr if hasattr(sort_expr, 'desc') else f'{sort}')
-    else:
-        dispatch_records = dispatch_records.order_by('-entered_at')
-
-    # Pagination and context setup
-    drug_filter = DrugFilterForm()
-    paginator = Paginator(dispatch_records, 10)
-    page_number = request.GET.get('page')
-    drugs_page_obj = paginator.get_page(page_number)
-    pending_updates = PendingStockUpdate.objects.filter(approved=False)
-
-    context = {
-        'drugs_page_obj': drugs_page_obj,
-        'drug_filter': drug_filter,
-        'pending_updates': pending_updates,
-        'current_sort': sort,
-        'current_order': order,
-        'next_order': next_order,
-    }
-    return render(request, 'main/record-display.html', context)
+  return render(request, 'main/record-display.html',)
 
 
 @login_required
