@@ -1,0 +1,127 @@
+{% extends 'vet/base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% load static %}
+<!Doctype html>
+{% block title %}
+ Home
+{% endblock %}
+
+{% block content %}
+  <!-- Navigation-->
+  
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard</li>
+      </ol>
+	  <!-- Icon Cards-->
+      <div class="row">
+        
+        
+		</div>
+   
+    <!-- <div class="box_general padding_bottom">
+      <h4 class="text-center">Vet Dashboard</h4>
+			
+		</div> -->
+   
+    <div class="">
+
+      <div class="row g-2">
+        <div class="col-12 col-md-6" >
+
+          <div class="box_general padding_bottom">
+            <div class="header_box version_2" >
+              <h2><i class="fa fa-bar-chart"></i>Dispatch for {{ today_date }}</h2>
+            </div>
+
+            <div class="table-responsive" style="height: 350px ; overflow-y: auto;" >
+              <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                  <tr>
+                    <th >#</th>
+                    <th >Drug</th>
+                    <th >Quantity</th>
+                    <th >Unit</th>
+                    <th >Dispatched By</th>
+                   
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for dispatch in today_dispatches %}
+                    <tr>
+                      <td>{{ forloop.counter }}</td>
+                      <td>{{ dispatch.drug.drug_name }}</td>
+                      <td>{{ dispatch.quantity }}</td>
+                      <td>{{ dispatch.unit.name }}</td>
+                      <td>{{ dispatch.dispatched_by.get_full_name|default:"-" }}</td>
+                      
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="6" class="text-center">No dispatches for today.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <hr class="line">
+            <!-- <div style="margin-bottom: 0; padding-bottom: 0;">
+              <p>View dispatch records</p>
+            </div> -->
+            <div class="alert alert-light" role="alert">
+              <a href="{% url 'veterinary:dispatch_view' %}" class="alert-link">View dispatch records</a>
+            </div>
+          </div>
+
+        </div>
+        <div class="col-12 col-md-6">
+
+          <div class="box_general padding_bottom">
+            <div class="header_box version_2">
+              <h2><i class="fa fa-plus-circle text-success"></i>New/Restocked Drugs</h2>
+            </div>
+            <div style="height: 350px ; overflow-y: auto;">
+
+              {% if recent_drugs %}
+                 <div class="alert alert-success"  >
+                   <h5>🛒 New or Restocked Drugs (last 24hrs)</h5>
+                   <ul class="mb-0">
+                     {% for drug in recent_drugs %}
+                       <li>
+                         <strong>{{ drug.drug_name }}</strong> (Batch: {{ drug.batch_number }}) — 
+                         Quantity: {{ drug.quantity }} {{ drug.unit.name }}
+                       </li>
+                     {% endfor %}
+                   </ul>
+                 </div>
+               {% else %}
+                 <div class="alert alert-secondary">
+                   <h5>🛒 No new or restocked drugs in the last 24 hours.</h5>
+                 </div>
+               {% endif %}
+            </div>
+            <hr class="line">
+            <!-- <div class="" style="margin-bottom: 0; padding-bottom: 0;">
+              <p>View drugs records</p>
+            </div> -->
+            <div class="alert alert-light" role="alert">
+              <a href="{% url 'veterinary:drugs_view' %}" class="alert-link">View drugs records</a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+		
+	  </div>
+	  <!-- /.container-fluid-->
+   	</div>
+{% endblock %}

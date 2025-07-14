@@ -1179,3 +1179,11 @@ label.fix_spacing {
 .sbOptions .sbSub {
   padding-left: 17px;
 }
+
+
+.line {
+  border: 2px solid #f3f3f3;
+  width: 100%;
+  /* margin-bottom: 0; */
+  /* padding-top: 2%; */
+}

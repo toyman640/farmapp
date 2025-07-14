@@ -28,6 +28,7 @@ urlpatterns = [
     path('pages/', include('farmrecord.urls')),
     path('admin-page/', include('main.urls')),
     path('drug-inventory/', include('drugapp.urls')),
+    path('skaal-vet-hub/', include('veterinary.urls')),
     # path('human-resources/', include('humanR.urls')),
     # path('ping/', include('notification.urls')),
     path('admin/', admin.site.urls),

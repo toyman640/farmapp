@@ -129,6 +129,39 @@
           </div>
         </div>
       </div>
+      <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+
+        <div class="box_general padding_bottom data-card">
+          <div class="header_box version_2">
+            <h2><i class="fa fa-plus-circle text-success"></i>New/Restocked Drugs</h2>
+          </div>
+          <div >
+
+            {% if recent_drugs %}
+                <div class="alert alert-success"  >
+                  <h5>🛒 New or Restocked Drugs (last 24hrs)</h5>
+                  <ul class="mb-0">
+                    {% for drug in recent_drugs %}
+                      <li>
+                        <strong>{{ drug.drug_name }}</strong> (Batch: {{ drug.batch_number }}) — 
+                        Quantity: {{ drug.quantity }} {{ drug.unit.name }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% else %}
+                <div class="alert alert-secondary">
+                  <h5>🛒 No new or restocked drugs in the last 24 hours.</h5>
+                </div>
+              {% endif %}
+          </div>
+          <hr class="line">
+          <div class="" style="margin-bottom: 0; padding-bottom: 0;">
+            <p>View drugs records</p>
+          </div>
+
+        </div>
+        </div>
     </div>
   </div>
   <!-- /.container-fluid-->

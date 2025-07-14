@@ -1,164 +1,132 @@
 {% extends 'main/base.html' %}
 {% load static %}
-<!Doctype html>
-{% block title %}
-Inventory Records
-{% endblock %}
+{% block title %}Drugs Records{% endblock %}
 
 {% block content %}
-  <!-- /Navigation-->
-  <div class="content-wrapper">
-    <div class="container-fluid">
-      <!-- Breadcrumbs-->
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a  class="" href="{% url 'main:drugs_inventory_land' %}"> Inventory Records</a>
-        </li>
-        <li class="breadcrumb-item active">Drugs records</li>
-      </ol>
-    
-      <div class="box_general padding_bottom">
-        <h2>Pending Stock Updates</h2>
-        <div class="table-responsive">
-          <table class="table">
-           
-            <thead>
-              <tr>
-                  <th scope="col">Drug</th>
-                  <th scope="col">Requested Quantity</th>
-                  <th scope="col">Requested By</th>
-                  <th scope="col">Requested At</th>
-                  <th scope="col">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for update in pending_updates %}
-              <tr>
-                  <td>{{ update.drug.drug_name }}</td>
-                  <td>{{ update.requested_quantity }}</td>
-                  <td>{{ update.requested_by }}</td>
-                  <td>{{ update.requested_at }}</td>
-                  <td>
-                    <a class="btn-sm btn-success" href="{% url 'main:approve_stock_update' update.id %}">Approve</a>
-                    <a class="btn-sm btn-danger" href="{% url 'main:dismiss_stock_update' update.id %}">Dismiss</a>
-                  </td>
-              </tr> 
-              {% empty %}
-              <tr>
-                <td>No Pending Records</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'main:main_index' %}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active">Drugs records</li>
+    </ol>
+
+    <div class="box_general padding_bottom">
+      <div class="d-flex justify-content-between mb-2">
+        <h2 class="text-primary">Drug Inventory</h2>
+        <input type="text" id="searchInput" placeholder="Search drug name..." class="form-control w-25">
       </div>
-      <div class="box_general padding_bottom">
-        {% if drugs_page_obj %}
-        <form method="get" class="mb-3" action="{% url 'main:drug_filter' %}" id="drug-filter-form">
-          <div id="error-message" class="alert alert-danger" style="display: none;"></div>
-          <div class="row">
-              <div class="col-lg-3 col-md-12 form-group">
-                {{ drug_filter.start_date }}
-              </div>
-              <div class="col-lg-3 col-md-12 form-group">
-                {{ drug_filter.end_date }}
-              </div>
-              <div class="col-lg-3 col-md-12 form-group">
-                {{ drug_filter.drug_name }}
-              </div>
-          </div>
-          <input type="submit" class="btn btn-outline-info btn-sm" value="Filter">
-        </form>
-        <div class="table-responsive">
-          <table class="table">
-            <thead class="thead-dark">
-              <tr>
-                <th scope="col">Drug Manufacturer</th>
-                <th scope="col">Drug Name</th>
-                <th scope="col">Batch Number</th>
-                <th scope="col">Quantity</th>
-                <th scope="col">Expiry Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for d in drugs_page_obj %}
-                <tr onclick="window.location.href='{% url 'main:drug_detail' d.id %}';" style="cursor: pointer;">
-                  <td scope="row">{{ d.manufacturer_name }}</td>
-                  <td>{{ d.drug_name }}</td>
-                  <td>{{ d.batch_number }}</td>
-                  <td>{{ d.quantity }}</td>
-                  <td>{{ d.expiry_date }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          
-          <!-- Pagination Controls -->
-          <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-              {% if drugs_page_obj.has_previous %}
-                <li class="page-item">
-                  <a class="page-link" href="?page=1" aria-label="First">
-                    <span aria-hidden="true">&laquo;&laquo;</span>
-                  </a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="?page={{ drugs_page_obj.previous_page_number }}" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                  </a>
-                </li>
-              {% endif %}
-              <li class="page-item disabled">
-                <span class="page-link">Page {{ drugs_page_obj.number }} of {{ drugs_page_obj.paginator.num_pages }}</span>
-              </li>
-              {% if drugs_page_obj.has_next %}
-                <li class="page-item">
-                  <a class="page-link" href="?page={{ drugs_page_obj.next_page_number }}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="?page={{ drugs_page_obj.paginator.num_pages }}" aria-label="Last">
-                    <span aria-hidden="true">&raquo;&raquo;</span>
-                  </a>
-                </li>
-              {% endif %}
-            </ul>
-          </nav>
-          {% else %}
-          <h2>No Inventory records yet</h2>
-          {% endif %}
-        </div>
-        
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th><a href="#" class="sort-header" data-sort="manufacturer_name">Drug Manufacturer <span class="sort-icon" data-field="manufacturer_name"></span></a></th>
+              <th><a href="#" class="sort-header" data-sort="drug_name">Drug Name <span class="sort-icon" data-field="drug_name"></span></a></th>
+              <th><a href="#" class="sort-header" data-sort="batch_number">Batch Number <span class="sort-icon" data-field="batch_number"></span></a></th>
+              <th><a href="#" class="sort-header" data-sort="quantity">Quantity <span class="sort-icon" data-field="quantity"></span></a></th>
+              <th><a href="#" class="sort-header" data-sort="expiry_date">Expiry Date <span class="sort-icon" data-field="expiry_date"></span></a></th>
+            </tr>
+          </thead>
+          <tbody id="drugTableBody">
+            <tr><td colspan="5" class="text-center">Loading...</td></tr>
+          </tbody>
+        </table>
       </div>
-	  </div>
-	  <!-- /.container-fluid-->
+
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center" id="paginationLinks"></ul>
+      </nav>
+    </div>
   </div>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const startDate = document.querySelector("input[name='start_date']");
-      const endDate = document.querySelector("input[name='end_date']");
-      const form = document.getElementById("drug-filter-form");
-      const errorMessage = document.getElementById("error-message");
-  
-      // Restrict future dates in the end date field
-      const today = new Date().toISOString().split("T")[0];
-      endDate.setAttribute("max", today);
-  
-      form.addEventListener("submit", function (event) {
-        errorMessage.style.display = "none"; // Hide previous errors
-  
-        if ((startDate.value && !endDate.value) || (!startDate.value && endDate.value)) {
-          event.preventDefault();
-          errorMessage.textContent = "Please enter both start and end dates.";
-          errorMessage.style.display = "block";
-  
-          // Hide the message after 3 seconds
-          setTimeout(() => {
-            errorMessage.style.display = "none";
-          }, 3000);
-        }
+</div>
+
+<script>
+let currentSort = 'entered_at';
+let currentOrder = 'desc';
+let currentPage = 1;
+
+function updateSortIcons() {
+  document.querySelectorAll('.sort-icon').forEach(icon => {
+    const field = icon.getAttribute('data-field');
+    if (field === currentSort) {
+      icon.textContent = currentOrder === 'asc' ? '▲' : '▼';
+    } else {
+      icon.textContent = '';
+    }
+  });
+}
+
+function fetchDrugData() {
+  const search = document.getElementById('searchInput').value;
+  fetch(`/admin-page/drugs-inventory-lazy/?sort=${currentSort}&order=${currentOrder}&page=${currentPage}&search=${search}`)
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.getElementById('drugTableBody');
+      tbody.innerHTML = '';
+
+      if (data.results.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No drug records found.</td></tr>';
+        return;
+      }
+
+      data.results.forEach(d => {
+        tbody.innerHTML += `
+          <tr onclick="window.location.href='/admin-page/drug/${d.id}/';" style="cursor: pointer;">
+            <td>${d.manufacturer_name}</td>
+            <td>${d.drug_name}</td>
+            <td>${d.batch_number}</td>
+            <td>${d.quantity}</td>
+            <td>${d.expiry_date}</td>
+          </tr>
+        `;
       });
+
+      const pagination = document.getElementById('paginationLinks');
+      pagination.innerHTML = '';
+
+      if (data.current_page > 1) {
+        pagination.innerHTML += `<li class="page-item"><a href="#" class="page-link" onclick="changePage(1)">&laquo;&laquo;</a></li>`;
+        pagination.innerHTML += `<li class="page-item"><a href="#" class="page-link" onclick="changePage(${data.current_page - 1})">&laquo;</a></li>`;
+      }
+
+      pagination.innerHTML += `<li class="page-item disabled"><span class="page-link">Page ${data.current_page} of ${data.total_pages}</span></li>`;
+
+      if (data.has_next) {
+        pagination.innerHTML += `<li class="page-item"><a href="#" class="page-link" onclick="changePage(${data.current_page + 1})">&raquo;</a></li>`;
+        pagination.innerHTML += `<li class="page-item"><a href="#" class="page-link" onclick="changePage(${data.total_pages})">&raquo;&raquo;</a></li>`;
+      }
+
+      updateSortIcons();
     });
-  </script>
+}
+
+function changePage(page) {
+  currentPage = page;
+  fetchDrugData();
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  currentPage = 1;
+  fetchDrugData();
+});
+
+document.querySelectorAll('.sort-header').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const sortField = this.getAttribute('data-sort');
+    if (sortField === currentSort) {
+      currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSort = sortField;
+      currentOrder = 'asc';
+    }
+    currentPage = 1;
+    fetchDrugData();
+  });
+});
+
+document.addEventListener('DOMContentLoaded', fetchDrugData);
+</script>
 {% endblock %}
