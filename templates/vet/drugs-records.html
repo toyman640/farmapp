@@ -26,6 +26,7 @@
         <table class="table table-bordered table-striped w-100">
           <thead class="thead-dark">
             <tr>
+              <th>Drug Manufacturer</th>
               <th>Drug Name</th>
               <th>Batch Number</th>
               <th>Quantity</th>
@@ -114,6 +115,7 @@
       data.results.forEach(d => {
         const row = document.createElement('tr');
         row.innerHTML = `
+          <td data-label="Drug Manufacturer">${d.manufacturer_name}</td>
           <td data-label="Drug Name">${d.drug_name}</td>
           <td data-label="Batch Number">${d.batch_number}</td>
           <td data-label="Quantity">${d.quantity}</td>

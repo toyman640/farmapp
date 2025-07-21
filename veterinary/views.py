@@ -105,11 +105,12 @@ def drugs_records_lazy(request):
 
   data = [
       {
-          'drug_name': d.drug_name,
-          'batch_number': d.batch_number,
-          'quantity': d.quantity,
-          'unit': d.unit.name,
-          'entered_at': d.entered_at.strftime('%Y-%m-%d %H:%M'),
+        'manufacturer_name': d.manufacturer_name,
+        'drug_name': d.drug_name,
+        'batch_number': d.batch_number,
+        'quantity': d.quantity,
+        'unit': d.unit.name,
+        'entered_at': d.entered_at.strftime('%Y-%m-%d %H:%M'),
       }
       for d in current_page
   ]
