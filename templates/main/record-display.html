@@ -73,7 +73,7 @@ function fetchDrugData() {
 
       data.results.forEach(d => {
         tbody.innerHTML += `
-          <tr onclick="window.location.href='/admin-page/drug/${d.id}/';" style="cursor: pointer;">
+          <tr onclick="window.location.href='/admin-page/drug/${d.id}/details';" style="cursor: pointer;">
             <td>${d.manufacturer_name}</td>
             <td>${d.drug_name}</td>
             <td>${d.batch_number}</td>
