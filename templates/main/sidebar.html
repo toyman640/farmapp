@@ -19,6 +19,12 @@
             <span class="nav-link-text">Drugs Inventory</span>
           </a>
         </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Restock Inventory">
+          <a class="nav-link" href="#" data-toggle="modal" data-target="#restockModal">
+              <i class="fa fa-plus-square"></i>
+              <span class="nav-link-text">Restock Inventory</span>
+          </a>
+      </li>
         <!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
           <a class="nav-link" href="{% url 'main:main_index' %}">
             <i class="fa fa-fw fa-clipboard"></i>
@@ -64,6 +70,32 @@
       </ul>
     </div>
   </nav>
+
+
+    <!-- Restock Inventory Modal -->
+<div class="modal fade" id="restockModal" tabindex="-1" role="dialog" aria-labelledby="restockModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="restockModalLabel">Restock Inventory</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body text-center">
+              <p>Select the type of drug you want to restock:</p>
+              <button class="btn btn-primary btn-block my-2" onclick="window.location.href='{% url 'main:admin_add_drug' %}'">
+                  New Drug
+              </button>
+              <caption>(Click here to add new drug)</caption>
+              <button class="btn btn-secondary btn-block" onclick="window.location.href='{% url 'main:drugs_inventory' %}'">
+                  Existing Drug
+              </button>
+              <caption>(To update quantity of existing Item, go to records and update quantity)</caption>
+          </div>
+      </div>
+  </div>
+</div>
 
   {% comment %}
    <!-- Report Modal Cow-->

@@ -72,7 +72,8 @@ class Drug(models.Model):
     if user.is_staff or user.is_superuser:
       # Directly update stock for staff and superusers
       previous_quantity = self.quantity
-      self.quantity = new_quantity
+      # self.quantity = new_quantity
+      self.quantity = previous_quantity + new_quantity
       self.has_been_edited = False
       self.save()
 
