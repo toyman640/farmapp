@@ -234,3 +234,74 @@ class Dispatch(models.Model):
     drug.quantity += self.quantity
     drug.save()
     super().delete(*args, **kwargs)
+
+
+# # --- Choices ---
+# SECTION_CHOICES = [
+#   ("piggery", "Piggery"),
+#   ("paddock", "Paddock"),
+#   ("small_ruminant", "Small Ruminant"),
+# ]
+
+# TAG_CHOICES = [
+#   ("pregnant", "Pregnant"),
+#   ("nursing_mother", "Nursing Mother"),
+# ]
+
+
+# # --- Reference Models ---
+# class Animal(models.Model):
+#   name = models.CharField(max_length=50)  # e.g. Sow, Cow, Ram
+#   section = models.CharField(max_length=50, choices=SECTION_CHOICES)
+
+#   def __str__(self):
+#     return f"{self.name} ({self.get_section_display()})"
+
+
+# class Location(models.Model):
+#   name = models.CharField(max_length=50)  # e.g. Line 1, Paddock 2, Ewe 3
+#   section = models.CharField(max_length=50, choices=SECTION_CHOICES)
+
+#   def __str__(self):
+#     return f"{self.name} ({self.get_section_display()})"
+
+
+# class Event(models.Model):
+#   code = models.CharField(max_length=50)       # internal name e.g. "farrowing"
+#   name = models.CharField(max_length=50)       # display name e.g. "Farrowing"
+#   section = models.CharField(max_length=50, choices=SECTION_CHOICES)
+
+#   def __str__(self):
+#     return f"{self.name} ({self.get_section_display()})"
+
+
+# class Treatment(models.Model):
+#   TREATMENT_CHOICES = [
+#     ("vaccination", "Vaccination"),
+#     ("deworming", "Deworming"),
+#     ("general", "General Treatment"),
+#     ("emergency", "Emergencies"),
+#   ]
+
+#   treatment_type = models.CharField(max_length=50, choices=TREATMENT_CHOICES)
+#   description = models.TextField(blank=True, null=True)
+
+#   def __str__(self):
+#     return self.get_treatment_type_display()
+
+
+# # --- Main Record ---
+# class Record(models.Model):
+#   date = models.DateField(auto_now_add=True)
+#   section = models.CharField(max_length=50, choices=SECTION_CHOICES)
+
+#   event = models.ForeignKey(Event, on_delete=models.CASCADE)
+#   animal = models.ForeignKey(Animal, on_delete=models.SET_NULL, null=True, blank=True)
+#   location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True)
+#   treatment = models.ForeignKey(Treatment, on_delete=models.SET_NULL, null=True, blank=True)
+
+#   tag = models.CharField(max_length=50, choices=TAG_CHOICES, blank=True, null=True)
+#   comment = models.TextField(blank=True, null=True)
+
+#   def __str__(self):
+#     return f"{self.get_section_display()} - {self.event.name} ({self.date})"
