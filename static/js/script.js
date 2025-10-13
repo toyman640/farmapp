@@ -32,3 +32,16 @@ $('.number').each(function () {
         }
     });
 });
+
+
+// $(document).ready(function() {
+//     $('.select2-drug').select2({
+//         placeholder: "Search drug...",
+//         allowClear: true
+//     });
+
+//     // Hide the Select2 container (for testing)
+//     $('.select2-drug').next('.select2').css('display', 'none');
+// });
+
+

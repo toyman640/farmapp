@@ -20,3 +20,4 @@ $('.counter').each(function () {
         }
     });
 });
+

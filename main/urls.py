@@ -16,7 +16,8 @@ urlpatterns = [
     path('drug-inventory-records/', views.drugs_inventory_land, name="drugs_inventory_land"),
     path('drugs/filter/', views.drug_filter, name='drug_filter'),
     path("update-drug/<int:drug_id>/", views.update_drug_quantity, name="update_drug_quantity"),
-    path('dispatch-drug/', views.dispatch_drug_main, name='dispatch_drug_main'),
+    # path('dispatch-drug/', views.dispatch_drug_main, name='dispatch_drug_main'),
+    path('dispatch-drug/', views.admin_dispatch_drug, name='admin_dispatch_drug'),
     path('dispatch-filter-records/', views.dispatch_filter_main, name='dispatch_filter_main'),
     path('dispatch/edit/<int:dispatch_id>/', views.edit_dispatch_main, name='edit_dispatch_main'),
     path("dispatch/delete/<int:dispatch_id>/", views.delete_dispatch_main, name="delete_dispatch_main"),
@@ -26,4 +27,5 @@ urlpatterns = [
     path("dismiss-update/<int:pending_update_id>/", views.dismiss_stock_update, name="dismiss_stock_update"),
     path("dispatch-drug-records-lazy/", views.dispatch_drug_main_lazy, name="dispatch_drug_main_lazy"),
     path("drugs-inventory-lazy/", views.drugs_inventory_lazy, name="drugs_inventory_lazy"),
+    path("update-inventory", views.admin_add_drug, name="admin_add_drug")
 ]

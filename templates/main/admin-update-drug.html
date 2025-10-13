@@ -1,0 +1,75 @@
+{% extends 'main/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<!Doctype html>
+{% block title %} Home {% endblock %}
+
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'main:main_index' %}">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a  class="" href="{% url 'main:drugs_inventory' %}"> Drug Records</a>
+        </li>
+      <li class="breadcrumb-item"><a href="{% url 'main:drug_detail' drug.id %}">Drug detail</a></li>
+      <li class="breadcrumb-item active">Edit Drug</li>
+    </ol>
+
+    <!-- 🚀 Alert Messages (Hidden by Default) -->
+        {% if messages %}
+      <div id="message-container" class="mt-3">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} fade show" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <div class="box_general padding_bottom">
+      <div class="container mt-4">
+        <h2>Update Stock For: {{ drug.drug_name }}</h2>
+        <form method="POST">
+          {% csrf_token %}
+          {{ form| crispy }}
+          <button type="submit" class="btn btn-primary">Update Stock</button>
+          <a class="btn btn-secondary" href="{% url 'main:drug_detail' drug.id %}">Back</a>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const form = document.querySelector("form");
+  const submitBtn = form.querySelector("button[type='submit']");
+  const backBtn = document.querySelector(".btn-secondary");
+
+  form.addEventListener("submit", function() {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Updating...";
+    submitBtn.classList.add("btn-secondary");
+    backBtn.disabled = true;
+  });
+
+  const alerts = document.querySelectorAll(".alert");
+  if (alerts.length > 0) {
+    setTimeout(() => {
+      alerts.forEach(alert => {
+        alert.classList.remove("show");
+        alert.classList.add("fade");
+        setTimeout(() => alert.remove(), 500);
+      });
+      // Redirect after 3s
+      window.location.href = "{% url 'main:drugs_inventory' %}";
+    }, 3000);
+  }
+});
+</script>
+
+
+{% endblock %}
