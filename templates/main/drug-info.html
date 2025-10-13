@@ -12,7 +12,10 @@ Cow Mortality
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a  class="" href="{% url 'main:main_index' %}"><i class="fa fa-angle-left"></i> Back to all Records Dashboard</a>
+          <a href="{% url 'main:main_index' %}">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a  class="" href="{% url 'main:drugs_inventory' %}"> Drug Records</a>
         </li>
         <li class="breadcrumb-item active">Drug Info</li>
       </ol>

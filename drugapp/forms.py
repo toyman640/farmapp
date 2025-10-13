@@ -1,5 +1,6 @@
 from django import forms
 from .models import Drug, Dispatch, Unit
+from django.core.exceptions import ValidationError
 from datetime import date
 
 class UnitForm(forms.ModelForm):
@@ -48,6 +49,76 @@ class DispatchForm(forms.ModelForm):
   class Meta:
     model = Dispatch
     fields = ['drug', 'quantity', 'unit']
+
+
+# class AdminDispatchForm(DispatchForm):  # ✅ inherits from DispatchForm
+#   class Meta(DispatchForm.Meta):
+#     widgets = {
+#         'drug': forms.Select(attrs={'class': 'select2-drug'}),  # Add searchable dropdown
+#     }
+
+# class AdminDispatchForm(DispatchForm):
+#   class Meta(DispatchForm.Meta):
+#     widgets = {
+#         'drug': forms.Select(attrs={'class': 'select2-drug'}),
+#     }
+
+#   def __init__(self, *args, **kwargs):
+#     super().__init__(*args, **kwargs)
+#     # Customize the label to include available quantity
+#     self.fields['drug'].queryset = Drug.objects.all()
+#     self.fields['drug'].label_from_instance = (
+#         lambda obj: f"{obj.drug_name} ({obj.get_pack_and_pieces()})"
+#     )
+
+# class AdminDispatchForm(DispatchForm):
+#     class Meta(DispatchForm.Meta):
+#         widgets = {
+#             'drug': forms.Select(attrs={'class': 'select2-drug'}),
+#         }
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.fields['drug'].queryset = Drug.objects.all()
+#         self.fields['drug'].label_from_instance = (
+#             lambda obj: f"{obj.drug_name} ({obj.quantity} pieces)"
+#         )
+
+class AdminDispatchForm(forms.ModelForm):
+    class Meta:
+        model = Dispatch
+        exclude = ['dispatched_by']  # hide dispatched_by from the form
+        widgets = {
+            'drug': forms.Select(attrs={'class': 'select2-drug'}),
+        }
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user  # store logged-in user
+        self.fields['drug'].queryset = Drug.objects.all()
+        self.fields['drug'].label_from_instance = (
+            lambda obj: f"{obj.drug_name} ({obj.quantity} pieces)"
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        drug = cleaned_data.get('drug')
+        quantity = cleaned_data.get('quantity')
+
+        if drug and quantity:
+            if quantity > drug.quantity:
+                raise ValidationError({
+                    'quantity': f"Not enough stock for {drug.drug_name}. Only {drug.quantity} pieces left."
+                })
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.user:
+            instance.dispatched_by = self.user  # set automatically
+        if commit:
+            instance.save()
+        return instance
 
 class DispatchEditForm(forms.ModelForm):
   drug = forms.ModelChoiceField(

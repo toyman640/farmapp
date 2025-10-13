@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from drugapp.models import Dispatch, Drug, InventoryLog, PendingStockUpdate
 from django.contrib import messages
 from django.core.paginator import Paginator
-from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
+from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from itertools import chain
 from django.db.models import Q
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
@@ -314,110 +314,163 @@ def drug_filter(request):
   return render(request, 'main/filter-drug-list.html', {'drug_query': drug_query})
 
 
+
 # @login_required
 # def update_drug_quantity(request, drug_id):
-#     drug = get_object_or_404(Drug, id=drug_id)
+#   drug = get_object_or_404(Drug, id=drug_id)
+#   if request.method == "POST":
+#     form = UpdateDrugQuantityForm(request.POST)
+#     if form.is_valid():
+#       new_quantity = form.cleaned_data["quantity"]
+      
+#       try:
+#           drug.request_stock_update(new_quantity, request.user)
+#           if request.user.is_staff or request.user.is_superuser:
+#               messages.success(request, "Stock updated successfully!")
+#           else:
+#               messages.info(request, "Stock update request submitted for approval.")
+#       except ValueError as e:
+#           messages.error(request, str(e))
 
-#     if request.method == "POST":
-#         form = UpdateDrugQuantityForm(request.POST)
-#         if form.is_valid():
-#             added_quantity = form.cleaned_data["quantity"]
-#             new_quantity = drug.quantity + added_quantity  # Add stock
+#       return redirect("main:drugs_inventory")
 
-#             drug.update_stock(new_quantity, request.user)  # Use model method
+#   else:
+#     form = UpdateDrugQuantityForm()
 
-#             messages.success(request, "Stock updated successfully!")
-#             return redirect("main:drugs_inventory")
-#     else:
-#         form = UpdateDrugQuantityForm()
-
-#     return render(request, "main/modify-drug.html", {"update_drug_form": form, "drug": drug})
-
+#   return render(request, "main/admin-update-drug.html", {"form": form, "drug": drug})
 
 @login_required
 def update_drug_quantity(request, drug_id):
-  drug = get_object_or_404(Drug, id=drug_id)
-  if request.method == "POST":
-    form = UpdateDrugQuantityForm(request.POST)
-    if form.is_valid():
-      new_quantity = form.cleaned_data["quantity"]
-      
-      try:
-          drug.request_stock_update(new_quantity, request.user)
-          if request.user.is_staff or request.user.is_superuser:
-              messages.success(request, "Stock updated successfully!")
-          else:
-              messages.info(request, "Stock update request submitted for approval.")
-      except ValueError as e:
-          messages.error(request, str(e))
+    drug = get_object_or_404(Drug, id=drug_id)
+    if request.method == "POST":
+        form = UpdateDrugQuantityForm(request.POST)
+        if form.is_valid():
+            new_quantity = form.cleaned_data["quantity"]
+            try:
+                drug.request_stock_update(new_quantity, request.user)
+                if request.user.is_staff or request.user.is_superuser:
+                    messages.success(request, "Stock updated successfully!")
+                else:
+                    messages.info(request, "Stock update request submitted for approval.")
+            except ValueError as e:
+                messages.error(request, str(e))
+        # ✅ No redirect — stay on the same page
+    else:
+        form = UpdateDrugQuantityForm()
 
-      return redirect("main:drugs_inventory")
+    return render(request, "main/admin-update-drug.html", {"form": form, "drug": drug})
 
-  else:
-    form = UpdateDrugQuantityForm()
-
-  return render(request, "main/admin-update-drug.html", {"form": form, "drug": drug})
 
 @login_required
 def dispatch_drug_main(request):
 
   return render(request, 'main/dispatch-records.html',)
 
+
 @login_required
 def dispatch_drug_main_lazy(request):
-  sort = request.GET.get('sort', 'dispatched_at')
-  order = request.GET.get('order', 'desc')
-  page = int(request.GET.get('page', 1))
-  per_page = 10
-  search = request.GET.get('search', '').strip()
+    if request.method == 'POST':
+        form = AdminDispatchForm(request.POST)
+        if form.is_valid():
+            dispatch = form.save(commit=False)
+            dispatch.dispatched_by = request.user
+            dispatch.save()
+            messages.success(request, "Drug dispatched successfully.")
+            return redirect('main:dispatch_drug_main_lazy')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = AdminDispatchForm()
 
-  next_order = 'desc' if order == 'asc' else 'asc'
-  sortable_fields = ['drug__drug_name', 'quantity', 'dispatched_at', 'dispatched_by']
+    sort = request.GET.get('sort', 'dispatched_at')
+    order = request.GET.get('order', 'desc')
+    page = int(request.GET.get('page', 1))
+    per_page = 10
+    search = request.GET.get('search', '').strip()
 
-  dispatch_qs = Dispatch.objects.select_related('drug', 'unit')
+    next_order = 'desc' if order == 'asc' else 'asc'
+    sortable_fields = ['drug__drug_name', 'quantity', 'dispatched_at', 'dispatched_by']
 
-  if search:
-      dispatch_qs = dispatch_qs.filter(drug__drug_name__icontains=search)
+    dispatch_qs = Dispatch.objects.select_related('drug', 'unit')
+    if search:
+        dispatch_qs = dispatch_qs.filter(drug__drug_name__icontains=search)
 
-  # Sorting
-  if sort in ['drug__drug_name', 'dispatched_by']:
-      sort_expr = Lower(sort)
-  else:
-      sort_expr = sort
+    if sort in sortable_fields:
+        sort_expr = Lower(sort) if sort in ['drug__drug_name', 'dispatched_by'] else sort
+        dispatch_qs = dispatch_qs.order_by(
+            sort_expr.desc() if order == 'desc' else sort_expr
+        )
+    else:
+        dispatch_qs = dispatch_qs.order_by('-dispatched_at')
 
-  if sort in sortable_fields:
-      if order == 'desc':
-          dispatch_qs = dispatch_qs.order_by(sort_expr.desc() if hasattr(sort_expr, 'desc') else f'-{sort}')
-      else:
-          dispatch_qs = dispatch_qs.order_by(sort_expr if hasattr(sort_expr, 'desc') else f'{sort}')
-  else:
-      dispatch_qs = dispatch_qs.order_by('-dispatched_at')
+    paginator = Paginator(dispatch_qs, per_page)
+    page_obj = paginator.get_page(page)
 
-  # Pagination
-  paginator = Paginator(dispatch_qs, per_page)
-  page_obj = paginator.get_page(page)
+    grouped_dispatches = {}
 
-  data = [
-      {
-          'id': d.id,
-          'drug_name': d.drug.drug_name,
-          'quantity': d.quantity,
-          'unit': d.unit.name,
-          'dispatched_at': d.dispatched_at.strftime('%Y-%m-%d'),
-          # 'dispatched_by': d.dispatched_by,
-          'dispatched_by': str(d.dispatched_by)
-      }
-      for d in page_obj
-  ]
+    return render(request, 'main/admin-dispatch-drug.html', {
+        'form': form,
+        'grouped_dispatches': grouped_dispatches,
+        'page_obj': page_obj,
+        'next_order': next_order,
+    })
 
-  return JsonResponse({
-      'results': data,
-      'has_next': page_obj.has_next(),
-      'has_previous': page_obj.has_previous(),
-      'current_page': page_obj.number,
-      'total_pages': paginator.num_pages,
-      'next_order': next_order,
-  })
+
+# @login_required
+# def dispatch_drug_main_lazy(request):
+#   sort = request.GET.get('sort', 'dispatched_at')
+#   order = request.GET.get('order', 'desc')
+#   page = int(request.GET.get('page', 1))
+#   per_page = 10
+#   search = request.GET.get('search', '').strip()
+
+#   next_order = 'desc' if order == 'asc' else 'asc'
+#   sortable_fields = ['drug__drug_name', 'quantity', 'dispatched_at', 'dispatched_by']
+
+#   dispatch_qs = Dispatch.objects.select_related('drug', 'unit')
+
+#   if search:
+#       dispatch_qs = dispatch_qs.filter(drug__drug_name__icontains=search)
+
+#   # Sorting
+#   if sort in ['drug__drug_name', 'dispatched_by']:
+#       sort_expr = Lower(sort)
+#   else:
+#       sort_expr = sort
+
+#   if sort in sortable_fields:
+#       if order == 'desc':
+#           dispatch_qs = dispatch_qs.order_by(sort_expr.desc() if hasattr(sort_expr, 'desc') else f'-{sort}')
+#       else:
+#           dispatch_qs = dispatch_qs.order_by(sort_expr if hasattr(sort_expr, 'desc') else f'{sort}')
+#   else:
+#       dispatch_qs = dispatch_qs.order_by('-dispatched_at')
+
+#   # Pagination
+#   paginator = Paginator(dispatch_qs, per_page)
+#   page_obj = paginator.get_page(page)
+
+#   data = [
+#       {
+#           'id': d.id,
+#           'drug_name': d.drug.drug_name,
+#           'quantity': d.quantity,
+#           'unit': d.unit.name,
+#           'dispatched_at': d.dispatched_at.strftime('%Y-%m-%d'),
+#           # 'dispatched_by': d.dispatched_by,
+#           'dispatched_by': str(d.dispatched_by)
+#       }
+#       for d in page_obj
+#   ]
+
+#   return JsonResponse({
+#       'results': data,
+#       'has_next': page_obj.has_next(),
+#       'has_previous': page_obj.has_previous(),
+#       'current_page': page_obj.number,
+#       'total_pages': paginator.num_pages,
+#       'next_order': next_order,
+#   })
 
 
 @login_required
@@ -573,8 +626,24 @@ def admin_add_drug(request):
   return render(request, 'main/admin-add-drugs.html', {'form': form})
 
 
+# views.py
+@login_required
+def admin_dispatch_drug(request):
+  if request.method == "POST":
+    form = AdminDispatchForm(request.POST)
+    if form.is_valid():
+      dispatch = form.save(commit=False)
+      dispatch.dispatched_by = request.user
+      dispatch.save()
 
+      action = request.POST.get("action")
+      if action == "continue":
+          messages.success(request, "Dispatch saved. You can add another.")
+          return redirect("main:admin_dispatch_drug")
+      elif action == "proceed":
+          messages.success(request, "Dispatch saved. Proceeding...")
+          return redirect("main:drugs_inventory")  # or wherever you want
+  else:
+    form = AdminDispatchForm()
 
-
-
-
+  return render(request, "main/admin-dispatch-drug.html", {"form": form})
