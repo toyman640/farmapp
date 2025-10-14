@@ -6,6 +6,14 @@
 <!-- /Navigation-->
 <div class="content-wrapper">
   <div class="container-fluid">
+    {% if show_prompt %}
+    <div class="update-marquee bg-primary text-white py-2">
+      <marquee behavior="scroll" direction="left" scrollamount="6">
+         🚀 <strong>New Update:</strong> Admins can now add and update inventory items, and also dispatch them seamlessly!
+      </marquee>
+    </div>
+    {% endif %}
+
     <!-- Breadcrumbs-->
     <ol class="breadcrumb">
       <li class="breadcrumb-item">

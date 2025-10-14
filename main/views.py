@@ -131,6 +131,7 @@ def main_index(request):
     "pending_updates": pending_updates,
     "pending_updates_count": pending_updates_count,
     "recent_drugs": combined_new_drugs,
+    'show_prompt': True, 
   }
 
   return render(request, 'main/index.html', context)
