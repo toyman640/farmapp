@@ -3,7 +3,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect, render,  get_object_or_404
 from django.urls import reverse_lazy
 from datetime import timedelta,datetime
-from django.db.models import F
+# from django.db.models import F
 from django.db.models.functions import Lower
 from django.utils.timezone import localtime, now, localdate
 from django.contrib.auth.decorators import login_required
@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from itertools import chain
-from django.db.models import Q
+from django.db.models import Q, F
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 
 
@@ -369,36 +369,25 @@ def dispatch_drug_main(request):
 
 @login_required
 def dispatch_drug_main_lazy(request):
-    if request.method == 'POST':
-        form = AdminDispatchForm(request.POST)
-        if form.is_valid():
-            dispatch = form.save(commit=False)
-            dispatch.dispatched_by = request.user
-            dispatch.save()
-            messages.success(request, "Drug dispatched successfully.")
-            return redirect('main:dispatch_drug_main_lazy')
-        else:
-            messages.error(request, "Please correct the errors below.")
-    else:
-        form = AdminDispatchForm()
-
     sort = request.GET.get('sort', 'dispatched_at')
     order = request.GET.get('order', 'desc')
     page = int(request.GET.get('page', 1))
     per_page = 10
     search = request.GET.get('search', '').strip()
 
-    next_order = 'desc' if order == 'asc' else 'asc'
     sortable_fields = ['drug__drug_name', 'quantity', 'dispatched_at', 'dispatched_by']
+    dispatch_qs = Dispatch.objects.select_related('drug', 'unit', 'dispatched_by')
 
-    dispatch_qs = Dispatch.objects.select_related('drug', 'unit')
     if search:
         dispatch_qs = dispatch_qs.filter(drug__drug_name__icontains=search)
 
     if sort in sortable_fields:
-        sort_expr = Lower(sort) if sort in ['drug__drug_name', 'dispatched_by'] else sort
+        if sort in ['drug__drug_name', 'dispatched_by']:
+            sort_expr = Lower(sort)
+        else:
+            sort_expr = F(sort)
         dispatch_qs = dispatch_qs.order_by(
-            sort_expr.desc() if order == 'desc' else sort_expr
+            sort_expr.desc() if order == 'desc' else sort_expr.asc()
         )
     else:
         dispatch_qs = dispatch_qs.order_by('-dispatched_at')
@@ -406,14 +395,72 @@ def dispatch_drug_main_lazy(request):
     paginator = Paginator(dispatch_qs, per_page)
     page_obj = paginator.get_page(page)
 
-    grouped_dispatches = {}
+    data = {
+        "results": [
+            {
+                "id": d.id,
+                "drug_name": d.drug.drug_name,
+                "quantity": d.quantity,
+                "unit": d.unit.name,
+                "dispatched_by": d.dispatched_by.get_full_name() if d.dispatched_by else "—",
+                "dispatched_at": d.dispatched_at.strftime("%Y-%m-%d %H:%M"),
+            }
+            for d in page_obj
+        ],
+        "current_page": page_obj.number,
+        "total_pages": paginator.num_pages,
+        "has_next": page_obj.has_next(),
+    }
 
-    return render(request, 'main/admin-dispatch-drug.html', {
-        'form': form,
-        'grouped_dispatches': grouped_dispatches,
-        'page_obj': page_obj,
-        'next_order': next_order,
-    })
+    return JsonResponse(data)
+
+# @login_required
+# def dispatch_drug_main_lazy(request):
+#     if request.method == 'POST':
+#         form = AdminDispatchForm(request.POST)
+#         if form.is_valid():
+#             dispatch = form.save(commit=False)
+#             dispatch.dispatched_by = request.user
+#             dispatch.save()
+#             messages.success(request, "Drug dispatched successfully.")
+#             return redirect('main:dispatch_drug_main_lazy')
+#         else:
+#             messages.error(request, "Please correct the errors below.")
+#     else:
+#         form = AdminDispatchForm()
+
+#     sort = request.GET.get('sort', 'dispatched_at')
+#     order = request.GET.get('order', 'desc')
+#     page = int(request.GET.get('page', 1))
+#     per_page = 10
+#     search = request.GET.get('search', '').strip()
+
+#     next_order = 'desc' if order == 'asc' else 'asc'
+#     sortable_fields = ['drug__drug_name', 'quantity', 'dispatched_at', 'dispatched_by']
+
+#     dispatch_qs = Dispatch.objects.select_related('drug', 'unit')
+#     if search:
+#         dispatch_qs = dispatch_qs.filter(drug__drug_name__icontains=search)
+
+#     if sort in sortable_fields:
+#         sort_expr = Lower(sort) if sort in ['drug__drug_name', 'dispatched_by'] else sort
+#         dispatch_qs = dispatch_qs.order_by(
+#             sort_expr.desc() if order == 'desc' else sort_expr
+#         )
+#     else:
+#         dispatch_qs = dispatch_qs.order_by('-dispatched_at')
+
+#     paginator = Paginator(dispatch_qs, per_page)
+#     page_obj = paginator.get_page(page)
+
+#     grouped_dispatches = {}
+
+#     return render(request, 'main/admin-dispatch-drug.html', {
+#         'form': form,
+#         'grouped_dispatches': grouped_dispatches,
+#         'page_obj': page_obj,
+#         'next_order': next_order,
+#     })
 
 
 # @login_required
