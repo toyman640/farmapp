@@ -7,73 +7,26 @@
   <div class="container-fluid">
     <!-- Breadcrumbs -->
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'main:main_index' %}">Dashboard</a></li>
       <li class="breadcrumb-item active">Dispatch Drug</li>
     </ol>
     <div class="box_general padding_bottom">
-      <div class="d-flex justify-content-between">
-        <h2 class="text-primary mb-3">Latest Dispatch</h2>
-        <i
-          class="fa fa-angle-down"
-          style="font-size: 2rem; cursor: pointer"
-          data-toggle="collapse"
-          data-target="#dispatchCollapse"
-          aria-expanded="false"
-          aria-controls="dispatchCollapse"
-        ></i>
+      <div class="container mt-4">
+        <h2 class="text-primary">Dispatch Item/Drug</h2>
       </div>
-      <div class="collapse" id="dispatchCollapse">
-        <div class="container row">
-          {% with colors="primary,success,danger,warning,info,secondary" %} 
-          {% for date, dispatches in grouped_dispatches.items %}
-          <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-            <div class="card bg-{{ color }}">
-              <div class="card-header text-center font-weight-bold">
-                {{ date }}
-              </div>
-              <ul
-                class="list-group list-group-flush dispatch-card"
-                style="height: 300px; overflow-y: auto"
-              >
-                {% for d in dispatches %}
-                <li class="list-group-item d-flex justify-content-between">
-                  <span>{{ d.drug.drug_name }}</span>
-                  <span><strong>{{ d.quantity }}</strong></span>
-                </li>
-                {% endfor %}
-              </ul>
-              <div class="card-footer text-center">
-                <!-- <small
-                  >Dispatched by: {{
-                  dispatches.0.dispatched_by.username|default:"Unknown"
-                  }}</small
-                > -->
-              </div>
-            </div>
-          </div>
 
-         
-          {% empty %}
-          <p class="text-center text-muted">
-            No dispatch records available in the last 5 days.
-          </p>
-         
-          {% endfor %}
-          {%endwith%}
-        </div>
-      </div>
     </div>
 
     <div class="box_general padding_bottom">
       {% if messages %}
-  <div id="message-container">
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} fade show" role="alert">
-        {{ message }}
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
+        <div id="message-container">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} fade show" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
       <form method="post">
         {% csrf_token %}
         <!-- {{ form.as_p }} -->
