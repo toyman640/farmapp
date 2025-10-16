@@ -16,6 +16,9 @@ class Userp(models.Model):
     is_maintenance = models.BooleanField('Is maintenance', default=False)
     is_drug = models.BooleanField("Is drug", default=False)
     is_vet = models.BooleanField('Is vet', default=False)
+    is_vet_piggery = models.BooleanField('Is vet piggery', default=False)
+    is_vet_paddock = models.BooleanField('Is vet cattle', default=False)
+    is_vet_smallruminant = models.BooleanField('Is vet small ruminant', default=False)
 
 
 class Animals(models.Model):
@@ -36,19 +39,19 @@ class AnimalType(models.Model):
     ANIMAL_TYPE_CHOICES = [
         ('sow', 'Sow'),
         ('boar', 'Boar'),
-        ('weaner_pig', 'Weaner (Pig)'),
+        ('weaner_pig', 'Weaner(Pig)'),
         ('piglet', 'Piglet'),
         ('cow', 'Cow'),
         ('bull', 'Bull'),
-        ('weaner_cattle', 'Weaner (Cattle)'),
+        ('weaner_cattle', 'Weaner(Cattle)'),
         ('calf', 'Calf'),
         ('ewe', 'Ewe'),
         ('ram', 'Ram'),
-        ('weaner_sheep', 'Weaner (Sheep)'),
+        ('weaner_sheep', 'Weaner(Sheep)'),
         ('lamb', 'Lamb'),
         ('buck', 'Buck'),
         ('doe', 'Doe'),
-        ('weaner_goat', 'Weaner (Goat)'),
+        ('weaner_goat', 'Weaner(Goat)'),
         ('kid', 'Kid'),
     ]
     animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="animal_types")
@@ -84,7 +87,7 @@ class EventType(models.Model):
 
 class EventImage(models.Model):
     event = models.ForeignKey(EventType, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to='uploads/', validators=[validate_file_size])  # Added validation
+    image = models.ImageField(upload_to='uploads/', validators=[validate_file_size], blank=True, null=True)  # Added validation
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

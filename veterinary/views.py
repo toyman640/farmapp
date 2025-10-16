@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from .forms import EventForm
 from drugapp.models import Dispatch, Drug, InventoryLog
 from django.utils.timezone import localtime, now, localdate, timedelta
 from django.db.models import Q
@@ -123,3 +124,20 @@ def drugs_records_lazy(request):
 
 def drugs_view(request):
   return render(request, 'vet/drugs-records.html')
+
+
+
+
+def create_event(request):
+    if request.method == 'POST':
+        form = EventForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            event = form.save()
+            # If an image was uploaded, create EventImage record
+            image = form.cleaned_data.get('image')
+            if image:
+                EventImage.objects.create(event=event, image=image)
+            return redirect('event_list')  # change to your event list view
+    else:
+        form = EventForm(user=request.user)
+    return render(request, 'vet/event_form.html', {'form': form})
