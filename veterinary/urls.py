@@ -10,4 +10,5 @@ urlpatterns = [
   path('lazy-drugs-records/', views.drugs_records_lazy, name='drugs_records_lazy'),
   path('drug(s)-records/', views.drugs_view, name='drugs_view'),
   path("event-reocrd-entry/", views.create_event, name="create_event"),
+  path('event-records/', views.event_records, name='event_records'),
 ]

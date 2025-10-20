@@ -8,10 +8,13 @@ from django.db.models import F
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from farmrecord.models import EventType
+from django.urls import reverse
 
 # Create your views here.
 
-# @login_required
+@login_required
 def vet_index(request):
   today = localdate()
   now_time = now()
@@ -31,33 +34,7 @@ def vet_index(request):
   return render(request, 'vet/index.html', context)
 
 
-# def dispatch_records(request):
-#   dispatch_records = Dispatch.objects.order_by('-dispatched_at')
-
-#   return render(request, 'vet/dispatch-records.html', {'dispatch_records' : dispatch_records})
-
-
-# def dispatch_records_lazy(request):
-#   page = request.GET.get('page', 1)
-#   per_page = 10
-
-#   dispatches = Dispatch.objects.order_by('-dispatched_at')
-#   paginator = Paginator(dispatches, per_page)
-
-#   current_page = paginator.get_page(page)
-
-#   data = [
-#       {
-#           'drug': d.drug.drug_name,
-#           'quantity': d.quantity,
-#           'unit': d.unit.name,
-#           'dispatched_at': d.dispatched_at.strftime('%Y-%m-%d %H:%M'),
-#       }
-#       for d in current_page
-#   ]
-
-#   return JsonResponse({'results': data, 'has_next': current_page.has_next()})
-
+@login_required
 def dispatch_records_lazy(request):
     page = int(request.GET.get('page', 1))
     per_page = 10
@@ -84,13 +61,14 @@ def dispatch_records_lazy(request):
     return JsonResponse({'results': data, 'has_next': current_page.has_next()})
 
 
+@login_required
 def dispatch_view(request):
   return render(request, 'vet/dispatch-records.html')
 
 
 
 
-
+@login_required
 def drugs_records_lazy(request):
   page = int(request.GET.get('page', 1))
   per_page = 10
@@ -121,23 +99,97 @@ def drugs_records_lazy(request):
 
 
 
-
+@login_required
 def drugs_view(request):
   return render(request, 'vet/drugs-records.html')
 
 
+# @login_required
+# def create_event(request):
+#   if request.method == 'POST':
+#       form = EventForm(request.POST, request.FILES, user=request.user)
+#       if form.is_valid():
+#           event = form.save(commit=False)
+#           event.save()
+#           messages.success(request, "Event created successfully!")
+#           return redirect('veterinary:create_event')  # reloads the same page
+#       else:
+#           messages.error(request, "There was an error submitting the form. Please check your input.")
+#   else:
+#       form = EventForm(user=request.user)
 
+#   return render(request, 'vet/event_form.html', {'form': form})
 
+@login_required
 def create_event(request):
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES, user=request.user)
+
         if form.is_valid():
-            event = form.save()
-            # If an image was uploaded, create EventImage record
-            image = form.cleaned_data.get('image')
-            if image:
-                EventImage.objects.create(event=event, image=image)
-            return redirect('event_list')  # change to your event list view
+            event = form.save(commit=False)
+            event.save()
+
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                action_type = request.POST.get('actionType')
+                if action_type == 'proceed':
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': 'Event saved successfully! Redirecting...',
+                        'redirect_url': reverse('veterinary:event_records')
+                    })
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Event saved successfully! You can add another.'
+                })
+
+            messages.success(request, "Event created successfully!")
+            return redirect('veterinary:create_event')
+
+        else:
+            # 🔹 Collect detailed field errors
+            errors = {
+                field: [str(err) for err in errs]
+                for field, errs in form.errors.items()
+            }
+
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Please correct the highlighted errors.',
+                    'errors': errors,  # ✅ send back field-specific errors
+                })
+
+            messages.error(request, "Error saving event. Check your input.")
+
     else:
         form = EventForm(user=request.user)
+
     return render(request, 'vet/event_form.html', {'form': form})
+
+@login_required
+def event_records(request):
+  user = request.user
+  events = EventType.objects.all().select_related('animal', 'animal_type')
+
+  # Filter based on vet specialization
+  if hasattr(user, 'profile'):
+      profile = user.profile
+      if profile.is_vet_piggery:
+          events = events.filter(animal__animal_name='pig')
+      elif profile.is_vet_paddock:
+          events = events.filter(animal__animal_name='cattle')
+      elif profile.is_vet_smallruminant:
+          events = events.filter(animal__animal_name__in=['sheep', 'goat'])
+      elif profile.is_vet:
+          # A general vet (not tied to a section) can see all
+          events = events.all()
+      else:
+          # Non-vet users see nothing
+          events = EventType.objects.none()
+  else:
+      events = EventType.objects.none()
+
+  context = {
+      'events': events,
+  }
+  return render(request, 'vet/entry-records.html', context)

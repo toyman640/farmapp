@@ -62,6 +62,28 @@ class AnimalType(models.Model):
         return self.animal_type_name
 
 
+# class EventType(models.Model):
+#     EVENT_CHOICES = [
+#         ('mortality', 'Mortality'),
+#         ('farrowing', 'Farrowing'),
+#         ('calving', 'Calving'),
+#         ('lambing', 'Lambing'),
+#         ('kidding', 'Kidding'),
+#         ('procurement', 'Procurement'),
+#         ('culling', 'Culling'),
+#         ('sale', 'Sale'),
+#     ]
+#     animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="events", null=True, blank=True)
+#     animal_type = models.ForeignKey(AnimalType, on_delete=models.CASCADE, related_name="events", null=True, blank=True)
+#     event_name = models.CharField(max_length=20, choices=EVENT_CHOICES, unique=True)
+#     location = models.CharField(max_length=100, null=True, blank=True)
+#     designation = models.TextField(max_length=500, null=True, blank=True)
+#     notes = models.TextField(null=True, blank=True)  # renamed from event_description
+
+#     def __str__(self):
+#         return self.event_name
+
+
 class EventType(models.Model):
     EVENT_CHOICES = [
         ('mortality', 'Mortality'),
@@ -73,17 +95,40 @@ class EventType(models.Model):
         ('culling', 'Culling'),
         ('sale', 'Sale'),
     ]
-    animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="events", null=True, blank=True)
-    animal_type = models.ForeignKey(AnimalType, on_delete=models.CASCADE, related_name="events", null=True, blank=True)
-    event_name = models.CharField(max_length=20, choices=EVENT_CHOICES, unique=True)
+
+    # 🔹 Piggery Locations: Line + Block (A–Z)
+    PIGGERY_LINES = [f"Line {i}" for i in range(1, 10)]
+    PIGGERY_BLOCKS = [f"Block {chr(j)}" for j in range(65, 91)]  # A–Z
+    PIGGERY_PENS = [f"Pen {i}" for i in range(1, 101)]  # 1–100
+
+    PADDOCK_LOCATIONS = [(f"Paddock {i}", f"Paddock {i}") for i in range(1, 9)] + [
+        ('Isolation', 'Isolation')
+    ]
+    SMALL_RUMINANT_LOCATIONS = [(f"Ewe {i}", f"Ewe {i}") for i in range(1, 6)]
+
+    LOCATION_CHOICES = {
+        'cattle': PADDOCK_LOCATIONS,
+        'sheep': SMALL_RUMINANT_LOCATIONS,
+        'goat': SMALL_RUMINANT_LOCATIONS,
+    }
+
+    animal = models.ForeignKey('Animals', on_delete=models.CASCADE, related_name="events", null=True, blank=True)
+    animal_type = models.ForeignKey('AnimalType', on_delete=models.CASCADE, related_name="events", null=True, blank=True)
+    event_name = models.CharField(max_length=20, choices=EVENT_CHOICES)
     location = models.CharField(max_length=100, null=True, blank=True)
+    number_of_animals = models.PositiveIntegerField(default=1)
     designation = models.TextField(max_length=500, null=True, blank=True)
-    description = models.TextField(max_length=1000, null=True, blank=True)
-    event_description = models.TextField(null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.event_name
 
+    def get_location_choices(self):
+        """Return proper location list based on animal type"""
+        if not self.animal_type or not self.animal_type.animal:
+            return []
+        key = self.animal_type.animal.animal_name.lower()
+        return self.LOCATION_CHOICES.get(key, [])
 
 class EventImage(models.Model):
     event = models.ForeignKey(EventType, on_delete=models.CASCADE, related_name="images")

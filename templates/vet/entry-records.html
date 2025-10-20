@@ -1,0 +1,47 @@
+{% extends 'vet/base.html' %}
+{% load static %}
+{% block title %}Event Records{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'veterinary:vet_index' %}">Home</a></li>
+      <li class="breadcrumb-item active">Event Records</li>
+    </ol>
+
+    <div class="box_general padding_bottom">
+      <h4>Event Records</h4>
+
+      {% if events %}
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Animal</th>
+                <th>Animal Type</th>
+                <th>Location</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for event in events %}
+                <tr>
+                  <td>{{ event.get_event_name_display }}</td>
+                  <td>{{ event.animal.animal_name|title }}</td>
+                  <td>{{ event.animal_type.animal_type_name|title }}</td>
+                  <td>{{ event.location|default:"-" }}</td>
+                  <td>{{ event.notes|default:"-" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p>No records found for your section.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
