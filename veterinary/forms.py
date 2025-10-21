@@ -140,6 +140,7 @@ class EventForm(forms.ModelForm):
             # ✅ Location choices per animal type
             if vet_section == 'pig':
                 # Hide normal location for pigs (handled via JS)
+                self.fields['location'].required = False
                 self.fields['location'].widget = forms.HiddenInput()
             elif vet_section == 'cattle':
                 self.fields['location'].choices = [('', '--- Select Location ---')] + EventType.PADDOCK_LOCATIONS

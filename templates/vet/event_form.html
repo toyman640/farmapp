@@ -24,14 +24,7 @@
         <!-- 🐮 Default Location -->
         <div id="location-wrapper" class="form-group">
           <label for="id_location">Location</label>
-          <select name="location" id="id_location" class="form-control">
-            <option value="">--- Select Location ---</option>
-            {% for value, label in form.fields.location.choices %}
-              {% if value %}
-                <option value="{{ value }}" {% if form.location.value == value %}selected{% endif %}>{{ label }}</option>
-              {% endif %}
-            {% endfor %}
-          </select>
+          {{ form.location }}
         </div>
 
         <!-- 🐖 Piggery Line + Block + Pen -->
@@ -112,8 +105,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 3000);
   }
 
+  // ✅ Combine Line + Block + Pen into hidden location
+  function updateHiddenLocation() {
+    const line = lineSelect.value;
+    const block = blockSelect.value;
+    const pen = penSelect.value;
+    const combined = [line, block, pen].filter(Boolean).join(' ');
+    hiddenLocation.value = combined;
+  }
+
+  // ✅ Handle Denmark Line (no block)
+  lineSelect.addEventListener('change', function() {
+    if (this.value === 'Denmark') {
+      blockSelect.value = '';
+      blockSelect.disabled = true;
+      blockSelect.style.backgroundColor = '#e9ecef';
+    } else {
+      blockSelect.disabled = false;
+      blockSelect.style.backgroundColor = '';
+    }
+    updateHiddenLocation();
+  });
+
+  [blockSelect, penSelect].forEach(select => select.addEventListener('change', updateHiddenLocation));
+
   // ✅ Form submission logic
   function submitForm(actionType) {
+    updateHiddenLocation(); // ensure hidden field updates before sending
     const formData = new FormData(form);
     formData.append('actionType', actionType);
 
@@ -168,36 +186,6 @@ document.addEventListener('DOMContentLoaded', function() {
       locationWrapper.style.display = "block";
     }
   }
-
-  // ✅ Combine Line + Block + Pen into hidden location
-  function updateHiddenLocation() {
-    const line = lineSelect.value;
-    const block = blockSelect.value;
-    const pen = penSelect.value;
-    let combined = '';
-
-    if (line && block && pen) combined = `${line} ${block} ${pen}`;
-    else if (line && block) combined = `${line} ${block}`;
-    else if (line) combined = `${line}`;
-    else combined = '';
-
-    hiddenLocation.value = combined;
-  }
-
-  // ✅ Handle Denmark Line (no block)
-  lineSelect.addEventListener('change', function() {
-    if (this.value === 'Denmark') {
-      blockSelect.value = '';
-      blockSelect.disabled = true;
-      blockSelect.style.backgroundColor = '#e9ecef';
-    } else {
-      blockSelect.disabled = false;
-      blockSelect.style.backgroundColor = '';
-    }
-    updateHiddenLocation();
-  });
-
-  [blockSelect, penSelect].forEach(select => select.addEventListener('change', updateHiddenLocation));
 
   eventField.addEventListener('change', toggleDesignation);
   toggleDesignation();
