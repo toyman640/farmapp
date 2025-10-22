@@ -119,9 +119,10 @@ class EventType(models.Model):
     number_of_animals = models.PositiveIntegerField(default=1)
     designation = models.TextField(max_length=500, null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.event_name
+        return f"{self.get_event_name_display()} - {self.created_at.strftime('%Y-%m-%d')}"
 
     def get_location_choices(self):
         """Return proper location list based on animal type"""

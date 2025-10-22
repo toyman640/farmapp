@@ -11,7 +11,6 @@
       <li class="breadcrumb-item active">Animal Event Record</li>
     </ol>
 
-    <!-- ✅ Message box -->
     <div id="message-box" style="display:none;"></div>
 
     <div class="box_general padding_bottom">
@@ -21,13 +20,20 @@
         {{ form.animal_type|as_crispy_field }}
         {{ form.event_name|as_crispy_field }}
 
-        <!-- 🐮 Default Location -->
+        <!-- Default Location -->
         <div id="location-wrapper" class="form-group">
           <label for="id_location">Location</label>
-          {{ form.location }}
+          <select name="location" id="id_location" class="form-control">
+            <option value="">--- Select Location ---</option>
+            {% for value, label in form.fields.location.choices %}
+              {% if value %}
+                <option value="{{ value }}" {% if form.location.value == value %}selected{% endif %}>{{ label }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
         </div>
 
-        <!-- 🐖 Piggery Line + Block + Pen -->
+        <!-- Piggery Location -->
         <div id="piggery-wrapper" class="form-row" style="display: none;">
           <div class="col-md-4">
             <label for="lineSelect">Line</label>
@@ -52,9 +58,6 @@
             <label for="penSelect">Pen</label>
             <select id="penSelect" class="form-control">
               <option value="">--- Select Pen ---</option>
-              {% for i in "1234567891011121314151617181920" %}
-                <option value="Pen {{ forloop.counter }}">{{ forloop.counter }}</option>
-              {% endfor %}
             </select>
           </div>
         </div>
@@ -62,7 +65,12 @@
         {{ form.number_of_animals|as_crispy_field }}
         {{ form.designation|as_crispy_field }}
         {{ form.notes|as_crispy_field }}
-        {{ form.image|as_crispy_field }}
+
+        <!-- ✅ Safe rendering for image -->
+        <div class="form-group">
+          <label for="{{ form.image.id_for_label }}">Event Image</label>
+          {{ form.image }}
+        </div>
 
         <div class="mt-3">
           <button type="button" class="btn btn-primary" id="saveAddAnother">Save and Add Another</button>
@@ -80,83 +88,37 @@ document.addEventListener('DOMContentLoaded', function() {
   const saveAddAnother = document.getElementById('saveAddAnother');
   const saveProceed = document.getElementById('saveProceed');
 
-  const eventField = document.getElementById('id_event_name');
-  const designationField = document.getElementById('id_designation');
-  const designationWrapper = designationField?.closest('.form-group');
-  const locationWrapper = document.getElementById('location-wrapper');
-  const piggeryWrapper = document.getElementById('piggery-wrapper');
-  const lineSelect = document.getElementById('lineSelect');
-  const blockSelect = document.getElementById('blockSelect');
-  const penSelect = document.getElementById('penSelect');
-  const hiddenLocation = document.getElementById('id_location');
-
-  // ✅ Auto-hide messages
+  // Show bootstrap alert messages
   function showMessage(type, text) {
     msgBox.innerHTML = `<div class="alert alert-${type}" role="alert">${text}</div>`;
     msgBox.style.display = 'block';
-    setTimeout(() => {
-      msgBox.style.transition = 'opacity 0.5s ease';
-      msgBox.style.opacity = '0';
-      setTimeout(() => {
-        msgBox.style.display = 'none';
-        msgBox.style.opacity = '1';
-        msgBox.innerHTML = '';
-      }, 500);
-    }, 3000);
+    setTimeout(() => { msgBox.style.display = 'none'; }, 3000);
   }
 
-  // ✅ Combine Line + Block + Pen into hidden location
-  function updateHiddenLocation() {
-    const line = lineSelect.value;
-    const block = blockSelect.value;
-    const pen = penSelect.value;
-    const combined = [line, block, pen].filter(Boolean).join(' ');
-    hiddenLocation.value = combined;
-  }
-
-  // ✅ Handle Denmark Line (no block)
-  lineSelect.addEventListener('change', function() {
-    if (this.value === 'Denmark') {
-      blockSelect.value = '';
-      blockSelect.disabled = true;
-      blockSelect.style.backgroundColor = '#e9ecef';
-    } else {
-      blockSelect.disabled = false;
-      blockSelect.style.backgroundColor = '';
-    }
-    updateHiddenLocation();
-  });
-
-  [blockSelect, penSelect].forEach(select => select.addEventListener('change', updateHiddenLocation));
-
-  // ✅ Form submission logic
+  // Submit form AJAX
   function submitForm(actionType) {
-    updateHiddenLocation(); // ensure hidden field updates before sending
     const formData = new FormData(form);
     formData.append('actionType', actionType);
-
     fetch("{% url 'veterinary:create_event' %}", {
       method: "POST",
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
       body: formData
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
       if (data.status === 'success') {
         showMessage('success', data.message);
         form.reset();
-        if (actionType === 'proceed') {
-          setTimeout(() => window.location.href = data.redirect_url, 1000);
-        }
-      } else {
-        let errorText = data.message;
+        if (actionType === 'proceed') setTimeout(() => window.location.href = data.redirect_url, 1000);
+      } else if (data.status === 'error') {
+        let err = data.message;
         if (data.errors) {
           const formatted = Object.entries(data.errors)
-            .map(([field, msgs]) => `<strong>${field}:</strong> ${msgs.join(', ')}`)
+            .map(([f, msgs]) => `<strong>${f}:</strong> ${msgs.join(', ')}`)
             .join('<br>');
-          errorText += `<br>${formatted}`;
+          err += `<br>${formatted}`;
         }
-        showMessage('danger', errorText);
+        showMessage('danger', err);
       }
     })
     .catch(() => showMessage('danger', 'An unexpected error occurred.'));
@@ -165,17 +127,29 @@ document.addEventListener('DOMContentLoaded', function() {
   saveAddAnother.addEventListener('click', () => submitForm('add_another'));
   saveProceed.addEventListener('click', () => submitForm('proceed'));
 
-  // ✅ Toggle Designation
-  function toggleDesignation() {
-    if (eventField.value === 'culling') {
-      designationWrapper.style.display = 'block';
-    } else {
-      designationWrapper.style.display = 'none';
-      designationField.value = '';
-    }
+  // Piggery dynamic location handling
+  const eventField = document.getElementById('id_event_name');
+  const designationField = document.getElementById('id_designation');
+  const designationWrapper = designationField.closest('.form-group');
+  const locationWrapper = document.getElementById('location-wrapper');
+  const piggeryWrapper = document.getElementById('piggery-wrapper');
+  const lineSelect = document.getElementById('lineSelect');
+  const blockSelect = document.getElementById('blockSelect');
+  const penSelect = document.getElementById('penSelect');
+  const hiddenLocation = document.getElementById('id_location');
+
+  for (let i = 1; i <= 100; i++) {
+    const opt = document.createElement('option');
+    opt.value = `Pen ${i}`;
+    opt.textContent = `Pen ${i}`;
+    penSelect.appendChild(opt);
   }
 
-  // ✅ Handle Location display by animal type
+  function toggleDesignation() {
+    if (eventField.value === 'culling') designationWrapper.style.display = 'block';
+    else { designationWrapper.style.display = 'none'; designationField.value = ''; }
+  }
+
   function handleLocationDisplay() {
     const animal = "{{ form.fields.animal.initial.animal_name|default:'' }}".toLowerCase();
     if (animal === "pig") {
@@ -187,6 +161,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  function updateHiddenLocation() {
+    const line = lineSelect.value;
+    const block = blockSelect.value;
+    const pen = penSelect.value;
+    hiddenLocation.value = [line, block, pen].filter(Boolean).join(' ');
+  }
+
+  [lineSelect, blockSelect, penSelect].forEach(sel => sel.addEventListener('change', updateHiddenLocation));
   eventField.addEventListener('change', toggleDesignation);
   toggleDesignation();
   handleLocationDisplay();
