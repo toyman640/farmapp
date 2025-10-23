@@ -11,4 +11,5 @@ urlpatterns = [
   path('drug(s)-records/', views.drugs_view, name='drugs_view'),
   path("event-reocrd-entry/", views.create_event, name="create_event"),
   path('event-records/', views.event_records, name='event_records'),
+  path('event/<int:pk>/', views.event_detail, name='event_detail')
 ]

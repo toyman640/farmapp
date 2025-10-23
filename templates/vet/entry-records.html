@@ -65,7 +65,7 @@
 
           <div class="events-list">
             {% for event in events %}
-              <div class="event-row shadow-sm
+              <a href="{% url 'veterinary:event_detail' event.id %}" class="event-row shadow-sm text-decoration-none
                 {% if event.event_name == 'mortality' %}
                   mortality
                 {% elif event.event_name == 'culling' %}
@@ -85,7 +85,7 @@
                 <div class="col col-type">{{ event.animal_type.animal_type_name|title }}</div>
                 <div class="col col-location">{{ event.location|default:"-" }}</div>
                 <div class="col col-notes" title="{{ event.notes|default:"-" }}">{{ event.notes|truncatechars:50|default:"-" }}</div>
-              </div>
+              </a>
             {% endfor %}
           </div>
         </div>
@@ -100,11 +100,9 @@
   const startDate = document.getElementById('start_date');
   const endDate = document.getElementById('end_date');
 
-  // Get today's date in yyyy-mm-dd format
   const today = new Date().toISOString().split('T')[0];
-  endDate.max = today; // Prevent selecting future dates
+  endDate.max = today;
 
-  // When start date changes
   startDate.addEventListener('change', function () {
     endDate.min = this.value || '';
     if (endDate.value && endDate.value < this.value) {
@@ -112,7 +110,6 @@
     }
   });
 
-  // Apply restriction on page load if start_date already has value
   if (startDate.value) {
     endDate.min = startDate.value;
   }
@@ -145,6 +142,7 @@
   min-height: 56px;
   transition: transform .12s ease, box-shadow .12s ease;
   font-weight: 500;
+  color: inherit;
 }
 
 .event-records-page .event-row .col {
@@ -172,6 +170,7 @@
 .event-records-page .event-row:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  text-decoration: none;
 }
 
 /* Responsive */

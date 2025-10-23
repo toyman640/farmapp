@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import EventForm
 from drugapp.models import Dispatch, Drug, InventoryLog
 from django.utils.timezone import localtime, now, localdate, timedelta
@@ -303,3 +303,13 @@ def event_records(request):
         'end_date': end_date,
     }
     return render(request, 'vet/entry-records.html', context)
+
+
+@login_required
+def event_detail(request, pk):
+  event = get_object_or_404(EventType.objects.select_related('animal', 'animal_type'), pk=pk)
+
+  context = {
+    'event': event
+  }
+  return render(request, 'vet/event_details.html', context)
