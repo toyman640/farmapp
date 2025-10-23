@@ -171,9 +171,13 @@ def create_event(request):
 # def event_records(request):
 #     user = request.user
 #     selected_event = request.GET.get('event_type')
+
+#     # Get all event types (for dropdown)
+#     all_event_types = EventType.objects.values_list('event_name', flat=True).distinct()
+
+#     # Get all events and filter by vet specialization
 #     events = EventType.objects.all().select_related('animal', 'animal_type')
 
-#     # Filter based on vet specialization
 #     if hasattr(user, 'profile'):
 #         profile = user.profile
 #         if profile.is_vet_piggery:
@@ -191,49 +195,12 @@ def create_event(request):
 #     if selected_event:
 #         events = events.filter(event_name=selected_event)
 
-#     # ✅ Get distinct event types *after filtering for that vet's animals*
-#     event_types = events.values_list('event_name', flat=True).distinct()
-
-#     context = {
-#         'events': events,
-#         'event_types': event_types,
-#         'selected_event': selected_event,
-#     }
-#     return render(request, 'vet/entry-records.html', context)
-
-# @login_required
-# def event_records(request):
-#     user = request.user
-#     selected_event = request.GET.get('event_type')
-#     events = EventType.objects.all().select_related('animal', 'animal_type')
-
-#     # Filter based on vet specialization
-#     if hasattr(user, 'profile'):
-#         profile = user.profile
-#         if profile.is_vet_piggery:
-#             events = events.filter(animal__animal_name='pig')
-#         elif profile.is_vet_paddock:
-#             events = events.filter(animal__animal_name='cattle')
-#         elif profile.is_vet_smallruminant:
-#             events = events.filter(animal__animal_name__in=['sheep', 'goat'])
-#         elif not profile.is_vet:
-#             events = EventType.objects.none()
-#     else:
-#         events = EventType.objects.none()
-
-#     # Apply event type filter if selected
-#     if selected_event:
-#         events = events.filter(event_name=selected_event)
-
-#     # ✅ Order events by creation date (newest first)
+#     # Order newest first
 #     events = events.order_by('-created_at')
 
-#     # Get distinct event types for dropdown (after vet filtering)
-#     event_types = events.values_list('event_name', flat=True).distinct()
-
 #     context = {
 #         'events': events,
-#         'event_types': event_types,
+#         'event_types': all_event_types,  # ✅ show all event types
 #         'selected_event': selected_event,
 #     }
 #     return render(request, 'vet/entry-records.html', context)
@@ -244,26 +211,33 @@ def event_records(request):
     user = request.user
     selected_event = request.GET.get('event_type')
 
-    # Get all event types (for dropdown)
-    all_event_types = EventType.objects.values_list('event_name', flat=True).distinct()
-
-    # Get all events and filter by vet specialization
     events = EventType.objects.all().select_related('animal', 'animal_type')
+
+    # Default empty event types list
+    event_types = []
 
     if hasattr(user, 'profile'):
         profile = user.profile
+
         if profile.is_vet_piggery:
             events = events.filter(animal__animal_name='pig')
+            event_types = ['mortality', 'culling', 'farrowing', 'sale', 'procurement']
+
         elif profile.is_vet_paddock:
             events = events.filter(animal__animal_name='cattle')
+            event_types = ['mortality', 'calving', 'farrowing', 'sale', 'procurement']
+
         elif profile.is_vet_smallruminant:
             events = events.filter(animal__animal_name__in=['sheep', 'goat'])
+            event_types = ['mortality', 'culling', 'lambing', 'kidding', 'sale', 'procurement']
+
         elif not profile.is_vet:
             events = EventType.objects.none()
+
     else:
         events = EventType.objects.none()
 
-    # Apply event type filter if selected
+    # Filter events by selected type if any
     if selected_event:
         events = events.filter(event_name=selected_event)
 
@@ -272,7 +246,7 @@ def event_records(request):
 
     context = {
         'events': events,
-        'event_types': all_event_types,  # ✅ show all event types
+        'event_types': event_types,
         'selected_event': selected_event,
     }
     return render(request, 'vet/entry-records.html', context)
