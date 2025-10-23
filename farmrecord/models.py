@@ -138,3 +138,14 @@ class EventImage(models.Model):
 
     def __str__(self):
         return f"Image for event: {self.event.event_name}"
+
+
+class Census(models.Model):
+    animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="censuses")
+    animal_type = models.ForeignKey(AnimalType, on_delete=models.CASCADE, related_name="censuses")
+    number_of_animals = models.PositiveIntegerField()
+    census_date = models.DateField(default=timezone.now)
+    notes = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Census of {self.animal_type.animal_type_name} on {self.census_date}"

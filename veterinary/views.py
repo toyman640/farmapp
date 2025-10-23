@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import EventForm
+from .forms import EventForm, CensusForm
 from drugapp.models import Dispatch, Drug, InventoryLog
 from django.utils.timezone import localtime, now, localdate, timedelta
 from django.db.models import Q
@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from farmrecord.models import EventType
+from farmrecord.models import EventType, Census
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 # Create your views here.
@@ -167,90 +167,6 @@ def create_event(request):
     return render(request, 'vet/event_form.html', {'form': form})
 
 
-# @login_required
-# def event_records(request):
-#     user = request.user
-#     selected_event = request.GET.get('event_type')
-
-#     # Get all event types (for dropdown)
-#     all_event_types = EventType.objects.values_list('event_name', flat=True).distinct()
-
-#     # Get all events and filter by vet specialization
-#     events = EventType.objects.all().select_related('animal', 'animal_type')
-
-#     if hasattr(user, 'profile'):
-#         profile = user.profile
-#         if profile.is_vet_piggery:
-#             events = events.filter(animal__animal_name='pig')
-#         elif profile.is_vet_paddock:
-#             events = events.filter(animal__animal_name='cattle')
-#         elif profile.is_vet_smallruminant:
-#             events = events.filter(animal__animal_name__in=['sheep', 'goat'])
-#         elif not profile.is_vet:
-#             events = EventType.objects.none()
-#     else:
-#         events = EventType.objects.none()
-
-#     # Apply event type filter if selected
-#     if selected_event:
-#         events = events.filter(event_name=selected_event)
-
-#     # Order newest first
-#     events = events.order_by('-created_at')
-
-#     context = {
-#         'events': events,
-#         'event_types': all_event_types,  # ✅ show all event types
-#         'selected_event': selected_event,
-#     }
-#     return render(request, 'vet/entry-records.html', context)
-
-
-# @login_required
-# def event_records(request):
-#     user = request.user
-#     selected_event = request.GET.get('event_type')
-
-#     events = EventType.objects.all().select_related('animal', 'animal_type')
-
-#     # Default empty event types list
-#     event_types = []
-
-#     if hasattr(user, 'profile'):
-#         profile = user.profile
-
-#         if profile.is_vet_piggery:
-#             events = events.filter(animal__animal_name='pig')
-#             event_types = ['mortality', 'culling', 'farrowing', 'sale', 'procurement']
-
-#         elif profile.is_vet_paddock:
-#             events = events.filter(animal__animal_name='cattle')
-#             event_types = ['mortality', 'calving', 'farrowing', 'sale', 'procurement']
-
-#         elif profile.is_vet_smallruminant:
-#             events = events.filter(animal__animal_name__in=['sheep', 'goat'])
-#             event_types = ['mortality', 'culling', 'lambing', 'kidding', 'sale', 'procurement']
-
-#         elif not profile.is_vet:
-#             events = EventType.objects.none()
-
-#     else:
-#         events = EventType.objects.none()
-
-#     # Filter events by selected type if any
-#     if selected_event:
-#         events = events.filter(event_name=selected_event)
-
-#     # Order newest first
-#     events = events.order_by('-created_at')
-
-#     context = {
-#         'events': events,
-#         'event_types': event_types,
-#         'selected_event': selected_event,
-#     }
-#     return render(request, 'vet/entry-records.html', context)
-
 
 @login_required
 def event_records(request):
@@ -313,3 +229,20 @@ def event_detail(request, pk):
     'event': event
   }
   return render(request, 'vet/event_details.html', context)
+
+@login_required
+def create_census(request, animal_id):
+  animal = get_object_or_404(Animals, id=animal_id)
+
+  if request.method == 'POST':
+      form = CensusForm(request.POST, vet_user=request.user)
+      if form.is_valid():
+          census = form.save(commit=False)
+          census.animal = animal  # Prefill hidden animal field
+          census.save()
+          messages.success(request, 'Census record created successfully.')
+          return redirect('veterinary:census_detail', census.id)
+  else:
+      form = CensusForm(vet_user=request.user, initial={'animal': animal})
+
+  return render(request, 'vet/census_form.html', {'form': form, 'animal': animal})

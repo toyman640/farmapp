@@ -1,0 +1,32 @@
+{% extends 'vet/base.html' %}
+{% load static %}
+{% block title %}New Census{% endblock %}
+
+{% block content %}
+<div class="content-wrapper census-page">
+  <div class="container-fluid">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'veterinary:vet_index' %}">Home</a></li>
+      <li class="breadcrumb-item active">New Census</li>
+    </ol>
+
+    <div class="box_general p-4 shadow-sm rounded">
+      <h4 class="text-primary mb-3">New Census for {{ animal.animal_name|title }}</h4>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary mt-3">Save Census</button>
+        <a href="{% url 'veterinary:vet_index' %}" class="btn btn-secondary mt-3">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+.census-page .box_general {
+  max-width: 700px;
+  margin: auto;
+}
+</style>
+{% endblock %}

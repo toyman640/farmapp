@@ -1,5 +1,5 @@
 from django import forms
-from farmrecord.models import EventType, AnimalType, Animals
+from farmrecord.models import EventType, AnimalType, Animals, Census
 
 
 class EventForm(forms.ModelForm):
@@ -81,3 +81,29 @@ class EventForm(forms.ModelForm):
         # Hide label if hidden
         if isinstance(self.fields['animal'].widget, forms.HiddenInput):
             self.fields['animal'].label = ''
+
+
+class CensusForm(forms.ModelForm):
+    class Meta:
+        model = Census
+        fields = ['animal', 'animal_type', 'number_of_animals', 'census_date', 'notes']
+        widgets = {
+            'animal': forms.HiddenInput(),
+            'census_date': forms.DateInput(attrs={'type': 'date'}),
+            'notes': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        vet_user = kwargs.pop('vet_user', None)
+        super().__init__(*args, **kwargs)
+
+        # Filter animal_type choices based on vet type
+        if vet_user:
+            if vet_user.is_vet_piggery:
+                self.fields['animal_type'].queryset = AnimalType.objects.filter(animal_type_name__iexact='pig')
+            elif vet_user.is_vet_paddock:
+                self.fields['animal_type'].queryset = AnimalType.objects.filter(animal_type_name__iexact='cattle')
+            elif vet_user.is_vet_smallruminant:
+                self.fields['animal_type'].queryset = AnimalType.objects.filter(animal_type_name__in=['sheep', 'goat'])
+            else:
+                self.fields['animal_type'].queryset = AnimalType.objects.all()
