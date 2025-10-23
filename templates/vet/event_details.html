@@ -24,6 +24,15 @@
         <div class="col-md-6"><strong>Animal:</strong> {{ event.animal.animal_name|title }}</div>
       </div>
 
+      {% if event.event_name == "culling" and event.designation %}
+      <div class="mt-3">
+        <h5 class="text-secondary">Designation</h5>
+        <div class="border rounded p-3 bg-light">
+          {{ event.designation|linebreaks|default:"No designation provided." }}
+        </div>
+      </div>
+      {% endif %}
+
       <div class="mt-3">
         <h5 class="text-secondary">Notes</h5>
         <div class="border rounded p-3 bg-light">
