@@ -11,18 +11,41 @@
     </ol>
 
     <div class="box_general padding_bottom">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">Event Records</h4>
-        <form method="get" class="form-inline">
-          <label class="mr-2 mb-0 text-secondary font-weight-bold">Show only:</label>
-          <select name="event_type" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
-            <option value="">All Events</option>
-            {% for event_type in event_types %}
-              <option value="{{ event_type }}" {% if selected_event == event_type %}selected{% endif %}>
-                {{ event_type|title }}
-              </option>
-            {% endfor %}
-          </select>
+      <div class="filters-section mb-4">
+        <h4 class="mb-3">Filter Event Records</h4>
+        <form method="get" class="row g-3">
+          <!-- Event Type -->
+          <div class="col-md-4 col-sm-12">
+            <label class="text-secondary font-weight-bold">Event Type:</label>
+            <select name="event_type" class="form-control form-control-sm">
+              <option value="">All Events</option>
+              {% for event_type in event_types %}
+                <option value="{{ event_type }}" {% if selected_event == event_type %}selected{% endif %}>
+                  {{ event_type|title }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Start Date -->
+          <div class="col-md-4 col-sm-12">
+            <label class="text-secondary font-weight-bold">Start Date:</label>
+            <input type="date" name="start_date" value="{{ request.GET.start_date }}" class="form-control form-control-sm">
+          </div>
+
+          <!-- End Date -->
+          <div class="col-md-4 col-sm-12">
+            <label class="text-secondary font-weight-bold">End Date:</label>
+            <input type="date" name="end_date" value="{{ request.GET.end_date }}" class="form-control form-control-sm">
+          </div>
+
+          <!-- Buttons -->
+          <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
+            <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+          </div>
+          <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
+            <a href="{% url 'veterinary:event_records' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
+          </div>
         </form>
       </div>
 
@@ -39,7 +62,7 @@
               </tr>
             </thead>
           </table>
-          
+
           <div class="events-list">
             {% for event in events %}
               <div class="event-row shadow-sm
@@ -67,19 +90,31 @@
           </div>
         </div>
       {% else %}
-        <p>No records found for your section.</p>
+        <p>No records found for your selection.</p>
       {% endif %}
     </div>
   </div>
 </div>
 
 <style>
+.filters-section {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.filters-section form .form-control {
+  height: 38px;
+}
+
 .event-records-page .events-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 12px;
 }
+
 .event-records-page .event-row {
   display: flex;
   align-items: center;
@@ -89,6 +124,7 @@
   transition: transform .12s ease, box-shadow .12s ease;
   font-weight: 500;
 }
+
 .event-records-page .event-row .col {
   padding: 6px 12px;
   flex: 1;
@@ -96,13 +132,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .col-date { flex: 0 0 20%; }
 .col-event { flex: 0 0 20%; }
 .col-type { flex: 0 0 20%; }
 .col-location { flex: 0 0 25%; }
 .col-notes { flex: 1; max-width: 250px; }
 
-/* Light Bootstrap colors */
+/* Event color themes */
 .event-records-page .event-row.mortality { background-color: rgba(220,53,69,0.5); color: #dc3545; }
 .event-records-page .event-row.culling { background-color: rgba(255,193,7,0.5); color: #856404; }
 .event-records-page .event-row.birthing { background-color: rgba(40,167,69,0.5); color: #1e7e34; }
@@ -115,8 +152,21 @@
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
-/* --- Mobile Responsive --- */
+/* --- Responsive --- */
 @media (max-width: 767.98px) {
+  .filters-section form {
+    flex-direction: column;
+  }
+
+  .filters-section .col-sm-12 {
+    width: 100%;
+  }
+
+  .filters-section .btn {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
   .event-records-page .event-row {
     flex-direction: column;
     align-items: flex-start;

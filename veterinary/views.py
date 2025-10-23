@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from farmrecord.models import EventType
 from django.urls import reverse
-
+from django.utils.dateparse import parse_date
 # Create your views here.
 
 @login_required
@@ -206,14 +206,60 @@ def create_event(request):
 #     return render(request, 'vet/entry-records.html', context)
 
 
+# @login_required
+# def event_records(request):
+#     user = request.user
+#     selected_event = request.GET.get('event_type')
+
+#     events = EventType.objects.all().select_related('animal', 'animal_type')
+
+#     # Default empty event types list
+#     event_types = []
+
+#     if hasattr(user, 'profile'):
+#         profile = user.profile
+
+#         if profile.is_vet_piggery:
+#             events = events.filter(animal__animal_name='pig')
+#             event_types = ['mortality', 'culling', 'farrowing', 'sale', 'procurement']
+
+#         elif profile.is_vet_paddock:
+#             events = events.filter(animal__animal_name='cattle')
+#             event_types = ['mortality', 'calving', 'farrowing', 'sale', 'procurement']
+
+#         elif profile.is_vet_smallruminant:
+#             events = events.filter(animal__animal_name__in=['sheep', 'goat'])
+#             event_types = ['mortality', 'culling', 'lambing', 'kidding', 'sale', 'procurement']
+
+#         elif not profile.is_vet:
+#             events = EventType.objects.none()
+
+#     else:
+#         events = EventType.objects.none()
+
+#     # Filter events by selected type if any
+#     if selected_event:
+#         events = events.filter(event_name=selected_event)
+
+#     # Order newest first
+#     events = events.order_by('-created_at')
+
+#     context = {
+#         'events': events,
+#         'event_types': event_types,
+#         'selected_event': selected_event,
+#     }
+#     return render(request, 'vet/entry-records.html', context)
+
+
 @login_required
 def event_records(request):
     user = request.user
     selected_event = request.GET.get('event_type')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
 
     events = EventType.objects.all().select_related('animal', 'animal_type')
-
-    # Default empty event types list
     event_types = []
 
     if hasattr(user, 'profile'):
@@ -237,16 +283,23 @@ def event_records(request):
     else:
         events = EventType.objects.none()
 
-    # Filter events by selected type if any
+    # Filter by selected event type
     if selected_event:
         events = events.filter(event_name=selected_event)
 
-    # Order newest first
+    # Filter by date range
+    if start_date:
+        events = events.filter(created_at__date__gte=parse_date(start_date))
+    if end_date:
+        events = events.filter(created_at__date__lte=parse_date(end_date))
+
     events = events.order_by('-created_at')
 
     context = {
         'events': events,
         'event_types': event_types,
         'selected_event': selected_event,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'vet/entry-records.html', context)
