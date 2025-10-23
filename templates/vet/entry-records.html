@@ -30,13 +30,13 @@
           <!-- Start Date -->
           <div class="col-md-4 col-sm-12">
             <label class="text-secondary font-weight-bold">Start Date:</label>
-            <input type="date" name="start_date" value="{{ request.GET.start_date }}" class="form-control form-control-sm">
+            <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}" class="form-control form-control-sm">
           </div>
 
           <!-- End Date -->
           <div class="col-md-4 col-sm-12">
             <label class="text-secondary font-weight-bold">End Date:</label>
-            <input type="date" name="end_date" value="{{ request.GET.end_date }}" class="form-control form-control-sm">
+            <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}" class="form-control form-control-sm">
           </div>
 
           <!-- Buttons -->
@@ -96,6 +96,28 @@
   </div>
 </div>
 
+<script>
+  const startDate = document.getElementById('start_date');
+  const endDate = document.getElementById('end_date');
+
+  // Get today's date in yyyy-mm-dd format
+  const today = new Date().toISOString().split('T')[0];
+  endDate.max = today; // Prevent selecting future dates
+
+  // When start date changes
+  startDate.addEventListener('change', function () {
+    endDate.min = this.value || '';
+    if (endDate.value && endDate.value < this.value) {
+      endDate.value = this.value;
+    }
+  });
+
+  // Apply restriction on page load if start_date already has value
+  if (startDate.value) {
+    endDate.min = startDate.value;
+  }
+</script>
+
 <style>
 .filters-section {
   background: #f8f9fa;
@@ -152,28 +174,17 @@
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
-/* --- Responsive --- */
+/* Responsive */
 @media (max-width: 767.98px) {
-  .filters-section form {
-    flex-direction: column;
-  }
-
-  .filters-section .col-sm-12 {
-    width: 100%;
-  }
-
-  .filters-section .btn {
-    width: 100%;
-    margin-bottom: 5px;
-  }
-
+  .filters-section form { flex-direction: column; }
+  .filters-section .col-sm-12 { width: 100%; }
+  .filters-section .btn { width: 100%; margin-bottom: 5px; }
   .event-records-page .event-row {
     flex-direction: column;
     align-items: flex-start;
     border-radius: 12px;
     padding: 12px;
   }
-
   .event-records-page .event-row .col {
     display: flex;
     width: 100%;
@@ -183,21 +194,16 @@
     text-overflow: initial;
     flex: none;
   }
-
   .event-records-page .event-row .col::before {
     font-weight: 600;
     color: #333;
   }
-
   .col-date::before { content: "Date Created: "; }
   .col-event::before { content: "Event: "; }
   .col-type::before { content: "Animal Type: "; }
   .col-location::before { content: "Location: "; }
   .col-notes::before { content: "Notes: "; }
-
-  .event-records-page .event-row .col + .col {
-    margin-top: 6px;
-  }
+  .event-records-page .event-row .col + .col { margin-top: 6px; }
 }
 </style>
 {% endblock %}
