@@ -246,3 +246,47 @@ def create_census(request, animal_id):
       form = CensusForm(vet_user=request.user, initial={'animal': animal})
 
   return render(request, 'vet/census_form.html', {'form': form, 'animal': animal})
+
+
+@login_required
+def edit_event(request, pk):
+    event = get_object_or_404(EventType, pk=pk)
+    if request.method == 'POST':
+        form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
+        if form.is_valid():
+            form.save()
+
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                action_type = request.POST.get('actionType')
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Event updated successfully!',
+                    'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
+                })
+
+            messages.success(request, "Event updated successfully!")
+            return redirect('veterinary:event_detail', pk=event.pk)
+
+        # handle errors for AJAX
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Please correct the highlighted errors.',
+                'errors': errors
+            })
+        messages.error(request, "Error updating event. Please check the form.")
+    else:
+        form = EventForm(instance=event, user=request.user)
+
+    return render(request, 'vet/event_form.html', {'form': form, 'edit_mode': True, 'event': event})
+
+
+@login_required
+def delete_event(request, pk):
+    event = get_object_or_404(EventType, pk=pk)
+    if request.method == 'POST':
+        event.delete()
+        messages.success(request, "Event deleted successfully!")
+        return redirect('veterinary:event_records')
+    return redirect('veterinary:event_detail', pk=pk)

@@ -24,6 +24,10 @@
         <div class="col-md-6"><strong>Animal:</strong> {{ event.animal.animal_name|title }}</div>
       </div>
 
+      <div class="row mb-2">
+        <div class="col-md-6"><strong>Number of Animals:</strong> {{ event.number_of_animals }}</div>
+      </div>
+
       {% if event.event_name == "culling" and event.designation %}
       <div class="mt-3">
         <h5 class="text-secondary">Designation</h5>
@@ -40,8 +44,39 @@
         </div>
       </div>
 
-      <div class="mt-4">
-        <a href="{% url 'veterinary:event_records' %}" class="btn btn-outline-primary btn-sm">← Back to Event Records</a>
+      <div class="mt-4 d-flex justify-content-between">
+        <div>
+          <a href="{% url 'veterinary:event_records' %}" class="btn btn-outline-primary btn-sm">
+            ← Back to Event Records
+          </a>
+        </div>
+        <div>
+          <a href="{% url 'veterinary:edit_event' event.id %}" class="btn btn-sm btn-warning me-2">Edit</a>
+          <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteModal">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <strong>{{ event.get_event_name_display }}</strong>?
+        This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="POST" action="{% url 'veterinary:delete_event' event.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </form>
       </div>
     </div>
   </div>

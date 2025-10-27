@@ -88,6 +88,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const saveAddAnother = document.getElementById('saveAddAnother');
   const saveProceed = document.getElementById('saveProceed');
 
+   // ✅ detect mode
+  const isEditMode = {{ edit_mode|default:"false"|lower }};
+  const submitUrl = isEditMode 
+    ? "{% url 'veterinary:edit_event' event.id %}"
+    : "{% url 'veterinary:create_event' %}";
+
   // Show bootstrap alert messages
   function showMessage(type, text) {
     msgBox.innerHTML = `<div class="alert alert-${type}" role="alert">${text}</div>`;
@@ -99,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function submitForm(actionType) {
     const formData = new FormData(form);
     formData.append('actionType', actionType);
-    fetch("{% url 'veterinary:create_event' %}", {
+    fetch(submitUrl, {
       method: "POST",
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
       body: formData
@@ -108,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(data => {
       if (data.status === 'success') {
         showMessage('success', data.message);
-        form.reset();
+        if (!isEditMode) form.reset(); // reset only for create
         if (actionType === 'proceed') setTimeout(() => window.location.href = data.redirect_url, 1000);
       } else if (data.status === 'error') {
         let err = data.message;
