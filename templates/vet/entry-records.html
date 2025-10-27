@@ -51,7 +51,7 @@
 
       {% if events %}
         <div class="table-responsive">
-          <table class="table table-borderless d-none d-md-table">
+          <!-- <table class="table table-borderless d-none d-md-table">
             <thead class="thead-light">
               <tr>
                 <th>Date Created</th>
@@ -61,7 +61,15 @@
                 <th>Notes</th>
               </tr>
             </thead>
-          </table>
+          </table> -->
+          <div class="table-header d-none d-md-flex">
+            <div class="col col-date font-weight-bold text-secondary">Date Created</div>
+            <div class="col col-event font-weight-bold text-secondary">Event</div>
+            <div class="col col-type font-weight-bold text-secondary">Animal Type</div>
+            <div class="col col-location font-weight-bold text-secondary">Location</div>
+            <div class="col col-notes font-weight-bold text-secondary">Notes</div>
+          </div>
+
 
           <div class="events-list">
             {% for event in events %}
@@ -116,93 +124,114 @@
 </script>
 
 <style>
-.filters-section {
-  background: #f8f9fa;
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-.filters-section form .form-control {
-  height: 38px;
-}
-
-.event-records-page .events-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.event-records-page .event-row {
-  display: flex;
-  align-items: center;
-  padding: 12px 18px;
-  border-radius: 999px;
-  min-height: 56px;
-  transition: transform .12s ease, box-shadow .12s ease;
-  font-weight: 500;
-  color: inherit;
-}
-
-.event-records-page .event-row .col {
-  padding: 6px 12px;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.col-date { flex: 0 0 20%; }
-.col-event { flex: 0 0 20%; }
-.col-type { flex: 0 0 20%; }
-.col-location { flex: 0 0 25%; }
-.col-notes { flex: 1; max-width: 250px; }
-
-/* Event color themes */
-.event-records-page .event-row.mortality { background-color: rgba(220,53,69,0.5); color: #dc3545; }
-.event-records-page .event-row.culling { background-color: rgba(255,193,7,0.5); color: #856404; }
-.event-records-page .event-row.birthing { background-color: rgba(40,167,69,0.5); color: #1e7e34; }
-.event-records-page .event-row.procurement { background-color: rgba(13,110,253,0.5); color: #0a58ca; }
-.event-records-page .event-row.sale { background-color: rgba(23,162,184,0.5); color: #0b7285; }
-.event-records-page .event-row.default { background-color: rgba(108,117,125,0.5); color: #6c757d; }
-
-.event-records-page .event-row:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  text-decoration: none;
-}
-
-/* Responsive */
-@media (max-width: 767.98px) {
-  .filters-section form { flex-direction: column; }
-  .filters-section .col-sm-12 { width: 100%; }
-  .filters-section .btn { width: 100%; margin-bottom: 5px; }
-  .event-records-page .event-row {
-    flex-direction: column;
-    align-items: flex-start;
-    border-radius: 12px;
-    padding: 12px;
+  .filters-section {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   }
-  .event-records-page .event-row .col {
+
+  .filters-section form .form-control {
+    height: 38px;
+  }
+
+  .event-records-page .events-list {
     display: flex;
-    width: 100%;
-    justify-content: space-between;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: initial;
-    flex: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
   }
-  .event-records-page .event-row .col::before {
+
+  .event-records-page .event-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 18px;
+    border-radius: 999px;
+    min-height: 56px;
+    transition: transform .12s ease, box-shadow .12s ease;
+    font-weight: 500;
+    color: inherit;
+  }
+
+  .event-records-page .event-row .col {
+    padding: 6px 12px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .col-date { flex: 0 0 20%; }
+  .col-event { flex: 0 0 20%; }
+  .col-type { flex: 0 0 20%; }
+  .col-location { flex: 0 0 25%; }
+  .col-notes { flex: 1; max-width: 250px; }
+
+  /* Event color themes */
+  .event-records-page .event-row.mortality { background-color: rgba(220,53,69,0.5); color: #dc3545; }
+  .event-records-page .event-row.culling { background-color: rgba(255,193,7,0.5); color: #856404; }
+  .event-records-page .event-row.birthing { background-color: rgba(40,167,69,0.5); color: #1e7e34; }
+  .event-records-page .event-row.procurement { background-color: rgba(13,110,253,0.5); color: #0a58ca; }
+  .event-records-page .event-row.sale { background-color: rgba(23,162,184,0.5); color: #0b7285; }
+  .event-records-page .event-row.default { background-color: rgba(108,117,125,0.5); color: #6c757d; }
+
+  .event-records-page .event-row:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    text-decoration: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 767.98px) {
+    .filters-section form { flex-direction: column; }
+    .filters-section .col-sm-12 { width: 100%; }
+    .filters-section .btn { width: 100%; margin-bottom: 5px; }
+    .event-records-page .event-row {
+      flex-direction: column;
+      align-items: flex-start;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .event-records-page .event-row .col {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: initial;
+      flex: none;
+    }
+    .event-records-page .event-row .col::before {
+      font-weight: 600;
+      color: #333;
+    }
+    .col-date::before { content: "Date Created: "; }
+    .col-event::before { content: "Event: "; }
+    .col-type::before { content: "Animal Type: "; }
+    .col-location::before { content: "Location: "; }
+    .col-notes::before { content: "Notes: "; }
+    .event-records-page .event-row .col + .col { margin-top: 6px; }
+  }
+  .table thead th {
+    text-align: left !important;
+  }
+  .table-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 18px;
+    background: #f8f9fa;
+    border-radius: 999px;
     font-weight: 600;
-    color: #333;
   }
-  .col-date::before { content: "Date Created: "; }
-  .col-event::before { content: "Event: "; }
-  .col-type::before { content: "Animal Type: "; }
-  .col-location::before { content: "Location: "; }
-  .col-notes::before { content: "Notes: "; }
-  .event-records-page .event-row .col + .col { margin-top: 6px; }
-}
+  .table-header .col {
+    text-align: left;
+    padding: 6px 12px;
+  }
+  .table-header .col-date { flex: 0 0 20%; }
+  .table-header .col-event { flex: 0 0 20%; }
+  .table-header .col-type { flex: 0 0 20%; }
+  .table-header .col-location { flex: 0 0 25%; }
+  .table-header .col-notes { flex: 1; max-width: 250px; }
+
 </style>
 {% endblock %}
