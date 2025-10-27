@@ -1,5 +1,6 @@
 from django import forms
-from farmrecord.models import EventType, AnimalType, Animals, Census
+from farmrecord.models import EventType, AnimalType, Animals, Census, CensusRecord
+from django.forms import inlineformset_factory, BaseInlineFormSet
 
 
 class EventForm(forms.ModelForm):
@@ -86,24 +87,81 @@ class EventForm(forms.ModelForm):
 class CensusForm(forms.ModelForm):
     class Meta:
         model = Census
-        fields = ['animal', 'animal_type', 'number_of_animals', 'census_date', 'notes']
+        fields = ['animal', 'census_date', 'notes']
         widgets = {
             'animal': forms.HiddenInput(),
-            'census_date': forms.DateInput(attrs={'type': 'date'}),
-            'notes': forms.Textarea(attrs={'rows': 3}),
+            'census_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
-        vet_user = kwargs.pop('vet_user', None)
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
-        # Filter animal_type choices based on vet type
-        if vet_user:
-            if vet_user.is_vet_piggery:
-                self.fields['animal_type'].queryset = AnimalType.objects.filter(animal_type_name__iexact='pig')
-            elif vet_user.is_vet_paddock:
-                self.fields['animal_type'].queryset = AnimalType.objects.filter(animal_type_name__iexact='cattle')
-            elif vet_user.is_vet_smallruminant:
-                self.fields['animal_type'].queryset = AnimalType.objects.filter(animal_type_name__in=['sheep', 'goat'])
+        # Prefill animal based on vet section
+        if user:
+            if getattr(user.profile, 'is_vet_piggery', False):
+                animal_obj = Animals.objects.filter(animal_name__iexact='pig').first()
+            elif getattr(user.profile, 'is_vet_paddock', False):
+                animal_obj = Animals.objects.filter(animal_name__iexact='cattle').first()
+            elif getattr(user.profile, 'is_vet_smallruminant', False):
+                animal_obj = Animals.objects.filter(animal_name__in=['sheep', 'goat']).first()
             else:
-                self.fields['animal_type'].queryset = AnimalType.objects.all()
+                animal_obj = None
+
+            if animal_obj:
+                self.fields['animal'].initial = animal_obj
+
+
+class CensusRecordForm(forms.ModelForm):
+    class Meta:
+        model = CensusRecord
+        fields = ['animal_type', 'number_of_animals']
+        widgets = {
+            'number_of_animals': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        # Filter animal types by vet section
+        if user:
+            if getattr(user.profile, 'is_vet_piggery', False):
+                self.fields['animal_type'].queryset = AnimalType.objects.filter(
+                    animal__animal_name__iexact='pig',
+                    animal_type_name__in=['boar', 'sow', 'weaner_pig', 'piglet']
+                )
+            elif getattr(user.profile, 'is_vet_paddock', False):
+                self.fields['animal_type'].queryset = AnimalType.objects.filter(
+                    animal__animal_name__iexact='cattle',
+                    animal_type_name__in=['bull', 'cow', 'weaner_cattle', 'calf']
+                )
+            elif getattr(user.profile, 'is_vet_smallruminant', False):
+                self.fields['animal_type'].queryset = AnimalType.objects.filter(
+                    animal__animal_name__in=['sheep', 'goat'],
+                    animal_type_name__in=['ram', 'ewe', 'weaner_sheep', 'buck', 'doe', 'weaner_goat', 'kid']
+                )
+            else:
+                self.fields['animal_type'].queryset = AnimalType.objects.none()
+
+
+# ✅ Custom inline formset that accepts user
+class BaseCensusRecordFormSet(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def _construct_form(self, i, **kwargs):
+        kwargs['user'] = self.user
+        return super()._construct_form(i, **kwargs)
+
+
+CensusRecordFormSet = inlineformset_factory(
+    Census,
+    CensusRecord,
+    form=CensusRecordForm,
+    formset=BaseCensusRecordFormSet,
+    extra=4,
+    can_delete=True
+)

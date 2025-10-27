@@ -10,14 +10,55 @@
       <li class="breadcrumb-item active">New Census</li>
     </ol>
 
-    <div class="box_general p-4 shadow-sm rounded">
-      <h4 class="text-primary mb-3">New Census for {{ animal.animal_name|title }}</h4>
+    <div class="box_general p-4 shadow-sm rounded bg-white">
+      <h4 class="text-primary mb-3">New Census for {{ form.animal.value|title }}</h4>
 
-      <form method="post" novalidate>
+      <form method="post" id="census-form">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="btn btn-primary mt-3">Save Census</button>
-        <a href="{% url 'veterinary:vet_index' %}" class="btn btn-secondary mt-3">Cancel</a>
+        {{ formset.management_form }}
+
+        <table class="table table-bordered align-middle" id="formset-table">
+          <thead class="thead-light">
+            <tr>
+              <th>Animal Type</th>
+              <th>Number(s)</th>
+              <th style="width: 60px;"></th>
+            </tr>
+          </thead>
+          <tbody id="formset-body">
+            {% for form in formset %}
+              {% if forloop.first %}
+              <tr>
+                <td>{{ form.animal_type }}</td>
+                <td>{{ form.number_of_animals }}</td>
+                <td>
+                  <button type="button" data-action="add" class="btn btn-success btn-sm">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </td>
+              </tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- Hidden empty form template -->
+        <template id="empty-form-template">
+          <tr>
+            <td>{{ formset.empty_form.animal_type }}</td>
+            <td>{{ formset.empty_form.number_of_animals }}</td>
+            <td>
+              <button type="button" data-action="remove" class="btn btn-danger btn-sm">
+                <i class="fa fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </template>
+
+        <div class="text-right">
+          <button type="submit" class="btn btn-primary px-4 mt-3">Save Census</button>
+        </div>
       </form>
     </div>
   </div>
@@ -28,5 +69,45 @@
   max-width: 700px;
   margin: auto;
 }
+.table td select, .table td input {
+  width: 100%;
+  border-radius: 6px;
+  padding: 6px 10px;
+  border: 1px solid #ced4da;
+}
+.btn[data-action="add"], .btn[data-action="remove"] {
+  border-radius: 50%;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const tableBody = document.getElementById('formset-body');
+  const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+  const emptyTemplate = document.getElementById('empty-form-template').innerHTML.trim();
+
+  // Start with one form
+  [...tableBody.querySelectorAll('tr')].slice(1).forEach(row => row.remove());
+  totalForms.value = 1;
+
+  tableBody.addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+
+    // ADD new row
+    if (btn.dataset.action === 'add') {
+      const formCount = parseInt(totalForms.value);
+      const newRowHtml = emptyTemplate.replace(/__prefix__/g, formCount);
+      tableBody.insertAdjacentHTML('beforeend', newRowHtml);
+      totalForms.value = formCount + 1;
+    }
+
+    // REMOVE row
+    if (btn.dataset.action === 'remove') {
+      btn.closest('tr').remove();
+      totalForms.value = tableBody.querySelectorAll('tr').length;
+    }
+  });
+});
+</script>
 {% endblock %}

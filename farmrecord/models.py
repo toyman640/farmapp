@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from farmapp.utils import unique_slug_generator
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save, post_delete
+from django.dispatch import receiver
 from .validators import validate_file_size
 
 # Create your models here.
@@ -61,29 +62,6 @@ class AnimalType(models.Model):
     def __str__(self):
         return self.animal_type_name
 
-
-# class EventType(models.Model):
-#     EVENT_CHOICES = [
-#         ('mortality', 'Mortality'),
-#         ('farrowing', 'Farrowing'),
-#         ('calving', 'Calving'),
-#         ('lambing', 'Lambing'),
-#         ('kidding', 'Kidding'),
-#         ('procurement', 'Procurement'),
-#         ('culling', 'Culling'),
-#         ('sale', 'Sale'),
-#     ]
-#     animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="events", null=True, blank=True)
-#     animal_type = models.ForeignKey(AnimalType, on_delete=models.CASCADE, related_name="events", null=True, blank=True)
-#     event_name = models.CharField(max_length=20, choices=EVENT_CHOICES, unique=True)
-#     location = models.CharField(max_length=100, null=True, blank=True)
-#     designation = models.TextField(max_length=500, null=True, blank=True)
-#     notes = models.TextField(null=True, blank=True)  # renamed from event_description
-
-#     def __str__(self):
-#         return self.event_name
-
-
 class EventType(models.Model):
     EVENT_CHOICES = [
         ('mortality', 'Mortality'),
@@ -141,11 +119,29 @@ class EventImage(models.Model):
 
 
 class Census(models.Model):
-    animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="censuses")
-    animal_type = models.ForeignKey(AnimalType, on_delete=models.CASCADE, related_name="censuses")
-    number_of_animals = models.PositiveIntegerField()
+    animal = models.ForeignKey('Animals', on_delete=models.CASCADE, related_name='censuses')
     census_date = models.DateField(default=timezone.now)
+    total_animals = models.PositiveIntegerField(default=0, editable=False)
     notes = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"Census of {self.animal_type.animal_type_name} on {self.census_date}"
+        return f"Census for {self.animal} on {self.census_date}"
+
+    def update_total(self):
+        """Auto calculate total from sub-records"""
+        self.total_animals = self.records.aggregate(total=models.Sum('number_of_animals'))['total'] or 0
+        self.save()
+
+
+class CensusRecord(models.Model):
+    census = models.ForeignKey(Census, on_delete=models.CASCADE, related_name='records')
+    animal_type = models.ForeignKey('AnimalType', on_delete=models.CASCADE)
+    number_of_animals = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"{self.animal_type} - {self.number_of_animals}"
+
+
+@receiver([post_save, post_delete], sender=CensusRecord)
+def update_census_total(sender, instance, **kwargs):
+    instance.census.update_total()

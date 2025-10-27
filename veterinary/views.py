@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import EventForm, CensusForm
+from .forms import EventForm, CensusForm, CensusRecordFormSet
 from drugapp.models import Dispatch, Drug, InventoryLog
 from django.utils.timezone import localtime, now, localdate, timedelta
 from django.db.models import Q
@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from farmrecord.models import EventType, Census
+from farmrecord.models import EventType, Census, Animals
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 # Create your views here.
@@ -103,22 +103,6 @@ def drugs_records_lazy(request):
 def drugs_view(request):
   return render(request, 'vet/drugs-records.html')
 
-
-# @login_required
-# def create_event(request):
-#   if request.method == 'POST':
-#       form = EventForm(request.POST, request.FILES, user=request.user)
-#       if form.is_valid():
-#           event = form.save(commit=False)
-#           event.save()
-#           messages.success(request, "Event created successfully!")
-#           return redirect('veterinary:create_event')  # reloads the same page
-#       else:
-#           messages.error(request, "There was an error submitting the form. Please check your input.")
-#   else:
-#       form = EventForm(user=request.user)
-
-#   return render(request, 'vet/event_form.html', {'form': form})
 
 @login_required
 def create_event(request):
@@ -230,22 +214,52 @@ def event_detail(request, pk):
   }
   return render(request, 'vet/event_details.html', context)
 
+
 @login_required
-def create_census(request, animal_id):
-  animal = get_object_or_404(Animals, id=animal_id)
+def create_census(request):
+    user = request.user
 
-  if request.method == 'POST':
-      form = CensusForm(request.POST, vet_user=request.user)
-      if form.is_valid():
-          census = form.save(commit=False)
-          census.animal = animal  # Prefill hidden animal field
-          census.save()
-          messages.success(request, 'Census record created successfully.')
-          return redirect('veterinary:census_detail', census.id)
-  else:
-      form = CensusForm(vet_user=request.user, initial={'animal': animal})
+    if request.method == 'POST':
+        form = CensusForm(request.POST, user=user)
+        formset = CensusRecordFormSet(request.POST, user=user)
 
-  return render(request, 'vet/census_form.html', {'form': form, 'animal': animal})
+        if form.is_valid() and formset.is_valid():
+            census = form.save(commit=False)
+            census.save()
+            records = formset.save(commit=False)
+            for record in records:
+                record.census = census
+                record.save()
+            census.update_total()
+            messages.success(request, "Census record created successfully.")
+            return redirect('veterinary:census_records')
+    else:
+        form = CensusForm(user=user)
+        formset = CensusRecordFormSet(user=user)
+
+    return render(request, 'vet/census_form.html', {'form': form, 'formset': formset})
+
+
+@login_required
+def census_records(request):
+    """Display census records for the logged-in vet's section."""
+    censuses = Census.objects.select_related('animal', 'animal_type')
+    vet_profile = request.user.profile
+
+    if vet_profile.is_vet_piggery:
+        censuses = censuses.filter(animal__animal_name__iexact='pig')
+    elif vet_profile.is_vet_paddock:
+        censuses = censuses.filter(animal__animal_name__iexact='cattle')
+    elif vet_profile.is_vet_smallruminant:
+        censuses = censuses.filter(animal__animal_name__in=['sheep', 'goat'])
+    elif vet_profile.is_vet:
+        censuses = censuses.all()
+    else:
+        censuses = Census.objects.none()
+
+    censuses = censuses.order_by('-census_date')
+
+    return render(request, 'vet/census_records.html', {'censuses': censuses})
 
 
 @login_required
