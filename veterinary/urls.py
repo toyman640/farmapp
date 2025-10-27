@@ -10,4 +10,12 @@ urlpatterns = [
   path('lazy-drugs-records/', views.drugs_records_lazy, name='drugs_records_lazy'),
   path('drug(s)-records/', views.drugs_view, name='drugs_view'),
   path("event-reocrd-entry/", views.create_event, name="create_event"),
+  path('event-records/', views.event_records, name='event_records'),
+  path('event/<int:pk>/', views.event_detail, name='event_detail'),
+  path('events/<int:pk>/edit/', views.edit_event, name='edit_event'),
+  path('events/<int:pk>/delete/', views.delete_event, name='delete_event'),
+  # path('census/create/<int:animal_id>/', views.create_census, name='create_census'),
+  path('census/create/', views.create_census, name='create_census'),
+
+  path('census/records/', views.census_records, name='census_records'),
 ]
