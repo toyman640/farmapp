@@ -20,21 +20,21 @@
 
         <div class="mb-3">
           <div class="row fw-bold border-bottom pb-2 mb-2">
-            <div class="col-md-5">Animal Type</div>
-            <div class="col-md-5">Numbers</div>
-            <div class="col-md-2 text-start">Actions</div>
+            <div class="col-md-4">Animal Type</div>
+            <div class="col-md-4">Number of Animals</div>
+            <div class="col-md-4 text-start">Actions</div>
           </div>
 
           <div id="formset-body">
             {% for form in formset %}
             <div class="row formset-row align-items-center mb-2">
-              <div class="col-md-5">
+              <div class="col-md-4">
                 {{ form.animal_type }}
               </div>
-              <div class="col-md-5">
+              <div class="col-md-4">
                 {{ form.number_of_animals }}
               </div>
-              <div class="col-md-2 icon-group">
+              <div class="col-md-4 icon-group">
                 <button type="button" class="btn btn-success add-row" aria-label="Add row">
                   <i class="fa fa-plus" aria-hidden="true"></i>
                 </button>
@@ -54,16 +54,16 @@
         </div>
       </form>
 
-      <!-- ✅ Move this OUTSIDE the loop -->
+      <!-- Empty form template -->
       <div id="empty-form" class="d-none">
         <div class="row formset-row align-items-center mb-2">
-          <div class="col-md-5">
+          <div class="col-md-4">
             {{ formset.empty_form.animal_type }}
           </div>
-          <div class="col-md-5">
+          <div class="col-md-4">
             {{ formset.empty_form.number_of_animals }}
           </div>
-          <div class="col-md-2 icon-group">
+          <div class="col-md-4 icon-group">
             <button type="button" class="btn btn-success add-row" aria-label="Add row">
               <i class="fa fa-plus" aria-hidden="true"></i>
             </button>
@@ -77,18 +77,27 @@
   </div>
 </div>
 
+<!-- ✅ JavaScript logic -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const formsetBody = document.getElementById('formset-body');
   const emptyFormTemplate = document.getElementById('empty-form').innerHTML;
   const totalForms = document.querySelector('[name$="-TOTAL_FORMS"]');
 
+  // Build master options HTML for the animal_type select from the empty form template
+  const tmp = document.createElement('div');
+  tmp.innerHTML = emptyFormTemplate.replace(/__prefix__/g, '0');
+  const masterSelect = tmp.querySelector('select[name$="-animal_type"]');
+  const masterOptionsHTML = masterSelect ? masterSelect.innerHTML : '';
+
+  // Add form-control classes
   function applyFormControl(row) {
     row.querySelectorAll('select, input, textarea').forEach(el => {
       el.classList.add('form-control');
     });
   }
 
+  // Update form indices and management count
   function updateIndices() {
     const rows = formsetBody.querySelectorAll('.formset-row');
     rows.forEach((row, i) => {
@@ -105,15 +114,58 @@ document.addEventListener('DOMContentLoaded', () => {
     totalForms.value = rows.length;
   }
 
+  // Return all selected animal type values
+  function getSelectedTypes() {
+    return Array.from(formsetBody.querySelectorAll('select[name$="-animal_type"]'))
+      .map(select => select.value)
+      .filter(Boolean);
+  }
+
+  // Rebuild each select's options from masterOptionsHTML, removing selected values from other selects
+  function updateSelectOptions() {
+    const selectedValues = getSelectedTypes();
+    const selects = formsetBody.querySelectorAll('select[name$="-animal_type"]');
+
+    selects.forEach(select => {
+      const currentValue = select.value;
+      // restore full option list
+      select.innerHTML = masterOptionsHTML;
+
+      // remove any option selected in another row (keep currentValue)
+      Array.from(select.options).forEach(option => {
+        if (!option.value) return; // keep blank/default
+        if (selectedValues.includes(option.value) && option.value !== currentValue) {
+          option.remove();
+        }
+      });
+
+      // re-select the current value if still present, otherwise choose empty
+      try {
+        select.value = currentValue || '';
+      } catch (e) {
+        select.selectedIndex = 0;
+      }
+    });
+  }
+
+  // Add a new row
+  function addNewRow() {
+    const count = parseInt(totalForms.value, 10);
+    const newRow = document.createElement('div');
+    newRow.classList.add('row', 'formset-row', 'align-items-center', 'mb-2');
+    newRow.innerHTML = emptyFormTemplate.replace(/__prefix__/g, count);
+    formsetBody.appendChild(newRow);
+    applyFormControl(newRow);
+    updateIndices();
+    // small delay to ensure select is in DOM before rebuilding options
+    setTimeout(updateSelectOptions, 30);
+  }
+
+  // Event delegation for add/remove buttons
   formsetBody.addEventListener('click', e => {
     if (e.target.closest('.add-row')) {
-      const count = parseInt(totalForms.value, 10);
-      const newRow = document.createElement('div');
-      newRow.classList.add('row', 'formset-row', 'align-items-center', 'mb-2');
-      newRow.innerHTML = emptyFormTemplate.replace(/__prefix__/g, count);
-      formsetBody.appendChild(newRow);
-      applyFormControl(newRow);
-      updateIndices();
+      e.preventDefault();
+      addNewRow();
     }
 
     if (e.target.closest('.remove-row')) {
@@ -121,17 +173,29 @@ document.addEventListener('DOMContentLoaded', () => {
       if (rows.length > 1) {
         e.target.closest('.formset-row').remove();
         updateIndices();
+        updateSelectOptions();
       } else {
         alert('At least one record is required.');
       }
     }
   });
 
+  // When any dropdown changes
+  formsetBody.addEventListener('change', e => {
+    if (e.target.matches('select[name$="-animal_type"]')) {
+      updateSelectOptions();
+    }
+  });
+
+  // Initialize existing formset
   document.querySelectorAll('.formset-row').forEach(row => applyFormControl(row));
   updateIndices();
+  updateSelectOptions();
 });
 </script>
 
+
+<!-- ✅ Styling -->
 <style>
   .census-form .formset-row {
     border-bottom: 1px solid #e9ecef;
