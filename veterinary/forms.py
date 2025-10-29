@@ -147,6 +147,15 @@ class CensusRecordForm(forms.ModelForm):
 
 
 # ✅ Custom inline formset that accepts user
+# class BaseCensusRecordFormSet(BaseInlineFormSet):
+#     def __init__(self, *args, **kwargs):
+#         self.user = kwargs.pop('user', None)
+#         super().__init__(*args, **kwargs)
+
+#     def _construct_form(self, i, **kwargs):
+#         kwargs['user'] = self.user
+#         return super()._construct_form(i, **kwargs)
+
 class BaseCensusRecordFormSet(BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -156,12 +165,28 @@ class BaseCensusRecordFormSet(BaseInlineFormSet):
         kwargs['user'] = self.user
         return super()._construct_form(i, **kwargs)
 
+    @property
+    def empty_form(self):
+        """Ensure empty_form also gets user context for filtered queryset"""
+        form = self.form(
+            auto_id=self.auto_id,
+            prefix=self.add_prefix('__prefix__'),
+            empty_permitted=True,
+            user=self.user,
+            use_required_attribute=False,  # ✅ Prevent ValueError
+        )
+        self.add_fields(form, None)
+        return form
 
 CensusRecordFormSet = inlineformset_factory(
     Census,
     CensusRecord,
     form=CensusRecordForm,
     formset=BaseCensusRecordFormSet,
-    extra=4,
+    extra=0,  # ✅ show 1 form initially
+    min_num=1,  # ✅ at least 1
+    validate_min=True,
+    max_num=15,  # ✅ allow up to 15
+    validate_max=True,
     can_delete=True
 )
