@@ -233,17 +233,49 @@ def create_census(request):
             census.update_total()
             messages.success(request, "Census record created successfully.")
             return redirect('veterinary:census_records')
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = CensusForm(user=user)
         formset = CensusRecordFormSet(user=user)
 
     return render(request, 'vet/census_form.html', {'form': form, 'formset': formset})
 
+# @login_required
+# def create_census(request):
+#     user = request.user
+
+#     if request.method == 'POST':
+#         form = CensusForm(request.POST, user=user)
+#         formset = CensusRecordFormSet(request.POST, user=user)
+
+#         if form.is_valid() and formset.is_valid():
+#             census = form.save(commit=False)
+#             census.save()
+#             records = formset.save(commit=False)
+#             for record in records:
+#                 record.census = census
+#                 record.save()
+#             census.update_total()
+#             messages.success(request, "Census record created successfully.")
+#             return redirect('veterinary:census_records')
+#     else:
+#         form = CensusForm(user=user)
+#         formset = CensusRecordFormSet(user=user)
+
+#     return render(request, 'vet/census_form.html', {'form': form, 'formset': formset})
+
 
 @login_required
 def census_records(request):
     """Display census records for the logged-in vet's section."""
-    censuses = Census.objects.select_related('animal', 'animal_type')
+    censuses = (
+        Census.objects
+        .select_related('animal')
+        .prefetch_related('records__animal_type')
+        .order_by('-census_date')
+    )
+
     vet_profile = request.user.profile
 
     if vet_profile.is_vet_piggery:
@@ -252,15 +284,10 @@ def census_records(request):
         censuses = censuses.filter(animal__animal_name__iexact='cattle')
     elif vet_profile.is_vet_smallruminant:
         censuses = censuses.filter(animal__animal_name__in=['sheep', 'goat'])
-    elif vet_profile.is_vet:
-        censuses = censuses.all()
-    else:
+    elif not vet_profile.is_vet:
         censuses = Census.objects.none()
 
-    censuses = censuses.order_by('-census_date')
-
     return render(request, 'vet/census_records.html', {'censuses': censuses})
-
 
 @login_required
 def edit_event(request, pk):
