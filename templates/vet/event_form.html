@@ -89,9 +89,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const saveProceed = document.getElementById('saveProceed');
 
    // ✅ detect mode
-  const isEditMode = {{ edit_mode|default:"false"|lower }};
+  const isEditMode = {{ edit_mode|yesno:"true,false" }};
   const submitUrl = isEditMode 
-    ? "{% url 'veterinary:edit_event' event.id %}"
+    ? "{% if edit_mode %}{% url 'veterinary:edit_event' event.id %}{% endif %}"
     : "{% url 'veterinary:create_event' %}";
 
   // Show bootstrap alert messages

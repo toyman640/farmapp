@@ -16,51 +16,7 @@ from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, D
 from itertools import chain
 from django.db.models import Q, F
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
-
-
-
-# class CustomLoginView(LoginView):
-#     template_name = 'main/login.html'
-#     redirect_authenticated_user = True
-
-#     def form_valid(self, form):
-#         # Log the user in
-#         response = super().form_valid(form)
-#         user = self.request.user
-
-#         # Redirect based on roles
-#         if hasattr(user, 'profile'):
-#             if user.profile.is_boss:
-#                 return redirect('main:main_index')
-#             elif user.profile.is_supervisor:
-#                 return redirect('farmrecord:dash_index')
-#             elif user.profile.is_drug:
-#                 return redirect('drugapp:drug_index')
-#         return response
-
-# class CustomLoginView(LoginView):
-#     template_name = 'main/login.html'
-#     redirect_authenticated_user = True
-
-#     def form_valid(self, form):
-#         # Log the user in
-#         response = super().form_valid(form)
-#         return response
-
-#     def get_success_url(self):
-#         # Redirect based on roles
-#         user = self.request.user
-#         if hasattr(user, 'profile'):
-#             if user.profile.is_boss:
-#                 return reverse_lazy('main:main_index')
-#             elif user.profile.is_supervisor:
-#                 return reverse_lazy('farmrecord:dash_index')
-#             elif user.profile.is_drug:
-#                 return reverse_lazy('drugapp:drug_index')
-#         # Fallback URL if no role is matched
-#         return reverse_lazy('main:main_index')
-
-
+from farmrecord.models import EventType
 
 class CustomLoginView(LoginView):
     template_name = 'main/login.html'
@@ -111,94 +67,81 @@ def drugs_inventory_land(request):
 
 @login_required
 def main_index(request):
-  low_stock_drugs = Drug.objects.filter(restock_quantity_notify__gt=0, quantity__lte=F('restock_quantity_notify'))
-  today = localdate()
-  today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
-  pending_updates = PendingStockUpdate.objects.filter(approved=False)
-  pending_updates_count = 0
-  now_time = now()
-  last_24_hours = now_time - timedelta(hours=24)
-  if request.user.is_staff or request.user.is_superuser:
-    pending_updates_count = pending_updates.count()
+    low_stock_drugs = Drug.objects.filter(
+        restock_quantity_notify__gt=0,
+        quantity__lte=F('restock_quantity_notify')
+    )
+    today = localdate()
+    yesterday = today - timedelta(days=1)
 
-  new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
-  restocked_logs = InventoryLog.objects.filter(
-      updated_at__gte=last_24_hours,
-      new_quantity__gt=F('previous_quantity')
-  ).select_related('drug')
+    today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
+    pending_updates = PendingStockUpdate.objects.filter(approved=False)
+    pending_updates_count = 0
+    now_time = now()
+    last_24_hours = now_time - timedelta(hours=24)
 
-  restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
-  combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
-  
+    if request.user.is_staff or request.user.is_superuser:
+        pending_updates_count = pending_updates.count()
 
-  context = {
-    'low_stock_drugs': low_stock_drugs,
-    'today_dispatches': today_dispatches,
-    'today_date': today,
-    "pending_updates": pending_updates,
-    "pending_updates_count": pending_updates_count,
-    "recent_drugs": combined_new_drugs,
-    'show_prompt': True, 
-  }
+    # New or restocked drugs
+    new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
+    restocked_logs = InventoryLog.objects.filter(
+        updated_at__gte=last_24_hours,
+        new_quantity__gt=F('previous_quantity')
+    ).select_related('drug')
+    restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
+    combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
 
-  return render(request, 'main/index.html', context)
+    # 🔹 Get events for only the previous day
+    yesterday_events = EventType.objects.filter(created_at__date=yesterday)
 
+    context = {
+        'low_stock_drugs': low_stock_drugs,
+        'today_dispatches': today_dispatches,
+        'today_date': today,
+        "pending_updates": pending_updates,
+        "pending_updates_count": pending_updates_count,
+        "recent_drugs": combined_new_drugs,
+        "yesterday_events": yesterday_events,
+        'show_prompt': True,
+    }
+
+    return render(request, 'main/index.html', context)
 
 # @login_required
-# def drugs_inventory(request):
-#     dispatch_records = Drug.objects.all().order_by('-entered_at')
-#     drug_filter = DrugFilterForm()
-#     paginator = Paginator(dispatch_records, 10)
-#     page_number = request.GET.get('page')
-#     drugs_page_obj = paginator.get_page(page_number)
-#     pending_updates = PendingStockUpdate.objects.filter(approved=False)
+# def main_index(request):
+#   low_stock_drugs = Drug.objects.filter(restock_quantity_notify__gt=0, quantity__lte=F('restock_quantity_notify'))
+#   today = localdate()
+#   today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
+#   pending_updates = PendingStockUpdate.objects.filter(approved=False)
+#   pending_updates_count = 0
+#   now_time = now()
+#   last_24_hours = now_time - timedelta(hours=24)
+#   if request.user.is_staff or request.user.is_superuser:
+#     pending_updates_count = pending_updates.count()
 
-#     return render(request, 'main/record-display.html', {'drugs_page_obj':  drugs_page_obj, 'drug_filter':drug_filter, "pending_updates": pending_updates})
+#   new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
+#   restocked_logs = InventoryLog.objects.filter(
+#       updated_at__gte=last_24_hours,
+#       new_quantity__gt=F('previous_quantity')
+#   ).select_related('drug')
 
-# @login_required 
-# def drugs_inventory(request):
-#     sort = request.GET.get('sort', 'entered_at')
-#     order = request.GET.get('order', 'desc')
+#   restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
+#   combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
+  
 
-#     # Compute next order (toggle)
-#     next_order = 'desc' if order == 'asc' else 'asc'
+#   context = {
+#     'low_stock_drugs': low_stock_drugs,
+#     'today_dispatches': today_dispatches,
+#     'today_date': today,
+#     "pending_updates": pending_updates,
+#     "pending_updates_count": pending_updates_count,
+#     "recent_drugs": combined_new_drugs,
+#     'show_prompt': True, 
+#   }
 
-#     # List of allowed sortable fields
-#     sortable_fields = ['manufacturer_name', 'drug_name', 'batch_number', 'quantity', 'expiry_date', 'entered_at']
+#   return render(request, 'main/index.html', context)
 
-#     # Default queryset
-#     dispatch_records = Drug.objects.all()
-
-#     # Apply case-insensitive sorting if valid field
-#     if sort in sortable_fields:
-#         if sort in ['manufacturer_name', 'drug_name', 'batch_number']:  # String fields
-#             sort_expr = Lower(sort)
-#         else:  # Non-string fields
-#             sort_expr = sort
-
-#         if order == 'desc':
-#             dispatch_records = dispatch_records.order_by(sort_expr.desc() if hasattr(sort_expr, 'desc') else f'-{sort}')
-#         else:
-#             dispatch_records = dispatch_records.order_by(sort_expr if hasattr(sort_expr, 'desc') else f'{sort}')
-#     else:
-#         dispatch_records = dispatch_records.order_by('-entered_at')
-
-#     # Pagination and context setup
-#     drug_filter = DrugFilterForm()
-#     paginator = Paginator(dispatch_records, 10)
-#     page_number = request.GET.get('page')
-#     drugs_page_obj = paginator.get_page(page_number)
-#     pending_updates = PendingStockUpdate.objects.filter(approved=False)
-
-#     context = {
-#         'drugs_page_obj': drugs_page_obj,
-#         'drug_filter': drug_filter,
-#         'pending_updates': pending_updates,
-#         'current_sort': sort,
-#         'current_order': order,
-#         'next_order': next_order,
-#     }
-#     return render(request, 'main/record-display.html', context)
 
 @login_required
 def drugs_inventory_lazy(request):
@@ -322,31 +265,6 @@ def drug_filter(request):
   return render(request, 'main/filter-drug-list.html', {'drug_query': drug_query})
 
 
-
-# @login_required
-# def update_drug_quantity(request, drug_id):
-#   drug = get_object_or_404(Drug, id=drug_id)
-#   if request.method == "POST":
-#     form = UpdateDrugQuantityForm(request.POST)
-#     if form.is_valid():
-#       new_quantity = form.cleaned_data["quantity"]
-      
-#       try:
-#           drug.request_stock_update(new_quantity, request.user)
-#           if request.user.is_staff or request.user.is_superuser:
-#               messages.success(request, "Stock updated successfully!")
-#           else:
-#               messages.info(request, "Stock update request submitted for approval.")
-#       except ValueError as e:
-#           messages.error(request, str(e))
-
-#       return redirect("main:drugs_inventory")
-
-#   else:
-#     form = UpdateDrugQuantityForm()
-
-#   return render(request, "main/admin-update-drug.html", {"form": form, "drug": drug})
-
 @login_required
 def update_drug_quantity(request, drug_id):
     drug = get_object_or_404(Drug, id=drug_id)
@@ -421,111 +339,6 @@ def dispatch_drug_main_lazy(request):
     }
 
     return JsonResponse(data)
-
-# @login_required
-# def dispatch_drug_main_lazy(request):
-#     if request.method == 'POST':
-#         form = AdminDispatchForm(request.POST)
-#         if form.is_valid():
-#             dispatch = form.save(commit=False)
-#             dispatch.dispatched_by = request.user
-#             dispatch.save()
-#             messages.success(request, "Drug dispatched successfully.")
-#             return redirect('main:dispatch_drug_main_lazy')
-#         else:
-#             messages.error(request, "Please correct the errors below.")
-#     else:
-#         form = AdminDispatchForm()
-
-#     sort = request.GET.get('sort', 'dispatched_at')
-#     order = request.GET.get('order', 'desc')
-#     page = int(request.GET.get('page', 1))
-#     per_page = 10
-#     search = request.GET.get('search', '').strip()
-
-#     next_order = 'desc' if order == 'asc' else 'asc'
-#     sortable_fields = ['drug__drug_name', 'quantity', 'dispatched_at', 'dispatched_by']
-
-#     dispatch_qs = Dispatch.objects.select_related('drug', 'unit')
-#     if search:
-#         dispatch_qs = dispatch_qs.filter(drug__drug_name__icontains=search)
-
-#     if sort in sortable_fields:
-#         sort_expr = Lower(sort) if sort in ['drug__drug_name', 'dispatched_by'] else sort
-#         dispatch_qs = dispatch_qs.order_by(
-#             sort_expr.desc() if order == 'desc' else sort_expr
-#         )
-#     else:
-#         dispatch_qs = dispatch_qs.order_by('-dispatched_at')
-
-#     paginator = Paginator(dispatch_qs, per_page)
-#     page_obj = paginator.get_page(page)
-
-#     grouped_dispatches = {}
-
-#     return render(request, 'main/admin-dispatch-drug.html', {
-#         'form': form,
-#         'grouped_dispatches': grouped_dispatches,
-#         'page_obj': page_obj,
-#         'next_order': next_order,
-#     })
-
-
-# @login_required
-# def dispatch_drug_main_lazy(request):
-#   sort = request.GET.get('sort', 'dispatched_at')
-#   order = request.GET.get('order', 'desc')
-#   page = int(request.GET.get('page', 1))
-#   per_page = 10
-#   search = request.GET.get('search', '').strip()
-
-#   next_order = 'desc' if order == 'asc' else 'asc'
-#   sortable_fields = ['drug__drug_name', 'quantity', 'dispatched_at', 'dispatched_by']
-
-#   dispatch_qs = Dispatch.objects.select_related('drug', 'unit')
-
-#   if search:
-#       dispatch_qs = dispatch_qs.filter(drug__drug_name__icontains=search)
-
-#   # Sorting
-#   if sort in ['drug__drug_name', 'dispatched_by']:
-#       sort_expr = Lower(sort)
-#   else:
-#       sort_expr = sort
-
-#   if sort in sortable_fields:
-#       if order == 'desc':
-#           dispatch_qs = dispatch_qs.order_by(sort_expr.desc() if hasattr(sort_expr, 'desc') else f'-{sort}')
-#       else:
-#           dispatch_qs = dispatch_qs.order_by(sort_expr if hasattr(sort_expr, 'desc') else f'{sort}')
-#   else:
-#       dispatch_qs = dispatch_qs.order_by('-dispatched_at')
-
-#   # Pagination
-#   paginator = Paginator(dispatch_qs, per_page)
-#   page_obj = paginator.get_page(page)
-
-#   data = [
-#       {
-#           'id': d.id,
-#           'drug_name': d.drug.drug_name,
-#           'quantity': d.quantity,
-#           'unit': d.unit.name,
-#           'dispatched_at': d.dispatched_at.strftime('%Y-%m-%d'),
-#           # 'dispatched_by': d.dispatched_by,
-#           'dispatched_by': str(d.dispatched_by)
-#       }
-#       for d in page_obj
-#   ]
-
-#   return JsonResponse({
-#       'results': data,
-#       'has_next': page_obj.has_next(),
-#       'has_previous': page_obj.has_previous(),
-#       'current_page': page_obj.number,
-#       'total_pages': paginator.num_pages,
-#       'next_order': next_order,
-#   })
 
 
 @login_required
