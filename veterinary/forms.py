@@ -140,7 +140,7 @@ class CensusRecordForm(forms.ModelForm):
             elif getattr(user.profile, 'is_vet_smallruminant', False):
                 self.fields['animal_type'].queryset = AnimalType.objects.filter(
                     animal__animal_name__in=['sheep', 'goat'],
-                    animal_type_name__in=['ram', 'ewe', 'weaner_sheep', 'buck', 'doe', 'weaner_goat', 'kid']
+                    animal_type_name__in=['ram', 'ewe', 'weaner_sheep', 'lamb', 'buck', 'doe', 'weaner_goat', 'kid']
                 )
             else:
                 self.fields['animal_type'].queryset = AnimalType.objects.none()
