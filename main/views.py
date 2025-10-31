@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from itertools import chain
-from django.db.models import Q, F, Count
+from django.db.models import Q, F, Count, Sum
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from farmrecord.models import EventType, Census, CensusRecord
 import calendar
@@ -565,40 +565,81 @@ def small_ruminant_records_admin(request):
     }
     return render(request, 'main/small-ruminant-records-admin.html', context)
 
+# def small_ruminant_stats(request):
+#   # ----- Census Data -----
+#   census_data = (
+#       Census.objects.filter(animal__animal_name__iexact='sheep')
+#       .annotate(month=TruncMonth('census_date'))
+#       .values('month')
+#       .annotate(total=Count('id'))
+#       .order_by('month')
+#   )
+
+#   census_labels = [calendar.month_name[d['month'].month] for d in census_data]
+#   census_values = [d['total'] for d in census_data]
+
+#   # ----- Event Data -----
+#   event_type = request.GET.get('type', 'mortality')
+#   event_data = (
+#       EventType.objects.filter(
+#           animal__animal_name__iexact='sheep',
+#           event_name__iexact=event_type
+#       )
+#       .annotate(month=TruncMonth('created_at'))
+#       .values('month')
+#       .annotate(total=Count('id'))
+#       .order_by('month')
+#   )
+
+
+#   event_labels = [calendar.month_name[d['month'].month] for d in event_data]
+#   event_values = [d['total'] for d in event_data]
+
+#   context = {
+#       'census_labels': census_labels,
+#       'census_values': census_values,
+#       'event_labels': event_labels,
+#       'event_values': event_values,
+#       'selected_type': event_type,
+#   }
+#   return render(request, 'main/small_ruminant_stats.html', context)
+
+
 def small_ruminant_stats(request):
-  # ----- Census Data -----
-  census_data = (
-      Census.objects.filter(animal__animal_name__iexact='sheep')
-      .annotate(month=TruncMonth('census_date'))
-      .values('month')
-      .annotate(total=Count('id'))
-      .order_by('month')
-  )
+    # ----- Census Data -----
+    census_data = (
+        Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+        .annotate(month=TruncMonth('census_date'))
+        .values('month')
+        .annotate(total=Sum('total_animals'))  # ✅ sum total animals
+        .order_by('month')
+    )
 
-  census_labels = [calendar.month_name[d['month'].month] for d in census_data]
-  census_values = [d['total'] for d in census_data]
+    census_labels = [calendar.month_name[d['month'].month] for d in census_data]
+    census_values = [d['total'] or 0 for d in census_data]
 
-  # ----- Event Data -----
-  event_type = request.GET.get('type', 'mortality')
-  event_data = (
-      EventType.objects.filter(
-          animal__animal_name__iexact='sheep',
-          event_name__iexact=event_type
-      )
-      .annotate(month=TruncMonth('created_at'))
-      .values('month')
-      .annotate(total=Count('id'))
-      .order_by('month')
-  )
+    # ----- Event Data -----
+    event_type = request.GET.get('type', 'mortality')
+    event_data = (
+        EventType.objects.filter(
+            animal__animal_name__in=['sheep', 'goat'],
+            event_name__iexact=event_type
+        )
+        .annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(total=Sum('number_of_animals'))  # ✅ sum event animals
+        .order_by('month')
+    )
+    print(event_data)
 
-  event_labels = [calendar.month_name[d['month'].month] for d in event_data]
-  event_values = [d['total'] for d in event_data]
+    event_labels = [calendar.month_name[d['month'].month] for d in event_data]
+    event_values = [d['total'] or 0 for d in event_data]
 
-  context = {
-      'census_labels': census_labels,
-      'census_values': census_values,
-      'event_labels': event_labels,
-      'event_values': event_values,
-      'selected_type': event_type,
-  }
-  return render(request, 'main/small_ruminant_stats.html', context)
+    context = {
+        'census_labels': census_labels,
+        'census_values': census_values,
+        'event_labels': event_labels,
+        'event_values': event_values,
+        'selected_type': event_type,
+    }
+    return render(request, 'main/small_ruminant_stats.html', context)
