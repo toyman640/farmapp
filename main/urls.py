@@ -29,4 +29,5 @@ urlpatterns = [
     path("drugs-inventory-lazy/", views.drugs_inventory_lazy, name="drugs_inventory_lazy"),
     path("update-inventory", views.admin_add_drug, name="admin_add_drug"),
     path('admin/small-ruminant-records/', views.small_ruminant_records_admin, name='small_ruminant_records_admin'),
+    path('small-ruminant/stats/', views.small_ruminant_stats, name='small_ruminant_stats')
 ]

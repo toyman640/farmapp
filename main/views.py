@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render,  get_object_or_404
 from django.urls import reverse_lazy
 from datetime import timedelta,datetime
 # from django.db.models import F
-from django.db.models.functions import Lower
+from django.db.models.functions import Lower, TruncMonth
 from django.utils.timezone import localtime, now, localdate
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
@@ -14,9 +14,10 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from itertools import chain
-from django.db.models import Q, F
+from django.db.models import Q, F, Count
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
-from farmrecord.models import EventType
+from farmrecord.models import EventType, Census, CensusRecord
+import calendar
 
 class CustomLoginView(LoginView):
     template_name = 'main/login.html'
@@ -489,28 +490,115 @@ def admin_dispatch_drug(request):
 #   return render(request, 'main/small-ruminant-records-admin.html', context)
 
 
+# def small_ruminant_records_admin(request):
+#   event_type = request.GET.get('event_type')
+#   start_date = request.GET.get('start_date')
+#   end_date = request.GET.get('end_date')
+
+#   records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+
+#   if event_type:
+#       records = records.filter(event_name=event_type)
+
+#   if start_date and end_date:
+#       records = records.filter(created_at__range=[start_date, end_date])
+#   elif start_date:
+#       records = records.filter(created_at__gte=start_date)
+#   elif end_date:
+#       records = records.filter(created_at__lte=end_date)
+
+#   event_types = EventType.objects.values_list('event_name', flat=True).distinct()
+
+#   context = {
+#       'records': records.order_by('-created_at'),
+#       'event_types': event_types,
+#       'selected_event': event_type,
+#   }
+#   return render(request, 'main/small-ruminant-records-admin.html', context)
+
+
 def small_ruminant_records_admin(request):
-  event_type = request.GET.get('event_type')
-  start_date = request.GET.get('start_date')
-  end_date = request.GET.get('end_date')
+    event_type = request.GET.get('event_type')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
 
-  records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+    # ----- Event Records -----
+    records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
 
-  if event_type:
-      records = records.filter(event_name=event_type)
+    if event_type:
+        records = records.filter(event_name=event_type)
 
-  if start_date and end_date:
-      records = records.filter(created_at__range=[start_date, end_date])
-  elif start_date:
-      records = records.filter(created_at__gte=start_date)
-  elif end_date:
-      records = records.filter(created_at__lte=end_date)
+    if start_date and end_date:
+        records = records.filter(created_at__range=[start_date, end_date])
+    elif start_date:
+        records = records.filter(created_at__gte=start_date)
+    elif end_date:
+        records = records.filter(created_at__lte=end_date)
 
-  event_types = EventType.objects.values_list('event_name', flat=True).distinct()
+    event_types = EventType.objects.values_list('event_name', flat=True).distinct()
+
+    # ----- Census Records -----
+    census_records = (
+        Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+        .order_by('-census_date')
+    )
+
+    # ----- Chart Data (Monthly Totals) -----
+    census_data = (
+        Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+        .annotate(month=TruncMonth('census_date'))
+        .values('month')
+        .annotate(total=Count('id'))
+        .order_by('month')
+    )
+
+    census_months = [d['month'].strftime('%B %Y') for d in census_data]
+    census_totals = [d['total'] for d in census_data]
+
+    context = {
+        'records': records.order_by('-created_at'),
+        'event_types': event_types,
+        'selected_event': event_type,
+        'census_records': census_records,   # ✅ added this
+        'census_months': census_months,
+        'census_totals': census_totals,
+    }
+    return render(request, 'main/small-ruminant-records-admin.html', context)
+
+def small_ruminant_stats(request):
+  # ----- Census Data -----
+  census_data = (
+      Census.objects.filter(animal__animal_name__iexact='sheep')
+      .annotate(month=TruncMonth('census_date'))
+      .values('month')
+      .annotate(total=Count('id'))
+      .order_by('month')
+  )
+
+  census_labels = [calendar.month_name[d['month'].month] for d in census_data]
+  census_values = [d['total'] for d in census_data]
+
+  # ----- Event Data -----
+  event_type = request.GET.get('type', 'mortality')
+  event_data = (
+      EventType.objects.filter(
+          animal__animal_name__iexact='sheep',
+          event_name__iexact=event_type
+      )
+      .annotate(month=TruncMonth('created_at'))
+      .values('month')
+      .annotate(total=Count('id'))
+      .order_by('month')
+  )
+
+  event_labels = [calendar.month_name[d['month'].month] for d in event_data]
+  event_values = [d['total'] for d in event_data]
 
   context = {
-      'records': records.order_by('-created_at'),
-      'event_types': event_types,
-      'selected_event': event_type,
+      'census_labels': census_labels,
+      'census_values': census_values,
+      'event_labels': event_labels,
+      'event_values': event_values,
+      'selected_type': event_type,
   }
-  return render(request, 'main/small-ruminant-records-admin.html', context)
+  return render(request, 'main/small_ruminant_stats.html', context)
