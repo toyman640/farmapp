@@ -108,41 +108,6 @@ def main_index(request):
 
     return render(request, 'main/index.html', context)
 
-# @login_required
-# def main_index(request):
-#   low_stock_drugs = Drug.objects.filter(restock_quantity_notify__gt=0, quantity__lte=F('restock_quantity_notify'))
-#   today = localdate()
-#   today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
-#   pending_updates = PendingStockUpdate.objects.filter(approved=False)
-#   pending_updates_count = 0
-#   now_time = now()
-#   last_24_hours = now_time - timedelta(hours=24)
-#   if request.user.is_staff or request.user.is_superuser:
-#     pending_updates_count = pending_updates.count()
-
-#   new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
-#   restocked_logs = InventoryLog.objects.filter(
-#       updated_at__gte=last_24_hours,
-#       new_quantity__gt=F('previous_quantity')
-#   ).select_related('drug')
-
-#   restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
-#   combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
-  
-
-#   context = {
-#     'low_stock_drugs': low_stock_drugs,
-#     'today_dispatches': today_dispatches,
-#     'today_date': today,
-#     "pending_updates": pending_updates,
-#     "pending_updates_count": pending_updates_count,
-#     "recent_drugs": combined_new_drugs,
-#     'show_prompt': True, 
-#   }
-
-#   return render(request, 'main/index.html', context)
-
-
 @login_required
 def drugs_inventory_lazy(request):
   sort = request.GET.get('sort', 'entered_at')
@@ -515,3 +480,37 @@ def admin_dispatch_drug(request):
     form = AdminDispatchForm()
 
   return render(request, "main/admin-dispatch-drug.html", {"form": form})
+
+
+# def small_ruminant_records_admin(request):
+#   # Get only events related to sheep and goat
+#   records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat']).order_by('-created_at')
+#   context = {'records': records}
+#   return render(request, 'main/small-ruminant-records-admin.html', context)
+
+
+def small_ruminant_records_admin(request):
+  event_type = request.GET.get('event_type')
+  start_date = request.GET.get('start_date')
+  end_date = request.GET.get('end_date')
+
+  records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+
+  if event_type:
+      records = records.filter(event_name=event_type)
+
+  if start_date and end_date:
+      records = records.filter(created_at__range=[start_date, end_date])
+  elif start_date:
+      records = records.filter(created_at__gte=start_date)
+  elif end_date:
+      records = records.filter(created_at__lte=end_date)
+
+  event_types = EventType.objects.values_list('event_name', flat=True).distinct()
+
+  context = {
+      'records': records.order_by('-created_at'),
+      'event_types': event_types,
+      'selected_event': event_type,
+  }
+  return render(request, 'main/small-ruminant-records-admin.html', context)

@@ -13,6 +13,32 @@
             <span class="nav-link-text">Dashboard</span>
           </a>
         </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+              <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#mortality" data-parent="#mylistings">
+                <i class="fa fa-fw fa-list"></i>
+                <span class="nav-link-text">Small Ruminant</span>
+              </a>
+              <ul class="sidenav-second-level collapse" id="mortality">
+                <li>
+                  <a href="{% url 'main:small_ruminant_records_admin' %}">Records</a>
+                </li>
+          <li>
+                  <a href="">Analytics</a>
+                </li>
+          <!-- <li>
+                  <a href="" >Farrowing</a>
+                </li>
+          <li>
+                <a href="">Procurement</a>
+
+              <li>
+                  <a href="">Sales</a>
+                </li>
+                <li>
+                  <a  class="nav-link" data-toggle="modal" data-target="#exampleModalP">Records</a>
+                </li> -->
+              </ul>
+        </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'main:drugs_inventory_land' %}">
             <i class="fa fa-fw fa-clipboard"></i>

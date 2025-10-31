@@ -23,10 +23,10 @@
     </ol>
     <div>
 
-      <h4 class="mt-4 mb-3">Event Records (Previous Day)</h4>
+      <h4 class="mt-4 mb-3 text-center">Event Records (Previous Day)</h4>
       <div class="row g-3">
         {% for event in yesterday_events %}
-          <div class="col-md-3">
+          <div class="col-md-4">
             <div class="box_general padding_bottom data-card text-center p-3 shadow-sm rounded bg-white">
               <h5>{{ event.get_event_name_display }}</h5>
               <p class="text-muted mb-0">{{ event.animal }} — {{ event.animal_type }}</p>
