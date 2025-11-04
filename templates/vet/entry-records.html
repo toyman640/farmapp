@@ -84,7 +84,7 @@
   });
   if (startDate.value) endDate.min = startDate.value;
 
-  // Infinite scroll
+  // Infinite scroll with filters preserved
   let page = 2;
   let loading = false;
   let hasNext = true;
@@ -95,7 +95,11 @@
       loading = true;
       document.getElementById('loader').style.display = 'block';
 
-      fetch(`?page=${page}`, {
+      // Get current filters
+      const params = new URLSearchParams(window.location.search);
+      params.set('page', page);
+
+      fetch(`?${params.toString()}`, {
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
       })
       .then(response => response.json())
@@ -110,6 +114,7 @@
     }
   });
 </script>
+
 
 <style>
   {{ block.super }}
