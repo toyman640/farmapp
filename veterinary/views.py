@@ -12,6 +12,7 @@ from django.contrib import messages
 from farmrecord.models import EventType, Census, Animals
 from django.urls import reverse
 from django.utils.dateparse import parse_date
+from django.template.loader import render_to_string
 # Create your views here.
 
 @login_required
@@ -151,13 +152,13 @@ def create_event(request):
     return render(request, 'vet/event_form.html', {'form': form})
 
 
-
 @login_required
 def event_records(request):
     user = request.user
     selected_event = request.GET.get('event_type')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
+    page = request.GET.get('page', 1)
 
     events = EventType.objects.all().select_related('animal', 'animal_type')
     event_types = []
@@ -183,11 +184,9 @@ def event_records(request):
     else:
         events = EventType.objects.none()
 
-    # Filter by selected event type
+    # Filter by event type & date
     if selected_event:
         events = events.filter(event_name=selected_event)
-
-    # Filter by date range
     if start_date:
         events = events.filter(created_at__date__gte=parse_date(start_date))
     if end_date:
@@ -195,14 +194,76 @@ def event_records(request):
 
     events = events.order_by('-created_at')
 
+    # Pagination (10 items per scroll)
+    paginator = Paginator(events, 2)
+    page_obj = paginator.get_page(page)
+
+    # If AJAX (scroll load)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        html = render_to_string('vet/event_records_list.html', {'events': page_obj})
+        return JsonResponse({'html': html, 'has_next': page_obj.has_next()})
+
     context = {
-        'events': events,
+        'events': page_obj,
         'event_types': event_types,
         'selected_event': selected_event,
         'start_date': start_date,
         'end_date': end_date,
     }
     return render(request, 'vet/entry-records.html', context)
+
+
+# @login_required
+# def event_records(request):
+#     user = request.user
+#     selected_event = request.GET.get('event_type')
+#     start_date = request.GET.get('start_date')
+#     end_date = request.GET.get('end_date')
+
+#     events = EventType.objects.all().select_related('animal', 'animal_type')
+#     event_types = []
+
+#     if hasattr(user, 'profile'):
+#         profile = user.profile
+
+#         if profile.is_vet_piggery:
+#             events = events.filter(animal__animal_name='pig')
+#             event_types = ['mortality', 'culling', 'farrowing', 'sale', 'procurement']
+
+#         elif profile.is_vet_paddock:
+#             events = events.filter(animal__animal_name='cattle')
+#             event_types = ['mortality', 'calving', 'farrowing', 'sale', 'procurement']
+
+#         elif profile.is_vet_smallruminant:
+#             events = events.filter(animal__animal_name__in=['sheep', 'goat'])
+#             event_types = ['mortality', 'culling', 'lambing', 'kidding', 'sale', 'procurement']
+
+#         elif not profile.is_vet:
+#             events = EventType.objects.none()
+
+#     else:
+#         events = EventType.objects.none()
+
+#     # Filter by selected event type
+#     if selected_event:
+#         events = events.filter(event_name=selected_event)
+
+#     # Filter by date range
+#     if start_date:
+#         events = events.filter(created_at__date__gte=parse_date(start_date))
+#     if end_date:
+#         events = events.filter(created_at__date__lte=parse_date(end_date))
+
+#     events = events.order_by('-created_at')
+
+#     context = {
+#         'events': events,
+#         'event_types': event_types,
+#         'selected_event': selected_event,
+#         'start_date': start_date,
+#         'end_date': end_date,
+#     }
+#     return render(request, 'vet/entry-records.html', context)
 
 
 @login_required
