@@ -45,7 +45,7 @@
             <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
           </div>
           <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
-            <a href="{% url 'main:small_ruminant_records_admin' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
+            <a href="{% url 'main:small_ruminant_event_records_admin' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
           </div>
         </form>
       </div>
@@ -96,33 +96,7 @@
     <!-- Census Records Section -->
     <hr class="my-5">
 
-    <div class="box_general padding_bottom">
-      <h4 class="mb-3">Census Records</h4>
-
-      {% if census_records %}
-        <div class="table-responsive">
-          <div class="table-header d-none d-md-flex">
-            <div class="col col-date font-weight-bold text-secondary">Census Date</div>
-            <div class="col col-animal font-weight-bold text-secondary">Animal</div>
-            <div class="col col-total font-weight-bold text-secondary">Total Animals</div>
-            <div class="col col-notes font-weight-bold text-secondary">Notes</div>
-          </div>
-
-          <div class="events-list">
-            {% for census in census_records %}
-              <div class="event-row census-row shadow-sm">
-                <div class="col col-date">{{ census.census_date|date:"M d, Y" }}</div>
-                <div class="col col-animal">{{ census.animal.animal_name|title }}</div>
-                <div class="col col-total">{{ census.total_animals }}</div>
-                <div class="col col-notes" title="{{ census.notes|default:"-" }}">{{ census.notes|truncatechars:50|default:"-" }}</div>
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-      {% else %}
-        <p>No census records found for small ruminants.</p>
-      {% endif %}
-    </div>
+  
   </div>
 </div>
 

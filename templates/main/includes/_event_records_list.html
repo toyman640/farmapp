@@ -1,0 +1,23 @@
+{% for record in records %}
+  <div class="event-row shadow-sm text-decoration-none
+    {% if record.event_name == 'mortality' %}
+      mortality
+    {% elif record.event_name == 'culling' %}
+      culling
+    {% elif record.event_name in 'lambing kidding' %}
+      birthing
+    {% elif record.event_name == 'procurement' %}
+      procurement
+    {% elif record.event_name == 'sale' %}
+      sale
+    {% else %}
+      default
+    {% endif %}
+  ">
+    <div class="col col-date">{{ record.created_at|date:"M d, Y H:i" }}</div>
+    <div class="col col-event">{{ record.get_event_name_display }}</div>
+    <div class="col col-type">{{ record.animal_type.animal_type_name|title }}</div>
+    <div class="col col-location">{{ record.location|default:"-" }}</div>
+    <div class="col col-notes" title="{{ record.notes|default:"-" }}">{{ record.notes|truncatechars:50|default:"-" }}</div>
+  </div>
+{% endfor %}

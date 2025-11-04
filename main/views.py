@@ -11,6 +11,7 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from drugapp.models import Dispatch, Drug, InventoryLog, PendingStockUpdate
 from django.contrib import messages
+from django.utils.dateparse import parse_date
 from django.core.paginator import Paginator
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from itertools import chain
@@ -517,53 +518,53 @@ def admin_dispatch_drug(request):
 #   return render(request, 'main/small-ruminant-records-admin.html', context)
 
 
-def small_ruminant_records_admin(request):
-    event_type = request.GET.get('event_type')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+# def small_ruminant_records_admin(request):
+#     event_type = request.GET.get('event_type')
+#     start_date = request.GET.get('start_date')
+#     end_date = request.GET.get('end_date')
 
-    # ----- Event Records -----
-    records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+#     # ----- Event Records -----
+#     records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
 
-    if event_type:
-        records = records.filter(event_name=event_type)
+#     if event_type:
+#         records = records.filter(event_name=event_type)
 
-    if start_date and end_date:
-        records = records.filter(created_at__range=[start_date, end_date])
-    elif start_date:
-        records = records.filter(created_at__gte=start_date)
-    elif end_date:
-        records = records.filter(created_at__lte=end_date)
+#     if start_date and end_date:
+#         records = records.filter(created_at__range=[start_date, end_date])
+#     elif start_date:
+#         records = records.filter(created_at__gte=start_date)
+#     elif end_date:
+#         records = records.filter(created_at__lte=end_date)
 
-    event_types = EventType.objects.values_list('event_name', flat=True).distinct()
+#     event_types = EventType.objects.values_list('event_name', flat=True).distinct()
 
-    # ----- Census Records -----
-    census_records = (
-        Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-        .order_by('-census_date')
-    )
+#     # ----- Census Records -----
+#     census_records = (
+#         Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+#         .order_by('-census_date')
+#     )
 
-    # ----- Chart Data (Monthly Totals) -----
-    census_data = (
-        Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-        .annotate(month=TruncMonth('census_date'))
-        .values('month')
-        .annotate(total=Count('id'))
-        .order_by('month')
-    )
+#     # ----- Chart Data (Monthly Totals) -----
+#     census_data = (
+#         Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+#         .annotate(month=TruncMonth('census_date'))
+#         .values('month')
+#         .annotate(total=Count('id'))
+#         .order_by('month')
+#     )
 
-    census_months = [d['month'].strftime('%B %Y') for d in census_data]
-    census_totals = [d['total'] for d in census_data]
+#     census_months = [d['month'].strftime('%B %Y') for d in census_data]
+#     census_totals = [d['total'] for d in census_data]
 
-    context = {
-        'records': records.order_by('-created_at'),
-        'event_types': event_types,
-        'selected_event': event_type,
-        'census_records': census_records,   # ✅ added this
-        'census_months': census_months,
-        'census_totals': census_totals,
-    }
-    return render(request, 'main/small-ruminant-records-admin.html', context)
+#     context = {
+#         'records': records.order_by('-created_at'),
+#         'event_types': event_types,
+#         'selected_event': event_type,
+#         'census_records': census_records,   # ✅ added this
+#         'census_months': census_months,
+#         'census_totals': census_totals,
+#     }
+#     return render(request, 'main/small-ruminant-records-admin.html', context)
 
 # def small_ruminant_stats(request):
 #   # ----- Census Data -----
@@ -643,3 +644,60 @@ def small_ruminant_stats(request):
         'selected_type': event_type,
     }
     return render(request, 'main/small_ruminant_stats.html', context)
+
+
+def small_ruminant_event_records_admin(request):
+    event_type = request.GET.get('event_type')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    events = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+
+    # ---- Filters ----
+    if event_type:
+        events = events.filter(event_name__iexact=event_type)
+    if start_date:
+        events = events.filter(created_at__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            events = events.filter(created_at__lt=end + timedelta(days=1))
+
+    # ---- Pagination ----
+    paginator = Paginator(events.order_by('-created_at'), 10)  # 10 per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'records': page_obj.object_list,
+        'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
+        'selected_event': event_type,
+    }
+    return render(request, 'main/small-ruminant-records-admin.html', context)
+
+
+def small_ruminant_census_records_admin(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    census_records = Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+
+    # ---- Filters ----
+    if start_date:
+        census_records = census_records.filter(census_date__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            census_records = census_records.filter(census_date__lt=end + timedelta(days=1))
+
+    # ---- Pagination ----
+    paginator = Paginator(census_records.order_by('-census_date'), 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'census_records': page_obj.object_list,
+    }
+    return render(request, 'main/small_ruminant_census_records_admin.html', context)

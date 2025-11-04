@@ -21,13 +21,13 @@ urlpatterns = [
     path('dispatch-filter-records/', views.dispatch_filter_main, name='dispatch_filter_main'),
     path('dispatch/edit/<int:dispatch_id>/', views.edit_dispatch_main, name='edit_dispatch_main'),
     path("dispatch/delete/<int:dispatch_id>/", views.delete_dispatch_main, name="delete_dispatch_main"),
-    # path("pending-updates/", views.pending_stock_updates, name="pending_updates_list"),
     path('dismis-low-stock-admin', views.dismiss_low_stock, name='dismiss_low_stock'),
     path("approve-update/<int:pending_update_id>/", views.approve_stock_update, name="approve_stock_update"),
     path("dismiss-update/<int:pending_update_id>/", views.dismiss_stock_update, name="dismiss_stock_update"),
     path("dispatch-drug-records-lazy/", views.dispatch_drug_main_lazy, name="dispatch_drug_main_lazy"),
     path("drugs-inventory-lazy/", views.drugs_inventory_lazy, name="drugs_inventory_lazy"),
     path("update-inventory", views.admin_add_drug, name="admin_add_drug"),
-    path('admin/small-ruminant-records/', views.small_ruminant_records_admin, name='small_ruminant_records_admin'),
-    path('small-ruminant/stats/', views.small_ruminant_stats, name='small_ruminant_stats')
+    path('admin/small-ruminant-records/', views.small_ruminant_event_records_admin, name='small_ruminant_event_records_admin'),
+    path('small-ruminant/stats/', views.small_ruminant_stats, name='small_ruminant_stats'),
+    path('small-ruminant/census-records/', views.small_ruminant_census_records_admin, name='small_ruminant_census_records_admin'),
 ]
