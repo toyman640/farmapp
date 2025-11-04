@@ -329,11 +329,15 @@ def create_census(request):
 
 @login_required
 def census_records(request):
-    """Display census records for the logged-in vet's section."""
+    """Display census records for the logged-in vet's section with date filters and no duplicates."""
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    page = request.GET.get('page', 1)
+
     censuses = (
         Census.objects
         .select_related('animal')
-        .prefetch_related('records__animal_type')
+        .prefetch_related('records', 'records__animal_type')  # separate prefetch levels
         .order_by('-census_date')
     )
 
@@ -348,7 +352,30 @@ def census_records(request):
     elif not vet_profile.is_vet:
         censuses = Census.objects.none()
 
-    return render(request, 'vet/census_records.html', {'censuses': censuses})
+    # Date range filter
+    if start_date:
+        censuses = censuses.filter(census_date__gte=parse_date(start_date))
+    if end_date:
+        censuses = censuses.filter(census_date__lte=parse_date(end_date))
+
+    # Ensure uniqueness
+    censuses = censuses.distinct()
+
+    paginator = Paginator(censuses, 5)
+    page_obj = paginator.get_page(page)
+
+    # AJAX infinite scroll
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        html = render_to_string('vet/census_records_list.html', {'censuses': page_obj})
+        return JsonResponse({'html': html, 'has_next': page_obj.has_next()})
+
+    return render(request, 'vet/census_records.html', {
+        'censuses': page_obj,
+        'start_date': start_date,
+        'end_date': end_date,
+    })
+
+
 
 @login_required
 def edit_event(request, pk):

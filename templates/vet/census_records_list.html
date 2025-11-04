@@ -1,0 +1,35 @@
+{% regroup censuses by census_date|date:"F Y" as month_list %}
+{% for month in month_list %}
+  <div class="mb-5">
+    <h5 class="bg-light text-primary px-3 py-2 rounded border fw-semibold">{{ month.grouper }}</h5>
+    {% for census in month.list %}
+      <div class="border rounded p-3 mb-3 bg-light">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+          <div><strong>Date:</strong> {{ census.census_date|date:"d M Y" }}</div>
+          <div><strong>Animal:</strong> {{ census.animal }}</div>
+          <div><strong>Total:</strong> {{ census.total_animals }}</div>
+        </div>
+        {% if census.records.all %}
+          <div class="row mt-3">
+            {% for record in census.records.all %}
+              <div class="col-md-4 mb-3">
+                <div class="card shadow-sm border-0 h-100">
+                  <div class="card-body text-center">
+                    <h6 class="fw-semibold text-primary mb-1">{{ record.animal_type }}</h6>
+                    <p class="mb-0"><strong>{{ record.number_of_animals }}</strong> animals</p>
+                    <i class="fa fa-paw text-secondary fs-5 mt-2"></i>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted mt-2">No detailed records available.</p>
+        {% endif %}
+        {% if census.notes %}
+          <div class="mt-2"><strong>Notes:</strong> {{ census.notes }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endfor %}
