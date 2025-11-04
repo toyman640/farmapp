@@ -13,6 +13,7 @@ from farmrecord.models import EventType, Census, Animals
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
+from datetime import timedelta
 # Create your views here.
 
 @login_required
@@ -353,10 +354,17 @@ def census_records(request):
         censuses = Census.objects.none()
 
     # Date range filter
+    # Date range filter
     if start_date:
         censuses = censuses.filter(census_date__gte=parse_date(start_date))
     if end_date:
-        censuses = censuses.filter(census_date__lte=parse_date(end_date))
+        end = parse_date(end_date)
+        if end:
+            censuses = censuses.filter(census_date__lt=end + timedelta(days=1))
+    # if start_date:
+    #     censuses = censuses.filter(census_date__gte=parse_date(start_date))
+    # if end_date:
+    #     censuses = censuses.filter(census_date__lte=parse_date(end_date))
 
     # Ensure uniqueness
     censuses = censuses.distinct()

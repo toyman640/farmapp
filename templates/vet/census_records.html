@@ -17,19 +17,19 @@
       <form method="get" class="filters-section row g-3 mb-4">
         <div class="col-md-6">
           <label class="text-secondary font-weight-bold">Start Date:</label>
-          <input type="date" name="start_date" value="{{ start_date }}" class="form-control form-control-sm">
+          <input type="date" id="start_date" name="start_date" value="{{ start_date }}" class="form-control form-control-sm">
         </div>
 
         <div class="col-md-6">
           <label class="text-secondary font-weight-bold">End Date:</label>
-          <input type="date" name="end_date" value="{{ end_date }}" class="form-control form-control-sm">
+          <input type="date" id="end_date" name="end_date" value="{{ end_date }}" class="form-control form-control-sm">
         </div>
 
         <div class="col-md-6 mt-3">
-          <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+          <a href="{% url 'veterinary:census_records' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
         </div>
         <div class="col-md-6 mt-3">
-          <a href="{% url 'veterinary:census_records' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
+          <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
         </div>
       </form>
 
@@ -49,34 +49,51 @@
 </div>
 
 <script>
-let page = 2;
-let loading = false;
-let hasNext = {{ censuses.has_next|yesno:"true,false" }};  // detect from first page
+  // Prevent future dates
+  const today = new Date().toISOString().split('T')[0];
+  const startInput = document.getElementById('start_date');
+  const endInput = document.getElementById('end_date');
 
-window.addEventListener('scroll', () => {
-  if (loading || !hasNext) return;
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-    loading = true;
-    document.getElementById('loader').style.display = 'block';
-    const params = new URLSearchParams(window.location.search);
-    params.set('page', page);
+  startInput.setAttribute('max', today);
+  endInput.setAttribute('max', today);
 
-    fetch(`?${params.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('loader').style.display = 'none';
-        if (data.html.trim()) {
-          document.getElementById('census-list').insertAdjacentHTML('beforeend', data.html);
-        }
-        hasNext = data.has_next;
-        if (hasNext) page++;
-        loading = false;
-      })
-      .catch(() => loading = false);
-  }
-});
+  // When start date changes, restrict end date
+  startInput.addEventListener('change', () => {
+    const startDate = startInput.value;
+    endInput.min = startDate;   // can't pick earlier date
+    endInput.max = today;       // still can't pick future date
+    if (endInput.value && endInput.value < startDate) {
+      endInput.value = startDate;
+    }
+  });
+
+  let page = 2;
+  let loading = false;
+  let hasNext = {{ censuses.has_next|yesno:"true,false" }};
+
+  window.addEventListener('scroll', () => {
+    if (loading || !hasNext) return;
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+      loading = true;
+      document.getElementById('loader').style.display = 'block';
+      const params = new URLSearchParams(window.location.search);
+      params.set('page', page);
+
+      fetch(`?${params.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('loader').style.display = 'none';
+          if (data.html.trim()) {
+            document.getElementById('census-list').insertAdjacentHTML('beforeend', data.html);
+          }
+          hasNext = data.has_next;
+          if (hasNext) page++;
+          loading = false;
+        })
+        .catch(() => loading = false);
+    }
+  });
 </script>
-
 
 <style>
   .filters-section {

@@ -37,10 +37,10 @@
           </div>
 
           <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
-            <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+            <a href="{% url 'veterinary:event_records' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
           </div>
           <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
-            <a href="{% url 'veterinary:event_records' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
+            <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
           </div>
         </form>
       </div>
