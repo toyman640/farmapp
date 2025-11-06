@@ -15,7 +15,7 @@
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
               <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#mortality" data-parent="#mylistings">
-                <i class="fa fa-fw fa-list"></i>
+                <i >🐑</i>
                 <span class="nav-link-text">Small Ruminant</span>
               </a>
               <ul class="sidenav-second-level collapse" id="mortality">
@@ -28,18 +28,43 @@
           <li>
                   <a href="{% url 'main:small_ruminant_stats' %}">Analytics</a>
                 </li>
-          <!-- <li>
-                  <a href="" >Farrowing</a>
-                </li>
-          <li>
-                <a href="">Procurement</a>
-
-              <li>
-                  <a href="">Sales</a>
+    
+              </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+              <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#paddock" data-parent="#mylistings">
+                <i>🐄</i>
+                <span class="nav-link-text">Paddock</span>
+              </a>
+              <ul class="sidenav-second-level collapse" id="paddock">
+                <li>
+                  <a href="{% url 'main:paddock_event_records_admin' %}"> Event Records</a>
                 </li>
                 <li>
-                  <a  class="nav-link" data-toggle="modal" data-target="#exampleModalP">Records</a>
-                </li> -->
+                  <a href="{% url 'main:paddock_census_records_admin' %}">Census Records</a>
+                </li>
+          <li>
+                  <a href="{% url 'main:small_ruminant_stats' %}">Analytics</a>
+                </li>
+    
+              </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+              <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#piggery" data-parent="#mylistings">
+                <i >🐖</i>
+                <span class="nav-link-text">Piggery</span>
+              </a>
+              <ul class="sidenav-second-level collapse" id="piggery">
+                <li>
+                  <a href="{% url 'main:piggery_event_records_admin' %}"> Event Records</a>
+                </li>
+                <li>
+                  <a href="{% url 'main:piggery_census_records_admin' %}">Census Records</a>
+                </li>
+          <li>
+                  <a href="{% url 'main:small_ruminant_stats' %}">Analytics</a>
+                </li>
+    
               </ul>
         </li>
         <li class="nav-item">

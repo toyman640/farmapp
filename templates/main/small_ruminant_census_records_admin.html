@@ -13,7 +13,7 @@
     <!-- Filter Section -->
     <div class="box_general padding_bottom">
       <div class="filters-section mb-4">
-        <h4 class="mb-3">Filter Census Records</h4>
+        <h4 class="mb-3">Filter Census Records 1</h4>
         <form method="get" class="row g-3">
           <!-- Start Date -->
           <div class="col-md-4 col-sm-12">
@@ -64,37 +64,53 @@
   const startDate = document.getElementById('start_date');
   const endDate = document.getElementById('end_date');
   const today = new Date().toISOString().split('T')[0];
-  endDate.max = today;
+  if (endDate) endDate.max = today;
 
-  startDate.addEventListener('change', function () {
-    endDate.min = this.value || '';
-    if (endDate.value && endDate.value < this.value) {
-      endDate.value = this.value;
+  if (startDate) {
+    startDate.addEventListener('change', function () {
+      if (endDate) {
+        endDate.min = this.value || '';
+        if (endDate.value && endDate.value < this.value) {
+          endDate.value = this.value;
+        }
+      }
+    });
+
+    if (startDate.value && endDate) {
+      endDate.min = startDate.value;
     }
-  });
-
-  if (startDate.value) {
-    endDate.min = startDate.value;
   }
 
   // Infinite Scroll
   let page = 2;
   let loading = false;
-  window.addEventListener('scroll', () => {
-    if (loading) return;
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-      loading = true;
-      fetch(`?page=${page}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-        .then(res => res.text())
-        .then(data => {
-          if (data.trim()) {
-            document.querySelector('.events-list').insertAdjacentHTML('beforeend', data);
-            page++;
-            loading = false;
-          }
-        });
-    }
-  });
+  let noMoreData = {% if has_next %}false{% else %}true{% endif %};
+window.addEventListener('scroll', () => {
+  if (loading || noMoreData) return;
+
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+    loading = true;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+
+    fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(res => res.text())
+      .then(data => {
+        const trimmed = data.trim();
+        if (trimmed) {
+          document.querySelector('.events-list').insertAdjacentHTML('beforeend', trimmed);
+          page++;
+        } else {
+          noMoreData = true;
+        }
+        loading = false;
+      })
+      .catch(() => loading = false);
+  }
+});
+
+
 </script>
 
 <style>

@@ -30,4 +30,8 @@ urlpatterns = [
     path('admin/small-ruminant-records/', views.small_ruminant_event_records_admin, name='small_ruminant_event_records_admin'),
     path('small-ruminant/stats/', views.small_ruminant_stats, name='small_ruminant_stats'),
     path('small-ruminant/census-records/', views.small_ruminant_census_records_admin, name='small_ruminant_census_records_admin'),
+    path('paddock/events/', views.paddock_event_records_admin, name='paddock_event_records_admin'),
+    path('paddock/census/', views.paddock_census_records_admin, name='paddock_census_records_admin'),
+    path('piggery/events/', views.piggery_event_records_admin, name='piggery_event_records_admin'),
+    path('piggery/census/', views.piggery_census_records_admin, name='piggery_census_records_admin'),
 ]

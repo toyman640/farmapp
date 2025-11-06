@@ -605,7 +605,7 @@ def admin_dispatch_drug(request):
 #   }
 #   return render(request, 'main/small_ruminant_stats.html', context)
 
-
+@login_required
 def small_ruminant_stats(request):
     # ----- Census Data -----
     census_data = (
@@ -645,7 +645,7 @@ def small_ruminant_stats(request):
     }
     return render(request, 'main/small_ruminant_stats.html', context)
 
-
+@login_required
 def small_ruminant_event_records_admin(request):
     event_type = request.GET.get('event_type')
     start_date = request.GET.get('start_date')
@@ -676,7 +676,7 @@ def small_ruminant_event_records_admin(request):
     }
     return render(request, 'main/small-ruminant-records-admin.html', context)
 
-
+@login_required
 def small_ruminant_census_records_admin(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -699,5 +699,142 @@ def small_ruminant_census_records_admin(request):
     context = {
         'page_obj': page_obj,
         'census_records': page_obj.object_list,
+        'has_next': page_obj.has_next(),
     }
+
+    # ✅ If it's AJAX (from infinite scroll), return only the HTML list part
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'main/includes/_census_records_list.html', context)
+
+    # Otherwise, render the full page
     return render(request, 'main/small_ruminant_census_records_admin.html', context)
+
+
+@login_required
+def paddock_event_records_admin(request):
+    event_type = request.GET.get('event_type')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    events = EventType.objects.filter(animal__animal_name__iexact='cattle')
+
+    # ---- Filters ----
+    if event_type:
+        events = events.filter(event_name__iexact=event_type)
+    if start_date:
+        events = events.filter(created_at__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            events = events.filter(created_at__lt=end + timedelta(days=1))
+
+    # ---- Pagination ----
+    paginator = Paginator(events.order_by('-created_at'), 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'records': page_obj.object_list,
+        'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
+        'selected_event': event_type,
+    }
+    return render(request, 'main/paddock-records-admin.html', context)
+
+
+@login_required
+def paddock_census_records_admin(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    census_records = Census.objects.filter(animal__animal_name__iexact='cattle')
+
+    # ---- Filters ----
+    if start_date:
+        census_records = census_records.filter(census_date__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            census_records = census_records.filter(census_date__lt=end + timedelta(days=1))
+
+    # ---- Pagination ----
+    paginator = Paginator(census_records.order_by('-census_date'), 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'census_records': page_obj.object_list,
+        'has_next': page_obj.has_next(),
+    }
+
+    # ✅ AJAX infinite scroll partial
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'main/includes/_census_records_list.html', context)
+
+    return render(request, 'main/paddock_census_records_admin.html', context)
+
+
+@login_required
+def piggery_event_records_admin(request):
+    event_type = request.GET.get('event_type')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    events = EventType.objects.filter(animal__animal_name__iexact='pig')
+
+    # ---- Filters ----
+    if event_type:
+        events = events.filter(event_name__iexact=event_type)
+    if start_date:
+        events = events.filter(created_at__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            events = events.filter(created_at__lt=end + timedelta(days=1))
+
+    # ---- Pagination ----
+    paginator = Paginator(events.order_by('-created_at'), 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'records': page_obj.object_list,
+        'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
+        'selected_event': event_type,
+    }
+    return render(request, 'main/piggery-records-admin.html', context)
+
+
+@login_required
+def piggery_census_records_admin(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    census_records = Census.objects.filter(animal__animal_name__iexact='pig')
+
+    # ---- Filters ----
+    if start_date:
+        census_records = census_records.filter(census_date__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            census_records = census_records.filter(census_date__lt=end + timedelta(days=1))
+
+    # ---- Pagination ----
+    paginator = Paginator(census_records.order_by('-census_date'), 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'census_records': page_obj.object_list,
+        'has_next': page_obj.has_next(),
+    }
+
+    # ✅ AJAX infinite scroll partial
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'main/includes/_census_records_list.html', context)
+
+    return render(request, 'main/piggery_census_records_admin.html', context)
