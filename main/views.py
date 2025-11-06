@@ -646,6 +646,81 @@ def small_ruminant_stats(request):
     return render(request, 'main/small_ruminant_stats.html', context)
 
 @login_required
+def paddock_stats(request):
+    census_data = (
+        Census.objects.filter(animal__animal_name='cattle')
+        .annotate(month=TruncMonth('census_date'))
+        .values('month')
+        .annotate(total=Sum('total_animals'))
+        .order_by('month')
+    )
+
+    census_labels = [calendar.month_name[d['month'].month] for d in census_data]
+    census_values = [d['total'] or 0 for d in census_data]
+
+    event_type = request.GET.get('type', 'mortality')
+    event_data = (
+        EventType.objects.filter(
+            animal__animal_name='cattle',
+            event_name__iexact=event_type
+        )
+        .annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(total=Sum('number_of_animals'))
+        .order_by('month')
+    )
+
+    event_labels = [calendar.month_name[d['month'].month] for d in event_data]
+    event_values = [d['total'] or 0 for d in event_data]
+
+    context = {
+        'census_labels': census_labels,
+        'census_values': census_values,
+        'event_labels': event_labels,
+        'event_values': event_values,
+        'selected_type': event_type,
+    }
+    return render(request, 'main/paddock_stats.html', context)
+    
+@login_required
+def piggery_stats(request):
+    census_data = (
+        Census.objects.filter(animal__animal_name='pig')
+        .annotate(month=TruncMonth('census_date'))
+        .values('month')
+        .annotate(total=Sum('total_animals'))
+        .order_by('month')
+    )
+
+    census_labels = [calendar.month_name[d['month'].month] for d in census_data]
+    census_values = [d['total'] or 0 for d in census_data]
+
+    event_type = request.GET.get('type', 'mortality')
+    event_data = (
+        EventType.objects.filter(
+            animal__animal_name='pig',
+            event_name__iexact=event_type
+        )
+        .annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(total=Sum('number_of_animals'))
+        .order_by('month')
+    )
+
+    event_labels = [calendar.month_name[d['month'].month] for d in event_data]
+    event_values = [d['total'] or 0 for d in event_data]
+
+    context = {
+        'census_labels': census_labels,
+        'census_values': census_values,
+        'event_labels': event_labels,
+        'event_values': event_values,
+        'selected_type': event_type,
+    }
+    return render(request, 'main/piggery_stats.html', context)
+
+    
+@login_required
 def small_ruminant_event_records_admin(request):
     event_type = request.GET.get('event_type')
     start_date = request.GET.get('start_date')
