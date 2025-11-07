@@ -839,7 +839,7 @@ def paddock_event_records_admin(request):
         if end:
             events = events.filter(created_at__lt=end + timedelta(days=1))
 
-    paginator = Paginator(events.order_by('-created_at'), 10)
+    paginator = Paginator(events.order_by('-created_at'), 1)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
