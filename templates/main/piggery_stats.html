@@ -1,0 +1,63 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Piggery Statistics{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <h3 class="mb-4">🐖 Piggery Statistics</h3>
+  
+    <!-- Census Chart -->
+    <div class="mb-5">
+      <h5>Census by Month</h5>
+      <canvas id="censusChart" height="100"></canvas>
+    </div>
+  
+    <!-- Event Chart -->
+    <div>
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h5>Events by Month</h5>
+        <form method="get">
+          <select name="type" onchange="this.form.submit()" class="form-control" style="width: 200px;">
+            <option value="mortality" {% if selected_type == 'mortality' %}selected{% endif %}>Mortality</option>
+            <option value="farrowing" {% if selected_type == 'farrowing' %}selected{% endif %}>Farrowing</option>
+            <option value="breeding" {% if selected_type == 'breeding' %}selected{% endif %}>Breeding</option>
+            <option value="culling" {% if selected_type == 'culling' %}selected{% endif %}>Culling</option>
+          </select>
+        </form>
+      </div>
+      <canvas id="eventChart" height="100"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const censusCtx = document.getElementById('censusChart');
+new Chart(censusCtx, {
+  type: 'bar',
+  data: {
+    labels: {{ census_labels|safe }},
+    datasets: [{
+      label: 'Total Animals (Census)',
+      data: {{ census_values|safe }},
+      backgroundColor: 'rgba(75, 192, 192, 0.6)',
+    }]
+  }
+});
+
+const eventCtx = document.getElementById('eventChart');
+new Chart(eventCtx, {
+  type: 'bar',
+  data: {
+    labels: {{ event_labels|safe }},
+    datasets: [{
+      label: '{{ selected_type|title }} Events',
+      data: {{ event_values|safe }},
+      backgroundColor: 'rgba(75, 192, 192, 0.6)',
+    }]
+  }
+});
+</script>
+{% endblock %}

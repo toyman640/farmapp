@@ -1,0 +1,8 @@
+{% for census in census_records %}
+  <div class="event-row census-row shadow-sm">
+    <div class="col col-date">{{ census.census_date|date:"M d, Y" }}</div>
+    <div class="col col-animal">{{ census.animal.animal_name|title }}</div>
+    <div class="col col-total">{{ census.total_animals }}</div>
+    <div class="col col-notes" title="{{ census.notes|default:"-" }}">{{ census.notes|truncatechars:50|default:"-" }}</div>
+  </div>
+{% endfor %}

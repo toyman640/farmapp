@@ -13,75 +13,94 @@
     <div class="box_general p-4 bg-white shadow-sm rounded">
       <h4 class="text-primary mb-3">Census Records</h4>
 
-      {% if censuses %}
-        {% regroup censuses by census_date|date:"F Y" as month_list %}
-        
-        {% for month in month_list %}
-          <div class="mb-5">
-            <h5 class="bg-light text-primary px-3 py-2 rounded border fw-semibold">
-              {{ month.grouper }}
-            </h5>
-
-            {% for census in month.list %}
-              <div class="border rounded p-3 mb-3 bg-light">
-                <div class="d-flex justify-content-between align-items-center flex-wrap">
-                  <div><strong>Date:</strong> {{ census.census_date|date:"d M Y" }}</div>
-                  <div><strong>Animal:</strong> {{ census.animal }}</div>
-                  <div><strong>Total:</strong> {{ census.total_animals }}</div>
-                </div>
-
-                {% if census.records.all %}
-                <div class="row mt-3">
-                  {% for record in census.records.all %}
-                    <div class="col-md-4 mb-3">
-                      <div class="card shadow-sm border-0 h-100">
-                        <div class="card-body text-center">
-                          <h6 class="fw-semibold text-primary mb-1">{{ record.animal_type }}</h6>
-                          <p class="mb-0"><strong>{{ record.number_of_animals }}</strong> animals</p>
-                          <i class="fa fa-paw text-secondary fs-5 mt-2"></i>
-                        </div>
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
-                {% else %}
-                  <p class="text-muted mt-2">No detailed records available.</p>
-                {% endif %}
-
-                {% if census.notes %}
-                  <div class="mt-2"><strong>Notes:</strong> {{ census.notes }}</div>
-                {% endif %}
-              </div>
-            {% endfor %}
-          </div>
-        {% endfor %}
-      {% else %}
-        <div class="alert alert-info">
-          No census records found.
+      <!-- Filter Section -->
+      <form method="get" class="filters-section row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="text-secondary font-weight-bold">Start Date:</label>
+          <input type="date" id="start_date" name="start_date" value="{{ start_date }}" class="form-control form-control-sm">
         </div>
+
+        <div class="col-md-6">
+          <label class="text-secondary font-weight-bold">End Date:</label>
+          <input type="date" id="end_date" name="end_date" value="{{ end_date }}" class="form-control form-control-sm">
+        </div>
+
+        <div class="col-md-6 mt-3">
+          <a href="{% url 'veterinary:census_records' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
+        </div>
+        <div class="col-md-6 mt-3">
+          <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+        </div>
+      </form>
+
+      {% if censuses %}
+        <div id="census-list">
+          {% include 'vet/census_records_list.html' %}
+        </div>
+
+        <div id="loader" class="text-center mt-3" style="display:none;">
+          <img src="{% static 'images/loader.gif' %}" alt="Loading..." width="50">
+        </div>
+      {% else %}
+        <div class="alert alert-info">No census records found.</div>
       {% endif %}
     </div>
   </div>
 </div>
 
-<style>
-  .census-records-page h5 {
-    font-size: 1.1rem;
-    letter-spacing: 0.3px;
-  }
+<script>
+  // Prevent future dates
+  const today = new Date().toISOString().split('T')[0];
+  const startInput = document.getElementById('start_date');
+  const endInput = document.getElementById('end_date');
 
-  .census-records-page .card {
-    border-radius: 0.75rem;
-  }
+  startInput.setAttribute('max', today);
+  endInput.setAttribute('max', today);
 
-  .census-records-page i.fa-paw {
-    opacity: 0.7;
-  }
-
-  @media (max-width: 768px) {
-    .census-records-page .card-body {
-      font-size: 0.9rem;
+  // When start date changes, restrict end date
+  startInput.addEventListener('change', () => {
+    const startDate = startInput.value;
+    endInput.min = startDate;   // can't pick earlier date
+    endInput.max = today;       // still can't pick future date
+    if (endInput.value && endInput.value < startDate) {
+      endInput.value = startDate;
     }
+  });
+
+  let page = 2;
+  let loading = false;
+  let hasNext = {{ censuses.has_next|yesno:"true,false" }};
+
+  window.addEventListener('scroll', () => {
+    if (loading || !hasNext) return;
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+      loading = true;
+      document.getElementById('loader').style.display = 'block';
+      const params = new URLSearchParams(window.location.search);
+      params.set('page', page);
+
+      fetch(`?${params.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('loader').style.display = 'none';
+          if (data.html.trim()) {
+            document.getElementById('census-list').insertAdjacentHTML('beforeend', data.html);
+          }
+          hasNext = data.has_next;
+          if (hasNext) page++;
+          loading = false;
+        })
+        .catch(() => loading = false);
+    }
+  });
+</script>
+
+<style>
+  .filters-section {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   }
 </style>
 {% endblock %}

@@ -1,0 +1,210 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Small Ruminant Census Records{% endblock %}
+
+{% block content %}
+<div class="content-wrapper census-records-page">
+  <div class="container-fluid">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Home</a></li>
+      <li class="breadcrumb-item active">Small Ruminant Census Records</li>
+    </ol>
+
+    <!-- Filter Section -->
+    <div class="box_general padding_bottom">
+      <div class="filters-section mb-4">
+        <h4 class="mb-3">Filter Census Records 1</h4>
+        <form method="get" class="row g-3">
+          <!-- Start Date -->
+          <div class="col-md-4 col-sm-12">
+            <label class="text-secondary font-weight-bold">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}" class="form-control form-control-sm">
+          </div>
+
+          <!-- End Date -->
+          <div class="col-md-4 col-sm-12">
+            <label class="text-secondary font-weight-bold">End Date:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}" class="form-control form-control-sm">
+          </div>
+
+          <!-- Buttons -->
+          <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
+            <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+          </div>
+          <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
+            <a href="{% url 'main:small_ruminant_census_records_admin' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Census Records -->
+      <h4 class="mb-3">Census Records</h4>
+      {% if census_records %}
+        <div class="table-responsive">
+          <div class="table-header d-none d-md-flex">
+            <div class="col col-date font-weight-bold text-secondary">Census Date</div>
+            <div class="col col-animal font-weight-bold text-secondary">Animal</div>
+            <div class="col col-total font-weight-bold text-secondary">Total Animals</div>
+            <div class="col col-notes font-weight-bold text-secondary">Notes</div>
+          </div>
+
+          <div class="events-list">
+            {% include 'main/includes/_census_records_list.html' %}
+          </div>
+        </div>
+      {% else %}
+        <p>No census records found for small ruminants.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Date restrictions
+  const startDate = document.getElementById('start_date');
+  const endDate = document.getElementById('end_date');
+  const today = new Date().toISOString().split('T')[0];
+  if (endDate) endDate.max = today;
+
+  if (startDate) {
+    startDate.addEventListener('change', function () {
+      if (endDate) {
+        endDate.min = this.value || '';
+        if (endDate.value && endDate.value < this.value) {
+          endDate.value = this.value;
+        }
+      }
+    });
+
+    if (startDate.value && endDate) {
+      endDate.min = startDate.value;
+    }
+  }
+
+  // Infinite Scroll
+  let page = 2;
+  let loading = false;
+  let noMoreData = {% if has_next %}false{% else %}true{% endif %};
+window.addEventListener('scroll', () => {
+  if (loading || noMoreData) return;
+
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+    loading = true;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+
+    fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(res => res.text())
+      .then(data => {
+        const trimmed = data.trim();
+        if (trimmed) {
+          document.querySelector('.events-list').insertAdjacentHTML('beforeend', trimmed);
+          page++;
+        } else {
+          noMoreData = true;
+        }
+        loading = false;
+      })
+      .catch(() => loading = false);
+  }
+});
+
+
+</script>
+
+<style>
+  .filters-section {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  .filters-section form .form-control {
+    height: 38px;
+  }
+
+  .census-records-page .events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .census-records-page .event-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 18px;
+    border-radius: 12px;
+    min-height: 56px;
+    transition: transform .12s ease, box-shadow .12s ease;
+    font-weight: 500;
+    color: #343a40;
+    background-color: rgba(108,117,125,0.15);
+    border-left: 6px solid #0d6efd;
+  }
+
+  .census-records-page .event-row .col {
+    padding: 6px 12px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .col-date { flex: 0 0 25%; }
+  .col-animal { flex: 0 0 25%; }
+  .col-total { flex: 0 0 20%; }
+  .col-notes { flex: 1; max-width: 250px; }
+
+  .census-records-page .event-row:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  }
+
+  .table-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 18px;
+    background: #f8f9fa;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+
+  .table-header .col {
+    text-align: left;
+    padding: 6px 12px;
+  }
+
+  /* Responsive */
+  @media (max-width: 767.98px) {
+    .filters-section form { flex-direction: column; }
+    .filters-section .col-sm-12 { width: 100%; }
+    .filters-section .btn { width: 100%; margin-bottom: 5px; }
+
+    .census-records-page .event-row {
+      flex-direction: column;
+      align-items: flex-start;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .census-records-page .event-row .col {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: initial;
+      flex: none;
+    }
+
+    .col-date::before { content: "Date: "; }
+    .col-animal::before { content: "Animal: "; }
+    .col-total::before { content: "Total: "; }
+    .col-notes::before { content: "Notes: "; }
+    .census-records-page .event-row .col + .col { margin-top: 6px; }
+  }
+</style>
+{% endblock %}

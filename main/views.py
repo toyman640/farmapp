@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect, render,  get_object_or_404
 from django.urls import reverse_lazy
+from django.template.loader import render_to_string
 from datetime import timedelta,datetime
 # from django.db.models import F
 from django.db.models.functions import Lower, TruncMonth
@@ -11,6 +12,7 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from drugapp.models import Dispatch, Drug, InventoryLog, PendingStockUpdate
 from django.contrib import messages
+from django.utils.dateparse import parse_date
 from django.core.paginator import Paginator
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from itertools import chain
@@ -517,53 +519,53 @@ def admin_dispatch_drug(request):
 #   return render(request, 'main/small-ruminant-records-admin.html', context)
 
 
-def small_ruminant_records_admin(request):
-    event_type = request.GET.get('event_type')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+# def small_ruminant_records_admin(request):
+#     event_type = request.GET.get('event_type')
+#     start_date = request.GET.get('start_date')
+#     end_date = request.GET.get('end_date')
 
-    # ----- Event Records -----
-    records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+#     # ----- Event Records -----
+#     records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
 
-    if event_type:
-        records = records.filter(event_name=event_type)
+#     if event_type:
+#         records = records.filter(event_name=event_type)
 
-    if start_date and end_date:
-        records = records.filter(created_at__range=[start_date, end_date])
-    elif start_date:
-        records = records.filter(created_at__gte=start_date)
-    elif end_date:
-        records = records.filter(created_at__lte=end_date)
+#     if start_date and end_date:
+#         records = records.filter(created_at__range=[start_date, end_date])
+#     elif start_date:
+#         records = records.filter(created_at__gte=start_date)
+#     elif end_date:
+#         records = records.filter(created_at__lte=end_date)
 
-    event_types = EventType.objects.values_list('event_name', flat=True).distinct()
+#     event_types = EventType.objects.values_list('event_name', flat=True).distinct()
 
-    # ----- Census Records -----
-    census_records = (
-        Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-        .order_by('-census_date')
-    )
+#     # ----- Census Records -----
+#     census_records = (
+#         Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+#         .order_by('-census_date')
+#     )
 
-    # ----- Chart Data (Monthly Totals) -----
-    census_data = (
-        Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-        .annotate(month=TruncMonth('census_date'))
-        .values('month')
-        .annotate(total=Count('id'))
-        .order_by('month')
-    )
+#     # ----- Chart Data (Monthly Totals) -----
+#     census_data = (
+#         Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+#         .annotate(month=TruncMonth('census_date'))
+#         .values('month')
+#         .annotate(total=Count('id'))
+#         .order_by('month')
+#     )
 
-    census_months = [d['month'].strftime('%B %Y') for d in census_data]
-    census_totals = [d['total'] for d in census_data]
+#     census_months = [d['month'].strftime('%B %Y') for d in census_data]
+#     census_totals = [d['total'] for d in census_data]
 
-    context = {
-        'records': records.order_by('-created_at'),
-        'event_types': event_types,
-        'selected_event': event_type,
-        'census_records': census_records,   # ✅ added this
-        'census_months': census_months,
-        'census_totals': census_totals,
-    }
-    return render(request, 'main/small-ruminant-records-admin.html', context)
+#     context = {
+#         'records': records.order_by('-created_at'),
+#         'event_types': event_types,
+#         'selected_event': event_type,
+#         'census_records': census_records,   # ✅ added this
+#         'census_months': census_months,
+#         'census_totals': census_totals,
+#     }
+#     return render(request, 'main/small-ruminant-records-admin.html', context)
 
 # def small_ruminant_stats(request):
 #   # ----- Census Data -----
@@ -604,7 +606,7 @@ def small_ruminant_records_admin(request):
 #   }
 #   return render(request, 'main/small_ruminant_stats.html', context)
 
-
+@login_required
 def small_ruminant_stats(request):
     # ----- Census Data -----
     census_data = (
@@ -643,3 +645,380 @@ def small_ruminant_stats(request):
         'selected_type': event_type,
     }
     return render(request, 'main/small_ruminant_stats.html', context)
+
+@login_required
+def paddock_stats(request):
+    census_data = (
+        Census.objects.filter(animal__animal_name='cattle')
+        .annotate(month=TruncMonth('census_date'))
+        .values('month')
+        .annotate(total=Sum('total_animals'))
+        .order_by('month')
+    )
+
+    census_labels = [calendar.month_name[d['month'].month] for d in census_data]
+    census_values = [d['total'] or 0 for d in census_data]
+
+    event_type = request.GET.get('type', 'mortality')
+    event_data = (
+        EventType.objects.filter(
+            animal__animal_name='cattle',
+            event_name__iexact=event_type
+        )
+        .annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(total=Sum('number_of_animals'))
+        .order_by('month')
+    )
+
+    event_labels = [calendar.month_name[d['month'].month] for d in event_data]
+    event_values = [d['total'] or 0 for d in event_data]
+
+    context = {
+        'census_labels': census_labels,
+        'census_values': census_values,
+        'event_labels': event_labels,
+        'event_values': event_values,
+        'selected_type': event_type,
+    }
+    return render(request, 'main/paddock_stats.html', context)
+    
+@login_required
+def piggery_stats(request):
+    census_data = (
+        Census.objects.filter(animal__animal_name='pig')
+        .annotate(month=TruncMonth('census_date'))
+        .values('month')
+        .annotate(total=Sum('total_animals'))
+        .order_by('month')
+    )
+
+    census_labels = [calendar.month_name[d['month'].month] for d in census_data]
+    census_values = [d['total'] or 0 for d in census_data]
+
+    event_type = request.GET.get('type', 'mortality')
+    event_data = (
+        EventType.objects.filter(
+            animal__animal_name='pig',
+            event_name__iexact=event_type
+        )
+        .annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(total=Sum('number_of_animals'))
+        .order_by('month')
+    )
+
+    event_labels = [calendar.month_name[d['month'].month] for d in event_data]
+    event_values = [d['total'] or 0 for d in event_data]
+
+    context = {
+        'census_labels': census_labels,
+        'census_values': census_values,
+        'event_labels': event_labels,
+        'event_values': event_values,
+        'selected_type': event_type,
+    }
+    return render(request, 'main/piggery_stats.html', context)
+
+
+@login_required
+def small_ruminant_event_records_admin(request):
+    event_type = request.GET.get('event_type')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    events = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+
+    if event_type:
+        events = events.filter(event_name__iexact=event_type)
+    if start_date:
+        events = events.filter(created_at__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            events = events.filter(created_at__lt=end + timedelta(days=1))
+
+    paginator = Paginator(events.order_by('-created_at'), 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Handle AJAX infinite scroll
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        html = render_to_string('main/small-ruminant-records-list.html', {'records': page_obj.object_list})
+        return JsonResponse({'html': html, 'has_next': page_obj.has_next()})
+
+    context = {
+        'page_obj': page_obj,
+        'records': page_obj.object_list,
+        'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
+        'selected_event': event_type,
+    }
+    return render(request, 'main/small-ruminant-records-admin.html', context)
+
+
+# @login_required
+# def small_ruminant_event_records_admin(request):
+#     event_type = request.GET.get('event_type')
+#     start_date = request.GET.get('start_date')
+#     end_date = request.GET.get('end_date')
+
+#     events = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+
+#     # ---- Filters ----
+#     if event_type:
+#         events = events.filter(event_name__iexact=event_type)
+#     if start_date:
+#         events = events.filter(created_at__gte=parse_date(start_date))
+#     if end_date:
+#         end = parse_date(end_date)
+#         if end:
+#             events = events.filter(created_at__lt=end + timedelta(days=1))
+
+#     # ---- Pagination ----
+#     paginator = Paginator(events.order_by('-created_at'), 10)  # 10 per page
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+
+#     context = {
+#         'page_obj': page_obj,
+#         'records': page_obj.object_list,
+#         'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
+#         'selected_event': event_type,
+#     }
+#     return render(request, 'main/small-ruminant-records-admin.html', context)
+
+@login_required
+def small_ruminant_census_records_admin(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    census_records = Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+
+    # ---- Filters ----
+    if start_date:
+        census_records = census_records.filter(census_date__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            census_records = census_records.filter(census_date__lt=end + timedelta(days=1))
+
+    # ---- Pagination ----
+    paginator = Paginator(census_records.order_by('-census_date'), 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'census_records': page_obj.object_list,
+        'has_next': page_obj.has_next(),
+    }
+
+    # ✅ If it's AJAX (from infinite scroll), return only the HTML list part
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'main/includes/_census_records_list.html', context)
+
+    # Otherwise, render the full page
+    return render(request, 'main/small_ruminant_census_records_admin.html', context)
+
+
+
+@login_required
+def paddock_event_records_admin(request):
+    event_type = request.GET.get('event_type')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    events = EventType.objects.filter(animal__animal_name__iexact='cattle')
+
+    if event_type:
+        events = events.filter(event_name__iexact=event_type)
+    if start_date:
+        events = events.filter(created_at__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            events = events.filter(created_at__lt=end + timedelta(days=1))
+
+    paginator = Paginator(events.order_by('-created_at'), 1)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Handle AJAX infinite scroll
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        html = render_to_string('main/paddock-records-list.html', {'records': page_obj.object_list})
+        return JsonResponse({'html': html, 'has_next': page_obj.has_next()})
+
+    context = {
+        'page_obj': page_obj,
+        'records': page_obj.object_list,
+        'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
+        'selected_event': event_type,
+    }
+    return render(request, 'main/paddock-records-admin.html', context)
+
+
+# @login_required
+# def paddock_event_records_admin(request):
+#     event_type = request.GET.get('event_type')
+#     start_date = request.GET.get('start_date')
+#     end_date = request.GET.get('end_date')
+
+#     events = EventType.objects.filter(animal__animal_name__iexact='cattle')
+
+#     # ---- Filters ----
+#     if event_type:
+#         events = events.filter(event_name__iexact=event_type)
+#     if start_date:
+#         events = events.filter(created_at__gte=parse_date(start_date))
+#     if end_date:
+#         end = parse_date(end_date)
+#         if end:
+#             events = events.filter(created_at__lt=end + timedelta(days=1))
+
+#     # ---- Pagination ----
+#     paginator = Paginator(events.order_by('-created_at'), 10)
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+
+#     context = {
+#         'page_obj': page_obj,
+#         'records': page_obj.object_list,
+#         'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
+#         'selected_event': event_type,
+#     }
+#     return render(request, 'main/paddock-records-admin.html', context)
+
+
+@login_required
+def paddock_census_records_admin(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    census_records = Census.objects.filter(animal__animal_name__iexact='cattle')
+
+    # ---- Filters ----
+    if start_date:
+        census_records = census_records.filter(census_date__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            census_records = census_records.filter(census_date__lt=end + timedelta(days=1))
+
+    # ---- Pagination ----
+    paginator = Paginator(census_records.order_by('-census_date'), 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'census_records': page_obj.object_list,
+        'has_next': page_obj.has_next(),
+    }
+
+    # ✅ AJAX infinite scroll partial
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'main/includes/_census_records_list.html', context)
+
+    return render(request, 'main/paddock_census_records_admin.html', context)
+
+
+# @login_required
+# def piggery_event_records_admin(request):
+#     event_type = request.GET.get('event_type')
+#     start_date = request.GET.get('start_date')
+#     end_date = request.GET.get('end_date')
+
+#     events = EventType.objects.filter(animal__animal_name__iexact='pig')
+
+#     # ---- Filters ----
+#     if event_type:
+#         events = events.filter(event_name__iexact=event_type)
+#     if start_date:
+#         events = events.filter(created_at__gte=parse_date(start_date))
+#     if end_date:
+#         end = parse_date(end_date)
+#         if end:
+#             events = events.filter(created_at__lt=end + timedelta(days=1))
+
+#     # ---- Pagination ----
+#     paginator = Paginator(events.order_by('-created_at'), 3)
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+
+#     context = {
+#         'page_obj': page_obj,
+#         'records': page_obj.object_list,
+#         'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
+#         'selected_event': event_type,
+#     }
+#     return render(request, 'main/piggery-records-admin.html', context)
+
+@login_required
+def piggery_event_records_admin(request):
+    event_type = request.GET.get('event_type')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    events = EventType.objects.filter(animal__animal_name__iexact='pig')
+
+    if event_type:
+        events = events.filter(event_name__iexact=event_type)
+    if start_date:
+        events = events.filter(created_at__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            events = events.filter(created_at__lt=end + timedelta(days=1))
+
+    paginator = Paginator(events.order_by('-created_at'), 2)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # If AJAX, return JSON (for infinite scroll)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        html = render_to_string('main/piggery-records-list.html', {'records': page_obj.object_list})
+        return JsonResponse({
+            'html': html,
+            'has_next': page_obj.has_next()
+        })
+
+    context = {
+        'records': page_obj.object_list,
+        'page_obj': page_obj,
+        'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
+        'selected_event': event_type,
+    }
+    return render(request, 'main/piggery-records-admin.html', context)
+
+
+@login_required
+def piggery_census_records_admin(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    census_records = Census.objects.filter(animal__animal_name__iexact='pig')
+
+    # ---- Filters ----
+    if start_date:
+        census_records = census_records.filter(census_date__gte=parse_date(start_date))
+    if end_date:
+        end = parse_date(end_date)
+        if end:
+            census_records = census_records.filter(census_date__lt=end + timedelta(days=1))
+
+    # ---- Pagination ----
+    paginator = Paginator(census_records.order_by('-census_date'), 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'census_records': page_obj.object_list,
+        'has_next': page_obj.has_next(),
+    }
+
+    # ✅ AJAX infinite scroll partial
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'main/includes/_census_records_list.html', context)
+
+    return render(request, 'main/piggery_census_records_admin.html', context)

@@ -20,29 +20,32 @@
             <span class="nav-link-text">Drug Dispatch</span>
           </a>
         </li>
-		<!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="" data-original-title="Bookings">
-          <a class="nav-link" href="">
-            <i class="fa fa-fw fa-calendar-check-o"></i>
-            <span class="nav-link-text">Bookings <span class="badge badge-pill badge-primary">6 New</span></span>
-          </a>
-        </li> -->
-		<!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseMylistings" data-parent="#mylistings">
-            <i class="fa fa-fw fa-list"></i>
-            <span class="nav-link-text">My listings</span>
-          </a>
-          <ul class="sidenav-second-level collapse" id="collapseMylistings">
-            <li>
-              <a href="">Pending <span class="badge badge-pill badge-primary">6</span></a>
-            </li>
-			<li>
-              <a href="">Active <span class="badge badge-pill badge-success">6</span></a>
-            </li>
-			<li>
-              <a href="">Expired <span class="badge badge-pill badge-danger">6</span></a>
-            </li>
-          </ul>
-        </li> -->
+      <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+              <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#mortality" data-parent="#mylistings">
+                <i class="fa fa-fw fa-list"></i>
+                <span class="nav-link-text">Event</span>
+              </a>
+              <ul class="sidenav-second-level collapse" id="mortality">
+                <li>
+                  <a href="">Records</a>
+                </li>
+          <li>
+                  <a href="">Enter Records</a>
+                </li>
+          <!-- <li>
+                  <a href="" >Farrowing</a>
+                </li>
+          <li>
+                <a href="">Procurement</a>
+
+              <li>
+                  <a href="">Sales</a>
+                </li>
+                <li>
+                  <a  class="nav-link" data-toggle="modal" data-target="#exampleModalP">Records</a>
+                </li> -->
+              </ul>
+        </li>
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Reviews">
           <a class="nav-link" href="{% url 'veterinary:drugs_view' %}">
             <i class="fa fa-fw fa-clipboard"></i>
@@ -65,12 +68,7 @@
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Bookmarks">
          
         </li>
-		<!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Add listing">
-          <a class="nav-link" href="">
-            <i class="fa fa-calculator"></i>
-            <span class="nav-link-text">Salary Calculator</span>
-          </a>
-    </li> -->
+
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My profile">
          
         </li>

@@ -1,18 +1,18 @@
 {% extends 'main/base.html' %}
 {% load static %}
-{% block title %}Small Ruminant Event Records{% endblock %}
+{% block title %}Piggery Event Records{% endblock %}
 
 {% block content %}
 <div class="content-wrapper event-records-page">
   <div class="container-fluid">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'main:main_index' %}">Home</a></li>
-      <li class="breadcrumb-item active">Small Ruminant Records</li>
+      <li class="breadcrumb-item active">Piggery Records</li>
     </ol>
 
     <div class="box_general padding_bottom">
       <div class="filters-section mb-4">
-        <h4 class="mb-3">Filter Small Ruminant Records</h4>
+        <h4 class="mb-3">Filter Piggery Records</h4>
         <form method="get" class="row g-3">
           <div class="col-md-4 col-sm-12">
             <label class="text-secondary font-weight-bold">Event Type:</label>
@@ -37,7 +37,7 @@
           </div>
 
           <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
-            <a href="{% url 'main:small_ruminant_event_records_admin' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
+            <a href="{% url 'main:piggery_event_records_admin' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
           </div>
           <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
             <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
@@ -55,8 +55,9 @@
             <div class="col col-notes font-weight-bold text-secondary">Notes</div>
           </div>
 
+          <!-- AJAX Infinite Scroll List -->
           <div class="events-list" id="events-list">
-            {% include 'main/small-ruminant-records-list.html' %}
+            {% include 'main/piggery-records-list.html' %}
           </div>
 
           <div id="loader" class="text-center mt-3" style="display: none;">
@@ -64,7 +65,7 @@
           </div>
         </div>
       {% else %}
-        <p>No small ruminant event records found.</p>
+        <p>No piggery records found for your selection.</p>
       {% endif %}
     </div>
   </div>

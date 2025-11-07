@@ -1,18 +1,18 @@
 {% extends 'main/base.html' %}
 {% load static %}
-{% block title %}Small Ruminant Event Records{% endblock %}
+{% block title %}Paddock Event Records{% endblock %}
 
 {% block content %}
 <div class="content-wrapper event-records-page">
   <div class="container-fluid">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'main:main_index' %}">Home</a></li>
-      <li class="breadcrumb-item active">Small Ruminant Records</li>
+      <li class="breadcrumb-item active">Paddock Records</li>
     </ol>
 
     <div class="box_general padding_bottom">
       <div class="filters-section mb-4">
-        <h4 class="mb-3">Filter Small Ruminant Records</h4>
+        <h4 class="mb-3">Filter Paddock Records</h4>
         <form method="get" class="row g-3">
           <div class="col-md-4 col-sm-12">
             <label class="text-secondary font-weight-bold">Event Type:</label>
@@ -37,7 +37,7 @@
           </div>
 
           <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
-            <a href="{% url 'main:small_ruminant_event_records_admin' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
+            <a href="{% url 'main:paddock_event_records_admin' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
           </div>
           <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
             <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
@@ -56,7 +56,7 @@
           </div>
 
           <div class="events-list" id="events-list">
-            {% include 'main/small-ruminant-records-list.html' %}
+            {% include 'main/paddock-records-list.html' %}
           </div>
 
           <div id="loader" class="text-center mt-3" style="display: none;">
@@ -64,14 +64,14 @@
           </div>
         </div>
       {% else %}
-        <p>No small ruminant event records found.</p>
+        <p>No paddock event records found.</p>
       {% endif %}
     </div>
   </div>
 </div>
 
 <script>
-  // Date control
+  // Date validation
   const startDate = document.getElementById('start_date');
   const endDate = document.getElementById('end_date');
   const today = new Date().toISOString().split('T')[0];
@@ -119,7 +119,6 @@
     padding: 15px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   }
-
   .filters-section form .form-control { height: 38px; }
 
   .event-records-page .events-list {
@@ -154,6 +153,7 @@
   .col-location { flex: 0 0 25%; }
   .col-notes { flex: 1; max-width: 250px; }
 
+  /* Row color categories */
   .event-records-page .event-row.mortality { background-color: rgba(220,53,69,0.5); color: #dc3545; }
   .event-records-page .event-row.culling { background-color: rgba(255,193,7,0.5); color: #856404; }
   .event-records-page .event-row.birthing { background-color: rgba(40,167,69,0.5); color: #1e7e34; }
@@ -183,15 +183,11 @@
       text-overflow: initial;
       flex: none;
     }
-    .event-records-page .event-row .col::before {
-      font-weight: 600;
-      color: #333;
-    }
-    .col-date::before { content: "Date Created: "; }
-    .col-event::before { content: "Event: "; }
-    .col-type::before { content: "Animal Type: "; }
-    .col-location::before { content: "Location: "; }
-    .col-notes::before { content: "Notes: "; }
+    .col-date::before { content: "Date Created: "; font-weight: 600; color: #333; }
+    .col-event::before { content: "Event: "; font-weight: 600; color: #333; }
+    .col-type::before { content: "Animal Type: "; font-weight: 600; color: #333; }
+    .col-location::before { content: "Location: "; font-weight: 600; color: #333; }
+    .col-notes::before { content: "Notes: "; font-weight: 600; color: #333; }
     .event-records-page .event-row .col + .col { margin-top: 6px; }
   }
 
