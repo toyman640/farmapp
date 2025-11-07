@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect, render,  get_object_or_404
 from django.urls import reverse_lazy
+from django.template.loader import render_to_string
 from datetime import timedelta,datetime
 # from django.db.models import F
 from django.db.models.functions import Lower, TruncMonth
@@ -719,7 +720,7 @@ def piggery_stats(request):
     }
     return render(request, 'main/piggery_stats.html', context)
 
-    
+
 @login_required
 def small_ruminant_event_records_admin(request):
     event_type = request.GET.get('event_type')
@@ -850,6 +851,37 @@ def paddock_census_records_admin(request):
     return render(request, 'main/paddock_census_records_admin.html', context)
 
 
+# @login_required
+# def piggery_event_records_admin(request):
+#     event_type = request.GET.get('event_type')
+#     start_date = request.GET.get('start_date')
+#     end_date = request.GET.get('end_date')
+
+#     events = EventType.objects.filter(animal__animal_name__iexact='pig')
+
+#     # ---- Filters ----
+#     if event_type:
+#         events = events.filter(event_name__iexact=event_type)
+#     if start_date:
+#         events = events.filter(created_at__gte=parse_date(start_date))
+#     if end_date:
+#         end = parse_date(end_date)
+#         if end:
+#             events = events.filter(created_at__lt=end + timedelta(days=1))
+
+#     # ---- Pagination ----
+#     paginator = Paginator(events.order_by('-created_at'), 3)
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+
+#     context = {
+#         'page_obj': page_obj,
+#         'records': page_obj.object_list,
+#         'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
+#         'selected_event': event_type,
+#     }
+#     return render(request, 'main/piggery-records-admin.html', context)
+
 @login_required
 def piggery_event_records_admin(request):
     event_type = request.GET.get('event_type')
@@ -858,7 +890,6 @@ def piggery_event_records_admin(request):
 
     events = EventType.objects.filter(animal__animal_name__iexact='pig')
 
-    # ---- Filters ----
     if event_type:
         events = events.filter(event_name__iexact=event_type)
     if start_date:
@@ -868,14 +899,21 @@ def piggery_event_records_admin(request):
         if end:
             events = events.filter(created_at__lt=end + timedelta(days=1))
 
-    # ---- Pagination ----
-    paginator = Paginator(events.order_by('-created_at'), 10)
+    paginator = Paginator(events.order_by('-created_at'), 2)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # If AJAX, return JSON (for infinite scroll)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        html = render_to_string('main/piggery-records-list.html', {'records': page_obj.object_list})
+        return JsonResponse({
+            'html': html,
+            'has_next': page_obj.has_next()
+        })
+
     context = {
-        'page_obj': page_obj,
         'records': page_obj.object_list,
+        'page_obj': page_obj,
         'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
         'selected_event': event_type,
     }

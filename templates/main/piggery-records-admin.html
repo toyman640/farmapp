@@ -1,102 +1,116 @@
 {% extends 'main/base.html' %}
 {% load static %}
-{% block title %}Piggery Records{% endblock %}
+{% block title %}Piggery Event Records{% endblock %}
 
 {% block content %}
-<div class="content-wrapper">
+<div class="content-wrapper event-records-page">
   <div class="container-fluid">
-    <h3 class="mb-4">🐖 Piggery Event Records</h3>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'main:main_index' %}">Home</a></li>
+      <li class="breadcrumb-item active">Piggery Records</li>
+    </ol>
 
-    <!-- Filter Section -->
-    <div class="filters-section mb-5">
-      <h5 class="mb-3 text-primary">Filter Piggery Records</h5>
-      <form method="get" class="row g-3">
-        <div class="col-md-4 col-sm-12">
-          <label class="text-secondary font-weight-bold">Event Type:</label>
-          <select name="event_type" class="form-control form-control-sm">
-            <option value="">All Events</option>
-            {% for event_type in event_types %}
-              <option value="{{ event_type }}" {% if selected_event == event_type %}selected{% endif %}>
-                {{ event_type|title }}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
+    <div class="box_general padding_bottom">
+      <div class="filters-section mb-4">
+        <h4 class="mb-3">Filter Piggery Records</h4>
+        <form method="get" class="row g-3">
+          <div class="col-md-4 col-sm-12">
+            <label class="text-secondary font-weight-bold">Event Type:</label>
+            <select name="event_type" class="form-control form-control-sm">
+              <option value="">All Events</option>
+              {% for event_type in event_types %}
+                <option value="{{ event_type }}" {% if selected_event == event_type %}selected{% endif %}>
+                  {{ event_type|title }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
 
-        <div class="col-md-4 col-sm-12">
-          <label class="text-secondary font-weight-bold">Start Date:</label>
-          <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}" class="form-control form-control-sm">
-        </div>
+          <div class="col-md-4 col-sm-12">
+            <label class="text-secondary font-weight-bold">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}" class="form-control form-control-sm">
+          </div>
 
-        <div class="col-md-4 col-sm-12">
-          <label class="text-secondary font-weight-bold">End Date:</label>
-          <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}" class="form-control form-control-sm">
-        </div>
+          <div class="col-md-4 col-sm-12">
+            <label class="text-secondary font-weight-bold">End Date:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}" class="form-control form-control-sm">
+          </div>
 
-        <div class="col-md-6 col-sm-12 mt-3">
-          <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
-        </div>
-        <div class="col-md-6 col-sm-12 mt-3">
-          <a href="{% url 'main:piggery_event_records_admin' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
-        </div>
-      </form>
-    </div>
+          <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
+            <a href="{% url 'main:piggery_event_records_admin' %}" class="btn btn-secondary btn-sm w-100">Reset</a>
+          </div>
+          <div class="col-md-6 col-sm-12 d-flex justify-content-center gap-2 mt-2">
+            <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+          </div>
+        </form>
+      </div>
 
-    <!-- Records Section -->
-    <div class="records-section">
-      <h5 class="mb-3 text-primary">Event Records</h5>
       {% if records %}
         <div class="table-responsive">
           <div class="table-header d-none d-md-flex">
-            <div class="col col-date">Date Created</div>
-            <div class="col col-event">Event</div>
-            <div class="col col-type">Animal Type</div>
-            <div class="col col-location">Location</div>
-            <div class="col col-notes">Notes</div>
+            <div class="col col-date font-weight-bold text-secondary">Date Created</div>
+            <div class="col col-event font-weight-bold text-secondary">Event</div>
+            <div class="col col-type font-weight-bold text-secondary">Animal Type</div>
+            <div class="col col-location font-weight-bold text-secondary">Location</div>
+            <div class="col col-notes font-weight-bold text-secondary">Notes</div>
           </div>
 
-          <div class="events-list">
-            {% for record in records %}
-              <div class="event-row shadow-sm text-decoration-none
-                {% if record.event_name == 'mortality' %}mortality
-                {% elif record.event_name == 'culling' %}culling
-                {% elif record.event_name in 'farrowing breeding' %}birthing
-                {% elif record.event_name == 'procurement' %}procurement
-                {% elif record.event_name == 'sale' %}sale
-                {% else %}default{% endif %}
-              ">
-                <div class="col col-date">{{ record.created_at|date:"M d, Y H:i" }}</div>
-                <div class="col col-event">{{ record.get_event_name_display }}</div>
-                <div class="col col-type">{{ record.animal_type.animal_type_name|title }}</div>
-                <div class="col col-location">{{ record.location|default:"-" }}</div>
-                <div class="col col-notes" title="{{ record.notes|default:"-" }}">{{ record.notes|truncatechars:50|default:"-" }}</div>
-              </div>
-            {% endfor %}
+          <!-- AJAX Infinite Scroll List -->
+          <div class="events-list" id="events-list">
+            {% include 'main/piggery-records-list.html' %}
+          </div>
+
+          <div id="loader" class="text-center mt-3" style="display: none;">
+            <img src="{% static 'images/loader.gif' %}" alt="Loading..." width="50">
           </div>
         </div>
       {% else %}
-        <div class="alert alert-warning mt-3">No piggery event records found.</div>
+        <p>No piggery records found for your selection.</p>
       {% endif %}
     </div>
   </div>
 </div>
 
 <script>
+  // Date control
   const startDate = document.getElementById('start_date');
   const endDate = document.getElementById('end_date');
   const today = new Date().toISOString().split('T')[0];
   endDate.max = today;
-
   startDate.addEventListener('change', function () {
     endDate.min = this.value || '';
-    if (endDate.value && endDate.value < this.value) {
-      endDate.value = this.value;
+    if (endDate.value && endDate.value < this.value) endDate.value = this.value;
+  });
+  if (startDate.value) endDate.min = startDate.value;
+
+  // Infinite scroll
+  let page = 2;
+  let loading = false;
+  let hasNext = true;
+
+  window.addEventListener('scroll', () => {
+    if (loading || !hasNext) return;
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+      loading = true;
+      document.getElementById('loader').style.display = 'block';
+
+      const params = new URLSearchParams(window.location.search);
+      params.set('page', page);
+
+      fetch(`?${params.toString()}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('events-list').insertAdjacentHTML('beforeend', data.html);
+        hasNext = data.has_next;
+        if (hasNext) page++;
+        loading = false;
+      })
+      .catch(() => loading = false);
     }
   });
-
-  if (startDate.value) {
-    endDate.min = startDate.value;
-  }
 </script>
 
 <style>
@@ -107,29 +121,27 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   }
 
-  .filters-section form .form-control {
-    height: 38px;
-  }
+  .filters-section form .form-control { height: 38px; }
 
-  .records-section .events-list {
+  .event-records-page .events-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin-top: 12px;
   }
 
-  .records-section .event-row {
+  .event-records-page .event-row {
     display: flex;
     align-items: center;
     padding: 12px 18px;
-    border-radius: 12px;
+    border-radius: 999px;
     min-height: 56px;
     transition: transform .12s ease, box-shadow .12s ease;
     font-weight: 500;
-    color: #fff;
+    color: inherit;
   }
 
-  .records-section .event-row .col {
+  .event-records-page .event-row .col {
     padding: 6px 12px;
     flex: 1;
     white-space: nowrap;
@@ -137,23 +149,51 @@
     text-overflow: ellipsis;
   }
 
-  .col-date { flex: 0 0 25%; }
-  .col-event { flex: 0 0 25%; }
+  .col-date { flex: 0 0 20%; }
+  .col-event { flex: 0 0 20%; }
   .col-type { flex: 0 0 20%; }
-  .col-location { flex: 0 0 20%; }
+  .col-location { flex: 0 0 25%; }
   .col-notes { flex: 1; max-width: 250px; }
 
-  /* ✅ Filled color variants */
-  .records-section .event-row.mortality { background-color: rgba(220,53,69,0.5); color: #dc3545; }     /* Red */
-  .records-section .event-row.culling { background-color: rgba(255,193,7,0.5); color: #856404; }     /* Purple */
-  .records-section .event-row.birthing { background-color: rgba(40,167,69,0.5); color: #1e7e34; }      /* Green */
-  .records-section .event-row.procurement { background-color: rgba(13,110,253,0.5); color: #0a58ca; } /* Light Blue */
-  .records-section .event-row.sale { background-color: rgba(23,162,184,0.5); color: #0b7285; }          /* Orange */
-  .records-section .event-row.default { background-color: rgba(108,117,125,0.5); color: #6c757d; }       /* Blue */
+  .event-records-page .event-row.mortality { background-color: rgba(220,53,69,0.5); color: #dc3545; }
+  .event-records-page .event-row.culling { background-color: rgba(255,193,7,0.5); color: #856404; }
+  .event-records-page .event-row.birthing { background-color: rgba(40,167,69,0.5); color: #1e7e34; }
+  .event-records-page .event-row.procurement { background-color: rgba(13,110,253,0.5); color: #0a58ca; }
+  .event-records-page .event-row.sale { background-color: rgba(23,162,184,0.5); color: #0b7285; }
+  .event-records-page .event-row.default { background-color: rgba(108,117,125,0.5); color: #6c757d; }
 
-  .records-section .event-row:hover {
+  .event-records-page .event-row:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    text-decoration: none;
+  }
+
+  @media (max-width: 767.98px) {
+    .event-records-page .event-row {
+      flex-direction: column;
+      align-items: flex-start;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .event-records-page .event-row .col {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: initial;
+      flex: none;
+    }
+    .event-records-page .event-row .col::before {
+      font-weight: 600;
+      color: #333;
+    }
+    .col-date::before { content: "Date Created: "; }
+    .col-event::before { content: "Event: "; }
+    .col-type::before { content: "Animal Type: "; }
+    .col-location::before { content: "Location: "; }
+    .col-notes::before { content: "Notes: "; }
+    .event-records-page .event-row .col + .col { margin-top: 6px; }
   }
 
   .table-header {
@@ -163,43 +203,6 @@
     background: #f8f9fa;
     border-radius: 999px;
     font-weight: 600;
-  }
-
-  .table-header .col {
-    text-align: left;
-    padding: 6px 12px;
-  }
-
-  /* Responsive */
-  @media (max-width: 767.98px) {
-    .filters-section form { flex-direction: column; }
-    .filters-section .col-sm-12 { width: 100%; }
-    .filters-section .btn { width: 100%; margin-bottom: 5px; }
-
-    .records-section .event-row {
-      flex-direction: column;
-      align-items: flex-start;
-      border-radius: 12px;
-      padding: 12px;
-    }
-
-    .records-section .event-row .col {
-      display: flex;
-      width: 100%;
-      justify-content: space-between;
-      white-space: normal;
-      overflow: visible;
-      text-overflow: initial;
-      flex: none;
-    }
-
-    .col-date::before { content: "Date: "; font-weight: 600; }
-    .col-event::before { content: "Event: "; font-weight: 600; }
-    .col-type::before { content: "Animal Type: "; font-weight: 600; }
-    .col-location::before { content: "Location: "; font-weight: 600; }
-    .col-notes::before { content: "Notes: "; font-weight: 600; }
-
-    .records-section .event-row .col + .col { margin-top: 6px; }
   }
 </style>
 {% endblock %}
