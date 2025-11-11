@@ -66,15 +66,21 @@
         {{ form.designation|as_crispy_field }}
         {{ form.notes|as_crispy_field }}
 
-        <!-- ✅ Safe rendering for image -->
+        <!-- Event Image -->
         <div class="form-group">
           <label for="{{ form.image.id_for_label }}">Event Image</label>
           {{ form.image }}
         </div>
 
+        <!-- Buttons -->
         <div class="mt-3">
-          <button type="button" class="btn btn-primary" id="saveAddAnother">Save and Add Another</button>
-          <button type="button" class="btn btn-success" id="saveProceed">Save and Proceed</button>
+          {% if edit_mode %}
+            <button type="submit" class="btn btn-primary">Update Record</button>
+            <a href="{% url 'veterinary:event_records' %}" class="btn btn-secondary">Back</a>
+          {% else %}
+            <button type="button" class="btn btn-primary" id="saveAddAnother">Save and Add Another</button>
+            <button type="button" class="btn btn-success" id="saveProceed">Save and Proceed</button>
+          {% endif %}
         </div>
       </form>
     </div>
@@ -85,53 +91,53 @@
 document.addEventListener('DOMContentLoaded', function() {
   const msgBox = document.getElementById('message-box');
   const form = document.getElementById('eventForm');
-  const saveAddAnother = document.getElementById('saveAddAnother');
-  const saveProceed = document.getElementById('saveProceed');
 
-   // ✅ detect mode
+  // Detect mode
   const isEditMode = {{ edit_mode|yesno:"true,false" }};
-  const submitUrl = isEditMode 
-    ? "{% if edit_mode %}{% url 'veterinary:edit_event' event.id %}{% endif %}"
-    : "{% url 'veterinary:create_event' %}";
+  const submitUrl = {% if edit_mode %}"{% url 'veterinary:edit_event' event.id %}"{% else %}"{% url 'veterinary:create_event' %}"{% endif %};
 
-  // Show bootstrap alert messages
-  function showMessage(type, text) {
-    msgBox.innerHTML = `<div class="alert alert-${type}" role="alert">${text}</div>`;
-    msgBox.style.display = 'block';
-    setTimeout(() => { msgBox.style.display = 'none'; }, 3000);
-  }
+  // AJAX buttons (only for create)
+  if (!isEditMode) {
+    const saveAddAnother = document.getElementById('saveAddAnother');
+    const saveProceed = document.getElementById('saveProceed');
 
-  // Submit form AJAX
-  function submitForm(actionType) {
-    const formData = new FormData(form);
-    formData.append('actionType', actionType);
-    fetch(submitUrl, {
-      method: "POST",
-      headers: { 'X-Requested-With': 'XMLHttpRequest' },
-      body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'success') {
-        showMessage('success', data.message);
-        if (!isEditMode) form.reset(); // reset only for create
-        if (actionType === 'proceed') setTimeout(() => window.location.href = data.redirect_url, 1000);
-      } else if (data.status === 'error') {
-        let err = data.message;
-        if (data.errors) {
-          const formatted = Object.entries(data.errors)
-            .map(([f, msgs]) => `<strong>${f}:</strong> ${msgs.join(', ')}`)
-            .join('<br>');
-          err += `<br>${formatted}`;
+    function showMessage(type, text) {
+      msgBox.innerHTML = `<div class="alert alert-${type}" role="alert">${text}</div>`;
+      msgBox.style.display = 'block';
+      setTimeout(() => { msgBox.style.display = 'none'; }, 3000);
+    }
+
+    function submitForm(actionType) {
+      const formData = new FormData(form);
+      formData.append('actionType', actionType);
+      fetch(submitUrl, {
+        method: "POST",
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          showMessage('success', data.message);
+          form.reset();
+          if (actionType === 'proceed') setTimeout(() => window.location.href = data.redirect_url, 1000);
+        } else if (data.status === 'error') {
+          let err = data.message;
+          if (data.errors) {
+            const formatted = Object.entries(data.errors)
+              .map(([f, msgs]) => `<strong>${f}:</strong> ${msgs.join(', ')}`)
+              .join('<br>');
+            err += `<br>${formatted}`;
+          }
+          showMessage('danger', err);
         }
-        showMessage('danger', err);
-      }
-    })
-    .catch(() => showMessage('danger', 'An unexpected error occurred.'));
-  }
+      })
+      .catch(() => showMessage('danger', 'An unexpected error occurred.'));
+    }
 
-  saveAddAnother.addEventListener('click', () => submitForm('add_another'));
-  saveProceed.addEventListener('click', () => submitForm('proceed'));
+    saveAddAnother.addEventListener('click', () => submitForm('add_another'));
+    saveProceed.addEventListener('click', () => submitForm('proceed'));
+  }
 
   // Piggery dynamic location handling
   const eventField = document.getElementById('id_event_name');
