@@ -98,6 +98,7 @@ class EventType(models.Model):
     designation = models.TextField(max_length=500, null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_approved = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.get_event_name_display()} - {self.created_at.strftime('%Y-%m-%d')}"

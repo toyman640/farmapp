@@ -11,8 +11,6 @@
       <li class="breadcrumb-item active">Animal Event Record</li>
     </ol>
 
-    <div id="message-box" style="display:none;"></div>
-
     <div class="box_general padding_bottom">
       <form method="post" enctype="multipart/form-data" id="eventForm">
         {% csrf_token %}
@@ -74,72 +72,33 @@
 
         <!-- Buttons -->
         <div class="mt-3">
-          {% if edit_mode %}
-            <button type="submit" class="btn btn-primary">Update Record</button>
-            <a href="{% url 'veterinary:event_records' %}" class="btn btn-secondary">Back</a>
-          {% else %}
-            <button type="button" class="btn btn-primary" id="saveAddAnother">Save and Add Another</button>
-            <button type="button" class="btn btn-success" id="saveProceed">Save and Proceed</button>
-          {% endif %}
+          <button type="submit" class="btn btn-primary">Update Record</button>
+          <a href="{% url 'veterinary:event_records' %}" class="btn btn-secondary">Back</a>
         </div>
       </form>
     </div>
   </div>
 </div>
 
+<!-- Success/Error Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="statusModalLabel">Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalMessage"></div>
+      <div class="modal-footer">
+        <a href="{% url 'veterinary:event_records' %}" class="btn btn-primary">Continue to Record List</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const msgBox = document.getElementById('message-box');
   const form = document.getElementById('eventForm');
-
-  // Detect mode
-  const isEditMode = {{ edit_mode|yesno:"true,false" }};
-  const submitUrl = {% if edit_mode %}"{% url 'veterinary:edit_event' event.id %}"{% else %}"{% url 'veterinary:create_event' %}"{% endif %};
-
-  // AJAX buttons (only for create)
-  if (!isEditMode) {
-    const saveAddAnother = document.getElementById('saveAddAnother');
-    const saveProceed = document.getElementById('saveProceed');
-
-    function showMessage(type, text) {
-      msgBox.innerHTML = `<div class="alert alert-${type}" role="alert">${text}</div>`;
-      msgBox.style.display = 'block';
-      setTimeout(() => { msgBox.style.display = 'none'; }, 3000);
-    }
-
-    function submitForm(actionType) {
-      const formData = new FormData(form);
-      formData.append('actionType', actionType);
-      fetch(submitUrl, {
-        method: "POST",
-        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        body: formData
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success') {
-          showMessage('success', data.message);
-          form.reset();
-          if (actionType === 'proceed') setTimeout(() => window.location.href = data.redirect_url, 1000);
-        } else if (data.status === 'error') {
-          let err = data.message;
-          if (data.errors) {
-            const formatted = Object.entries(data.errors)
-              .map(([f, msgs]) => `<strong>${f}:</strong> ${msgs.join(', ')}`)
-              .join('<br>');
-            err += `<br>${formatted}`;
-          }
-          showMessage('danger', err);
-        }
-      })
-      .catch(() => showMessage('danger', 'An unexpected error occurred.'));
-    }
-
-    saveAddAnother.addEventListener('click', () => submitForm('add_another'));
-    saveProceed.addEventListener('click', () => submitForm('proceed'));
-  }
-
-  // Piggery dynamic location handling
   const eventField = document.getElementById('id_event_name');
   const designationField = document.getElementById('id_designation');
   const designationWrapper = designationField.closest('.form-group');
@@ -149,7 +108,44 @@ document.addEventListener('DOMContentLoaded', function() {
   const blockSelect = document.getElementById('blockSelect');
   const penSelect = document.getElementById('penSelect');
   const hiddenLocation = document.getElementById('id_location');
+  const modal = new bootstrap.Modal(document.getElementById('statusModal'));
+  const modalMessage = document.getElementById('modalMessage');
 
+  const submitUrl = "{% url 'veterinary:edit_event' event.id %}";
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(form);
+
+    fetch(submitUrl, {
+      method: "POST",
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        modalMessage.innerHTML = `<div class="text-success">${data.message}</div>`;
+        modal.show();
+      } else if (data.status === 'error') {
+        let err = data.message;
+        if (data.errors) {
+          const formatted = Object.entries(data.errors)
+            .map(([f, msgs]) => `<strong>${f}:</strong> ${msgs.join(', ')}`)
+            .join('<br>');
+          err += `<br>${formatted}`;
+        }
+        modalMessage.innerHTML = `<div class="text-danger">${err}</div>`;
+        modal.show();
+      }
+    })
+    .catch(() => {
+      modalMessage.innerHTML = `<div class="text-danger">An unexpected error occurred.</div>`;
+      modal.show();
+    });
+  });
+
+  // Piggery location handling
   for (let i = 1; i <= 100; i++) {
     const opt = document.createElement('option');
     opt.value = `Pen ${i}`;

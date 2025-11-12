@@ -385,26 +385,72 @@ def census_records(request):
 
 
 
+# @login_required
+# def edit_event(request, pk):
+#     event = get_object_or_404(EventType, pk=pk)
+#     if request.method == 'POST':
+#         form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
+#         if form.is_valid():
+#             form.save()
+
+#             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#                 action_type = request.POST.get('actionType')
+#                 return JsonResponse({
+#                     'status': 'success',
+#                     'message': 'Event updated successfully!',
+#                     'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
+#                 })
+
+#             messages.success(request, "Event updated successfully!")
+#             return redirect('veterinary:event_detail', pk=event.pk)
+
+#         # handle errors for AJAX
+#         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#             errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
+#             return JsonResponse({
+#                 'status': 'error',
+#                 'message': 'Please correct the highlighted errors.',
+#                 'errors': errors
+#             })
+#         messages.error(request, "Error updating event. Please check the form.")
+#     else:
+#         form = EventForm(instance=event, user=request.user)
+
+#     return render(request, 'vet/event_form.html', {'form': form, 'edit_mode': True, 'event': event})
+
+
 @login_required
 def edit_event(request, pk):
     event = get_object_or_404(EventType, pk=pk)
+    is_admin = request.user.is_staff  # or your custom admin flag
+
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
         if form.is_valid():
-            form.save()
+            if is_admin:
+                # Admin saves and approves directly
+                form.save()
+                event.is_approved = True
+                event.save()
+                message = "Event updated and approved successfully!"
+            else:
+                # Non-admin: save but pending approval
+                edited_event = form.save(commit=False)
+                edited_event.is_approved = False
+                edited_event.save()
+                message = "Your changes are saved but pending admin approval."
 
+            # AJAX response
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                action_type = request.POST.get('actionType')
                 return JsonResponse({
                     'status': 'success',
-                    'message': 'Event updated successfully!',
+                    'message': message,
                     'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
                 })
 
-            messages.success(request, "Event updated successfully!")
             return redirect('veterinary:event_detail', pk=event.pk)
 
-        # handle errors for AJAX
+        # Handle form errors
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
             return JsonResponse({
@@ -412,11 +458,16 @@ def edit_event(request, pk):
                 'message': 'Please correct the highlighted errors.',
                 'errors': errors
             })
-        messages.error(request, "Error updating event. Please check the form.")
+
     else:
         form = EventForm(instance=event, user=request.user)
 
-    return render(request, 'vet/event_form.html', {'form': form, 'edit_mode': True, 'event': event})
+    return render(request, 'vet/event_form.html', {
+        'form': form,
+        'edit_mode': True,
+        'event': event,
+        'is_admin': is_admin
+    })
 
 
 @login_required
