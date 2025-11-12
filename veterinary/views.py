@@ -9,11 +9,13 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from farmrecord.models import EventType, Census, Animals
+from farmrecord.models import EventType, Census, Animals, PendingEventEdit
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
 from datetime import timedelta
+import json
+from django.forms.models import model_to_dict
 # Create your views here.
 
 @login_required
@@ -475,23 +477,39 @@ def census_records(request):
 def edit_event(request, pk):
     event = get_object_or_404(EventType, pk=pk)
     profile = getattr(request.user, 'profile', None)
-    is_boss = profile and profile.is_boss  # Admin check
+    is_boss = profile and profile.is_boss
 
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
         if form.is_valid():
             if is_boss:
+                # Admin can approve and update directly
                 updated_event = form.save(commit=False)
                 updated_event.is_approved = True
                 updated_event.save()
                 message = "Event updated and approved successfully!"
             else:
-                # ✅ Create a copy pending approval
-                edited_event = form.save(commit=False)
-                edited_event.pk = None  # duplicate
-                edited_event.is_approved = False
-                edited_event.save()
-                message = "Edit submitted for admin approval. Original record unchanged."
+                # Vet’s changes go to PendingEventEdit instead
+                # pending_data = form.cleaned_data
+                # PendingEventEdit.objects.create(
+                #     event=event,
+                #     submitted_by=request.user,
+                #     data=pending_data
+                # )
+                pending_data = {}
+                for key, value in form.cleaned_data.items():
+                    if hasattr(value, 'pk'):
+                        pending_data[key] = value.pk  # store ID instead of object
+                    else:
+                        pending_data[key] = value
+
+                PendingEventEdit.objects.create(
+                    event=event,
+                    submitted_by=request.user,
+                    data=pending_data
+                )
+
+                message = "Your edit has been sent for admin approval."
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
@@ -502,16 +520,20 @@ def edit_event(request, pk):
 
             messages.success(request, message)
             return redirect('veterinary:event_detail', pk=event.pk)
-        else:
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
-                return JsonResponse({'status': 'error', 'message': 'Form errors', 'errors': errors})
-            messages.error(request, "Error updating event.")
+
+        # Handle errors
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            errors = {f: [str(e) for e in err] for f, err in form.errors.items()}
+            return JsonResponse({'status': 'error', 'errors': errors})
+        messages.error(request, "Error updating event.")
     else:
         form = EventForm(instance=event, user=request.user)
 
-    return render(request, 'vet/event_form.html', {'form': form, 'edit_mode': True, 'event': event})
-
+    return render(request, 'vet/event_form.html', {
+        'form': form,
+        'edit_mode': True,
+        'event': event
+    })
 
 
 @login_required

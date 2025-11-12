@@ -190,6 +190,41 @@
         </div>
         </div>
     </div>
+    <div class="box_general padding_bottom data-card">
+      <div class="header_box version_2">
+        <h2><i class="fa fa-bell text-danger"></i> Events to approve</h2>
+      </div>
+      <div>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Section</th>
+              <th>Event Type</th>
+              <th>Submitted By</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for edit in pending_event_edits %}
+              <tr>
+                <td>{{ edit.event.animal }}</td>
+                <td>{{ edit.event.event_name }}</td>
+                <td>{{ edit.submitted_by.username }}</td>
+                <td>
+                  <a href="{% url 'main:approve_event_edit' edit.id %}" class="btn btn-sm btn-success">Approve</a>
+                  <a href="{% url 'main:dismiss_event_edit' edit.id %}" class="btn btn-sm btn-danger">Dismiss</a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4" class="text-center text-muted">No pending event edits.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
   <!-- /.container-fluid-->
 

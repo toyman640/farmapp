@@ -37,4 +37,7 @@ urlpatterns = [
     path('small-ruminant/stats/', views.small_ruminant_stats, name='small_ruminant_stats'),
     path('paddock/stats/', views.paddock_stats, name='paddock_stats'),
     path('piggery/stats/', views.piggery_stats, name='piggery_stats'),
+    path('approve-event-edit/<int:pk>/', views.approve_event_edit, name='approve_event_edit'),
+    path('dismiss-event-edit/<int:pk>/', views.dismiss_event_edit, name='dismiss_event_edit'),
+
 ]
