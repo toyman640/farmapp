@@ -18,25 +18,51 @@ import json
 from django.forms.models import model_to_dict
 # Create your views here.
 
+# @login_required
+# def vet_index(request):
+#   today = localdate()
+#   now_time = now()
+#   last_24_hours = now_time - timedelta(hours=24)
+#   today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
+#   new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
+#   restocked_logs = InventoryLog.objects.filter(updated_at__gte=last_24_hours,new_quantity__gt=F('previous_quantity')).select_related('drug')
+#   restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
+#   combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
+
+#   context = {
+#     'today_dispatches': Dispatch.objects.filter(dispatched_at__date=today),
+#     'today_date': today,
+#     'recent_drugs': combined_new_drugs,
+#   }
+
+#   return render(request, 'vet/index.html', context)
+
+
 @login_required
 def vet_index(request):
-  today = localdate()
-  now_time = now()
-  last_24_hours = now_time - timedelta(hours=24)
-  today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
-  new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
-  restocked_logs = InventoryLog.objects.filter(updated_at__gte=last_24_hours,new_quantity__gt=F('previous_quantity')).select_related('drug')
-  restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
-  combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
+    today = localdate()
+    now_time = now()
+    last_24_hours = now_time - timedelta(hours=24)
+    today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
+    new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
+    restocked_logs = InventoryLog.objects.filter(
+        updated_at__gte=last_24_hours,
+        new_quantity__gt=F('previous_quantity')
+    ).select_related('drug')
+    restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
+    combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
 
-  context = {
-    'today_dispatches': Dispatch.objects.filter(dispatched_at__date=today),
-    'today_date': today,
-    'recent_drugs': combined_new_drugs,
-  }
+    # ✅ Get events submitted by the current vet pending approval
+    pending_edits = PendingEventEdit.objects.filter(submitted_by=request.user).select_related('event')
 
-  return render(request, 'vet/index.html', context)
+    context = {
+        'today_dispatches': today_dispatches,
+        'today_date': today,
+        'recent_drugs': combined_new_drugs,
+        'pending_edits': pending_edits,
+    }
 
+    return render(request, 'vet/index.html', context)
 
 @login_required
 def dispatch_records_lazy(request):
