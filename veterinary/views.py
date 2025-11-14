@@ -9,32 +9,60 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from farmrecord.models import EventType, Census, Animals
+from farmrecord.models import EventType, Census, Animals, PendingEventEdit
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
 from datetime import timedelta
+import json
+from django.forms.models import model_to_dict
 # Create your views here.
+
+# @login_required
+# def vet_index(request):
+#   today = localdate()
+#   now_time = now()
+#   last_24_hours = now_time - timedelta(hours=24)
+#   today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
+#   new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
+#   restocked_logs = InventoryLog.objects.filter(updated_at__gte=last_24_hours,new_quantity__gt=F('previous_quantity')).select_related('drug')
+#   restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
+#   combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
+
+#   context = {
+#     'today_dispatches': Dispatch.objects.filter(dispatched_at__date=today),
+#     'today_date': today,
+#     'recent_drugs': combined_new_drugs,
+#   }
+
+#   return render(request, 'vet/index.html', context)
+
 
 @login_required
 def vet_index(request):
-  today = localdate()
-  now_time = now()
-  last_24_hours = now_time - timedelta(hours=24)
-  today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
-  new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
-  restocked_logs = InventoryLog.objects.filter(updated_at__gte=last_24_hours,new_quantity__gt=F('previous_quantity')).select_related('drug')
-  restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
-  combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
+    today = localdate()
+    now_time = now()
+    last_24_hours = now_time - timedelta(hours=24)
+    today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
+    new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
+    restocked_logs = InventoryLog.objects.filter(
+        updated_at__gte=last_24_hours,
+        new_quantity__gt=F('previous_quantity')
+    ).select_related('drug')
+    restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
+    combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
 
-  context = {
-    'today_dispatches': Dispatch.objects.filter(dispatched_at__date=today),
-    'today_date': today,
-    'recent_drugs': combined_new_drugs,
-  }
+    # ✅ Get events submitted by the current vet pending approval
+    pending_edits = PendingEventEdit.objects.filter(submitted_by=request.user).select_related('event')
 
-  return render(request, 'vet/index.html', context)
+    context = {
+        'today_dispatches': today_dispatches,
+        'today_date': today,
+        'recent_drugs': combined_new_drugs,
+        'pending_edits': pending_edits,
+    }
 
+    return render(request, 'vet/index.html', context)
 
 @login_required
 def dispatch_records_lazy(request):
@@ -419,28 +447,96 @@ def census_records(request):
 #     return render(request, 'vet/event_form.html', {'form': form, 'edit_mode': True, 'event': event})
 
 
+# @login_required
+# def edit_event(request, pk):
+#     event = get_object_or_404(EventType, pk=pk)
+#     profile = getattr(request.user, 'profile', None)
+#     is_boss = profile and profile.is_boss  # Admin check
+
+#     if request.method == 'POST':
+#         form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
+#         if form.is_valid():
+#             if is_boss:
+#                 # ✅ Boss updates and approves directly
+#                 updated_event = form.save(commit=False)
+#                 updated_event.is_approved = True
+#                 updated_event.save()
+#                 message = "Event updated and approved successfully!"
+#             else:
+#                 # ✅ Vet edits — mark as pending approval
+#                 edited_event = form.save(commit=False)
+#                 edited_event.is_approved = False  # Reset approval
+#                 edited_event.save()
+#                 message = "Your changes have been submitted and are pending admin approval."
+
+#             # ✅ Handle AJAX requests
+#             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#                 return JsonResponse({
+#                     'status': 'success',
+#                     'message': message,
+#                     'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
+#                 })
+
+#             messages.success(request, message)
+#             return redirect('veterinary:event_detail', pk=event.pk)
+
+#         # ❌ Invalid form
+#         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#             errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
+#             return JsonResponse({
+#                 'status': 'error',
+#                 'message': 'Please correct the highlighted errors.',
+#                 'errors': errors
+#             })
+#         messages.error(request, "Error updating event. Please check the form.")
+#     else:
+#         form = EventForm(instance=event, user=request.user)
+
+#     return render(request, 'vet/event_form.html', {
+#         'form': form,
+#         'edit_mode': True,
+#         'event': event,
+#     })
+
+
 @login_required
 def edit_event(request, pk):
     event = get_object_or_404(EventType, pk=pk)
-    is_admin = request.user.is_staff  # or your custom admin flag
+    profile = getattr(request.user, 'profile', None)
+    is_boss = profile and profile.is_boss
 
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
         if form.is_valid():
-            if is_admin:
-                # Admin saves and approves directly
-                form.save()
-                event.is_approved = True
-                event.save()
+            if is_boss:
+                # Admin can approve and update directly
+                updated_event = form.save(commit=False)
+                updated_event.is_approved = True
+                updated_event.save()
                 message = "Event updated and approved successfully!"
             else:
-                # Non-admin: save but pending approval
-                edited_event = form.save(commit=False)
-                edited_event.is_approved = False
-                edited_event.save()
-                message = "Your changes are saved but pending admin approval."
+                # Vet’s changes go to PendingEventEdit instead
+                # pending_data = form.cleaned_data
+                # PendingEventEdit.objects.create(
+                #     event=event,
+                #     submitted_by=request.user,
+                #     data=pending_data
+                # )
+                pending_data = {}
+                for key, value in form.cleaned_data.items():
+                    if hasattr(value, 'pk'):
+                        pending_data[key] = value.pk  # store ID instead of object
+                    else:
+                        pending_data[key] = value
 
-            # AJAX response
+                PendingEventEdit.objects.create(
+                    event=event,
+                    submitted_by=request.user,
+                    data=pending_data
+                )
+
+                message = "Your edit has been sent for admin approval."
+
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'success',
@@ -448,25 +544,21 @@ def edit_event(request, pk):
                     'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
                 })
 
+            messages.success(request, message)
             return redirect('veterinary:event_detail', pk=event.pk)
 
-        # Handle form errors
+        # Handle errors
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Please correct the highlighted errors.',
-                'errors': errors
-            })
-
+            errors = {f: [str(e) for e in err] for f, err in form.errors.items()}
+            return JsonResponse({'status': 'error', 'errors': errors})
+        messages.error(request, "Error updating event.")
     else:
         form = EventForm(instance=event, user=request.user)
 
     return render(request, 'vet/event_form.html', {
         'form': form,
         'edit_mode': True,
-        'event': event,
-        'is_admin': is_admin
+        'event': event
     })
 
 

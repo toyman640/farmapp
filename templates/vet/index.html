@@ -119,6 +119,41 @@
           </div>
         </div>
       </div>
+      <div class="box_general padding_bottom">
+        <div class="header_box version_2">
+          <h2><i class="fa fa-clock text-warning"></i> Events Pending For Approval</h2>
+        </div>
+
+        <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+          <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+              <tr>
+                <th>#</th>
+                <th>Event</th>
+                <th>Animal</th>
+                <th>Date Submitted</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pending in pending_edits %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ pending.event.event_name }}</td>
+                  <td>{{ pending.event.animal }}</td>
+                  <td>{{ pending.created_at|date:"M d, Y H:i" }}</td>
+                  <td><span class="badge badge-warning">Awaiting Approval</span></td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center text-muted">No pending edits submitted for approval.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
 		
 	  </div>
