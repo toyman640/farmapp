@@ -20,32 +20,48 @@
             <span class="nav-link-text">Drug Dispatch</span>
           </a>
         </li>
-      <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-              <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#mortality" data-parent="#mylistings">
-                <i class="fa fa-fw fa-list"></i>
-                <span class="nav-link-text">Event</span>
+       <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+              <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#drugs" data-parent="#mylistings">
+                <i class="">☰</i>
+                <span class="nav-link-text">Store Inventory</span>
               </a>
-              <ul class="sidenav-second-level collapse" id="mortality">
+              <ul class="sidenav-second-level collapse" id="drugs">
                 <li>
-                  <a href="">Records</a>
-                </li>
-          <li>
-                  <a href="">Enter Records</a>
-                </li>
-          <!-- <li>
-                  <a href="" >Farrowing</a>
-                </li>
-          <li>
-                <a href="">Procurement</a>
-
-              <li>
-                  <a href="">Sales</a>
+                  <a href="{% url 'veterinary:dispatch_view' %}">Drug Dispatch</a>
                 </li>
                 <li>
-                  <a  class="nav-link" data-toggle="modal" data-target="#exampleModalP">Records</a>
-                </li> -->
+                  <a href="{% url 'veterinary:drugs_view' %}">Drug Inventory</a>
+                </li>
               </ul>
-        </li>
+      </li>
+      <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#mortality" data-parent="#mylistings">
+            <i class="fa fa-fw fa-list"></i>
+            <span class="nav-link-text">Event</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="mortality">
+            <li>
+              <a href="{% url 'veterinary:create_event' %}">Enter Records</a>
+            </li>
+            <li>
+              <a href="{% url 'veterinary:event_records' %}">Event Records</a>
+            </li>
+          </ul>
+      </li>
+       <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+              <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#census" data-parent="#mylistings">
+                <i class="fa fa-fw fa-list"></i>
+                <span class="nav-link-text">Census</span>
+              </a>
+              <ul class="sidenav-second-level collapse" id="census">
+                <li>
+                  <a href="{% url 'veterinary:create_census' %}">Enter Census</a>
+                </li>
+          <li>
+                  <a href="{% url 'veterinary:census_records' %}">Census Records</a>
+                </li>
+              </ul>
+      </li>
 		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Reviews">
           <a class="nav-link" href="{% url 'veterinary:drugs_view' %}">
             <i class="fa fa-fw fa-clipboard"></i>
