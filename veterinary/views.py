@@ -150,6 +150,53 @@ def drugs_view(request):
   return render(request, 'vet/drugs-records.html')
 
 
+# @login_required
+# def create_event(request):
+#     if request.method == 'POST':
+#         form = EventForm(request.POST, request.FILES, user=request.user)
+
+#         if form.is_valid():
+#             event = form.save(commit=False)
+#             event.save()
+
+#             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#                 action_type = request.POST.get('actionType')
+#                 if action_type == 'proceed':
+#                     return JsonResponse({
+#                         'status': 'success',
+#                         'message': 'Event saved successfully! Redirecting...',
+#                         'redirect_url': reverse('veterinary:event_records')
+#                     })
+#                 return JsonResponse({
+#                     'status': 'success',
+#                     'message': 'Event saved successfully! You can add another.'
+#                 })
+
+#             messages.success(request, "Event created successfully!")
+#             return redirect('veterinary:create_event')
+
+#         else:
+#             # Collect detailed field errors
+#             errors = {
+#                 field: [str(err) for err in errs]
+#                 for field, errs in form.errors.items()
+#             }
+
+#             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#                 return JsonResponse({
+#                     'status': 'error',
+#                     'message': 'Please correct the highlighted errors.',
+#                     'errors': errors,
+#                 })
+
+#             messages.error(request, "Error saving event. Check your input.")
+
+#     else:
+#         form = EventForm(user=request.user)
+
+#     return render(request, 'vet/event_form.html', {'form': form})
+
+
 @login_required
 def create_event(request):
     if request.method == 'POST':
@@ -157,8 +204,17 @@ def create_event(request):
 
         if form.is_valid():
             event = form.save(commit=False)
+
+            # ✅ Handle piggery location explicitly
+            if getattr(request.user.profile, 'is_vet_piggery', False):
+                line = request.POST.get('lineSelect', '')
+                block = request.POST.get('blockSelect', '')
+                pen = request.POST.get('penSelect', '')
+                event.location = " ".join(filter(None, [line, block, pen]))
+
             event.save()
 
+            # AJAX response
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 action_type = request.POST.get('actionType')
                 if action_type == 'proceed':
@@ -172,15 +228,13 @@ def create_event(request):
                     'message': 'Event saved successfully! You can add another.'
                 })
 
+            # Non-AJAX redirect
             messages.success(request, "Event created successfully!")
             return redirect('veterinary:create_event')
 
         else:
             # Collect detailed field errors
-            errors = {
-                field: [str(err) for err in errs]
-                for field, errs in form.errors.items()
-            }
+            errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
