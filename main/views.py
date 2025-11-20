@@ -18,7 +18,7 @@ from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, D
 from itertools import chain
 from django.db.models import Q, F, Count, Sum
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
-from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit
+from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit, Animals, AnimalType
 import calendar
 from django.core.exceptions import FieldDoesNotExist
 
@@ -140,6 +140,19 @@ def main_index(request):
     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
 
     yesterday_events = EventType.objects.filter(created_at__date=yesterday)
+    # Resolve updated animal type IDs into objects
+    for p in pending_event_edits:
+        # existing code for animal...
+        
+        animal_type_id = p.data.get("animal_type")
+        if animal_type_id:
+            try:
+                p.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
+            except AnimalType.DoesNotExist:
+                p.data["animal_type_obj"] = None
+        else:
+            p.data["animal_type_obj"] = None
+
 
     context = {
         'low_stock_drugs': low_stock_drugs,
