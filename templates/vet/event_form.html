@@ -107,10 +107,6 @@
   </div>
 </div>
 
-<!-- jQuery and Bootstrap JS (required for modal) -->
-<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script> -->
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const msgBox = document.getElementById('message-box');
@@ -125,11 +121,9 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => { msgBox.style.display = 'none'; }, 3000);
   }
 
-  // Submit handler (works for both edit and create)
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
+  // AJAX submit function
+  function ajaxSubmit(redirectType) {
     const formData = new FormData(form);
-
     fetch(submitUrl, {
       method: "POST",
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
@@ -139,14 +133,18 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(data => {
       if (data.status === 'success') {
         if (isEditMode) {
-          // Show modal when vet submits edit
           $('#editSuccessModal').modal('show');
         } else {
           showMessage('success', data.message);
-          form.reset();
-          setTimeout(() => window.location.href = data.redirect_url, 1000);
+          if (redirectType === 'add') {
+            form.reset();
+            // Reset hidden location
+            document.getElementById('id_location').value = '';
+          } else if (redirectType === 'proceed') {
+            window.location.href = data.redirect_url;
+          }
         }
-      } else if (data.status === 'error') {
+      } else {
         let err = data.message || 'Error submitting form.';
         if (data.errors) {
           const formatted = Object.entries(data.errors)
@@ -158,9 +156,16 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     })
     .catch(() => showMessage('danger', 'An unexpected error occurred.'));
-  });
+  }
 
-  // Populate piggery pen list
+  // Button click handlers
+  const saveAddAnother = document.getElementById('saveAddAnother');
+  const saveProceed = document.getElementById('saveProceed');
+
+  saveAddAnother.addEventListener('click', () => ajaxSubmit('add'));
+  saveProceed.addEventListener('click', () => ajaxSubmit('proceed'));
+
+  // Existing piggery and designation logic
   const eventField = document.getElementById('id_event_name');
   const designationField = document.getElementById('id_designation');
   const designationWrapper = designationField.closest('.form-group');

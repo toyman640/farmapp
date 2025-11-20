@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from farmrecord.models import EventType, Census, Animals, PendingEventEdit
+from farmrecord.models import EventType, Census, Animals, PendingEventEdit, AnimalType
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
@@ -53,7 +53,23 @@ def vet_index(request):
     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
 
     # ✅ Get events submitted by the current vet pending approval
-    pending_edits = PendingEventEdit.objects.filter(submitted_by=request.user).select_related('event')
+    # pending_edits = PendingEventEdit.objects.filter(submitted_by=request.user).select_related('event')
+    pending_edits = (PendingEventEdit.objects.filter(submitted_by=request.user, approved=False).select_related("event", "event__animal", "event__animal_type"))
+    # Convert JSON IDs into actual objects
+    for p in pending_edits:
+        animal_id = p.data.get("animal")
+        if animal_id:
+            try:
+                p.data["animal_obj"] = Animals.objects.get(id=animal_id)
+            except Animals.DoesNotExist:
+                p.data["animal_obj"] = None
+
+        animal_type_id = p.data.get("animal_type")
+        if animal_type_id:
+            try:
+                p.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
+            except AnimalType.DoesNotExist:
+                p.data["animal_type_obj"] = None
 
     context = {
         'today_dispatches': today_dispatches,
@@ -134,6 +150,53 @@ def drugs_view(request):
   return render(request, 'vet/drugs-records.html')
 
 
+# @login_required
+# def create_event(request):
+#     if request.method == 'POST':
+#         form = EventForm(request.POST, request.FILES, user=request.user)
+
+#         if form.is_valid():
+#             event = form.save(commit=False)
+#             event.save()
+
+#             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#                 action_type = request.POST.get('actionType')
+#                 if action_type == 'proceed':
+#                     return JsonResponse({
+#                         'status': 'success',
+#                         'message': 'Event saved successfully! Redirecting...',
+#                         'redirect_url': reverse('veterinary:event_records')
+#                     })
+#                 return JsonResponse({
+#                     'status': 'success',
+#                     'message': 'Event saved successfully! You can add another.'
+#                 })
+
+#             messages.success(request, "Event created successfully!")
+#             return redirect('veterinary:create_event')
+
+#         else:
+#             # Collect detailed field errors
+#             errors = {
+#                 field: [str(err) for err in errs]
+#                 for field, errs in form.errors.items()
+#             }
+
+#             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#                 return JsonResponse({
+#                     'status': 'error',
+#                     'message': 'Please correct the highlighted errors.',
+#                     'errors': errors,
+#                 })
+
+#             messages.error(request, "Error saving event. Check your input.")
+
+#     else:
+#         form = EventForm(user=request.user)
+
+#     return render(request, 'vet/event_form.html', {'form': form})
+
+
 @login_required
 def create_event(request):
     if request.method == 'POST':
@@ -141,8 +204,17 @@ def create_event(request):
 
         if form.is_valid():
             event = form.save(commit=False)
+
+            # ✅ Handle piggery location explicitly
+            if getattr(request.user.profile, 'is_vet_piggery', False):
+                line = request.POST.get('lineSelect', '')
+                block = request.POST.get('blockSelect', '')
+                pen = request.POST.get('penSelect', '')
+                event.location = " ".join(filter(None, [line, block, pen]))
+
             event.save()
 
+            # AJAX response
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 action_type = request.POST.get('actionType')
                 if action_type == 'proceed':
@@ -156,15 +228,13 @@ def create_event(request):
                     'message': 'Event saved successfully! You can add another.'
                 })
 
+            # Non-AJAX redirect
             messages.success(request, "Event created successfully!")
             return redirect('veterinary:create_event')
 
         else:
             # Collect detailed field errors
-            errors = {
-                field: [str(err) for err in errs]
-                for field, errs in form.errors.items()
-            }
+            errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({

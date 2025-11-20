@@ -194,28 +194,51 @@
       <div class="header_box version_2">
         <h2><i class="fa fa-bell text-danger"></i> Events to approve</h2>
       </div>
+
       <div>
         <table class="table table-sm table-bordered">
           <thead class="thead-light">
             <tr>
               <th>#</th>
-              <th>Section</th>
+              <th>Animal</th>
+              <th>Animal Type</th>
               <th>Event Type</th>
               <th>Number of Animals</th>
               <th>Submitted By</th>
               <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {% for edit in pending_event_edits %}
+            
               <!-- Pending Update Record -->
               <tr>
                 <td>{{ forloop.counter }}</td>
+
+                <!-- ANIMAL -->
                 <td>
-                  {{ edit.event.animal }}
+                  {% if edit.data.animal_obj %}
+                    {{ edit.data.animal_obj.animal_name }}
+                  {% else %}
+                    {{ edit.event.animal }}
+                  {% endif %}
                   <span class="badge badge-success ml-1">Update</span>
                 </td>
+
+                <!-- ANIMAL TYPE -->
+                <td>
+                  {% if edit.data.animal_type_obj %}
+                    {{ edit.data.animal_type_obj.animal_type_name }}
+                  {% else %}
+                    {{ edit.event.animal_type }}
+                  {% endif %}
+                </td>
+
+                <!-- EVENT TYPE -->
                 <td>{{ edit.event.event_name }}</td>
+
+                <!-- NUMBER OF ANIMALS -->
                 <td>
                   {% if edit.data.number_of_animals %}
                     {{ edit.data.number_of_animals }}
@@ -223,7 +246,11 @@
                     {{ edit.event.number_of_animals }}
                   {% endif %}
                 </td>
+
+                <!-- SUBMITTED BY -->
                 <td>{{ edit.submitted_by.username }}</td>
+
+                <!-- ACTIONS -->
                 <td>
                   <a href="{% url 'main:approve_event_edit' edit.id %}" class="btn btn-sm btn-success">Approve</a>
                   <a href="{% url 'main:dismiss_event_edit' edit.id %}" class="btn btn-sm btn-danger">Dismiss</a>
@@ -233,24 +260,32 @@
               <!-- Main Record -->
               <tr>
                 <td></td>
+
                 <td>
                   {{ edit.event.animal }}
                   <span class="badge badge-secondary ml-1">Main</span>
                 </td>
+
+                <td>{{ edit.event.animal_type }}</td>
+
                 <td>{{ edit.event.event_name }}</td>
                 <td>{{ edit.event.number_of_animals }}</td>
                 <td>{{ edit.event.created_by.username }}</td>
                 <td><small class="text-muted">Current record</small></td>
               </tr>
+
             {% empty %}
               <tr>
-                <td colspan="6" class="text-center text-muted">No pending event edits.</td>
+                <td colspan="7" class="text-center text-muted">No pending event edits.</td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
+
+
+
 
 
 
