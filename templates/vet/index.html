@@ -131,28 +131,93 @@
                 <th>#</th>
                 <th>Event</th>
                 <th>Animal</th>
+                <th>Animal Type</th>
+                <th>No. of Animals</th>
                 <th>Date Submitted</th>
                 <th>Status</th>
               </tr>
             </thead>
+
             <tbody>
               {% for pending in pending_edits %}
-                <tr>
+
+                {# ------------------------------------------- #}
+                {# 🔶 ROW 1: Pending Edit (submitted changes) #}
+                {# ------------------------------------------- #}
+                <tr class="table-warning">
                   <td>{{ forloop.counter }}</td>
+
+                  <!-- Event Name -->
+                  <td>
+                    {% if pending.data.event_name %}
+                      {{ pending.data.event_name }}
+                    {% else %}
+                      {{ pending.event.event_name }}
+                    {% endif %}
+                  </td>
+
+                  <!-- Animal -->
+                  <td>
+                    {% if pending.data.animal_obj %}
+                      {{ pending.data.animal_obj.animal_name }}
+                    {% elif pending.data.animal %}
+                      ID: {{ pending.data.animal }}
+                    {% else %}
+                      {{ pending.event.animal }}
+                    {% endif %}
+                  </td>
+
+                  <!-- Animal Type -->
+                  <td>
+                    {% if pending.data.animal_type_obj %}
+                      {{ pending.data.animal_type_obj.animal_type_name }}
+                    {% elif pending.data.animal_type %}
+                      ID: {{ pending.data.animal_type }}
+                    {% else %}
+                      {{ pending.event.animal_type }}
+                    {% endif %}
+                  </td>
+
+                  <!-- Number of Animals -->
+                  <td>
+                    {% if pending.data.number_of_animals %}
+                      {{ pending.data.number_of_animals }}
+                    {% else %}
+                      {{ pending.event.number_of_animals }}
+                    {% endif %}
+                  </td>
+
+                  <td>{{ pending.submitted_at|date:"M d, Y H:i" }}</td>
+                  <td><span class="badge badge-warning">Edit Submitted</span></td>
+                </tr>
+
+
+                {# ------------------------------------------- #}
+                {# 🔵 ROW 2: Main Event Record (original data) #}
+                {# ------------------------------------------- #}
+                <tr class="bg-light">
+                  <td></td>
                   <td>{{ pending.event.event_name }}</td>
                   <td>{{ pending.event.animal }}</td>
-                  <td>{{ pending.created_at|date:"M d, Y H:i" }}</td>
-                  <td><span class="badge badge-warning">Awaiting Approval</span></td>
+                  <td>{{ pending.event.animal_type }}</td>
+                  <td>{{ pending.event.number_of_animals }}</td>
+                  <td>{{ pending.event.created_at|date:"M d, Y H:i" }}</td>
+                  <td><span class="badge badge-info">Main Record</span></td>
                 </tr>
+
               {% empty %}
                 <tr>
-                  <td colspan="5" class="text-center text-muted">No pending edits submitted for approval.</td>
+                  <td colspan="7" class="text-center text-muted">
+                    No pending edits submitted for approval.
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
       </div>
+
+
 
     </div>
 		

@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from farmrecord.models import EventType, Census, Animals, PendingEventEdit
+from farmrecord.models import EventType, Census, Animals, PendingEventEdit, AnimalType
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
@@ -53,7 +53,23 @@ def vet_index(request):
     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
 
     # ✅ Get events submitted by the current vet pending approval
-    pending_edits = PendingEventEdit.objects.filter(submitted_by=request.user).select_related('event')
+    # pending_edits = PendingEventEdit.objects.filter(submitted_by=request.user).select_related('event')
+    pending_edits = (PendingEventEdit.objects.filter(submitted_by=request.user, approved=False).select_related("event", "event__animal", "event__animal_type"))
+    # Convert JSON IDs into actual objects
+    for p in pending_edits:
+        animal_id = p.data.get("animal")
+        if animal_id:
+            try:
+                p.data["animal_obj"] = Animals.objects.get(id=animal_id)
+            except Animals.DoesNotExist:
+                p.data["animal_obj"] = None
+
+        animal_type_id = p.data.get("animal_type")
+        if animal_type_id:
+            try:
+                p.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
+            except AnimalType.DoesNotExist:
+                p.data["animal_type_obj"] = None
 
     context = {
         'today_dispatches': today_dispatches,
