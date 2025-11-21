@@ -37,7 +37,7 @@
         <div id="piggery-wrapper" class="form-row" style="display: none;">
           <div class="col-md-4">
             <label for="lineSelect">Line</label>
-            <select id="lineSelect" class="form-control">
+            <select id="lineSelect" name="lineSelect" class="form-control">
               <option value="">--- Select Line ---</option>
               <option value="Denmark">Denmark</option>
               {% for i in "123456789" %}
@@ -47,7 +47,7 @@
           </div>
           <div class="col-md-4">
             <label for="blockSelect">Block</label>
-            <select id="blockSelect" class="form-control">
+            <select id="blockSelect" name="blockSelect" class="form-control">
               <option value="">--- Select Block ---</option>
               {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
                 <option value="Block {{ letter }}">Block {{ letter }}</option>
@@ -56,7 +56,7 @@
           </div>
           <div class="col-md-4">
             <label for="penSelect">Pen</label>
-            <select id="penSelect" class="form-control">
+            <select id="penSelect" name="penSelect" class="form-control">
               <option value="">--- Select Pen ---</option>
             </select>
           </div>
@@ -124,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // AJAX submit function
   function ajaxSubmit(redirectType) {
     const formData = new FormData(form);
+    formData.append("actionType", redirectType);   // ✅ Important
     fetch(submitUrl, {
       method: "POST",
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
