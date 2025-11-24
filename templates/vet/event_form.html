@@ -6,9 +6,10 @@
 {% block content %}
 <div class="content-wrapper">
   <div class="container-fluid">
+
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'veterinary:vet_index' %}">Home</a></li>
-      <li class="breadcrumb-item active">Animal Event Record</li>
+      <li class="breadcrumb-item active">{% if edit_mode %}Edit Event{% else %}Create Event{% endif %}</li>
     </ol>
 
     <div id="message-box" style="display:none;"></div>
@@ -16,27 +17,35 @@
     <div class="box_general padding_bottom">
       <form method="post" enctype="multipart/form-data" id="eventForm">
         {% csrf_token %}
+
         {{ form.animal }}
         {{ form.animal_type|as_crispy_field }}
         {{ form.event_name|as_crispy_field }}
 
-        <!-- Default Location -->
+        <!-- MAIN LOCATION (Paddock / Small Ruminant) -->
         <div id="location-wrapper" class="form-group">
           <label for="id_location">Location</label>
           <select name="location" id="id_location" class="form-control">
             <option value="">--- Select Location ---</option>
-            {% for value, label in form.fields.location.choices %}
-              {% if value %}
-                <option value="{{ value }}" {% if form.location.value == value %}selected{% endif %}>{{ label }}</option>
-              {% endif %}
-            {% endfor %}
+
+            {% with selected_loc=form.initial.location %}
+              {% for value, label in form.fields.location.choices %}
+                {% if value %}
+                  <option value="{{ value }}"
+                    {% if selected_loc == value or initial_paddock == value or initial_small_ruminant == value %}
+                      selected
+                    {% endif %}
+                  >{{ label }}</option>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
           </select>
         </div>
 
-        <!-- Piggery Location -->
-        <div id="piggery-wrapper" class="form-row" style="display: none;">
+        <!-- PIGGERY LOCATION -->
+        <div id="piggery-wrapper" class="form-row" style="display:none;">
           <div class="col-md-4">
-            <label for="lineSelect">Line</label>
+            <label>Line</label>
             <select id="lineSelect" class="form-control">
               <option value="">--- Select Line ---</option>
               <option value="Denmark">Denmark</option>
@@ -45,8 +54,9 @@
               {% endfor %}
             </select>
           </div>
+
           <div class="col-md-4">
-            <label for="blockSelect">Block</label>
+            <label>Block</label>
             <select id="blockSelect" class="form-control">
               <option value="">--- Select Block ---</option>
               {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
@@ -54,8 +64,9 @@
               {% endfor %}
             </select>
           </div>
+
           <div class="col-md-4">
-            <label for="penSelect">Pen</label>
+            <label>Pen</label>
             <select id="penSelect" class="form-control">
               <option value="">--- Select Pen ---</option>
             </select>
@@ -66,20 +77,18 @@
         {{ form.designation|as_crispy_field }}
         {{ form.notes|as_crispy_field }}
 
-        <!-- Event Image -->
         <div class="form-group">
-          <label for="{{ form.image.id_for_label }}">Event Image</label>
+          <label>Event Image</label>
           {{ form.image }}
         </div>
 
-        <!-- Buttons -->
         <div class="mt-3">
           {% if edit_mode %}
             <button type="submit" class="btn btn-primary">Update Record</button>
             <a href="{% url 'veterinary:event_records' %}" class="btn btn-secondary">Back</a>
           {% else %}
-            <button type="button" class="btn btn-primary" id="saveAddAnother">Save and Add Another</button>
-            <button type="button" class="btn btn-success" id="saveProceed">Save and Proceed</button>
+            <button type="button" id="saveAddAnother" class="btn btn-primary">Save & Add Another</button>
+            <button type="button" id="saveProceed" class="btn btn-success">Save & Proceed</button>
           {% endif %}
         </div>
       </form>
@@ -87,110 +96,58 @@
   </div>
 </div>
 
-<!-- Success Modal for Vet Edit Submission -->
-<div class="modal fade" id="editSuccessModal" tabindex="-1" role="dialog" aria-labelledby="editSuccessModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+
+<!-- Edit Success Modal -->
+<div class="modal fade" id="editSuccessModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content text-center">
       <div class="modal-header bg-success text-white">
-        <h5 class="modal-title" id="editSuccessModalLabel">Edit Submitted</h5>
-        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h5>Edit Submitted</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
       </div>
-      <div class="modal-body">
-        <p>Your edit has been submitted for admin approval.</p>
-      </div>
+      <div class="modal-body">Your edit has been submitted for admin approval.</div>
       <div class="modal-footer justify-content-center">
-        <a href="{% url 'veterinary:event_records' %}" class="btn btn-primary">Proceed to Records</a>
+        <a href="{% url 'veterinary:event_records' %}" class="btn btn-primary">Proceed</a>
       </div>
     </div>
   </div>
 </div>
 
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const msgBox = document.getElementById('message-box');
-  const form = document.getElementById('eventForm');
+document.addEventListener("DOMContentLoaded", () => {
 
   const isEditMode = {{ edit_mode|yesno:"true,false" }};
   const submitUrl = {% if edit_mode %}"{% url 'veterinary:edit_event' event.id %}"{% else %}"{% url 'veterinary:create_event' %}"{% endif %};
 
-  function showMessage(type, text) {
-    msgBox.innerHTML = `<div class="alert alert-${type}" role="alert">${text}</div>`;
-    msgBox.style.display = 'block';
-    setTimeout(() => { msgBox.style.display = 'none'; }, 3000);
-  }
+  const form = document.getElementById("eventForm");
+  const msgBox = document.getElementById("message-box");
 
-  // AJAX submit function
-  function ajaxSubmit(redirectType) {
-    const formData = new FormData(form);
-    fetch(submitUrl, {
-      method: "POST",
-      headers: { 'X-Requested-With': 'XMLHttpRequest' },
-      body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'success') {
-        if (isEditMode) {
-          $('#editSuccessModal').modal('show');
-        } else {
-          showMessage('success', data.message);
-          if (redirectType === 'add') {
-            form.reset();
-            // Reset hidden location
-            document.getElementById('id_location').value = '';
-          } else if (redirectType === 'proceed') {
-            window.location.href = data.redirect_url;
-          }
-        }
-      } else {
-        let err = data.message || 'Error submitting form.';
-        if (data.errors) {
-          const formatted = Object.entries(data.errors)
-            .map(([f, msgs]) => `<strong>${f}:</strong> ${msgs.join(', ')}`)
-            .join('<br>');
-          err += `<br>${formatted}`;
-        }
-        showMessage('danger', err);
-      }
-    })
-    .catch(() => showMessage('danger', 'An unexpected error occurred.'));
-  }
+  const locationWrapper = document.getElementById("location-wrapper");
+  const piggeryWrapper  = document.getElementById("piggery-wrapper");
 
-  // Button click handlers
-  const saveAddAnother = document.getElementById('saveAddAnother');
-  const saveProceed = document.getElementById('saveProceed');
+  const hiddenLocation = document.getElementById("id_location");
+  const lineSelect = document.getElementById("lineSelect");
+  const blockSelect = document.getElementById("blockSelect");
+  const penSelect = document.getElementById("penSelect");
 
-  saveAddAnother.addEventListener('click', () => ajaxSubmit('add'));
-  saveProceed.addEventListener('click', () => ajaxSubmit('proceed'));
+  
+  const isPiggeryVet = {{ is_vet_piggery|yesno:"true,false" }};
 
-  // Existing piggery and designation logic
-  const eventField = document.getElementById('id_event_name');
-  const designationField = document.getElementById('id_designation');
-  const designationWrapper = designationField.closest('.form-group');
-  const locationWrapper = document.getElementById('location-wrapper');
-  const piggeryWrapper = document.getElementById('piggery-wrapper');
-  const lineSelect = document.getElementById('lineSelect');
-  const blockSelect = document.getElementById('blockSelect');
-  const penSelect = document.getElementById('penSelect');
-  const hiddenLocation = document.getElementById('id_location');
 
+
+  // -------------------- Populate Pen 1–100 --------------------
   for (let i = 1; i <= 100; i++) {
-    const opt = document.createElement('option');
+    const opt = document.createElement("option");
     opt.value = `Pen ${i}`;
     opt.textContent = `Pen ${i}`;
     penSelect.appendChild(opt);
   }
 
-  function toggleDesignation() {
-    if (eventField.value === 'culling') designationWrapper.style.display = 'block';
-    else { designationWrapper.style.display = 'none'; designationField.value = ''; }
-  }
 
+  // -------------------- Show Correct UI --------------------
   function handleLocationDisplay() {
-    const animal = "{{ form.fields.animal.initial.animal_name|default:'' }}".toLowerCase();
-    if (animal === "pig") {
+    if (isPiggeryVet) {
       piggeryWrapper.style.display = "flex";
       locationWrapper.style.display = "none";
     } else {
@@ -199,17 +156,98 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+
+  // -------------------- Update hidden location ONLY for pig --------------------
   function updateHiddenLocation() {
-    const line = lineSelect.value;
-    const block = blockSelect.value;
-    const pen = penSelect.value;
-    hiddenLocation.value = [line, block, pen].filter(Boolean).join(' ');
+    if (!isPiggeryVet) return; // IMPORTANT
+
+    hiddenLocation.value = [
+      lineSelect.value,
+      blockSelect.value,
+      penSelect.value
+    ]
+    .filter(Boolean)
+    .join(" ");
   }
 
-  [lineSelect, blockSelect, penSelect].forEach(sel => sel.addEventListener('change', updateHiddenLocation));
-  eventField.addEventListener('change', toggleDesignation);
-  toggleDesignation();
+  [lineSelect, blockSelect, penSelect].forEach(s => {
+    s.addEventListener("change", updateHiddenLocation);
+  });
+
+
+  // -------------------- Prefill for Edit --------------------
+  if (isEditMode) {
+    const initialLine  = "{{ initial_line }}";
+    const initialBlock = "{{ initial_block }}";
+    const initialPen   = "{{ initial_pen }}";
+
+    const initialPaddock = "{{ initial_paddock }}";
+    const initialSR      = "{{ initial_small_ruminant }}";
+
+    // Pig Prefill
+    if (isPiggeryVet) {
+      if (initialLine) lineSelect.value = initialLine;
+      if (initialBlock) blockSelect.value = initialBlock;
+
+      if (initialPen) {
+        setTimeout(() => { penSelect.value = initialPen; }, 50);
+      }
+
+      updateHiddenLocation();
+    }
+
+    // Paddock or Small Ruminant Prefill
+    if (!isPiggeryVet) {
+      if (initialPaddock) hiddenLocation.value = initialPaddock;
+      if (initialSR)      hiddenLocation.value = initialSR;
+    }
+  }
+
   handleLocationDisplay();
+
+
+  // -------------------- AJAX SUBMIT --------------------
+  function ajaxSubmit(actionType) {
+    updateHiddenLocation();
+
+    const formData = new FormData(form);
+    formData.append("actionType", actionType);
+
+    fetch(submitUrl, {
+      method: "POST",
+      headers: { "X-Requested-With": "XMLHttpRequest" },
+      body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === "success") {
+        if (isEditMode) {
+          $("#editSuccessModal").modal("show");
+        } else {
+          if (actionType === "add") {
+            form.reset();
+            hiddenLocation.value = "";
+            msgBox.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+            msgBox.style.display = "block";
+          }
+          if (actionType === "proceed") {
+            window.location.href = data.redirect_url;
+          }
+        }
+      } else {
+        msgBox.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+        msgBox.style.display = "block";
+      }
+    });
+  }
+
+  const addBtn = document.getElementById("saveAddAnother");
+  const proceedBtn = document.getElementById("saveProceed");
+
+  if (addBtn) addBtn.onclick = () => ajaxSubmit("add");
+  if (proceedBtn) proceedBtn.onclick = () => ajaxSubmit("proceed");
+
 });
 </script>
+
 {% endblock %}
