@@ -248,7 +248,7 @@ def create_event(request):
     else:
         form = EventForm(user=request.user)
 
-    return render(request, 'vet/event_form.html', {'form': form})
+    return render(request, 'vet/event_form.html', {'form': form, 'is_vet_piggery': request.user.profile.is_vet_piggery,})
 
 
 @login_required
@@ -569,42 +569,194 @@ def census_records(request):
 #     })
 
 
+# @login_required
+# def edit_event(request, pk):
+#     event = get_object_or_404(EventType, pk=pk)
+#     profile = getattr(request.user, 'profile', None)
+#     is_boss = profile and profile.is_boss
+
+#     if request.method == 'POST':
+#         form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
+#         if form.is_valid():
+#             if is_boss:
+#                 # Admin can approve and update directly
+#                 updated_event = form.save(commit=False)
+#                 updated_event.is_approved = True
+#                 updated_event.save()
+#                 message = "Event updated and approved successfully!"
+#             else:
+#                 # Vet’s changes go to PendingEventEdit instead
+#                 # pending_data = form.cleaned_data
+#                 # PendingEventEdit.objects.create(
+#                 #     event=event,
+#                 #     submitted_by=request.user,
+#                 #     data=pending_data
+#                 # )
+#                 pending_data = {}
+#                 for key, value in form.cleaned_data.items():
+#                     if hasattr(value, 'pk'):
+#                         pending_data[key] = value.pk  # store ID instead of object
+#                     else:
+#                         pending_data[key] = value
+
+#                 PendingEventEdit.objects.create(
+#                     event=event,
+#                     submitted_by=request.user,
+#                     data=pending_data
+#                 )
+
+#                 message = "Your edit has been sent for admin approval."
+
+#             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#                 return JsonResponse({
+#                     'status': 'success',
+#                     'message': message,
+#                     'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
+#                 })
+
+#             messages.success(request, message)
+#             return redirect('veterinary:event_detail', pk=event.pk)
+
+#         # Handle errors
+#         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#             errors = {f: [str(e) for e in err] for f, err in form.errors.items()}
+#             return JsonResponse({'status': 'error', 'errors': errors})
+#         messages.error(request, "Error updating event.")
+#     else:
+#         form = EventForm(instance=event, user=request.user)
+
+#     return render(request, 'vet/event_form.html', {
+#         'form': form,
+#         'edit_mode': True,
+#         'event': event
+#     })
+
+
+# @login_required
+# def edit_event(request, pk):
+#     event = get_object_or_404(EventType, pk=pk)
+#     profile = getattr(request.user, 'profile', None)
+#     is_boss = profile and profile.is_boss
+
+#     # -------- Extract piggery location --------
+#     initial_line = ""
+#     initial_block = ""
+#     initial_pen = ""
+
+#     if event.location:
+#         parts = event.location.split()   # Expected: ["Line","4","Block","B","Pen","16"]
+#         if len(parts) == 6:
+#             initial_line = f"{parts[0]} {parts[1]}"     # Line X
+#             initial_block = f"{parts[2]} {parts[3]}"    # Block Y
+#             initial_pen = f"{parts[4]} {parts[5]}"      # Pen Z
+
+#     if request.method == 'POST':
+#         form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
+#         if form.is_valid():
+
+#             # Admin updates directly
+#             if is_boss:
+#                 updated_event = form.save(commit=False)
+#                 updated_event.is_approved = True
+#                 updated_event.save()
+#                 message = "Event updated and approved successfully!"
+
+#             # Vet → send to PendingEventEdit
+#             else:
+#                 pending_data = {}
+#                 for key, value in form.cleaned_data.items():
+#                     pending_data[key] = value.pk if hasattr(value, 'pk') else value
+
+#                 PendingEventEdit.objects.create(
+#                     event=event,
+#                     submitted_by=request.user,
+#                     data=pending_data
+#                 )
+#                 message = "Your edit has been sent for admin approval."
+
+#             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#                 return JsonResponse({
+#                     'status': 'success',
+#                     'message': message,
+#                     'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
+#                 })
+
+#             messages.success(request, message)
+#             return redirect('veterinary:event_detail', pk=event.pk)
+
+#         # ---- Form error handling ----
+#         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#             errors = {f: [str(e) for e in err] for f, err in form.errors.items()}
+#             return JsonResponse({'status': 'error', 'errors': errors})
+
+#         messages.error(request, "Error updating event.")
+
+#     else:
+#         form = EventForm(instance=event, user=request.user)
+
+#     return render(request, 'vet/event_form.html', {
+#         'form': form,
+#         'edit_mode': True,
+#         'event': event,
+#         'initial_line': initial_line,
+#         'initial_block': initial_block,
+#         'initial_pen': initial_pen,
+#     })
+
+
+
 @login_required
 def edit_event(request, pk):
     event = get_object_or_404(EventType, pk=pk)
     profile = getattr(request.user, 'profile', None)
     is_boss = profile and profile.is_boss
 
+    # -------------------- AUTO-PARSE LOCATION FOR ALL SECTIONS --------------------
+    initial_line = ""
+    initial_block = ""
+    initial_pen = ""
+
+    initial_paddock = ""
+    initial_small_ruminant = ""
+
+    location = event.location.strip() if event.location else ""
+
+    # Piggery: "Line X Block Y Pen Z"
+    parts = location.split()
+    if len(parts) == 6 and parts[0] == "Line":
+        initial_line = f"{parts[0]} {parts[1]}"
+        initial_block = f"{parts[2]} {parts[3]}"
+        initial_pen = f"{parts[4]} {parts[5]}"
+
+    # Paddock example: "Paddock 4" or "Paddock A"
+    if location.startswith("Paddock"):
+        initial_paddock = location
+
+    # Small ruminant example: "SR Unit 2", "SR Pen 6"
+    if location.lower().startswith("sr"):
+        initial_small_ruminant = location
+        print(initial_small_ruminant)
+
+    # -------------------- PROCESS FORM --------------------
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
         if form.is_valid():
+
             if is_boss:
-                # Admin can approve and update directly
                 updated_event = form.save(commit=False)
                 updated_event.is_approved = True
                 updated_event.save()
                 message = "Event updated and approved successfully!"
             else:
-                # Vet’s changes go to PendingEventEdit instead
-                # pending_data = form.cleaned_data
-                # PendingEventEdit.objects.create(
-                #     event=event,
-                #     submitted_by=request.user,
-                #     data=pending_data
-                # )
                 pending_data = {}
                 for key, value in form.cleaned_data.items():
-                    if hasattr(value, 'pk'):
-                        pending_data[key] = value.pk  # store ID instead of object
-                    else:
-                        pending_data[key] = value
+                    pending_data[key] = value.pk if hasattr(value, 'pk') else value
 
                 PendingEventEdit.objects.create(
                     event=event,
                     submitted_by=request.user,
                     data=pending_data
                 )
-
                 message = "Your edit has been sent for admin approval."
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -617,18 +769,32 @@ def edit_event(request, pk):
             messages.success(request, message)
             return redirect('veterinary:event_detail', pk=event.pk)
 
-        # Handle errors
+        # Return AJAX errors
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             errors = {f: [str(e) for e in err] for f, err in form.errors.items()}
             return JsonResponse({'status': 'error', 'errors': errors})
+
         messages.error(request, "Error updating event.")
+
     else:
         form = EventForm(instance=event, user=request.user)
 
     return render(request, 'vet/event_form.html', {
         'form': form,
         'edit_mode': True,
-        'event': event
+        'event': event,
+
+        # Piggery
+        'initial_line': initial_line,
+        'initial_block': initial_block,
+        'initial_pen': initial_pen,
+
+        # Paddock + Ruminant
+        'initial_paddock': initial_paddock,
+        'initial_small_ruminant': initial_small_ruminant,
+
+        #Piggery
+        'is_vet_piggery': request.user.profile.is_vet_piggery,
     })
 
 
