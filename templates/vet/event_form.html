@@ -131,7 +131,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const blockSelect = document.getElementById("blockSelect");
   const penSelect = document.getElementById("penSelect");
 
-  const animal = "{{ form.instance.animal.animal_name|default:'' }}".toLowerCase();
+  
+  const isPiggeryVet = {{ is_vet_piggery|yesno:"true,false" }};
+
 
 
   // -------------------- Populate Pen 1–100 --------------------
@@ -145,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // -------------------- Show Correct UI --------------------
   function handleLocationDisplay() {
-    if (animal === "pig") {
+    if (isPiggeryVet) {
       piggeryWrapper.style.display = "flex";
       locationWrapper.style.display = "none";
     } else {
@@ -157,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // -------------------- Update hidden location ONLY for pig --------------------
   function updateHiddenLocation() {
-    if (animal !== "pig") return; // IMPORTANT
+    if (!isPiggeryVet) return; // IMPORTANT
 
     hiddenLocation.value = [
       lineSelect.value,
@@ -183,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const initialSR      = "{{ initial_small_ruminant }}";
 
     // Pig Prefill
-    if (animal === "pig") {
+    if (isPiggeryVet) {
       if (initialLine) lineSelect.value = initialLine;
       if (initialBlock) blockSelect.value = initialBlock;
 
@@ -195,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Paddock or Small Ruminant Prefill
-    if (animal !== "pig") {
+    if (!isPiggeryVet) {
       if (initialPaddock) hiddenLocation.value = initialPaddock;
       if (initialSR)      hiddenLocation.value = initialSR;
     }

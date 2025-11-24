@@ -248,7 +248,7 @@ def create_event(request):
     else:
         form = EventForm(user=request.user)
 
-    return render(request, 'vet/event_form.html', {'form': form})
+    return render(request, 'vet/event_form.html', {'form': form, 'is_vet_piggery': request.user.profile.is_vet_piggery,})
 
 
 @login_required
@@ -792,6 +792,9 @@ def edit_event(request, pk):
         # Paddock + Ruminant
         'initial_paddock': initial_paddock,
         'initial_small_ruminant': initial_small_ruminant,
+
+        #Piggery
+        'is_vet_piggery': request.user.profile.is_vet_piggery,
     })
 
 
