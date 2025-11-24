@@ -22,30 +22,31 @@
         {{ form.animal_type|as_crispy_field }}
         {{ form.event_name|as_crispy_field }}
 
-        <!-- Default Location -->
+        <!-- MAIN LOCATION (Paddock / Small Ruminant) -->
         <div id="location-wrapper" class="form-group">
           <label for="id_location">Location</label>
           <select name="location" id="id_location" class="form-control">
             <option value="">--- Select Location ---</option>
 
             {% with selected_loc=form.initial.location %}
-
               {% for value, label in form.fields.location.choices %}
                 {% if value %}
-                  <option value="{{ value }}" {% if selected_loc == value %}selected{% endif %}>
-                    {{ label }}
-                  </option>
+                  <option value="{{ value }}"
+                    {% if selected_loc == value or initial_paddock == value or initial_small_ruminant == value %}
+                      selected
+                    {% endif %}
+                  >{{ label }}</option>
                 {% endif %}
               {% endfor %}
             {% endwith %}
           </select>
         </div>
 
-        <!-- Piggery Location -->
+        <!-- PIGGERY LOCATION -->
         <div id="piggery-wrapper" class="form-row" style="display:none;">
           <div class="col-md-4">
             <label>Line</label>
-            <select id="lineSelect" name="lineSelect" class="form-control">
+            <select id="lineSelect" class="form-control">
               <option value="">--- Select Line ---</option>
               <option value="Denmark">Denmark</option>
               {% for i in "123456789" %}
@@ -56,7 +57,7 @@
 
           <div class="col-md-4">
             <label>Block</label>
-            <select id="blockSelect" name="blockSelect" class="form-control">
+            <select id="blockSelect" class="form-control">
               <option value="">--- Select Block ---</option>
               {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
                 <option value="Block {{ letter }}">Block {{ letter }}</option>
@@ -66,7 +67,7 @@
 
           <div class="col-md-4">
             <label>Pen</label>
-            <select id="penSelect" name="penSelect" class="form-control">
+            <select id="penSelect" class="form-control">
               <option value="">--- Select Pen ---</option>
             </select>
           </div>
@@ -96,7 +97,7 @@
 </div>
 
 
-<!-- Success Modal for Edit -->
+<!-- Edit Success Modal -->
 <div class="modal fade" id="editSuccessModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content text-center">
@@ -117,8 +118,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
   const isEditMode = {{ edit_mode|yesno:"true,false" }};
-  const submitUrl = {% if edit_mode %}"{% url 'veterinary:edit_event' event.id %}"
-                    {% else %}"{% url 'veterinary:create_event' %}"{% endif %};
+  const submitUrl = {% if edit_mode %}"{% url 'veterinary:edit_event' event.id %}"{% else %}"{% url 'veterinary:create_event' %}"{% endif %};
 
   const form = document.getElementById("eventForm");
   const msgBox = document.getElementById("message-box");
@@ -127,13 +127,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const piggeryWrapper  = document.getElementById("piggery-wrapper");
 
   const hiddenLocation = document.getElementById("id_location");
-
-  const lineSelect  = document.getElementById("lineSelect");
+  const lineSelect = document.getElementById("lineSelect");
   const blockSelect = document.getElementById("blockSelect");
-  const penSelect   = document.getElementById("penSelect");
+  const penSelect = document.getElementById("penSelect");
+
+  const animal = "{{ form.instance.animal.animal_name|default:'' }}".toLowerCase();
 
 
-  // -------------------------- PENS 1–100 --------------------------
+  // -------------------- Populate Pen 1–100 --------------------
   for (let i = 1; i <= 100; i++) {
     const opt = document.createElement("option");
     opt.value = `Pen ${i}`;
@@ -141,17 +142,9 @@ document.addEventListener("DOMContentLoaded", () => {
     penSelect.appendChild(opt);
   }
 
-  // ---------------- SHOW MESSAGE ----------------
-  function showMessage(type, text) {
-    msgBox.innerHTML = `<div class="alert alert-${type}">${text}</div>`;
-    msgBox.style.display = "block";
-    setTimeout(() => msgBox.style.display = "none", 3000);
-  }
 
-  // ---------------- DISPLAY LOGIC ----------------
+  // -------------------- Show Correct UI --------------------
   function handleLocationDisplay() {
-    const animal = "{{ form.instance.animal.animal_name|default:'' }}".toLowerCase();
-
     if (animal === "pig") {
       piggeryWrapper.style.display = "flex";
       locationWrapper.style.display = "none";
@@ -161,12 +154,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+
+  // -------------------- Update hidden location ONLY for pig --------------------
   function updateHiddenLocation() {
+    if (animal !== "pig") return; // IMPORTANT
+
     hiddenLocation.value = [
       lineSelect.value,
       blockSelect.value,
       penSelect.value
-    ].filter(Boolean).join(" ");
+    ]
+    .filter(Boolean)
+    .join(" ");
   }
 
   [lineSelect, blockSelect, penSelect].forEach(s => {
@@ -174,157 +173,33 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-  // ----------------------- PREFILL FOR EDIT -----------------------
+  // -------------------- Prefill for Edit --------------------
   if (isEditMode) {
     const initialLine  = "{{ initial_line }}";
     const initialBlock = "{{ initial_block }}";
     const initialPen   = "{{ initial_pen }}";
 
     const initialPaddock = "{{ initial_paddock }}";
-    const initialSR = "{{ initial_small_ruminant }}";
+    const initialSR      = "{{ initial_small_ruminant }}";
 
-    // Piggery
-    if (initialLine) lineSelect.value = initialLine;
-    if (initialBlock) blockSelect.value = initialBlock;
-
-    if (initialPen) {
-      setTimeout(() => { penSelect.value = initialPen; }, 50);
-    }
-
-    // Paddock or small ruminant → set full location
-    if (initialPaddock) hiddenLocation.value = initialPaddock;
-    if (initialSR) hiddenLocation.value = initialSR;
-
-    updateHiddenLocation();
-  }
-
-  handleLocationDisplay();
-
-
-  // ----------------------- AJAX SUBMIT -----------------------
-  function ajaxSubmit(actionType) {
-    updateHiddenLocation();
-
-    const formData = new FormData(form);
-    formData.append("actionType", actionType);
-
-    fetch(submitUrl, {
-      method: "POST",
-      headers: { "X-Requested-With": "XMLHttpRequest" },
-      body: formData
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.status === "success") {
-        if (isEditMode) {
-          $("#editSuccessModal").modal("show");
-        } else {
-          if (actionType === "add") {
-            form.reset();
-            hiddenLocation.value = "";
-            showMessage("success", data.message);
-          }
-          if (actionType === "proceed") {
-            window.location.href = data.redirect_url;
-          }
-        }
-      } else {
-        showMessage("danger", data.message || "Error submitting form.");
-      }
-    });
-  }
-
-  const addBtn = document.getElementById("saveAddAnother");
-  const proceedBtn = document.getElementById("saveProceed");
-
-  if (addBtn) addBtn.onclick = () => ajaxSubmit("add");
-  if (proceedBtn) proceedBtn.onclick = () => ajaxSubmit("proceed");
-
-});
-</script>
-
-
-
-<!-- <script>
-document.addEventListener("DOMContentLoaded", () => {
-
-  const isEditMode = {{ edit_mode|yesno:"true,false" }};
-  const submitUrl = {% if edit_mode %}
-    "{% url 'veterinary:edit_event' event.id %}"
-    {% else %}
-    "{% url 'veterinary:create_event' %}"
-    {% endif %};
-
-  const form = document.getElementById("eventForm");
-  const msgBox = document.getElementById("message-box");
-
-  const locationWrapper = document.getElementById("location-wrapper");
-  const piggeryWrapper  = document.getElementById("piggery-wrapper");
-
-  const lineSelect  = document.getElementById("lineSelect");
-  const blockSelect = document.getElementById("blockSelect");
-  const penSelect   = document.getElementById("penSelect");
-  const hiddenLocation = document.getElementById("id_location");
-
-
-  // Populate pens (1–100)
-  for (let i = 1; i <= 100; i++) {
-    const opt = document.createElement("option");
-    opt.value = `Pen ${i}`;
-    opt.textContent = `Pen ${i}`;
-    penSelect.appendChild(opt);
-  }
-
-  function showMessage(type, text) {
-    msgBox.innerHTML = `<div class="alert alert-${type}">${text}</div>`;
-    msgBox.style.display = "block";
-    setTimeout(() => msgBox.style.display = "none", 3000);
-  }
-
-
-  // Determine if animal is pig → show piggery inputs
-  function handleLocationDisplay() {
-    const animal = "{{ form.instance.animal.animal_name|default:'' }}".toLowerCase();
+    // Pig Prefill
     if (animal === "pig") {
-      piggeryWrapper.style.display = "flex";
-      locationWrapper.style.display = "none";
-    } else {
-      piggeryWrapper.style.display = "none";
-      locationWrapper.style.display = "block";
-    }
-  }
+      if (initialLine) lineSelect.value = initialLine;
+      if (initialBlock) blockSelect.value = initialBlock;
 
+      if (initialPen) {
+        setTimeout(() => { penSelect.value = initialPen; }, 50);
+      }
 
-  // Set hidden location
-  function updateHiddenLocation() {
-    hiddenLocation.value = [
-      lineSelect.value,
-      blockSelect.value,
-      penSelect.value
-    ].filter(Boolean).join(" ");
-  }
-
-  [lineSelect, blockSelect, penSelect].forEach(s => {
-    s.addEventListener("change", updateHiddenLocation);
-  });
-
-
-  // -------------------- PREFILL FOR EDIT --------------------
-  if (isEditMode) {
-    const initialLine  = "{{ initial_line }}";
-    const initialBlock = "{{ initial_block }}";
-    const initialPen   = "{{ initial_pen }}";
-
-    if (initialLine)  lineSelect.value  = initialLine;
-    if (initialBlock) blockSelect.value = initialBlock;
-
-    if (initialPen) {
-      setTimeout(() => { penSelect.value = initialPen; }, 50);
+      updateHiddenLocation();
     }
 
-    updateHiddenLocation();
+    // Paddock or Small Ruminant Prefill
+    if (animal !== "pig") {
+      if (initialPaddock) hiddenLocation.value = initialPaddock;
+      if (initialSR)      hiddenLocation.value = initialSR;
+    }
   }
-
 
   handleLocationDisplay();
 
@@ -350,20 +225,20 @@ document.addEventListener("DOMContentLoaded", () => {
           if (actionType === "add") {
             form.reset();
             hiddenLocation.value = "";
-            showMessage("success", data.message);
+            msgBox.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+            msgBox.style.display = "block";
           }
           if (actionType === "proceed") {
             window.location.href = data.redirect_url;
           }
         }
       } else {
-        showMessage("danger", data.message || "Error submitting form.");
+        msgBox.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+        msgBox.style.display = "block";
       }
     });
   }
 
-
-  // Buttons (create mode)
   const addBtn = document.getElementById("saveAddAnother");
   const proceedBtn = document.getElementById("saveProceed");
 
@@ -371,5 +246,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (proceedBtn) proceedBtn.onclick = () => ajaxSubmit("proceed");
 
 });
-</script> -->
+</script>
+
 {% endblock %}

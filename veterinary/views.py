@@ -735,6 +735,7 @@ def edit_event(request, pk):
     # Small ruminant example: "SR Unit 2", "SR Pen 6"
     if location.lower().startswith("sr"):
         initial_small_ruminant = location
+        print(initial_small_ruminant)
 
     # -------------------- PROCESS FORM --------------------
     if request.method == 'POST':
