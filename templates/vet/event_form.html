@@ -247,6 +247,25 @@ document.addEventListener("DOMContentLoaded", () => {
   if (addBtn) addBtn.onclick = () => ajaxSubmit("add");
   if (proceedBtn) proceedBtn.onclick = () => ajaxSubmit("proceed");
 
+  // ---------------------------------show or hide designation field based on event_name-----------------
+   const eventNameSelect = document.getElementById("id_event_name");
+  const designationField = document.getElementById("id_designation").closest('.form-group');
+
+  function toggleDesignation() {
+    if (eventNameSelect.value.toLowerCase() === "culling") {
+      designationField.style.display = "block";  // show
+    } else {
+      designationField.style.display = "none";   // hide
+      document.getElementById("id_designation").value = ""; // clear if hidden
+    }
+  }
+
+  // Initial check
+  toggleDesignation();
+
+  // Trigger on change
+  eventNameSelect.addEventListener("change", toggleDesignation);
+
 });
 </script>
 

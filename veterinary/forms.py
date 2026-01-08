@@ -35,6 +35,8 @@ class EventForm(forms.ModelForm):
             else:
                 field.required = False
             field.widget.attrs.update({'class': 'form-control'})
+        
+        # self.fields['designation'].widget.attrs.update({'class': 'form-control', 'style': 'display:none;'})
 
         self.fields['notes'].widget.attrs.update({'placeholder': 'Enter notes...'})
 
