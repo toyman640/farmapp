@@ -71,10 +71,7 @@
               <option value="">--- Select Pen ---</option>
             </select>
           </div>
-          <div class="col-md-12 mt-2">
-            <label>Location Preview</label>
-            <input type="text" id="piggeryLocationPreview" class="form-control" readonly>
-          </div>
+          
         </div>
         
 
@@ -172,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             .join(" ");
 
     hiddenLocation.value = locationValue; // will be saved in the model
-    document.getElementById("piggeryLocationPreview").value = locationValue; // readonly display
+    
   }
 
 
