@@ -200,19 +200,24 @@ def drugs_view(request):
 @login_required
 def create_event(request):
     if request.method == 'POST':
-        form = EventForm(request.POST, request.FILES, user=request.user)
+        post_data = request.POST.copy()
+        # ✅ Handle piggery location explicitly
+        if getattr(request.user.profile, 'is_vet_piggery', False):
+            line = request.POST.get('lineSelect', '')
+            print(line)
+            block = request.POST.get('blockSelect', '')
+            pen = request.POST.get('penSelect', '')
+            post_data['location'] = " ".join(filter(None, [line, block, pen]))
+            # event.location = " ".join(filter(None, [line, block, pen]))
+        # form = EventForm(request.POST, request.FILES, user=request.user)
+        form = EventForm(post_data, request.FILES, user=request.user)
 
         if form.is_valid():
-            event = form.save(commit=False)
+            # event = form.save(commit=False)
 
-            # ✅ Handle piggery location explicitly
-            if getattr(request.user.profile, 'is_vet_piggery', False):
-                line = request.POST.get('lineSelect', '')
-                block = request.POST.get('blockSelect', '')
-                pen = request.POST.get('penSelect', '')
-                event.location = " ".join(filter(None, [line, block, pen]))
 
-            event.save()
+            # event.save()
+            event = form.save()
 
             # AJAX response
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
