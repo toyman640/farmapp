@@ -46,7 +46,7 @@
         <div id="piggery-wrapper" class="form-row" style="display:none;">
           <div class="col-md-4">
             <label>Line</label>
-            <select id="lineSelect" class="form-control">
+            <select id="lineSelect" name="lineSelect" class="form-control">
               <option value="">--- Select Line ---</option>
               <option value="Denmark">Denmark</option>
               {% for i in "123456789" %}
@@ -57,7 +57,7 @@
 
           <div class="col-md-4">
             <label>Block</label>
-            <select id="blockSelect" class="form-control">
+            <select id="blockSelect" name="blockSelect" class="form-control">
               <option value="">--- Select Block ---</option>
               {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
                 <option value="Block {{ letter }}">Block {{ letter }}</option>
@@ -67,11 +67,13 @@
 
           <div class="col-md-4">
             <label>Pen</label>
-            <select id="penSelect" class="form-control">
+            <select id="penSelect" name="penSelect" class="form-control">
               <option value="">--- Select Pen ---</option>
             </select>
           </div>
+          
         </div>
+        
 
         {{ form.number_of_animals|as_crispy_field }}
         {{ form.designation|as_crispy_field }}
@@ -158,21 +160,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // -------------------- Update hidden location ONLY for pig --------------------
-  function updateHiddenLocation() {
-    if (!isPiggeryVet) return; // IMPORTANT
 
-    hiddenLocation.value = [
-      lineSelect.value,
-      blockSelect.value,
-      penSelect.value
-    ]
-    .filter(Boolean)
-    .join(" ");
+  function updateHiddenLocation() {
+    if (!isPiggeryVet) return;
+
+    const locationValue = [lineSelect.value, blockSelect.value, penSelect.value]
+                            .filter(Boolean)
+                            .join(" ");
+
+    hiddenLocation.value = locationValue; // will be saved in the model
+    
   }
 
-  [lineSelect, blockSelect, penSelect].forEach(s => {
-    s.addEventListener("change", updateHiddenLocation);
-  });
+
 
 
   // -------------------- Prefill for Edit --------------------
@@ -246,6 +246,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (addBtn) addBtn.onclick = () => ajaxSubmit("add");
   if (proceedBtn) proceedBtn.onclick = () => ajaxSubmit("proceed");
+
+  // ---------------------------------show or hide designation field based on event_name-----------------
+   const eventNameSelect = document.getElementById("id_event_name");
+  const designationField = document.getElementById("id_designation").closest('.form-group');
+
+  function toggleDesignation() {
+    if (eventNameSelect.value.toLowerCase() === "culling") {
+      designationField.style.display = "block";  // show
+    } else {
+      designationField.style.display = "none";   // hide
+      document.getElementById("id_designation").value = ""; // clear if hidden
+    }
+  }
+
+  // Initial check
+  toggleDesignation();
+
+  // Trigger on change
+  eventNameSelect.addEventListener("change", toggleDesignation);
 
 });
 </script>
