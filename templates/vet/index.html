@@ -133,6 +133,7 @@
                 <th>Animal</th>
                 <th>Animal Type</th>
                 <th>No. of Animals</th>
+                <th>Location</th>
                 <th>Date Submitted</th>
                 <th>Status</th>
               </tr>
@@ -186,6 +187,13 @@
                       {{ pending.event.number_of_animals }}
                     {% endif %}
                   </td>
+                  <td>
+                    {% if pending.data.location %}
+                      {{ pending.data.location }}
+                    {% else %}
+                      {{ pending.event.location }}
+                    {% endif %}
+                  </td>
 
                   <td>{{ pending.submitted_at|date:"M d, Y H:i" }}</td>
                   <td><span class="badge badge-warning">Edit Submitted</span></td>
@@ -201,6 +209,7 @@
                   <td>{{ pending.event.animal }}</td>
                   <td>{{ pending.event.animal_type }}</td>
                   <td>{{ pending.event.number_of_animals }}</td>
+                  <td>{{ pending.event.location }}</td>
                   <td>{{ pending.event.created_at|date:"M d, Y H:i" }}</td>
                   <td><span class="badge badge-info">Main Record</span></td>
                 </tr>

@@ -204,6 +204,7 @@
               <th>Animal Type</th>
               <th>Event Type</th>
               <th>Number of Animals</th>
+              <th>Location</th>
               <th>Submitted By</th>
               <th>Actions</th>
             </tr>
@@ -247,6 +248,14 @@
                   {% endif %}
                 </td>
 
+                <td>
+                  {% if edit.data.location %}
+                    {{ edit.data.location }}
+                  {% else %}
+                    {{ edit.event.location }}
+                  {% endif %}
+                </td>
+
                 <!-- SUBMITTED BY -->
                 <td>{{ edit.submitted_by.username }}</td>
 
@@ -270,6 +279,7 @@
 
                 <td>{{ edit.event.event_name }}</td>
                 <td>{{ edit.event.number_of_animals }}</td>
+                <td>{{ edit.event.location }}</td>
                 <td>{{ edit.event.created_by.username }}</td>
                 <td><small class="text-muted">Current record</small></td>
               </tr>

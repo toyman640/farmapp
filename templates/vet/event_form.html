@@ -266,6 +266,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // Trigger on change
   eventNameSelect.addEventListener("change", toggleDesignation);
 
+  // -------------------- FIX: UPDATE LOCATION ON EDIT SUBMIT --------------------
+if (isEditMode) {
+  form.addEventListener("submit", function () {
+    updateHiddenLocation();
+  });
+
+  // Also update live while editing (important UX + correctness)
+  if (isPiggeryVet) {
+    lineSelect.addEventListener("change", updateHiddenLocation);
+    blockSelect.addEventListener("change", updateHiddenLocation);
+    penSelect.addEventListener("change", updateHiddenLocation);
+  }
+}
+
+
 });
 </script>
 
