@@ -1,5 +1,5 @@
 {% for record in records %}
-  <div class="event-row shadow-sm text-decoration-none
+  <a href="{% url 'main:admin_event_detail' record.id %}" class="event-row shadow-sm text-decoration-none
     {% if record.event_name == 'mortality' %}mortality
     {% elif record.event_name == 'culling' %}culling
     {% elif record.event_name in 'farrowing breeding' %}birthing
@@ -13,5 +13,5 @@
     <div class="col col-notes" title="{{ record.notes|default:"-" }}">
       {{ record.notes|truncatechars:50|default:"-" }}
     </div>
-  </div>
+  </a>
 {% endfor %}

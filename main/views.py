@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect, render,  get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.template.loader import render_to_string
 from datetime import timedelta,datetime
 # from django.db.models import F
@@ -891,36 +891,7 @@ def small_ruminant_event_records_admin(request):
     return render(request, 'main/small-ruminant-records-admin.html', context)
 
 
-# @login_required
-# def small_ruminant_event_records_admin(request):
-#     event_type = request.GET.get('event_type')
-#     start_date = request.GET.get('start_date')
-#     end_date = request.GET.get('end_date')
-
-#     events = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-
-#     # ---- Filters ----
-#     if event_type:
-#         events = events.filter(event_name__iexact=event_type)
-#     if start_date:
-#         events = events.filter(created_at__gte=parse_date(start_date))
-#     if end_date:
-#         end = parse_date(end_date)
-#         if end:
-#             events = events.filter(created_at__lt=end + timedelta(days=1))
-
-#     # ---- Pagination ----
-#     paginator = Paginator(events.order_by('-created_at'), 10)  # 10 per page
-#     page_number = request.GET.get('page')
-#     page_obj = paginator.get_page(page_number)
-
-#     context = {
-#         'page_obj': page_obj,
-#         'records': page_obj.object_list,
-#         'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
-#         'selected_event': event_type,
-#     }
-#     return render(request, 'main/small-ruminant-records-admin.html', context)
+    return render(request, 'main/small-ruminant-records-admin.html', context)
 
 @login_required
 def small_ruminant_census_records_admin(request):
@@ -992,37 +963,6 @@ def paddock_event_records_admin(request):
     return render(request, 'main/paddock-records-admin.html', context)
 
 
-# @login_required
-# def paddock_event_records_admin(request):
-#     event_type = request.GET.get('event_type')
-#     start_date = request.GET.get('start_date')
-#     end_date = request.GET.get('end_date')
-
-#     events = EventType.objects.filter(animal__animal_name__iexact='cattle')
-
-#     # ---- Filters ----
-#     if event_type:
-#         events = events.filter(event_name__iexact=event_type)
-#     if start_date:
-#         events = events.filter(created_at__gte=parse_date(start_date))
-#     if end_date:
-#         end = parse_date(end_date)
-#         if end:
-#             events = events.filter(created_at__lt=end + timedelta(days=1))
-
-#     # ---- Pagination ----
-#     paginator = Paginator(events.order_by('-created_at'), 10)
-#     page_number = request.GET.get('page')
-#     page_obj = paginator.get_page(page_number)
-
-#     context = {
-#         'page_obj': page_obj,
-#         'records': page_obj.object_list,
-#         'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
-#         'selected_event': event_type,
-#     }
-#     return render(request, 'main/paddock-records-admin.html', context)
-
 
 @login_required
 def paddock_census_records_admin(request):
@@ -1057,36 +997,6 @@ def paddock_census_records_admin(request):
     return render(request, 'main/paddock_census_records_admin.html', context)
 
 
-# @login_required
-# def piggery_event_records_admin(request):
-#     event_type = request.GET.get('event_type')
-#     start_date = request.GET.get('start_date')
-#     end_date = request.GET.get('end_date')
-
-#     events = EventType.objects.filter(animal__animal_name__iexact='pig')
-
-#     # ---- Filters ----
-#     if event_type:
-#         events = events.filter(event_name__iexact=event_type)
-#     if start_date:
-#         events = events.filter(created_at__gte=parse_date(start_date))
-#     if end_date:
-#         end = parse_date(end_date)
-#         if end:
-#             events = events.filter(created_at__lt=end + timedelta(days=1))
-
-#     # ---- Pagination ----
-#     paginator = Paginator(events.order_by('-created_at'), 3)
-#     page_number = request.GET.get('page')
-#     page_obj = paginator.get_page(page_number)
-
-#     context = {
-#         'page_obj': page_obj,
-#         'records': page_obj.object_list,
-#         'event_types': EventType.objects.values_list('event_name', flat=True).distinct(),
-#         'selected_event': event_type,
-#     }
-#     return render(request, 'main/piggery-records-admin.html', context)
 
 @login_required
 def piggery_event_records_admin(request):
@@ -1157,3 +1067,64 @@ def piggery_census_records_admin(request):
         return render(request, 'main/includes/_census_records_list.html', context)
 
     return render(request, 'main/piggery_census_records_admin.html', context)
+
+
+# @login_required
+# def admin_event_detail(request, pk):
+#     """
+#     Unified detail view for any event record (piggery, paddock, small ruminants)
+#     """
+#     # Use select_related to avoid extra queries on related animal and animal_type
+#     event = get_object_or_404(
+#         EventType.objects.select_related('animal', 'animal_type'),
+#         pk=pk
+#     )
+
+#     # Optional: detect animal section
+#     animal_name = event.animal.animal_name.lower() if event.animal else None
+#     is_piggery = animal_name == 'pig'
+#     is_cattle = animal_name == 'cattle'
+#     is_small_ruminant = animal_name in ['sheep', 'goat']
+
+#     context = {
+#         'event': event,
+#         'is_piggery': is_piggery,
+#         'is_cattle': is_cattle,
+#         'is_small_ruminant': is_small_ruminant,
+#     }
+
+#     return render(request, 'main/admin_event_detail.html', context)
+
+# @login_required
+# def admin_event_detail(request, pk):
+#     """
+#     Unified admin view for any event record.
+#     """
+#     event = get_object_or_404(
+#         EventType.objects.select_related('animal', 'animal_type'),
+#         pk=pk
+#     )
+
+#     return render(request, 'main/admin_event_detail.html', {'event': event})
+
+
+@login_required
+def admin_event_detail(request, pk):
+    event = get_object_or_404(EventType.objects.select_related('animal', 'animal_type'), pk=pk)
+
+    # Determine which list page this event belongs to
+    animal_name = event.animal.animal_name.lower()
+    if animal_name == "pig":
+        back_url = reverse('main:piggery_event_records_admin')
+    elif animal_name == "cattle":
+        back_url = reverse('main:paddock_event_records_admin')
+    elif animal_name in ["sheep", "goat"]:
+        back_url = reverse('main:small_ruminant_event_records_admin')
+    else:
+        back_url = reverse('main:index')  # fallback
+
+    context = {
+        'event': event,
+        'back_url': back_url
+    }
+    return render(request, 'main/admin_event_detail.html', context)

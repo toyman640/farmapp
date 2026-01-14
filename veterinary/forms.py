@@ -25,8 +25,11 @@ class EventForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
+        if not self.is_bound and self.instance.pk:
             self.initial['location'] = self.instance.location
+
+        # if self.instance and self.instance.pk:
+        #     self.initial['location'] = self.instance.location
 
         # Required and widget classes
         for field_name, field in self.fields.items():
