@@ -2,14 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import EventForm, CensusForm, CensusRecordFormSet
 from drugapp.models import Dispatch, Drug, InventoryLog
 from django.utils.timezone import localtime, now, localdate, timedelta
-from django.db.models import Q
+from django.db.models import Q, Prefetch, Max
 from itertools import chain
 from django.db.models import F
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from farmrecord.models import EventType, Census, Animals, PendingEventEdit, AnimalType
+from farmrecord.models import EventType, Census, Animals, PendingEventEdit, AnimalType, CensusRecord
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
@@ -18,31 +18,12 @@ import json
 from django.forms.models import model_to_dict
 # Create your views here.
 
-# @login_required
-# def vet_index(request):
-#   today = localdate()
-#   now_time = now()
-#   last_24_hours = now_time - timedelta(hours=24)
-#   today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
-#   new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
-#   restocked_logs = InventoryLog.objects.filter(updated_at__gte=last_24_hours,new_quantity__gt=F('previous_quantity')).select_related('drug')
-#   restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
-#   combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
-
-#   context = {
-#     'today_dispatches': Dispatch.objects.filter(dispatched_at__date=today),
-#     'today_date': today,
-#     'recent_drugs': combined_new_drugs,
-#   }
-
-#   return render(request, 'vet/index.html', context)
-
-
 @login_required
 def vet_index(request):
     today = localdate()
     now_time = now()
     last_24_hours = now_time - timedelta(hours=24)
+
     today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
     new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
     restocked_logs = InventoryLog.objects.filter(
@@ -52,10 +33,11 @@ def vet_index(request):
     restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
 
-    # ✅ Get events submitted by the current vet pending approval
-    # pending_edits = PendingEventEdit.objects.filter(submitted_by=request.user).select_related('event')
-    pending_edits = (PendingEventEdit.objects.filter(submitted_by=request.user, approved=False).select_related("event", "event__animal", "event__animal_type"))
-    # Convert JSON IDs into actual objects
+    # Pending edits
+    pending_edits = PendingEventEdit.objects.filter(
+        submitted_by=request.user, approved=False
+    ).select_related("event", "event__animal", "event__animal_type")
+
     for p in pending_edits:
         animal_id = p.data.get("animal")
         if animal_id:
@@ -71,14 +53,83 @@ def vet_index(request):
             except AnimalType.DoesNotExist:
                 p.data["animal_type_obj"] = None
 
+    # -------------------- Latest census per animal --------------------
+    profile = getattr(request.user, "profile", None)
+
+    # Determine the vet section
+    if profile.is_vet_piggery:
+        animals_for_section = Animals.objects.filter(animal_name__iexact='pig')
+    elif profile.is_vet_paddock:
+        animals_for_section = Animals.objects.filter(animal_name__iexact='cattle')
+    elif profile.is_vet_smallruminant:
+        animals_for_section = Animals.objects.filter(animal_name__in=['sheep','goat'])
+    else:
+        animals_for_section = Animals.objects.none()
+
+    # Get the latest census per animal
+    census_list = []
+    for animal in animals_for_section:
+        last_census = (
+            Census.objects
+            .filter(animal=animal)
+            .prefetch_related('records__animal_type')
+            .order_by('-census_date')  # latest first
+            .first()
+        )
+        if last_census:
+            census_list.append(last_census)
+
     context = {
         'today_dispatches': today_dispatches,
         'today_date': today,
         'recent_drugs': combined_new_drugs,
         'pending_edits': pending_edits,
+        'census_list': census_list,
     }
 
     return render(request, 'vet/index.html', context)
+
+# @login_required
+# def vet_index(request):
+#     today = localdate()
+#     now_time = now()
+#     last_24_hours = now_time - timedelta(hours=24)
+#     today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
+#     new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
+#     restocked_logs = InventoryLog.objects.filter(
+#         updated_at__gte=last_24_hours,
+#         new_quantity__gt=F('previous_quantity')
+#     ).select_related('drug')
+#     restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
+#     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
+
+#     # ✅ Get events submitted by the current vet pending approval
+#     # pending_edits = PendingEventEdit.objects.filter(submitted_by=request.user).select_related('event')
+#     pending_edits = (PendingEventEdit.objects.filter(submitted_by=request.user, approved=False).select_related("event", "event__animal", "event__animal_type"))
+#     # Convert JSON IDs into actual objects
+#     for p in pending_edits:
+#         animal_id = p.data.get("animal")
+#         if animal_id:
+#             try:
+#                 p.data["animal_obj"] = Animals.objects.get(id=animal_id)
+#             except Animals.DoesNotExist:
+#                 p.data["animal_obj"] = None
+
+#         animal_type_id = p.data.get("animal_type")
+#         if animal_type_id:
+#             try:
+#                 p.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
+#             except AnimalType.DoesNotExist:
+#                 p.data["animal_type_obj"] = None
+
+#     context = {
+#         'today_dispatches': today_dispatches,
+#         'today_date': today,
+#         'recent_drugs': combined_new_drugs,
+#         'pending_edits': pending_edits,
+#     }
+
+#     return render(request, 'vet/index.html', context)
 
 @login_required
 def dispatch_records_lazy(request):

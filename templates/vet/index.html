@@ -31,8 +31,104 @@
       <h4 class="text-center">Vet Dashboard</h4>
 			
 		</div> -->
-   
-    <div class="">
+    <style>
+  .stat-card {
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+  }
+
+  .stat-card p {
+    margin-bottom: 8px;
+    opacity: 0.9;
+  }
+
+  .stat-card h3 {
+    margin: 0;
+    font-weight: bold;
+  }
+
+  .stat-card.color-1 { background-color: #fc4017; }
+  .stat-card.color-2 { background-color: #00a54f; }
+  .stat-card.color-3 { background-color: #a3cd38; }
+  .stat-card.color-4 { background-color: #f8741f; }
+  .stat-card.color-5 { background-color: #ef1e19; }
+  .stat-card.color-6 { background-color: #fdc90d; color: #000; }
+  .stat-card.color-7 { background-color: #fff79a; color: #000; }
+  .stat-card.color-8 { background-color: #76bf51; }
+</style>
+
+<div class="row g-3 mb-4">
+
+  {% for census in census_list %}
+  <div class="col-12">
+    <div class="box_general padding_bottom">
+
+      <h5 class="mb-3 fw-bold">
+        <i class="fa fa-bar-chart-o"></i>
+        {{ census.animal.animal_name|title }} — {{ census.census_date }}
+      </h5>
+
+      <div class="mb-3 p-2 rounded" style="background: rgba(255,255,255,0.2);">
+        <strong>Total Animals:</strong> {{ census.total_animals }}
+      </div>
+
+      {% if census.records.exists %}
+      <div class="row g-3">
+
+        {% for record in census.records.all|slice:":8" %}
+        <div class="col-md-3 col-sm-6 mb-3">
+          <div class="stat-card color-{{ forloop.counter }}" style="min-height: 150px; padding: 20%;">
+            <p>{{ record.animal_type.animal_type_name }}</p>
+            <h3 class="count-up">{{ record.number_of_animals }}</h3>
+          </div>
+        </div>
+        {% endfor %}
+
+      </div>
+      {% else %}
+        <p class="text-muted mb-0">No census records available.</p>
+      {% endif %}
+
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="alert alert-info">
+      <i class="fa fa-info-circle"></i>
+      No census records for your section yet.
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.count-up').forEach(el => {
+    const finalValue = parseInt(el.textContent, 10);
+    let current = 0;
+    const duration = 1200;
+    const step = Math.max(1, Math.floor(finalValue / (duration / 16)));
+
+    function animate() {
+      current += step;
+      if (current >= finalValue) {
+        el.textContent = finalValue;
+      } else {
+        el.textContent = current;
+        requestAnimationFrame(animate);
+      }
+    }
+    animate();
+  });
+});
+</script>
+
+
+
 
       <div class="row g-2">
         <div class="col-12 col-md-6" >
