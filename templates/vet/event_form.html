@@ -57,7 +57,7 @@
         <div id="piggery-wrapper" class="form-row">
           <div class="col-md-4">
             <label>Line</label>
-            <select id="lineSelect" class="form-control">
+            <select id="lineSelect" name="lineSelect" class="form-control">
               <option value="">--- Select Line ---</option>
               {% for i in "123456789" %}
                 <option value="Line {{ i }}">Line {{ i }}</option>
@@ -67,7 +67,7 @@
 
           <div class="col-md-4">
             <label>Block</label>
-            <select id="blockSelect" class="form-control">
+            <select id="blockSelect" name="blockSelect" class="form-control">
               <option value="">--- Select Block ---</option>
               {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
                 <option value="Block {{ letter }}">Block {{ letter }}</option>
@@ -77,7 +77,7 @@
 
           <div class="col-md-4">
             <label>Pen</label>
-            <select id="penSelect" class="form-control">
+            <select id="penSelect" name="penSelect" class="form-control">
               <option value="">--- Select Pen ---</option>
             </select>
           </div>
