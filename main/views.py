@@ -1069,44 +1069,6 @@ def piggery_census_records_admin(request):
     return render(request, 'main/piggery_census_records_admin.html', context)
 
 
-# @login_required
-# def admin_event_detail(request, pk):
-#     """
-#     Unified detail view for any event record (piggery, paddock, small ruminants)
-#     """
-#     # Use select_related to avoid extra queries on related animal and animal_type
-#     event = get_object_or_404(
-#         EventType.objects.select_related('animal', 'animal_type'),
-#         pk=pk
-#     )
-
-#     # Optional: detect animal section
-#     animal_name = event.animal.animal_name.lower() if event.animal else None
-#     is_piggery = animal_name == 'pig'
-#     is_cattle = animal_name == 'cattle'
-#     is_small_ruminant = animal_name in ['sheep', 'goat']
-
-#     context = {
-#         'event': event,
-#         'is_piggery': is_piggery,
-#         'is_cattle': is_cattle,
-#         'is_small_ruminant': is_small_ruminant,
-#     }
-
-#     return render(request, 'main/admin_event_detail.html', context)
-
-# @login_required
-# def admin_event_detail(request, pk):
-#     """
-#     Unified admin view for any event record.
-#     """
-#     event = get_object_or_404(
-#         EventType.objects.select_related('animal', 'animal_type'),
-#         pk=pk
-#     )
-
-#     return render(request, 'main/admin_event_detail.html', {'event': event})
-
 
 @login_required
 def admin_event_detail(request, pk):
@@ -1128,3 +1090,25 @@ def admin_event_detail(request, pk):
         'back_url': back_url
     }
     return render(request, 'main/admin_event_detail.html', context)
+
+@login_required
+def admin_delete_event(request, pk):
+    event = get_object_or_404(EventType, pk=pk)
+
+    if request.method == 'POST':
+        animal_name = event.animal.animal_name.lower()
+        event.delete()
+        messages.success(request, "Event deleted successfully!")
+
+        # Redirect to the correct list page based on animal type
+        if animal_name == "pig":
+            return redirect('main:piggery_event_records_admin')
+        elif animal_name == "cattle":
+            return redirect('main:paddock_event_records_admin')
+        elif animal_name in ["sheep", "goat"]:
+            return redirect('main:small_ruminant_event_records_admin')
+        else:
+            return redirect('main:index')  # fallback
+
+    # If GET request, redirect back to event detail
+    return redirect('main:admin_event_detail', pk=pk)

@@ -11,7 +11,7 @@
     <div class="col col-type">{{ record.animal_type.animal_type_name|title }}</div>
     <div class="col col-location">{{ record.location|default:"-" }}</div>
     <div class="col col-notes" title="{{ record.notes|default:"-" }}">
-      {{ record.notes|truncatechars:50|default:"-" }}
+      {{ record.number_of_animals|default:"-" }}
     </div>
   </a>
 {% endfor %}
