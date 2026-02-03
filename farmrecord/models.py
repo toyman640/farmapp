@@ -40,19 +40,19 @@ class AnimalType(models.Model):
     ANIMAL_TYPE_CHOICES = [
         ('sow', 'Sow'),
         ('boar', 'Boar'),
-        ('weaner_pig', 'Weaner(Pig)'),
+        ('weaner(pig)', 'Weaner(Pig)'),
         ('piglet', 'Piglet'),
         ('cow', 'Cow'),
         ('bull', 'Bull'),
-        ('weaner_cattle', 'Weaner(Cattle)'),
+        ('weaner(cattle)', 'Weaner(Cattle)'),
         ('calf', 'Calf'),
         ('ewe', 'Ewe'),
         ('ram', 'Ram'),
-        ('weaner_sheep', 'Weaner(Sheep)'),
+        ('weaner(sheep)', 'Weaner(Sheep)'),
         ('lamb', 'Lamb'),
         ('buck', 'Buck'),
         ('doe', 'Doe'),
-        ('weaner_goat', 'Weaner(Goat)'),
+        ('weaner(goat)', 'Weaner(Goat)'),
         ('kid', 'Kid'),
     ]
     animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="animal_types")

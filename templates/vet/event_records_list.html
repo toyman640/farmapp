@@ -1,16 +1,25 @@
 {% for event in events %}
-  <a href="{% url 'veterinary:event_detail' event.id %}" class="event-row shadow-sm text-decoration-none
-    {% if event.event_name == 'mortality' %}mortality
-    {% elif event.event_name == 'culling' %}culling
-    {% elif event.event_name in 'farrowing calving lambing kidding' %}birthing
-    {% elif event.event_name == 'procurement' %}procurement
-    {% elif event.event_name == 'sale' %}sale
-    {% else %}default{% endif %}
-  ">
-    <div class="col col-date">{{ event.created_at|date:"M d, Y H:i" }}</div>
-    <div class="col col-event">{{ event.get_event_name_display }}</div>
-    <div class="col col-type">{{ event.animal_type.animal_type_name|title }}</div>
-    <div class="col col-location">{{ event.location|default:"-" }}</div>
-    <div class="col col-notes">{{ event.number_of_animals|default:"-" }}</div>
-  </a>
+  <a href="{% url 'veterinary:event_detail' event.id %}"
+   class="event-row shadow-sm text-decoration-none">
+
+  <div class="col col-date">{{ event.created_at|date:"M d, Y H:i" }}</div>
+
+  <div class="col col-event">
+    <span class="event-badge
+      {% if event.event_name == 'mortality' %}mortality
+      {% elif event.event_name == 'culling' %}culling
+      {% elif event.event_name in 'farrowing calving lambing kidding' %}birthing
+      {% elif event.event_name == 'procurement' %}procurement
+      {% elif event.event_name == 'sale' %}sale
+      {% else %}default{% endif %}
+    ">
+      {{ event.get_event_name_display }}
+    </span>
+  </div>
+
+  <div class="col col-type">{{ event.animal_type.animal_type_name|title }}</div>
+  <div class="col col-location">{{ event.location|default:"-" }}</div>
+  <div class="col col-notes">{{ event.number_of_animals|default:"-" }}</div>
+</a>
+
 {% endfor %}
