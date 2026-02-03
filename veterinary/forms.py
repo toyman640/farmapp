@@ -14,6 +14,15 @@ class EventForm(forms.ModelForm):
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter number of animals'})
     )
 
+    edit_note = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Explain why this edit is needed...'
+        })
+    )
+
     class Meta:
         model = EventType
         fields = [

@@ -69,50 +69,6 @@ def drugs_inventory_land(request):
   return render(request, 'main/drug-inventory-page.html', {'drugs_records':drugs_records, 'dispatch_records':dispatch_records})
 
 
-# @login_required
-# def main_index(request):
-#     low_stock_drugs = Drug.objects.filter(
-#         restock_quantity_notify__gt=0,
-#         quantity__lte=F('restock_quantity_notify')
-#     )
-#     today = localdate()
-#     yesterday = today - timedelta(days=1)
-
-#     today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
-#     pending_updates = PendingStockUpdate.objects.filter(approved=False)
-#     pending_updates_count = 0
-#     now_time = now()
-#     last_24_hours = now_time - timedelta(hours=24)
-
-#     if request.user.is_staff or request.user.is_superuser:
-#         pending_updates_count = pending_updates.count()
-
-#     # New or restocked drugs
-#     new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
-#     restocked_logs = InventoryLog.objects.filter(
-#         updated_at__gte=last_24_hours,
-#         new_quantity__gt=F('previous_quantity')
-#     ).select_related('drug')
-#     restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
-#     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
-
-#     # 🔹 Get events for only the previous day
-#     yesterday_events = EventType.objects.filter(created_at__date=yesterday)
-
-#     context = {
-#         'low_stock_drugs': low_stock_drugs,
-#         'today_dispatches': today_dispatches,
-#         'today_date': today,
-#         "pending_updates": pending_updates,
-#         "pending_updates_count": pending_updates_count,
-#         "recent_drugs": combined_new_drugs,
-#         "yesterday_events": yesterday_events,
-#         'show_prompt': True,
-#     }
-
-#     return render(request, 'main/index.html', context)
-
-
 @login_required
 def main_index(request):
     low_stock_drugs = Drug.objects.filter(
@@ -124,7 +80,7 @@ def main_index(request):
 
     today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
     pending_updates = PendingStockUpdate.objects.filter(approved=False)
-    pending_event_edits = PendingEventEdit.objects.filter(approved=False)
+    pending_event_edits = PendingEventEdit.objects.filter(status='pending')
 
     pending_updates_count = pending_updates.count() if request.user.is_staff or request.user.is_superuser else 0
 
@@ -178,21 +134,32 @@ def main_index(request):
 #     data = pending_edit.data
 
 #     for field, value in data.items():
+#         if field == "image" and value:  # ✅ handle image updates separately
+#             # You might receive image file path or ID — adjust accordingly
+#             EventImage.objects.create(event=event, image=value)
+#             continue
+
+#         # Skip unknown fields
+#         try:
+#             field_obj = EventType._meta.get_field(field)
+#         except FieldDoesNotExist:
+#             continue
+
 #         # Handle foreign keys (Animal, AnimalType)
-#         field_obj = EventType._meta.get_field(field)
 #         if field_obj.is_relation:
 #             related_model = field_obj.related_model
 #             try:
 #                 value = related_model.objects.get(pk=value)
 #             except related_model.DoesNotExist:
 #                 continue
+
 #         setattr(event, field, value)
 
 #     event.is_approved = True
 #     event.save()
 
-#     pending_edit.approved = True
-#     pending_edit.delete()  # remove after approval
+#     # Remove pending edit after approval
+#     pending_edit.delete()
 
 #     messages.success(request, "Event edit approved and applied successfully!")
 #     return redirect('main:main_index')
@@ -202,40 +169,54 @@ def main_index(request):
 def approve_event_edit(request, pk):
     pending_edit = get_object_or_404(PendingEventEdit, pk=pk)
 
-    # Apply pending data to the main event
+    if not request.user.profile.is_boss:
+        return HttpResponseForbidden()
+
     event = pending_edit.event
-    data = pending_edit.data
+    form = AdminEventEditReviewForm(request.POST or None)
 
-    for field, value in data.items():
-        if field == "image" and value:  # ✅ handle image updates separately
-            # You might receive image file path or ID — adjust accordingly
-            EventImage.objects.create(event=event, image=value)
-            continue
+    if request.method == "POST" and form.is_valid():
+        action = request.POST.get("action")
 
-        # Skip unknown fields
-        try:
-            field_obj = EventType._meta.get_field(field)
-        except FieldDoesNotExist:
-            continue
+        pending_edit.admin_note = form.cleaned_data["admin_note"]
+        pending_edit.reviewed_by = request.user
+        pending_edit.reviewed_at = timezone.now()
 
-        # Handle foreign keys (Animal, AnimalType)
-        if field_obj.is_relation:
-            related_model = field_obj.related_model
-            try:
-                value = related_model.objects.get(pk=value)
-            except related_model.DoesNotExist:
-                continue
+        if action == "approve":
+            # Apply pending data
+            for field, value in pending_edit.data.items():
+                try:
+                    field_obj = EventType._meta.get_field(field)
+                except FieldDoesNotExist:
+                    continue
 
-        setattr(event, field, value)
+                if field_obj.is_relation:
+                    related_model = field_obj.related_model
+                    try:
+                        value = related_model.objects.get(pk=value)
+                    except related_model.DoesNotExist:
+                        continue
 
-    event.is_approved = True
-    event.save()
+                setattr(event, field, value)
 
-    # Remove pending edit after approval
-    pending_edit.delete()
+            event.is_approved = True
+            event.save()
 
-    messages.success(request, "Event edit approved and applied successfully!")
-    return redirect('main:main_index')
+            pending_edit.status = "approved"
+            messages.success(request, "Event edit approved successfully.")
+
+        else:
+            pending_edit.status = "rejected"
+            messages.warning(request, "Event edit rejected.")
+
+        pending_edit.save()
+        return redirect('main:main_index')
+
+    return render(request, 'main/review_event_edit.html', {
+        'pending_edit': pending_edit,
+        'event': event,
+        'form': form,
+    })
 
 
 @login_required
