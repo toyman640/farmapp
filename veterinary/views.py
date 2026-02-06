@@ -32,14 +32,22 @@ def vet_index(request):
     ).select_related('drug')
     restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
+    status = request.GET.get("status", "pending")
 
     # Pending edits
     pending_edits = PendingEventEdit.objects.filter(
         submitted_by=request.user,
-        status='pending'
+        status=status
     ).select_related(
-        "event", "event__animal", "event__animal_type"
+        "event", "event__animal", "event__animal_type", "reviewed_by"
     )
+
+    # pending_edits = PendingEventEdit.objects.filter(
+    #     submitted_by=request.user,
+    #     status='pending'
+    # ).select_related(
+    #     "event", "event__animal", "event__animal_type"
+    # )
 
     for p in pending_edits:
         animal_id = p.data.get("animal")
@@ -86,7 +94,8 @@ def vet_index(request):
         'today_dispatches': today_dispatches,
         'today_date': today,
         'recent_drugs': combined_new_drugs,
-        'pending_edits': pending_edits,
+        'event_edits': pending_edits, 
+        'current_status': status,
         'census_list': census_list,
     }
 
