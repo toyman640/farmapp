@@ -32,11 +32,22 @@ def vet_index(request):
     ).select_related('drug')
     restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
+    status = request.GET.get("status", "pending")
 
     # Pending edits
     pending_edits = PendingEventEdit.objects.filter(
-        submitted_by=request.user, approved=False
-    ).select_related("event", "event__animal", "event__animal_type")
+        submitted_by=request.user,
+        status=status
+    ).select_related(
+        "event", "event__animal", "event__animal_type", "reviewed_by"
+    )
+
+    # pending_edits = PendingEventEdit.objects.filter(
+    #     submitted_by=request.user,
+    #     status='pending'
+    # ).select_related(
+    #     "event", "event__animal", "event__animal_type"
+    # )
 
     for p in pending_edits:
         animal_id = p.data.get("animal")
@@ -83,53 +94,12 @@ def vet_index(request):
         'today_dispatches': today_dispatches,
         'today_date': today,
         'recent_drugs': combined_new_drugs,
-        'pending_edits': pending_edits,
+        'event_edits': pending_edits, 
+        'current_status': status,
         'census_list': census_list,
     }
 
     return render(request, 'vet/index.html', context)
-
-# @login_required
-# def vet_index(request):
-#     today = localdate()
-#     now_time = now()
-#     last_24_hours = now_time - timedelta(hours=24)
-#     today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
-#     new_drugs = Drug.objects.filter(entered_at__gte=last_24_hours)
-#     restocked_logs = InventoryLog.objects.filter(
-#         updated_at__gte=last_24_hours,
-#         new_quantity__gt=F('previous_quantity')
-#     ).select_related('drug')
-#     restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
-#     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
-
-#     # ✅ Get events submitted by the current vet pending approval
-#     # pending_edits = PendingEventEdit.objects.filter(submitted_by=request.user).select_related('event')
-#     pending_edits = (PendingEventEdit.objects.filter(submitted_by=request.user, approved=False).select_related("event", "event__animal", "event__animal_type"))
-#     # Convert JSON IDs into actual objects
-#     for p in pending_edits:
-#         animal_id = p.data.get("animal")
-#         if animal_id:
-#             try:
-#                 p.data["animal_obj"] = Animals.objects.get(id=animal_id)
-#             except Animals.DoesNotExist:
-#                 p.data["animal_obj"] = None
-
-#         animal_type_id = p.data.get("animal_type")
-#         if animal_type_id:
-#             try:
-#                 p.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
-#             except AnimalType.DoesNotExist:
-#                 p.data["animal_type_obj"] = None
-
-#     context = {
-#         'today_dispatches': today_dispatches,
-#         'today_date': today,
-#         'recent_drugs': combined_new_drugs,
-#         'pending_edits': pending_edits,
-#     }
-
-#     return render(request, 'vet/index.html', context)
 
 @login_required
 def dispatch_records_lazy(request):
@@ -508,12 +478,15 @@ def edit_event(request, pk):
             else:
                 pending_data = {}
                 for key, value in form.cleaned_data.items():
+                    if key == 'edit_note':
+                        continue
                     pending_data[key] = value.pk if hasattr(value, 'pk') else value
 
                 PendingEventEdit.objects.create(
                     event=event,
                     submitted_by=request.user,
-                    data=pending_data
+                    data=pending_data,
+                    vet_note=form.cleaned_data.get('edit_note', '')
                 )
                 message = "Your edit has been sent for admin approval."
 

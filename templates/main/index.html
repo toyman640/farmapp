@@ -1,4 +1,6 @@
 {% extends 'main/base.html' %} {% load static %}
+{% load model_extras %}
+
 <!DOCTYPE html>
 {% block title %} Home {% endblock %} 
 
@@ -209,88 +211,100 @@
               <th>Actions</th>
             </tr>
           </thead>
-
           <tbody>
             {% for edit in pending_event_edits %}
-            
-              <!-- Pending Update Record -->
               <tr>
                 <td>{{ forloop.counter }}</td>
-
-                <!-- ANIMAL -->
-                <td>
-                  {% if edit.data.animal_obj %}
-                    {{ edit.data.animal_obj.animal_name }}
-                  {% else %}
-                    {{ edit.event.animal }}
-                  {% endif %}
-                  <span class="badge badge-success ml-1">Update</span>
-                </td>
-
-                <!-- ANIMAL TYPE -->
-                <td>
-                  {% if edit.data.animal_type_obj %}
-                    {{ edit.data.animal_type_obj.animal_type_name }}
-                  {% else %}
-                    {{ edit.event.animal_type }}
-                  {% endif %}
-                </td>
-
-                <!-- EVENT TYPE -->
+                <td>{{ edit.data.animal_obj|default:edit.event.animal }}</td>
+                <td>{{ edit.data.animal_type_obj|default:edit.event.animal_type }}</td>
                 <td>{{ edit.event.event_name }}</td>
-
-                <!-- NUMBER OF ANIMALS -->
-                <td>
-                  {% if edit.data.number_of_animals %}
-                    {{ edit.data.number_of_animals }}
-                  {% else %}
-                    {{ edit.event.number_of_animals }}
-                  {% endif %}
-                </td>
-
-                <td>
-                  {% if edit.data.location %}
-                    {{ edit.data.location }}
-                  {% else %}
-                    {{ edit.event.location }}
-                  {% endif %}
-                </td>
-
-                <!-- SUBMITTED BY -->
+                <td>{{ edit.data.number_of_animals|default:edit.event.number_of_animals }}</td>
+                <td>{{ edit.data.location|default:edit.event.location }}</td>
                 <td>{{ edit.submitted_by.username }}</td>
-
-                <!-- ACTIONS -->
                 <td>
-                  <a href="{% url 'main:approve_event_edit' edit.id %}" class="btn btn-sm btn-success">Approve</a>
-                  <a href="{% url 'main:dismiss_event_edit' edit.id %}" class="btn btn-sm btn-danger">Dismiss</a>
+                  <button
+                    class="btn btn-sm btn-primary"
+                    data-toggle="modal"
+                    data-target="#reviewModal{{ edit.id }}">
+                    Review
+                  </button>
                 </td>
               </tr>
-
-              <!-- Main Record -->
-              <tr>
-                <td></td>
-
-                <td>
-                  {{ edit.event.animal }}
-                  <span class="badge badge-secondary ml-1">Main</span>
-                </td>
-
-                <td>{{ edit.event.animal_type }}</td>
-
-                <td>{{ edit.event.event_name }}</td>
-                <td>{{ edit.event.number_of_animals }}</td>
-                <td>{{ edit.event.location }}</td>
-                <td>{{ edit.event.created_by.username }}</td>
-                <td><small class="text-muted">Current record</small></td>
-              </tr>
-
             {% empty %}
               <tr>
-                <td colspan="7" class="text-center text-muted">No pending event edits.</td>
+                <td colspan="8" class="text-center text-muted">
+                  No pending event edits.
+                </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
+
+        <!-- MODALS GO HERE, OUTSIDE TABLE -->
+        {% for edit in pending_event_edits %}
+        <div class="modal fade" id="reviewModal{{ edit.id }}" tabindex="-1">
+          <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+              <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Review Event Edit — {{ edit.event }}</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body">
+                <!-- Vet note -->
+                <div class="alert alert-info">
+                  <strong>Vet note:</strong><br>
+                  {{ edit.vet_note|default:"No note provided." }}
+                </div>
+
+                <!-- Comparison table -->
+                <table class="table table-sm table-bordered">
+                  <thead class="thead-light">
+                    <tr>
+                      <th>Field</th>
+                      <th>Current Value</th>
+                      <th>Proposed Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for field, new_value in edit.data.items %}
+                        {% if field != "designation" or edit.data.event_name == "culling" %}
+                            {% with current_value=edit.event|get_attr:field %}
+                            <tr class="{% if current_value != new_value %}table-warning{% endif %}">
+                                <td>{{ field|title }}</td>
+                                <td>{{ current_value }}</td>
+                                <td>
+                                    {% if field in "animal animal_type" %}
+                                        {{ new_value|get_fk_name:field }}
+                                    {% else %}
+                                        {{ new_value }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endwith %}
+                        {% endif %}
+                    {% endfor %}
+
+                  </tbody>
+                </table>
+
+                <!-- Admin note + actions -->
+                <form method="post" action="{% url 'main:approve_event_edit' edit.id %}">
+                  {% csrf_token %}
+                  <div class="form-group">
+                    <label>Admin note (optional)</label>
+                    <textarea name="admin_note" class="form-control" rows="3" placeholder="Add approval or rejection note..."></textarea>
+                  </div>
+                  <div class="d-flex justify-content-end">
+                    <button name="action" value="approve" class="btn btn-success mr-2">Approve</button>
+                    <button name="action" value="reject" class="btn btn-danger">Reject</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
       </div>
     </div>
 

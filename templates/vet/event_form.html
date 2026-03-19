@@ -106,6 +106,15 @@
             </button>
           {% endif %}
         </div>
+        {% if edit_mode and not request.user.profile.is_boss %}
+          <div class="form-group">
+            <label>Note to Admin</label>
+            {{ form.edit_note }}
+            <small class="text-muted">
+              This note will be visible to the admin during review.
+            </small>
+          </div>
+        {% endif %}
       </form>
     </div>
   </div>

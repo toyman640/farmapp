@@ -216,112 +216,148 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
       </div>
       <div class="box_general padding_bottom">
-        <div class="header_box version_2">
-          <h2><i class="fa fa-clock text-warning"></i> Events Pending For Approval</h2>
+
+        <!-- HEADER + FILTER -->
+        <div class="header_box version_2 d-flex justify-content-between align-items-center">
+          <h2>
+        <i class="fa fa-clock text-warning"></i>
+        Event Edit History
+          </h2>
+
+          <form method="get">
+        <select name="status" class="form-control form-control-sm"
+            onchange="this.form.submit()">
+          <option value="pending" {% if current_status == "pending" %}selected{% endif %}>
+            Pending
+          </option>
+          <option value="approved" {% if current_status == "approved" %}selected{% endif %}>
+            Approved
+          </option>
+          <option value="rejected" {% if current_status == "rejected" %}selected{% endif %}>
+            Rejected
+          </option>
+        </select>
+          </form>
         </div>
 
         <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
           <table class="table table-bordered table-striped">
-            <thead class="thead-dark">
-              <tr>
-                <th>#</th>
-                <th>Event</th>
-                <th>Animal</th>
-                <th>Animal Type</th>
-                <th>No. of Animals</th>
-                <th>Location</th>
-                <th>Date Submitted</th>
-                <th>Status</th>
-              </tr>
-            </thead>
+        <thead class="thead-dark">
+          <tr>
+            <th>#</th>
+            <th>Event</th>
+            <th>Animal</th>
+            <th>Animal Type</th>
+            <th>No. of Animals</th>
+            <th>Location</th>
+            <th>Date</th>
+            <th>Status / Action</th>
+          </tr>
+        </thead>
 
-            <tbody>
-              {% for pending in pending_edits %}
+        <tbody>
+          {% for edit in event_edits %}
 
-                {# ------------------------------------------- #}
-                {# 🔶 ROW 1: Pending Edit (submitted changes) #}
-                {# ------------------------------------------- #}
-                <tr class="table-warning">
-                  <td>{{ forloop.counter }}</td>
+          {% if edit.status == "pending" %}
+          <!-- =================== PENDING (2 ROWS) =================== -->
 
-                  <!-- Event Name -->
-                  <td>
-                    {% if pending.data.event_name %}
-                      {{ pending.data.event_name }}
-                    {% else %}
-                      {{ pending.event.event_name }}
-                    {% endif %}
-                  </td>
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ edit.data.event_name|default:edit.event.event_name }}</td>
+            <td>{{ edit.data.animal_obj|default:edit.event.animal }}</td>
+            <td>{{ edit.data.animal_type_obj|default:edit.event.animal_type }}</td>
+            <td>{{ edit.data.number_of_animals|default:edit.event.number_of_animals }}</td>
+            <td>{{ edit.data.location|default:edit.event.location }}</td>
+            <td>{{ edit.submitted_at|date:"M d, Y H:i" }}</td>
+            <td><span class="badge badge-warning">Submitted</span></td>
+          </tr>
 
-                  <!-- Animal -->
-                  <td>
-                    {% if pending.data.animal_obj %}
-                      {{ pending.data.animal_obj.animal_name }}
-                    {% elif pending.data.animal %}
-                      ID: {{ pending.data.animal }}
-                    {% else %}
-                      {{ pending.event.animal }}
-                    {% endif %}
-                  </td>
+          <tr style="opacity: 0.7;">
+            <td></td>
+            <td>{{ edit.event.event_name }}</td>
+            <td>{{ edit.event.animal }}</td>
+            <td>{{ edit.event.animal_type }}</td>
+            <td>{{ edit.event.number_of_animals }}</td>
+            <td>{{ edit.event.location }}</td>
+            <td>{{ edit.event.created_at|date:"M d, Y H:i" }}</td>
+            <td><span class="badge badge-secondary">Original</span></td>
+          </tr>
 
-                  <!-- Animal Type -->
-                  <td>
-                    {% if pending.data.animal_type_obj %}
-                      {{ pending.data.animal_type_obj.animal_type_name }}
-                    {% elif pending.data.animal_type %}
-                      ID: {{ pending.data.animal_type }}
-                    {% else %}
-                      {{ pending.event.animal_type }}
-                    {% endif %}
-                  </td>
+          {% else %}
+          <!-- =================== APPROVED / REJECTED =================== -->
 
-                  <!-- Number of Animals -->
-                  <td>
-                    {% if pending.data.number_of_animals %}
-                      {{ pending.data.number_of_animals }}
-                    {% else %}
-                      {{ pending.event.number_of_animals }}
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if pending.data.location %}
-                      {{ pending.data.location }}
-                    {% else %}
-                      {{ pending.event.location }}
-                    {% endif %}
-                  </td>
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ edit.event.event_name }}</td>
+            <td>{{ edit.event.animal }}</td>
+            <td>{{ edit.event.animal_type }}</td>
+            <td>{{ edit.event.number_of_animals }}</td>
+            <td>{{ edit.event.location }}</td>
+            <td>{{ edit.reviewed_at|date:"M d, Y H:i" }}</td>
+            <td>
+          <span class="badge {% if edit.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
+            {{ edit.status|title }}
+          </span>
+          <button class="btn btn-sm btn-outline-secondary ms-2"
+              data-toggle="modal"
+              data-target="#reviewModal{{ edit.id }}">
+            View
+          </button>
+            </td>
+          </tr>
 
-                  <td>{{ pending.submitted_at|date:"M d, Y H:i" }}</td>
-                  <td><span class="badge badge-warning">Edit Submitted</span></td>
-                </tr>
-
-
-                {# ------------------------------------------- #}
-                {# 🔵 ROW 2: Main Event Record (original data) #}
-                {# ------------------------------------------- #}
-                <tr class="bg-light">
-                  <td></td>
-                  <td>{{ pending.event.event_name }}</td>
-                  <td>{{ pending.event.animal }}</td>
-                  <td>{{ pending.event.animal_type }}</td>
-                  <td>{{ pending.event.number_of_animals }}</td>
-                  <td>{{ pending.event.location }}</td>
-                  <td>{{ pending.event.created_at|date:"M d, Y H:i" }}</td>
-                  <td><span class="badge badge-info">Main Record</span></td>
-                </tr>
-
-              {% empty %}
-                <tr>
-                  <td colspan="7" class="text-center text-muted">
-                    No pending edits submitted for approval.
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
+          {% endif %}
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center text-muted">
+          No records found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
           </table>
         </div>
       </div>
 
+
+      {% for edit in event_edits %}
+      {% if edit.status != "pending" %}
+      <div class="modal fade" id="reviewModal{{ edit.id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+
+            <div class="modal-header">
+              <h5 class="modal-title">
+                Event Edit {{ edit.status|title }}
+              </h5>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body">
+              <p><strong>Event:</strong> {{ edit.event }}</p>
+              <p><strong>Reviewed by:</strong> {{ edit.reviewed_by }}</p>
+              <p><strong>Reviewed at:</strong> {{ edit.reviewed_at|date:"M d, Y H:i" }}</p>
+
+              {% if edit.admin_note %}
+              <div class="alert alert-info">
+                <strong>Admin note:</strong><br>
+                {{ edit.admin_note }}
+              </div>
+              {% endif %}
+
+              {% if edit.vet_note %}
+              <div class="alert alert-secondary">
+                <strong>Your note:</strong><br>
+                {{ edit.vet_note }}
+              </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
 
 
     </div>
