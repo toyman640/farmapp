@@ -2,3 +2,6 @@ db.sqlite3
 .env
 
 .git.zip
+farm_env/
+__pycache__/
+*.pyc
