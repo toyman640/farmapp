@@ -1,0 +1,67 @@
+{% load event_extras %}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { padding: 20px; max-width: 800px; margin: auto; }
+        .header { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
+        .content { margin-top: 10px; }
+        .footer { margin-top: 20px; font-size: 12px; color: #888; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f5f5f5; }
+        tr.highlight td { background-color: #fff3cd; } /* highlights changes */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">New Event Edit Pending Approval</div>
+
+        <div class="content">
+            <p><strong>Event:</strong> {{ event.event_name }}</p>
+            <p><strong>Submitted by:</strong> {{ user.username }}</p>
+            <p><strong>Vet Note:</strong> {{ note|default:"No note provided." }}</p>
+
+            <h3>Comparison of Changes</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Current Value</th>
+                        <th>Proposed Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for field, new_value in data.items %}
+                        {% with current_value=event|get_attr:field %}
+                        
+                        {% if field == "animal" or field == "animal_type" %}
+                            {% with current_id=current_value.id %}
+                            <tr class="{% if current_id != new_value %}highlight{% endif %}">
+                                <td>{{ field|title }}</td>
+                                <td>{{ current_value }}</td>
+                                <td>{{ new_value|get_fk_name:field }}</td>
+                            </tr>
+                            {% endwith %}
+                        
+                        {% else %}
+                            <tr class="{% if current_value != new_value %}highlight{% endif %}">
+                                <td>{{ field|title }}</td>
+                                <td>{{ current_value }}</td>
+                                <td>{{ new_value }}</td>
+                            </tr>
+                        {% endif %}
+
+                        {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            Please log in to review and approve this edit.
+        </div>
+    </div>
+</body>
+</html>

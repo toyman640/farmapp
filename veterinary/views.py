@@ -16,6 +16,12 @@ from django.template.loader import render_to_string
 from datetime import timedelta
 import json
 from django.forms.models import model_to_dict
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 # Create your views here.
 
 @login_required
@@ -482,13 +488,37 @@ def edit_event(request, pk):
                         continue
                     pending_data[key] = value.pk if hasattr(value, 'pk') else value
 
-                PendingEventEdit.objects.create(
+                pending = PendingEventEdit.objects.create(
                     event=event,
                     submitted_by=request.user,
                     data=pending_data,
                     vet_note=form.cleaned_data.get('edit_note', '')
                 )
+                subject = "New Event Edit Pending Approval"
+                context = {
+                    'event': event,
+                    'user': request.user,
+                    'data': pending_data,
+                    'note': pending.vet_note
+                }
+
+                html_content = render_to_string('emails/pending_event_edit.html', context)
+                text_content = f"New edit submitted for event {event.event_name}"
+
+                # Get admin emails (adjust as needed)
+                admin_emails = [user.email for user in User.objects.filter(is_staff=True) if user.email]
+
+                email = EmailMultiAlternatives(
+                    subject,
+                    text_content,
+                    settings.DEFAULT_FROM_EMAIL,
+                    admin_emails
+                )
+                email.attach_alternative(html_content, "text/html")
+                email.send()
+
                 message = "Your edit has been sent for admin approval."
+               
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
