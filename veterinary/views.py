@@ -237,7 +237,9 @@ def create_event(request):
             post_data['location'] = " ".join(filter(None, [line, block, pen]))
             # event.location = " ".join(filter(None, [line, block, pen]))
         # form = EventForm(request.POST, request.FILES, user=request.user)
-        form = EventForm(post_data, request.FILES, user=request.user)
+        # form = EventForm(post_data, request.FILES, user=request.user)
+        form = EventForm(post_data, request.FILES, user=request.user, edit_mode=False)
+        print(form.errors)
 
         if form.is_valid():
             # event = form.save(commit=False)
@@ -473,7 +475,8 @@ def edit_event(request, pk):
 
     # -------------------- PROCESS FORM --------------------
     if request.method == 'POST':
-        form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
+        # form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
+        form = EventForm(request.POST, request.FILES, instance=event, user=request.user, edit_mode=True)
         if form.is_valid():
 
             if is_boss:
@@ -483,10 +486,28 @@ def edit_event(request, pk):
                 message = "Event updated and approved successfully!"
             else:
                 pending_data = {}
+
                 for key, value in form.cleaned_data.items():
                     if key == 'edit_note':
                         continue
-                    pending_data[key] = value.pk if hasattr(value, 'pk') else value
+                    
+                    if hasattr(value, 'pk'):
+                        pending_data[key] = value.pk
+                    else:
+                        pending_data[key] = value
+
+                    # if hasattr(value, 'pk'):
+                    #     pending_data[key] = {
+                    #         "id": value.pk,
+                    #         "label": str(value)
+                    #     }
+                    # else:
+                    #     pending_data[key] = value
+                # pending_data = {}
+                # for key, value in form.cleaned_data.items():
+                #     if key == 'edit_note':
+                #         continue
+                #     pending_data[key] = value.pk if hasattr(value, 'pk') else value
 
                 pending = PendingEventEdit.objects.create(
                     event=event,

@@ -1,0 +1,68 @@
+{% load model_extras %}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { padding: 20px; max-width: 800px; margin: auto; }
+        .header { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
+        .approved { color: green; }
+        .rejected { color: red; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            Event Edit {{ status|title }}
+        </div>
+
+        <p><strong>Event:</strong> {{ event.event_name }}</p>
+
+        <p>
+            <strong>Status:</strong>
+            <span class="{% if status == 'approved' %}approved{% else %}rejected{% endif %}">
+                {{ status|title }}
+            </span>
+        </p>
+
+        <p><strong>Your Note:</strong> {{ vet_note|default:"None" }}</p>
+        <p><strong>Admin Note:</strong> {{ admin_note|default:"No comment provided" }}</p>
+
+        <h3>Submitted Changes</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Submitted Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for field, value in data.items %}
+                <tr>
+                    <td>{{ field|title }}</td>
+                    <td>
+                        {% if field == "animal" or field == "animal_type" %}
+                            {{ value|resolve_fk:field }}
+                        {% else %}
+                            {{ value }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p style="margin-top:20px;">
+            {% if status == "approved" %}
+                Your changes have been successfully applied.
+            {% else %}
+                Your changes were not approved. Please review the admin note.
+            {% endif %}
+        </p>
+    </div>
+</body>
+</html>

@@ -33,7 +33,10 @@ class EventForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
+        edit_mode = kwargs.pop('edit_mode', False)
         super().__init__(*args, **kwargs)
+        # if not edit_mode:
+        #     self.fields.pop('edit_note', None)
         if not self.is_bound and self.instance.pk:
             self.initial['location'] = self.instance.location
 

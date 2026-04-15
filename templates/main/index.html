@@ -274,7 +274,7 @@
                                 <td>{{ current_value }}</td>
                                 <td>
                                     {% if field in "animal animal_type" %}
-                                        {{ new_value|get_fk_name:field }}
+                                        {{ new_value|resolve_fk:field }}
                                     {% else %}
                                         {{ new_value }}
                                     {% endif %}

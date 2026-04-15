@@ -1,4 +1,4 @@
-{% load event_extras %}
+{% load model_extras %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -35,16 +35,13 @@
                 <tbody>
                     {% for field, new_value in data.items %}
                         {% with current_value=event|get_attr:field %}
-                        
                         {% if field == "animal" or field == "animal_type" %}
-                            {% with current_id=current_value.id %}
-                            <tr class="{% if current_id != new_value %}highlight{% endif %}">
+                            <tr class="{% if current_value.id != new_value %}highlight{% endif %}">
                                 <td>{{ field|title }}</td>
                                 <td>{{ current_value }}</td>
-                                <td>{{ new_value|get_fk_name:field }}</td>
+                                <td>{{ new_value|resolve_fk:field }}</td>
+                                
                             </tr>
-                            {% endwith %}
-                        
                         {% else %}
                             <tr class="{% if current_value != new_value %}highlight{% endif %}">
                                 <td>{{ field|title }}</td>
