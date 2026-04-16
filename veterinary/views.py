@@ -48,12 +48,6 @@ def vet_index(request):
         "event", "event__animal", "event__animal_type", "reviewed_by"
     )
 
-    # pending_edits = PendingEventEdit.objects.filter(
-    #     submitted_by=request.user,
-    #     status='pending'
-    # ).select_related(
-    #     "event", "event__animal", "event__animal_type"
-    # )
 
     for p in pending_edits:
         animal_id = p.data.get("animal")
@@ -473,9 +467,16 @@ def edit_event(request, pk):
         initial_small_ruminant = location
         print(initial_small_ruminant)
 
+    
+
     # -------------------- PROCESS FORM --------------------
     if request.method == 'POST':
         # form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
+        original_data = {}
+
+        for field in EventType._meta.fields:
+            field_name = field.name
+            original_data[field_name] = getattr(event, field_name)
         form = EventForm(request.POST, request.FILES, instance=event, user=request.user, edit_mode=True)
         if form.is_valid():
 
@@ -493,21 +494,9 @@ def edit_event(request, pk):
                     
                     if hasattr(value, 'pk'):
                         pending_data[key] = value.pk
+                      
                     else:
                         pending_data[key] = value
-
-                    # if hasattr(value, 'pk'):
-                    #     pending_data[key] = {
-                    #         "id": value.pk,
-                    #         "label": str(value)
-                    #     }
-                    # else:
-                    #     pending_data[key] = value
-                # pending_data = {}
-                # for key, value in form.cleaned_data.items():
-                #     if key == 'edit_note':
-                #         continue
-                #     pending_data[key] = value.pk if hasattr(value, 'pk') else value
 
                 pending = PendingEventEdit.objects.create(
                     event=event,
@@ -515,11 +504,26 @@ def edit_event(request, pk):
                     data=pending_data,
                     vet_note=form.cleaned_data.get('edit_note', '')
                 )
+                # ✅ Resolve FK objects for email (same as admin)
+                animal_id = pending.data.get("animal")
+                if animal_id:
+                    try:
+                        pending.data["animal_obj"] = Animals.objects.get(id=animal_id)
+                    except Animals.DoesNotExist:
+                        pending.data["animal_obj"] = None
+
+                animal_type_id = pending.data.get("animal_type")
+                if animal_type_id:
+                    try:
+                        pending.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
+                    except AnimalType.DoesNotExist:
+                        pending.data["animal_type_obj"] = None
                 subject = "New Event Edit Pending Approval"
                 context = {
+                    'edit': pending,
                     'event': event,
                     'user': request.user,
-                    'data': pending_data,
+                    'original_data': original_data,  # ✅ THIS is the fix
                     'note': pending.vet_note
                 }
 
@@ -565,6 +569,7 @@ def edit_event(request, pk):
         'form': form,
         'edit_mode': True,
         'event': event,
+      
 
         # Piggery
         'initial_line': initial_line,

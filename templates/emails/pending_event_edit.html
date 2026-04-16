@@ -1,4 +1,4 @@
-{% load model_extras %}
+{% load event_extras %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,24 +33,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for field, new_value in data.items %}
-                        {% with current_value=event|get_attr:field %}
-                        {% if field == "animal" or field == "animal_type" %}
-                            <tr class="{% if current_value.id != new_value %}highlight{% endif %}">
+                    {% for field, new_value in edit.data.items %}
+                        {% if field != "designation" or edit.data.event_name == "culling" %}
+                            {% with current_value=original_data|get_dict_value:field %}
+                            <tr class="{% if current_value != new_value %}table-warning{% endif %}">
                                 <td>{{ field|title }}</td>
                                 <td>{{ current_value }}</td>
-                                <td>{{ new_value|resolve_fk:field }}</td>
-                                
+                                <td>
+                                    {% if field in "animal animal_type" %}
+                                        {{ new_value|resolve_fk:field }}
+                                    {% else %}
+                                        {{ new_value }}
+                                    {% endif %}
+                                </td>
                             </tr>
-                        {% else %}
-                            <tr class="{% if current_value != new_value %}highlight{% endif %}">
-                                <td>{{ field|title }}</td>
-                                <td>{{ current_value }}</td>
-                                <td>{{ new_value }}</td>
-                            </tr>
+                            {% endwith %}
                         {% endif %}
-
-                        {% endwith %}
                     {% endfor %}
                 </tbody>
             </table>
