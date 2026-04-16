@@ -34,20 +34,22 @@
                 </thead>
                 <tbody>
                     {% for field, new_value in edit.data.items %}
-                        {% if field != "designation" or edit.data.event_name == "culling" %}
-                            {% with current_value=original_data|get_dict_value:field %}
-                            <tr class="{% if current_value != new_value %}table-warning{% endif %}">
-                                <td>{{ field|title }}</td>
-                                <td>{{ current_value }}</td>
-                                <td>
-                                    {% if field in "animal animal_type" %}
-                                        {{ new_value|resolve_fk:field }}
-                                    {% else %}
-                                        {{ new_value }}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endwith %}
+                        {% if field != "animal_obj" and field != "animal_type_obj" %}
+                            {% if field != "designation" or edit.data.event_name == "culling" %}
+                                {% with current_value=original_data|get_dict_value:field %}
+                                <tr class="{% if current_value != new_value %}table-warning{% endif %}">
+                                    <td>{{ field|title }}</td>
+                                    <td>{{ current_value }}</td>
+                                    <td>
+                                        {% if field == "animal" or field == "animal_type" %}
+                                            {{ new_value|resolve_fk:field }}
+                                        {% else %}
+                                            {{ new_value }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endwith %}
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                 </tbody>
