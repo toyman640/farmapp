@@ -16,6 +16,12 @@ from django.template.loader import render_to_string
 from datetime import timedelta
 import json
 from django.forms.models import model_to_dict
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 # Create your views here.
 
 @login_required
@@ -42,12 +48,6 @@ def vet_index(request):
         "event", "event__animal", "event__animal_type", "reviewed_by"
     )
 
-    # pending_edits = PendingEventEdit.objects.filter(
-    #     submitted_by=request.user,
-    #     status='pending'
-    # ).select_related(
-    #     "event", "event__animal", "event__animal_type"
-    # )
 
     for p in pending_edits:
         animal_id = p.data.get("animal")
@@ -231,7 +231,9 @@ def create_event(request):
             post_data['location'] = " ".join(filter(None, [line, block, pen]))
             # event.location = " ".join(filter(None, [line, block, pen]))
         # form = EventForm(request.POST, request.FILES, user=request.user)
-        form = EventForm(post_data, request.FILES, user=request.user)
+        # form = EventForm(post_data, request.FILES, user=request.user)
+        form = EventForm(post_data, request.FILES, user=request.user, edit_mode=False)
+        print(form.errors)
 
         if form.is_valid():
             # event = form.save(commit=False)
@@ -465,9 +467,17 @@ def edit_event(request, pk):
         initial_small_ruminant = location
         print(initial_small_ruminant)
 
+    
+
     # -------------------- PROCESS FORM --------------------
     if request.method == 'POST':
-        form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
+        # form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
+        original_data = {}
+
+        for field in EventType._meta.fields:
+            field_name = field.name
+            original_data[field_name] = getattr(event, field_name)
+        form = EventForm(request.POST, request.FILES, instance=event, user=request.user, edit_mode=True)
         if form.is_valid():
 
             if is_boss:
@@ -477,18 +487,63 @@ def edit_event(request, pk):
                 message = "Event updated and approved successfully!"
             else:
                 pending_data = {}
+
                 for key, value in form.cleaned_data.items():
                     if key == 'edit_note':
                         continue
-                    pending_data[key] = value.pk if hasattr(value, 'pk') else value
+                    
+                    if hasattr(value, 'pk'):
+                        pending_data[key] = value.pk
+                      
+                    else:
+                        pending_data[key] = value
 
-                PendingEventEdit.objects.create(
+                pending = PendingEventEdit.objects.create(
                     event=event,
                     submitted_by=request.user,
                     data=pending_data,
                     vet_note=form.cleaned_data.get('edit_note', '')
                 )
+                # ✅ Resolve FK objects for email (same as admin)
+                animal_id = pending.data.get("animal")
+                if animal_id:
+                    try:
+                        pending.data["animal_obj"] = Animals.objects.get(id=animal_id)
+                    except Animals.DoesNotExist:
+                        pending.data["animal_obj"] = None
+
+                animal_type_id = pending.data.get("animal_type")
+                if animal_type_id:
+                    try:
+                        pending.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
+                    except AnimalType.DoesNotExist:
+                        pending.data["animal_type_obj"] = None
+                subject = "New Event Edit Pending Approval"
+                context = {
+                    'edit': pending,
+                    'event': event,
+                    'user': request.user,
+                    'original_data': original_data,  # ✅ THIS is the fix
+                    'note': pending.vet_note
+                }
+
+                html_content = render_to_string('emails/pending_event_edit.html', context)
+                text_content = f"New edit submitted for event {event.event_name}"
+
+                # Get admin emails (adjust as needed)
+                admin_emails = [user.email for user in User.objects.filter(is_staff=True) if user.email]
+
+                email = EmailMultiAlternatives(
+                    subject,
+                    text_content,
+                    settings.DEFAULT_FROM_EMAIL,
+                    admin_emails
+                )
+                email.attach_alternative(html_content, "text/html")
+                email.send()
+
                 message = "Your edit has been sent for admin approval."
+               
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
@@ -514,6 +569,7 @@ def edit_event(request, pk):
         'form': form,
         'edit_mode': True,
         'event': event,
+      
 
         # Piggery
         'initial_line': initial_line,

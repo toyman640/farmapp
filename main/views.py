@@ -23,6 +23,8 @@ from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit,
 import calendar
 from django.core.exceptions import FieldDoesNotExist
 from .forms import AdminEventEditReviewForm
+from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
 
 
 class CustomLoginView(LoginView):
@@ -100,17 +102,27 @@ def main_index(request):
 
     yesterday_events = EventType.objects.filter(created_at__date=yesterday)
     # Resolve updated animal type IDs into objects
-    for p in pending_event_edits:
-        # existing code for animal...
+    # for p in pending_event_edits:
+    #     # existing code for animal...
         
+    #     animal_type_id = p.data.get("animal_type")
+    #     if animal_type_id:
+    #         try:
+    #             p.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
+    #         except AnimalType.DoesNotExist:
+    #             p.data["animal_type_obj"] = None
+    #     else:
+    #         p.data["animal_type_obj"] = None
+    for p in pending_event_edits:
         animal_type_id = p.data.get("animal_type")
+
         if animal_type_id:
             try:
-                p.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
+                p.animal_type_obj = AnimalType.objects.get(id=animal_type_id)
             except AnimalType.DoesNotExist:
-                p.data["animal_type_obj"] = None
+                p.animal_type_obj = None
         else:
-            p.data["animal_type_obj"] = None
+            p.animal_type_obj = None
 
 
     context = {
@@ -186,7 +198,7 @@ def approve_event_edit(request, pk):
         pending_edit.reviewed_at = timezone.now()
 
         if action == "approve":
-            # Apply pending data
+            # Apply changes
             for field, value in pending_edit.data.items():
                 try:
                     field_obj = EventType._meta.get_field(field)
@@ -208,12 +220,48 @@ def approve_event_edit(request, pk):
             pending_edit.status = "approved"
             messages.success(request, "Event edit approved successfully.")
 
-        else:
+        elif action == "reject":
             pending_edit.status = "rejected"
             messages.warning(request, "Event edit rejected.")
 
         pending_edit.save()
-        return redirect('main:main_index')
+
+
+    # else:
+    #     pending_edit.status = "rejected"
+    #     messages.warning(request, "Event edit rejected.")
+
+    # ✅ SAVE FIRST (IMPORTANT)
+    # pending_edit.save()
+
+    # ✅ SEND EMAIL AFTER STATUS IS UPDATED
+    vet_email = pending_edit.submitted_by.email
+
+    if vet_email:
+        subject = f"Your Event Edit has been {pending_edit.status.title()}"
+
+        context = {
+            'event': event,
+            'status': pending_edit.status,  # now correct
+            'admin_note': pending_edit.admin_note,
+            'vet_note': pending_edit.vet_note,
+            'data': pending_edit.data,
+            'reviewed_by': request.user,
+        }
+
+        html_content = render_to_string('emails/event_edit_status.html', context)
+        text_content = f"Your event edit has been {pending_edit.status}"
+
+        email = EmailMultiAlternatives(
+            subject,
+            text_content,
+            settings.DEFAULT_FROM_EMAIL,
+            [vet_email]
+        )
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+
+    return redirect('main:main_index')
 
     return render(request, 'main/review_event_edit.html', {
         'pending_edit': pending_edit,

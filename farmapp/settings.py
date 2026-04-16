@@ -119,6 +119,8 @@ DATABASES = {
     }
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
@@ -179,3 +181,19 @@ CLOUDINARY_STORAGE = {
 
 DEFAULT_FILE_STORAGE = config('DEFAULT_FILE_STORAGE')
 
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your@email.com'
+# EMAIL_HOST_PASSWORD = 'yourpassword'
+# DEFAULT_FROM_EMAIL = 'your@email.com'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.skaalfarms.com'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = 'jece-staff@skaalfarms.com'
+EMAIL_HOST_PASSWORD = 'P@ssworD196400'
+DEFAULT_FROM_EMAIL = 'jece-staff@skaalfarms.com'

@@ -119,28 +119,6 @@ class EventImage(models.Model):
         return f"Image for event: {self.event.event_name}"
 
 
-# class PendingEventEdit(models.Model):
-#     STATUS_CHOICES = (
-#         ('pending', 'Pending'),
-#         ('approved', 'Approved'),
-#         ('rejected', 'Rejected'),
-#     )
-#     event = models.ForeignKey(EventType, on_delete=models.CASCADE, related_name='pending_edits')
-#     submitted_by = models.ForeignKey(User, on_delete=models.CASCADE)
-#     submitted_at = models.DateTimeField(auto_now_add=True)
-#     data = models.JSONField()  # store form fields here
-#     vet_note = models.TextField(blank=True)
-#     admin_note = models.TextField(blank=True)
-#     status = models.CharField(
-#         max_length=10,
-#         choices=STATUS_CHOICES,
-#         default='pending'
-#     )
-#     approved = models.BooleanField(default=False)
-
-#     def __str__(self):
-#         return f"Pending edit for {self.event} by {self.submitted_by}"
-
 class PendingEventEdit(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
