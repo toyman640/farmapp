@@ -44,12 +44,22 @@ class EventForm(forms.ModelForm):
         #     self.initial['location'] = self.instance.location
 
         # Required and widget classes
+        # for field_name, field in self.fields.items():
+        #     if field_name not in ['designation', 'notes', 'image', 'edit_note']:
+        #         field.required = True
+        #     else:
+        #         field.required = False
+        #     field.widget.attrs.update({'class': 'form-control'})
         for field_name, field in self.fields.items():
-            if field_name not in ['designation', 'notes', 'image']:
+            if field_name not in ['designation', 'notes', 'image', 'edit_note']:
                 field.required = True
             else:
                 field.required = False
-            field.widget.attrs.update({'class': 'form-control'})
+
+        if not edit_mode:
+            self.fields.pop('edit_note', None)
+        else:
+            self.fields['edit_note'].required = True
         
 
         self.fields['notes'].widget.attrs.update({'placeholder': 'Enter notes...'})

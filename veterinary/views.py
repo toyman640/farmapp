@@ -563,7 +563,7 @@ def edit_event(request, pk):
         messages.error(request, "Error updating event.")
 
     else:
-        form = EventForm(instance=event, user=request.user)
+        form = EventForm(instance=event, user=request.user, edit_mode=True)
 
     return render(request, 'vet/event_form.html', {
         'form': form,
