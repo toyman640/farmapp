@@ -276,7 +276,7 @@ def create_event(request):
     else:
         form = EventForm(user=request.user)
 
-    return render(request, 'vet/event_form.html', {'form': form, 'is_vet_piggery': request.user.profile.is_vet_piggery,})
+    return render(request, 'vet/event_form.html', {'form': form, 'is_vet_piggery': request.user.profile.is_vet_piggery, 'event_model': EventType,})
 
 
 @login_required

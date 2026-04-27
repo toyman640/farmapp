@@ -59,8 +59,8 @@
             <label>Line</label>
             <select id="lineSelect" name="lineSelect" class="form-control">
               <option value="">--- Select Line ---</option>
-              {% for i in "123456789" %}
-                <option value="Line {{ i }}">Line {{ i }}</option>
+              {% for line in event_model.PIGGERY_LINES %}
+                <option value="{{ line }}">{{ line }}</option>
               {% endfor %}
             </select>
           </div>
@@ -188,6 +188,17 @@ document.addEventListener("DOMContentLoaded", () => {
       penSelect.appendChild(opt);
     }
   }
+  function handleLineLogic() {
+    const lineValue = lineSelect.value;
+
+    const isDenmark = lineValue === "Denmark 1" || lineValue === "Denmark 2";
+
+    blockSelect.disabled = isDenmark;
+
+    if (isDenmark) {
+      blockSelect.value = "";
+    }
+  }
 
   // -------------------- Location Writer --------------------
   function updateHiddenLocation() {
@@ -216,7 +227,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // -------------------- Live Updates --------------------
   if (isPiggery) {
-    lineSelect.addEventListener("change", updateHiddenLocation);
+    // lineSelect.addEventListener("change", updateHiddenLocation);
+    lineSelect.addEventListener("change", () => {
+      handleLineLogic();
+      updateHiddenLocation();
+    });
     blockSelect.addEventListener("change", updateHiddenLocation);
     penSelect.addEventListener("change", updateHiddenLocation);
   }

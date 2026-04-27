@@ -75,7 +75,7 @@ class EventType(models.Model):
     ]
 
     # 🔹 Piggery Locations: Line + Block (A–Z)
-    PIGGERY_LINES = [f"Line {i}" for i in range(1, 10)]
+    PIGGERY_LINES = [f"Line {i}" for i in range(1, 10)] + [ "Denmark 1", "Denmark 2",]
     PIGGERY_BLOCKS = [f"Block {chr(j)}" for j in range(65, 91)]  # A–Z
     PIGGERY_PENS = [f"Pen {i}" for i in range(1, 101)]  # 1–100
 
