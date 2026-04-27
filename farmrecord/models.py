@@ -44,6 +44,8 @@ class AnimalType(models.Model):
         ('piglet', 'Piglet'),
         ('cow', 'Cow'),
         ('bull', 'Bull'),
+        ('gilt', 'Gilt'),
+        ('hog', 'Hog'),
         ('weaner(cattle)', 'Weaner(Cattle)'),
         ('calf', 'Calf'),
         ('ewe', 'Ewe'),
