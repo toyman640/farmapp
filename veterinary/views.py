@@ -552,7 +552,7 @@ def edit_event(request, pk):
                     'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
                 })
 
-            # messages.success(request, message)
+           
             return redirect('veterinary:event_detail', pk=event.pk)
 
         # Return AJAX errors

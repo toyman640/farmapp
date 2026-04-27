@@ -102,17 +102,6 @@ def main_index(request):
 
     yesterday_events = EventType.objects.filter(created_at__date=yesterday)
     # Resolve updated animal type IDs into objects
-    # for p in pending_event_edits:
-    #     # existing code for animal...
-        
-    #     animal_type_id = p.data.get("animal_type")
-    #     if animal_type_id:
-    #         try:
-    #             p.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
-    #         except AnimalType.DoesNotExist:
-    #             p.data["animal_type_obj"] = None
-    #     else:
-    #         p.data["animal_type_obj"] = None
     for p in pending_event_edits:
         animal_type_id = p.data.get("animal_type")
 
@@ -227,14 +216,6 @@ def approve_event_edit(request, pk):
         pending_edit.save()
 
 
-    # else:
-    #     pending_edit.status = "rejected"
-    #     messages.warning(request, "Event edit rejected.")
-
-    # ✅ SAVE FIRST (IMPORTANT)
-    # pending_edit.save()
-
-    # ✅ SEND EMAIL AFTER STATUS IS UPDATED
     vet_email = pending_edit.submitted_by.email
 
     if vet_email:
