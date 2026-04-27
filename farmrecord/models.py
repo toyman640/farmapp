@@ -82,7 +82,7 @@ class EventType(models.Model):
     PADDOCK_LOCATIONS = [(f"Paddock {i}", f"Paddock {i}") for i in range(1, 9)] + [
         ('Isolation', 'Isolation')
     ]
-    SMALL_RUMINANT_LOCATIONS = [(f"Ewe {i}", f"Ewe {i}") for i in range(1, 6)]
+    SMALL_RUMINANT_LOCATIONS = [(f"Pen {i}", f"Pen {i}") for i in range(1, 11)]
 
     LOCATION_CHOICES = {
         'cattle': PADDOCK_LOCATIONS,
