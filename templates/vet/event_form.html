@@ -124,17 +124,17 @@
 <div class="modal fade" id="editSuccessModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content text-center">
-      <div class="modal-header bg-success text-white">
-        <h5>Edit Submitted</h5>
-        <button type="button" class="close text-white" data-dismiss="modal">
+      <div class="modal-header text-white justify-content-center">
+        <h5 class="text-center">Edit Submitted</h5>
+        <button type="button" class="close text-danger" data-dismiss="modal">
           &times;
         </button>
       </div>
-      <div class="modal-body">
-        Your edit has been submitted for admin approval.
+      <div class="modal-body" id="editModalMessage">
+        
       </div>
       <div class="modal-footer justify-content-center">
-        <a href="{% url 'veterinary:event_records' %}" class="btn btn-primary">
+        <a href="#" id="modalProceedBtn" class="btn btn-success">
           Proceed
         </a>
       </div>
@@ -142,8 +142,26 @@
   </div>
 </div>
 
+<!-- ==================== CREATE FEEDBACK MODAL ==================== -->
+<div class="modal fade" id="createFeedbackModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header justify-content-center">
+        <h5 id="createModalTitle"></h5>
+        <button type="button" class="close text-danger" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body" id="createModalMessage"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  // $("#createFeedbackModal").modal("show");
+
+
 
   const isEditMode   = {{ edit_mode|yesno:"true,false" }};
   const isPiggery   = {{ is_vet_piggery|yesno:"true,false" }};
@@ -222,6 +240,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   toggleDesignation();
   eventName.addEventListener("change", toggleDesignation);
+  form.querySelectorAll(".is-invalid").forEach(el => {
+    el.classList.remove("is-invalid");
+  });
 
   // -------------------- AJAX Submit --------------------
   function ajaxSubmit(actionType) {
@@ -236,14 +257,70 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(r => r.json())
     .then(data => {
+      const modal = $("#createFeedbackModal");
+      const title = document.getElementById("createModalTitle");
+      const message = document.getElementById("createModalMessage");
+
       if (data.status === "success") {
+
+        // ================= EDIT MODE (UNCHANGED) =================
         if (isEditMode) {
+          document.getElementById("editModalMessage").innerText = data.message;
+          document.getElementById("modalProceedBtn").href = data.redirect_url;
+
           $("#editSuccessModal").modal("show");
-        } else if (actionType === "add") {
-          form.reset();
-          hiddenLocation.value = "";
+
+          setTimeout(() => {
+            window.location.href = data.redirect_url;
+          }, 9000);
+          return;
+        }
+
+        // remove previous state
+        title.classList.remove("text-success", "text-danger");
+
+        // ================= CREATE MODE =================
+        if (data.status === "success") {
+          title.innerText = "Record entered Successfully";
+          title.classList.add("text-success");
         } else {
-          window.location.href = data.redirect_url;
+          title.innerText = "Error";
+          title.classList.add("text-danger");
+        }
+        // title.innerText = "Success";
+        message.innerText = data.message;
+        modal.modal("show");
+
+        if (actionType === "add") {
+          // stay on page, reset after short delay
+          setTimeout(() => {
+            modal.modal("hide");
+            form.reset();
+            hiddenLocation.value = "";
+          }, 2000);
+        } else {
+          // proceed → show message first, THEN redirect
+          setTimeout(() => {
+            window.location.href = data.redirect_url;
+          }, 9000);
+        }
+
+      } else if (data.status === "error") {
+
+        // ================= ERROR HANDLING =================
+        title.innerText = "Error";
+        message.innerText = data.message;
+
+        modal.modal("show");
+
+        // Optional: highlight fields (useful)
+        if (data.errors) {
+          Object.keys(data.errors).forEach(field => {
+            const input = document.getElementById(`id_${field}`);
+            if (input) {
+              input.classList.add("is-invalid");
+            }
+          });
         }
       }
     });
@@ -255,7 +332,15 @@ document.addEventListener("DOMContentLoaded", () => {
   if (proceedBtn) proceedBtn.onclick = () => ajaxSubmit("proceed");
 
   // -------------------- Normal Submit --------------------
-  form.addEventListener("submit", updateHiddenLocation);
+  // form.addEventListener("submit", updateHiddenLocation);
+  form.addEventListener("submit", function(e) {
+    updateHiddenLocation();
+
+    if (isEditMode) {
+      e.preventDefault();   // stop normal submit
+      ajaxSubmit("edit");   // use ajax instead
+    }
+  });
 });
 </script>
 
