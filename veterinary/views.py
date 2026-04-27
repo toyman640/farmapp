@@ -156,7 +156,7 @@ def drugs_records_lazy(request):
         'batch_number': d.batch_number,
         'quantity': d.quantity,
         'unit': d.unit.name,
-        'entered_at': d.entered_at.strftime('%Y-%m-%d %H:%M'),
+        'expiry_date': d.expiry_date.strftime('%Y-%m-%d'),
       }
       for d in current_page
   ]
