@@ -40,26 +40,29 @@ class AnimalType(models.Model):
     ANIMAL_TYPE_CHOICES = [
         ('sow', 'Sow'),
         ('boar', 'Boar'),
-        ('weaner(pig)', 'Weaner(Pig)'),
+        ('weaner (pig)', 'Weaner (Pig)'),
         ('piglet', 'Piglet'),
         ('cow', 'Cow'),
         ('bull', 'Bull'),
         ('gilt', 'Gilt'),
         ('hog', 'Hog'),
-        ('weaner(cattle)', 'Weaner(Cattle)'),
+        ('weaner (cattle)', 'Weaner (Cattle)'),
         ('calf', 'Calf'),
         ('ewe', 'Ewe'),
         ('ram', 'Ram'),
-        ('weaner(sheep)', 'Weaner(Sheep)'),
+        ('weaner (sheep)', 'Weaner (Sheep)'),
         ('lamb', 'Lamb'),
         ('buck', 'Buck'),
         ('doe', 'Doe'),
-        ('weaner(goat)', 'Weaner(Goat)'),
+        ('weaner (goat)', 'Weaner (Goat)'),
         ('kid', 'Kid'),
     ]
     animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="animal_types")
     animal_type_name = models.CharField(max_length=30, choices=ANIMAL_TYPE_CHOICES, unique=True)
     animal_type_description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['animal_type_name']  # alphabetical
 
     def __str__(self):
         return self.animal_type_name
