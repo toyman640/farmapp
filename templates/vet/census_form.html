@@ -5,227 +5,189 @@
 {% block content %}
 <div class="content-wrapper census-page">
   <div class="container-fluid">
+
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'veterinary:vet_index' %}">Home</a></li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'veterinary:vet_index' %}">Home</a>
+      </li>
       <li class="breadcrumb-item active">New Census</li>
     </ol>
 
-    <div id="box_general" class="p-4 shadow-sm rounded bg-white">
-      <h4 class="text-primary mb-3">New Census for {{ form.animal.value|title }}</h4>
+    <div class="p-4 shadow-sm rounded bg-white">
+      <h4 class="text-primary mb-3">
+        New Census for {{ form.animal.value|title }}
+      </h4>
 
-      <form method="post" id="census-form" class="census-form" novalidate>
+      <form method="post" id="census-form">
         {% csrf_token %}
         {{ form.as_p }}
+
+        <!-- IMPORTANT: still needed for Django formset -->
         {{ formset.management_form }}
 
-        <div class="mb-3">
-          <div class="row fw-bold border-bottom pb-2 mb-2">
-            <div class="col-md-4">Animal Type</div>
-            <div class="col-md-4">Number of Animals</div>
-            <div class="col-md-4 text-start">Actions</div>
+        <!-- ================= INPUT ROW ================= -->
+        <div class="row mb-3">
+          <div class="col-md-5">
+            <label>Animal Type</label>
+            <select id="animalTypeSelect" class="form-control">
+              <option value="">--- Select ---</option>
+              {% for opt in formset.empty_form.fields.animal_type.queryset %}
+                <option value="{{ opt.id }}">{{ opt.animal_type_name }}</option>
+              {% endfor %}
+            </select>
           </div>
 
-          <div id="formset-body">
-            {% for form in formset %}
-            <div class="row formset-row align-items-center mb-2">
-              <div class="col-md-4">
-                {{ form.animal_type }}
-              </div>
-              <div class="col-md-4">
-                {{ form.number_of_animals }}
-              </div>
-              <div class="col-md-4 icon-group">
-                <button type="button" class="btn btn-success add-row" aria-label="Add row">
-                  <i class="fa fa-plus" aria-hidden="true"></i>
-                </button>
-                {% if not forloop.first %}
-                <button type="button" class="btn btn-danger remove-row" aria-label="Remove row">
-                  <i class="fa fa-trash" aria-hidden="true"></i>
-                </button>
-                {% endif %}
-              </div>
-            </div>
-            {% endfor %}
+          <div class="col-md-5">
+            <label>Number</label>
+            <input type="number" id="animalCountInput" class="form-control">
+          </div>
+
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="button" id="addRecordBtn" class="btn btn-success w-100">
+              Add
+            </button>
           </div>
         </div>
 
-        <div class="d-flex justify-content-end mt-3">
-          <button type="submit" class="btn btn-primary px-4">Save Census</button>
+        <!-- ================= STACKED RECORDS ================= -->
+        <div id="recordsContainer" class="mb-3"></div>
+
+        <!-- ================= SUBMIT ================= -->
+        <div class="text-end">
+          <button type="submit" class="btn btn-primary px-4">
+            Save Census
+          </button>
         </div>
+
       </form>
-
-      <!-- Empty form template -->
-      <div id="empty-form" class="d-none">
-        <div class="row formset-row align-items-center mb-2">
-          <div class="col-md-4">
-            {{ formset.empty_form.animal_type }}
-          </div>
-          <div class="col-md-4">
-            {{ formset.empty_form.number_of_animals }}
-          </div>
-          <div class="col-md-4 icon-group">
-            <button type="button" class="btn btn-success add-row" aria-label="Add row">
-              <i class="fa fa-plus" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="btn btn-danger remove-row" aria-label="Remove row">
-              <i class="fa fa-trash" aria-hidden="true"></i>
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
 
-<!-- ✅ JavaScript logic -->
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const formsetBody = document.getElementById('formset-body');
-  const emptyFormTemplate = document.getElementById('empty-form').innerHTML;
+document.addEventListener("DOMContentLoaded", () => {
+
+  const select = document.getElementById("animalTypeSelect");
+  const input  = document.getElementById("animalCountInput");
+  const addBtn = document.getElementById("addRecordBtn");
+  const container = document.getElementById("recordsContainer");
   const totalForms = document.querySelector('[name$="-TOTAL_FORMS"]');
 
-  // Build master options HTML for the animal_type select from the empty form template
-  const tmp = document.createElement('div');
-  tmp.innerHTML = emptyFormTemplate.replace(/__prefix__/g, '0');
-  const masterSelect = tmp.querySelector('select[name$="-animal_type"]');
-  const masterOptionsHTML = masterSelect ? masterSelect.innerHTML : '';
+  let records = [];
 
-  // Add form-control classes
-  function applyFormControl(row) {
-    row.querySelectorAll('select, input, textarea').forEach(el => {
-      el.classList.add('form-control');
-    });
+  // ---------------- ADD RECORD ----------------
+  addBtn.addEventListener("click", () => {
+    const typeId = select.value;
+    const typeText = select.options[select.selectedIndex]?.text;
+    const count = input.value;
+
+    if (!typeId || !count) {
+      alert("Select animal type and enter number");
+      return;
+    }
+
+    // prevent duplicate selection
+    if (records.some(r => r.typeId === typeId)) {
+      alert("This animal type already added");
+      return;
+    }
+
+    records.push({ typeId, typeText, count });
+
+    renderRecords();
+    updateSelectOptions();
+
+    // reset inputs
+    select.value = "";
+    input.value = "";
+  });
+
+  // ---------------- DELETE RECORD ----------------
+  function deleteRecord(index) {
+    records.splice(index, 1);
+    renderRecords();
+    updateSelectOptions();
   }
 
-  // Update form indices and management count
-  function updateIndices() {
-    const rows = formsetBody.querySelectorAll('.formset-row');
-    rows.forEach((row, i) => {
-      row.querySelectorAll('input, select, label, textarea').forEach(el => {
-        ['name', 'id', 'for'].forEach(attr => {
-          if (el.hasAttribute(attr)) {
-            el.setAttribute(attr, el.getAttribute(attr).replace(/form-(\d+|__prefix__)-/, `form-${i}-`));
-          }
-        });
+  // ---------------- RENDER ----------------
+  function renderRecords() {
+    container.innerHTML = "";
+
+    records.forEach((rec, index) => {
+      const row = document.createElement("div");
+      row.className = "d-flex justify-content-between align-items-center border p-2 mb-2 rounded";
+
+      row.innerHTML = `
+        <div>
+          <strong>${rec.typeText}</strong> — ${rec.count}
+        </div>
+        <button type="button" class="btn btn-danger btn-sm">
+          Delete
+        </button>
+      `;
+
+      row.querySelector("button").onclick = () => deleteRecord(index);
+
+      container.appendChild(row);
+    });
+
+    rebuildFormset();
+  }
+
+  // ---------------- FORMSET SYNC ----------------
+  function rebuildFormset() {
+    // remove old hidden inputs
+    document.querySelectorAll(".hidden-formset").forEach(el => el.remove());
+
+    records.forEach((rec, i) => {
+      container.insertAdjacentHTML("beforeend", `
+        <div class="hidden-formset d-none">
+          <input type="hidden" name="form-${i}-animal_type" value="${rec.typeId}">
+          <input type="hidden" name="form-${i}-number_of_animals" value="${rec.count}">
+        </div>
+      `);
+    });
+
+    totalForms.value = records.length;
+  }
+
+  // ---------------- OPTION FILTER ----------------
+  let masterOptions = [];
+
+  // store all options once
+  Array.from(select.options).forEach(opt => {
+    if (opt.value) {
+      masterOptions.push({
+        value: opt.value,
+        text: opt.text
       });
-      const removeBtn = row.querySelector('.remove-row');
-      if (removeBtn) removeBtn.style.display = i === 0 ? 'none' : 'inline-flex';
-    });
-    totalForms.value = rows.length;
-  }
+    }
+  });
 
-  // Return all selected animal type values
-  function getSelectedTypes() {
-    return Array.from(formsetBody.querySelectorAll('select[name$="-animal_type"]'))
-      .map(select => select.value)
-      .filter(Boolean);
-  }
-
-  // Rebuild each select's options from masterOptionsHTML, removing selected values from other selects
   function updateSelectOptions() {
-    const selectedValues = getSelectedTypes();
-    const selects = formsetBody.querySelectorAll('select[name$="-animal_type"]');
+    const selected = records.map(r => r.typeId);
 
-    selects.forEach(select => {
-      const currentValue = select.value;
-      // restore full option list
-      select.innerHTML = masterOptionsHTML;
+    // reset dropdown
+    select.innerHTML = '<option value="">--- Select ---</option>';
 
-      // remove any option selected in another row (keep currentValue)
-      Array.from(select.options).forEach(option => {
-        if (!option.value) return; // keep blank/default
-        if (selectedValues.includes(option.value) && option.value !== currentValue) {
-          option.remove();
-        }
-      });
-
-      // re-select the current value if still present, otherwise choose empty
-      try {
-        select.value = currentValue || '';
-      } catch (e) {
-        select.selectedIndex = 0;
+    // rebuild only available options
+    masterOptions.forEach(opt => {
+      if (!selected.includes(opt.value)) {
+        const option = document.createElement("option");
+        option.value = opt.value;
+        option.textContent = opt.text;
+        select.appendChild(option);
       }
     });
   }
 
-  // Add a new row
-  function addNewRow() {
-    const count = parseInt(totalForms.value, 10);
-    const newRow = document.createElement('div');
-    newRow.classList.add('row', 'formset-row', 'align-items-center', 'mb-2');
-    newRow.innerHTML = emptyFormTemplate.replace(/__prefix__/g, count);
-    formsetBody.appendChild(newRow);
-    applyFormControl(newRow);
-    updateIndices();
-    // small delay to ensure select is in DOM before rebuilding options
-    setTimeout(updateSelectOptions, 30);
-  }
-
-  // Event delegation for add/remove buttons
-  formsetBody.addEventListener('click', e => {
-    if (e.target.closest('.add-row')) {
-      e.preventDefault();
-      addNewRow();
-    }
-
-    if (e.target.closest('.remove-row')) {
-      const rows = formsetBody.querySelectorAll('.formset-row');
-      if (rows.length > 1) {
-        e.target.closest('.formset-row').remove();
-        updateIndices();
-        updateSelectOptions();
-      } else {
-        alert('At least one record is required.');
-      }
-    }
-  });
-
-  // When any dropdown changes
-  formsetBody.addEventListener('change', e => {
-    if (e.target.matches('select[name$="-animal_type"]')) {
-      updateSelectOptions();
-    }
-  });
-
-  // Initialize existing formset
-  document.querySelectorAll('.formset-row').forEach(row => applyFormControl(row));
-  updateIndices();
-  updateSelectOptions();
 });
 </script>
 
-
-<!-- ✅ Styling -->
 <style>
-  .census-form .formset-row {
-    border-bottom: 1px solid #e9ecef;
-    padding: 0.75rem 0;
-  }
-
-  .census-form .form-control {
-    width: 100%;
-  }
-
-  .census-form .icon-group {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .census-form .icon-group .btn {
-    width: 36px;
-    height: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-  }
-
-  @media (max-width: 767.98px) {
-    .census-form .formset-row > .col-md-4 {
-      margin-bottom: 0.75rem;
-    }
-  }
+#recordsContainer div {
+  background: #f8f9fa;
+}
 </style>
+
 {% endblock %}
