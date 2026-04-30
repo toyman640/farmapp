@@ -83,13 +83,13 @@ class EventForm(forms.ModelForm):
                 self.fields['animal_type'].queryset = AnimalType.objects.filter(animal=animal_obj)
 
             section_events = {
-                'pig': [('mortality', 'Mortality'), ('farrowing', 'Farrowing'),
-                        ('procurement', 'Procurement'), ('culling', 'Culling'), ('sale', 'Sale')],
-                'cattle': [('mortality', 'Mortality'), ('calving', 'Calving'),
-                           ('procurement', 'Procurement'), ('culling', 'Culling'), ('sale', 'Sale')],
-                'sheep': [('mortality', 'Mortality'), ('lambing', 'Lambing'),
-                          ('kidding', 'Kidding'), ('procurement', 'Procurement'),
-                          ('culling', 'Culling'), ('sale', 'Sale')],
+                'pig': [('culling', 'Culling'), ('farrowing', 'Farrowing'),
+                        ('gift', 'Gift'), ('mortality', 'Mortality'), ('procurement', 'Procurement'), ('sale', 'Sale'), ('treatment', 'Treatment')],
+                'cattle': [('calving', 'Calving'), ('culling', 'Culling'),
+                           ('gift', 'Gift'), ('mortality', 'Mortality'), ('procurement', 'Procurement'), ('sale', 'Sale'), ('treatment', 'Treatment'), ('vaccination', 'Vaccination')],
+                'sheep': [('culling', 'Culling'), ('gift', 'Gift'), ('kidding', 'Kidding'),
+                          ('lambing', 'Lambing'), ('mortality', 'Mortality'), ('procurement', 'Procurement'),
+                          ('sale', 'Sale'), ('treatment', 'Treatment'), ('vaccination', 'Vaccination')],
             }
 
             self.fields['event_name'].choices = [('', '--- Select Event ---')] + section_events.get(vet_section, [])
