@@ -88,7 +88,7 @@ class EventType(models.Model):
     PIGGERY_PENS = [f"Pen {i}" for i in range(1, 101)]  # 1–100
 
     PADDOCK_LOCATIONS = [(f"Paddock {i}", f"Paddock {i}") for i in range(1, 9)] + [
-        ('Isolation', 'Isolation')
+        ('Isolation', 'Isolation'), ('General Heard', 'General Heard')
     ]
     SMALL_RUMINANT_LOCATIONS = [(f"Pen {i}", f"Pen {i}") for i in range(1, 11)]
 
