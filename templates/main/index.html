@@ -50,160 +50,171 @@
 
       <div class="row g-3">
 
-  <!-- ✅ PIGGERY CARD -->
-  <div class="col-md-4">
-    <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
+        <!-- ✅ PIGGERY CARD -->
+        <div class="col-md-4">
+          <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
+            <!-- <div class="card-ribbon">More</div> -->
+            <a href="{% url 'main:piggery_event_records_admin' %}" class="card-ribbon text-decoration-none">
+              More
+            </a>
 
-      <h5 class="text-center mb-2">Piggery</h5>
+            <h5 class="text-center mb-2">Piggery</h5>
 
-      <!-- Header -->
-      <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
-        <small class="fw-bold">Event</small>
-        <small class="fw-bold">Number(s)</small>
-      </div>
-
-      <!-- Scrollable body -->
-      <div style="overflow-y: auto; flex-grow: 1;">
-
-        {% for event in piggery_events %}
-          <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-
-            <!-- LEFT -->
-            <div>
-              <span class="
-                {% if event.event_name == 'mortality' %}text-danger
-                {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
-                {% elif event.event_name == 'procurement' %}text-primary
-                {% elif event.event_name == 'culling' %}text-warning
-                {% else %}text-dark
-                {% endif %}
-                fw-semibold
-              ">
-                {{ event.get_event_name_display }}
-              </span><br>
-
-              <small class="text-muted">
-                {{ event.animal_type }}
-              </small>
+            <!-- Header -->
+            <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
+              <small class="fw-bold">Event</small>
+              <small class="fw-bold">Number(s)</small>
             </div>
 
-            <!-- RIGHT -->
-            <div class="fw-bold">
-              {{ event.number_of_animals }}
-            </div>
+            <!-- Scrollable body -->
+            <div style="overflow-y: auto; flex-grow: 1;">
 
+              {% for event in piggery_events %}
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+
+                  <!-- LEFT -->
+                  <div>
+                    <span class="
+                      {% if event.event_name == 'mortality' %}text-danger
+                      {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
+                      {% elif event.event_name == 'procurement' %}text-primary
+                      {% elif event.event_name == 'culling' %}text-warning
+                      {% else %}text-dark
+                      {% endif %}
+                      fw-semibold
+                    ">
+                      {{ event.get_event_name_display }}
+                    </span><br>
+
+                    <small class="text-muted">
+                      {{ event.animal_type }}
+                    </small>
+                  </div>
+
+                  <!-- RIGHT -->
+                  <div class="fw-bold">
+                    {{ event.number_of_animals }}
+                  </div>
+
+                </div>
+              {% empty %}
+                <p class="text-muted text-center mt-3">No records</p>
+              {% endfor %}
+
+            </div>
           </div>
-        {% empty %}
-          <p class="text-muted text-center mt-3">No records</p>
-        {% endfor %}
+        </div>
 
-      </div>
-    </div>
-  </div>
+        <!-- ✅ PADDOCK CARD -->
+        <div class="col-md-4">
+          <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
+            <a href="{% url 'main:paddock_event_records_admin' %}" class="card-ribbon text-decoration-none">
+              More
+            </a>
 
-  <!-- ✅ PADDOCK CARD -->
-  <div class="col-md-4">
-    <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
+            <h5 class="text-center mb-2">Paddock</h5>
 
-      <h5 class="text-center mb-2">Paddock</h5>
-
-      <!-- Header -->
-      <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
-        <small class="fw-bold">Event</small>
-        <small class="fw-bold">Number(s)</small>
-      </div>
-
-      <!-- Scrollable body -->
-      <div style="overflow-y: auto; flex-grow: 1;">
-
-        {% for event in paddock_events %}
-          <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-
-            <!-- LEFT -->
-            <div>
-              <span class="
-                {% if event.event_name == 'mortality' %}text-danger
-                {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
-                {% elif event.event_name == 'procurement' %}text-primary
-                {% elif event.event_name == 'culling' %}text-warning
-                {% else %}text-dark
-                {% endif %}
-                fw-semibold
-              ">
-                {{ event.get_event_name_display }}
-              </span><br>
-
-              <small class="text-muted">
-                {{ event.animal_type }}
-              </small>
+            <!-- Header -->
+            <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
+              <small class="fw-bold">Event</small>
+              <small class="fw-bold">Number(s)</small>
             </div>
 
-            <!-- RIGHT -->
-            <div class="fw-bold">
-              {{ event.number_of_animals }}
-            </div>
+            <!-- Scrollable body -->
+            <div style="overflow-y: auto; flex-grow: 1;">
 
+              {% for event in paddock_events %}
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+
+                  <!-- LEFT -->
+                  <div>
+                    <span class="
+                      {% if event.event_name == 'mortality' %}text-danger
+                      {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
+                      {% elif event.event_name == 'procurement' %}text-primary
+                      {% elif event.event_name == 'culling' %}text-warning
+                      {% else %}text-dark
+                      {% endif %}
+                      fw-semibold
+                    ">
+                      {{ event.get_event_name_display }}
+                    </span><br>
+
+                    <small class="text-muted">
+                      {{ event.animal_type }}
+                    </small>
+                  </div>
+
+                  <!-- RIGHT -->
+                  <div class="fw-bold">
+                    {{ event.number_of_animals }}
+                  </div>
+
+                </div>
+              {% empty %}
+                <p class="text-muted text-center mt-3">No records</p>
+              {% endfor %}
+
+            </div>
           </div>
-        {% empty %}
-          <p class="text-muted text-center mt-3">No records</p>
-        {% endfor %}
+        </div>
 
-      </div>
-    </div>
-  </div>
+        <!-- ✅ SMALL RUMINANT CARD -->
+        <div class="col-md-4">
+          <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
 
-  <!-- ✅ SMALL RUMINANT CARD -->
-  <div class="col-md-4">
-    <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
+            <a href="{% url 'main:small_ruminant_event_records_admin' %}" class="card-ribbon text-decoration-none">
+              More
+            </a>
 
-      <h5 class="text-center mb-2">Small Ruminant</h5>
+            <h5 class="text-center mb-2">Small Ruminant</h5>
 
-      <!-- Header -->
-      <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
-        <small class="fw-bold">Event</small>
-        <small class="fw-bold">Number(s)</small>
-      </div>
-
-      <!-- Scrollable body -->
-      <div style="overflow-y: auto; flex-grow: 1;">
-
-        {% for event in small_ruminant_events %}
-          <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-
-            <!-- LEFT -->
-            <div>
-              <span class="
-                {% if event.event_name == 'mortality' %}text-danger
-                {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
-                {% elif event.event_name == 'procurement' %}text-primary
-                {% elif event.event_name == 'culling' %}text-warning
-                {% else %}text-dark
-                {% endif %}
-                fw-semibold
-              ">
-                {{ event.get_event_name_display }}
-              </span><br>
-
-              <small class="text-muted">
-                {{ event.animal_type }}
-              </small>
+            <!-- Header -->
+            <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
+              <small class="fw-bold">Event</small>
+              <small class="fw-bold">Number(s)</small>
             </div>
 
-            <!-- RIGHT -->
-            <div class="fw-bold">
-              {{ event.number_of_animals }}
-            </div>
+            <!-- Scrollable body -->
+            <div style="overflow-y: auto; flex-grow: 1;">
 
+              {% for event in small_ruminant_events %}
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+
+                  <!-- LEFT -->
+                  <div>
+                    <span class="
+                      {% if event.event_name == 'mortality' %}text-danger
+                      {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
+                      {% elif event.event_name == 'procurement' %}text-primary
+                      {% elif event.event_name == 'culling' %}text-warning
+                      {% else %}text-dark
+                      {% endif %}
+                      fw-semibold
+                    ">
+                      {{ event.get_event_name_display }}
+                    </span><br>
+
+                    <small class="text-muted">
+                      {{ event.animal_type }}
+                    </small>
+                  </div>
+
+                  <!-- RIGHT -->
+                  <div class="fw-bold">
+                    {{ event.number_of_animals }}
+                  </div>
+
+                </div>
+              {% empty %}
+                <p class="text-muted text-center mt-3">No records</p>
+              {% endfor %}
+
+            </div>
           </div>
-        {% empty %}
-          <p class="text-muted text-center mt-3">No records</p>
-        {% endfor %}
+        </div>
 
       </div>
-    </div>
-  </div>
-
-</div>
     </div>
 
 
@@ -511,6 +522,34 @@
 </div>
 {% endif %}
 </div>
+
+<style>
+  .data-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-ribbon {
+    position: absolute;
+    top: 12px;
+    right: -40px;
+    transform: rotate(45deg);
+    background: #0d6efd;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 50px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 10;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .card-ribbon:hover {
+    background: #0b5ed7;
+  }
+</style>
 
 <script>
    $(document).ready(function () {
