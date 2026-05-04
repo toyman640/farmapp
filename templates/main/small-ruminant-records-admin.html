@@ -152,19 +152,69 @@
   .col-event { flex: 0 0 20%; }
   .col-type { flex: 0 0 20%; }
   .col-location { flex: 0 0 25%; }
-  .col-notes { flex: 1; max-width: 250px; }
+  /* .col-notes { flex: 1; max-width: 250px; } */
+  .col-notes {
+    flex: 0 0 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
 
-  .event-records-page .event-row.mortality { background-color: rgba(220,53,69,0.5); color: #dc3545; }
+  /* .event-records-page .event-row.mortality { background-color: rgba(220,53,69,0.5); color: #dc3545; }
   .event-records-page .event-row.culling { background-color: rgba(255,193,7,0.5); color: #856404; }
   .event-records-page .event-row.birthing { background-color: rgba(40,167,69,0.5); color: #1e7e34; }
   .event-records-page .event-row.procurement { background-color: rgba(13,110,253,0.5); color: #0a58ca; }
   .event-records-page .event-row.sale { background-color: rgba(23,162,184,0.5); color: #0b7285; }
-  .event-records-page .event-row.default { background-color: rgba(108,117,125,0.5); color: #6c757d; }
+  .event-records-page .event-row.default { background-color: rgba(108,117,125,0.5); color: #6c757d; } */
 
-  .event-records-page .event-row:hover {
+  /* .event-records-page .event-row:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     text-decoration: none;
+  } */
+
+  .event-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    min-width: 100px;
+    text-align: center;
+  }
+
+  /* Core */
+  .event-badge.mortality { background: #f8d7da; color: #dc3545; }
+  .event-badge.culling { background: #fff3cd; color: #856404; }
+  .event-badge.birthing { background: #d1e7dd; color: #1e7e34; }
+  .event-badge.procurement { background: #cfe2ff; color: #0a58ca; }
+  .event-badge.sale { background: #d1e7dd; color: #0b7285; }
+
+  /* Medical separation */
+  .event-badge.treatment { background: #fff4cc; color: #856404; }
+  .event-badge.vaccination { background: #cff4fc; color: #087990; }
+
+  /* Neutral */
+  .event-badge.gift { background: #e2e3e5; color: #495057; }
+  .event-badge.default { background: #f1f3f5; color: #495057; }
+  
+  .event-records-page .event-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 18px;
+    border-radius: 12px;
+    min-height: 56px;
+    background: #fff;
+    border: 1px solid #f1f1f1;
+    transition: all .15s ease;
+    font-weight: 500;
+    /* color: #333; */
+  }
+
+  .event-records-page .event-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
   }
 
   @media (max-width: 767.98px) {
