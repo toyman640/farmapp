@@ -77,6 +77,9 @@ class EventType(models.Model):
         ('procurement', 'Procurement'),
         ('culling', 'Culling'),
         ('sale', 'Sale'),
+        ('treatment', 'Treatment'),
+        ('vaccination', 'Vaccination'),
+        ('gift', 'Gift'),
     ]
 
     # 🔹 Piggery Locations: Line + Block (A–Z)

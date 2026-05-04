@@ -25,6 +25,7 @@ from django.core.exceptions import FieldDoesNotExist
 from .forms import AdminEventEditReviewForm
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from django.db.models import Max
 
 
 class CustomLoginView(LoginView):
@@ -100,7 +101,32 @@ def main_index(request):
     restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
 
-    yesterday_events = EventType.objects.filter(created_at__date=yesterday)
+    # yesterday_events = EventType.objects.filter(created_at__date=yesterday)
+
+    # Get latest timestamp
+    latest_event_date = EventType.objects.aggregate(
+        latest_date=Max('created_at__date')
+    )['latest_date']
+
+    # Get all events from that date
+    if latest_event_date:
+        events_by_date = EventType.objects.filter(created_at__date=latest_event_date)
+    else:
+        events_by_date = EventType.objects.none()
+
+    # Split by animal type (adjust names based on your DB values)
+    piggery_events = events_by_date.filter(
+    animal_type__animal__animal_name__iexact="pig"
+    )
+
+    paddock_events = events_by_date.filter(
+        animal_type__animal__animal_name__iexact="cattle"
+    )
+
+    small_ruminant_events = events_by_date.filter(
+        animal_type__animal__animal_name__in=["sheep", "goat"]
+    )
+
     # Resolve updated animal type IDs into objects
     for p in pending_event_edits:
         animal_type_id = p.data.get("animal_type")
@@ -122,8 +148,12 @@ def main_index(request):
         'pending_event_edits': pending_event_edits,
         'pending_updates_count': pending_updates_count,
         'recent_drugs': combined_new_drugs,
-        'yesterday_events': yesterday_events,
+        # 'yesterday_events': yesterday_events,
         'show_prompt': True,
+        'latest_event_date': latest_event_date,
+        'piggery_events': piggery_events,
+        'paddock_events': paddock_events,
+        'small_ruminant_events': small_ruminant_events,
     }
 
     return render(request, 'main/index.html', context)
