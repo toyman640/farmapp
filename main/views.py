@@ -173,14 +173,12 @@ def main_index(request):
         animal__animal_name__iexact="sheep"
     ).order_by('-census_date').first()
 
-    print("Latest sheep census:", latest_sheep)
 
     if latest_sheep:
         sheep_total = latest_sheep.records.aggregate(
             total=Sum('number_of_animals')
         )['total'] or 0
 
-        print("Sheep total from latest census:", sheep_total)
 
 
     # GOAT
@@ -216,45 +214,6 @@ def main_index(request):
 
     return render(request, 'main/index.html', context)
 
-
-# @login_required
-# def approve_event_edit(request, pk):
-#     pending_edit = get_object_or_404(PendingEventEdit, pk=pk)
-
-#     # Apply pending data to the main event
-#     event = pending_edit.event
-#     data = pending_edit.data
-
-#     for field, value in data.items():
-#         if field == "image" and value:  # ✅ handle image updates separately
-#             # You might receive image file path or ID — adjust accordingly
-#             EventImage.objects.create(event=event, image=value)
-#             continue
-
-#         # Skip unknown fields
-#         try:
-#             field_obj = EventType._meta.get_field(field)
-#         except FieldDoesNotExist:
-#             continue
-
-#         # Handle foreign keys (Animal, AnimalType)
-#         if field_obj.is_relation:
-#             related_model = field_obj.related_model
-#             try:
-#                 value = related_model.objects.get(pk=value)
-#             except related_model.DoesNotExist:
-#                 continue
-
-#         setattr(event, field, value)
-
-#     event.is_approved = True
-#     event.save()
-
-#     # Remove pending edit after approval
-#     pending_edit.delete()
-
-#     messages.success(request, "Event edit approved and applied successfully!")
-#     return redirect('main:main_index')
 
 
 @login_required
@@ -459,7 +418,7 @@ def drug_filter(request):
 
           # Query the filtered dispatches
           result = Drug.objects.filter(**filters).order_by('-entered_at')
-          print(result)
+        
 
           return render(request, 'main/filter-drug-list.html', {'drugs': result, 'drug_query': drug_query})
 
@@ -687,7 +646,7 @@ def admin_add_drug(request):
         return redirect('main:admin_add_drug')
 
       else:
-        # print("Form errors:", form.errors)
+       
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Handle AJAX errors
           return JsonResponse({"success": False, "message": "Error adding drug. Please check your input."})
@@ -721,127 +680,6 @@ def admin_dispatch_drug(request):
   return render(request, "main/admin-dispatch-drug.html", {"form": form})
 
 
-# def small_ruminant_records_admin(request):
-#   # Get only events related to sheep and goat
-#   records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat']).order_by('-created_at')
-#   context = {'records': records}
-#   return render(request, 'main/small-ruminant-records-admin.html', context)
-
-
-# def small_ruminant_records_admin(request):
-#   event_type = request.GET.get('event_type')
-#   start_date = request.GET.get('start_date')
-#   end_date = request.GET.get('end_date')
-
-#   records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-
-#   if event_type:
-#       records = records.filter(event_name=event_type)
-
-#   if start_date and end_date:
-#       records = records.filter(created_at__range=[start_date, end_date])
-#   elif start_date:
-#       records = records.filter(created_at__gte=start_date)
-#   elif end_date:
-#       records = records.filter(created_at__lte=end_date)
-
-#   event_types = EventType.objects.values_list('event_name', flat=True).distinct()
-
-#   context = {
-#       'records': records.order_by('-created_at'),
-#       'event_types': event_types,
-#       'selected_event': event_type,
-#   }
-#   return render(request, 'main/small-ruminant-records-admin.html', context)
-
-
-# def small_ruminant_records_admin(request):
-#     event_type = request.GET.get('event_type')
-#     start_date = request.GET.get('start_date')
-#     end_date = request.GET.get('end_date')
-
-#     # ----- Event Records -----
-#     records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-
-#     if event_type:
-#         records = records.filter(event_name=event_type)
-
-#     if start_date and end_date:
-#         records = records.filter(created_at__range=[start_date, end_date])
-#     elif start_date:
-#         records = records.filter(created_at__gte=start_date)
-#     elif end_date:
-#         records = records.filter(created_at__lte=end_date)
-
-#     event_types = EventType.objects.values_list('event_name', flat=True).distinct()
-
-#     # ----- Census Records -----
-#     census_records = (
-#         Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-#         .order_by('-census_date')
-#     )
-
-#     # ----- Chart Data (Monthly Totals) -----
-#     census_data = (
-#         Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-#         .annotate(month=TruncMonth('census_date'))
-#         .values('month')
-#         .annotate(total=Count('id'))
-#         .order_by('month')
-#     )
-
-#     census_months = [d['month'].strftime('%B %Y') for d in census_data]
-#     census_totals = [d['total'] for d in census_data]
-
-#     context = {
-#         'records': records.order_by('-created_at'),
-#         'event_types': event_types,
-#         'selected_event': event_type,
-#         'census_records': census_records,   # ✅ added this
-#         'census_months': census_months,
-#         'census_totals': census_totals,
-#     }
-#     return render(request, 'main/small-ruminant-records-admin.html', context)
-
-# def small_ruminant_stats(request):
-#   # ----- Census Data -----
-#   census_data = (
-#       Census.objects.filter(animal__animal_name__iexact='sheep')
-#       .annotate(month=TruncMonth('census_date'))
-#       .values('month')
-#       .annotate(total=Count('id'))
-#       .order_by('month')
-#   )
-
-#   census_labels = [calendar.month_name[d['month'].month] for d in census_data]
-#   census_values = [d['total'] for d in census_data]
-
-#   # ----- Event Data -----
-#   event_type = request.GET.get('type', 'mortality')
-#   event_data = (
-#       EventType.objects.filter(
-#           animal__animal_name__iexact='sheep',
-#           event_name__iexact=event_type
-#       )
-#       .annotate(month=TruncMonth('created_at'))
-#       .values('month')
-#       .annotate(total=Count('id'))
-#       .order_by('month')
-#   )
-
-
-#   event_labels = [calendar.month_name[d['month'].month] for d in event_data]
-#   event_values = [d['total'] for d in event_data]
-
-#   context = {
-#       'census_labels': census_labels,
-#       'census_values': census_values,
-#       'event_labels': event_labels,
-#       'event_values': event_values,
-#       'selected_type': event_type,
-#   }
-#   return render(request, 'main/small_ruminant_stats.html', context)
-
 @login_required
 def small_ruminant_stats(request):
     # ----- Census Data -----
@@ -868,7 +706,7 @@ def small_ruminant_stats(request):
         .annotate(total=Sum('number_of_animals'))  # ✅ sum event animals
         .order_by('month')
     )
-    print(event_data)
+  
 
     event_labels = [calendar.month_name[d['month'].month] for d in event_data]
     event_values = [d['total'] or 0 for d in event_data]
