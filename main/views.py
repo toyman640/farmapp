@@ -17,7 +17,7 @@ from django.core.paginator import Paginator
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from itertools import chain
 from django.utils import timezone
-from django.db.models import Q, F, Count, Sum
+from django.db.models import Q, F, Count, Sum, Max
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit, Animals, AnimalType
 import calendar
@@ -25,7 +25,6 @@ from django.core.exceptions import FieldDoesNotExist
 from .forms import AdminEventEditReviewForm
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
-from django.db.models import Max
 
 
 class CustomLoginView(LoginView):
@@ -139,6 +138,61 @@ def main_index(request):
         else:
             p.animal_type_obj = None
 
+    # Get latest census per animal
+    # Get latest census per animal (FIXED LOGIC)
+
+    piggery_total = 0
+    paddock_total = 0
+    sheep_total = 0
+    goat_total = 0
+
+    # PIG
+    latest_pig = Census.objects.filter(
+        animal__animal_name__iexact="pig"
+    ).order_by('-census_date').first()
+
+    if latest_pig:
+        piggery_total = latest_pig.records.aggregate(
+            total=Sum('number_of_animals')
+        )['total'] or 0
+
+
+    # CATTLE
+    latest_cattle = Census.objects.filter(
+        animal__animal_name__iexact="cattle"
+    ).order_by('-census_date').first()
+
+    if latest_cattle:
+        paddock_total = latest_cattle.records.aggregate(
+            total=Sum('number_of_animals')
+        )['total'] or 0
+
+
+    # SHEEP
+    latest_sheep = Census.objects.filter(
+        animal__animal_name__iexact="sheep"
+    ).order_by('-census_date').first()
+
+    print("Latest sheep census:", latest_sheep)
+
+    if latest_sheep:
+        sheep_total = latest_sheep.records.aggregate(
+            total=Sum('number_of_animals')
+        )['total'] or 0
+
+        print("Sheep total from latest census:", sheep_total)
+
+
+    # GOAT
+    latest_goat = Census.objects.filter(
+        animal__animal_name__iexact="goat"
+    ).order_by('-census_date').first()
+
+    if latest_goat:
+        goat_total = latest_goat.records.aggregate(
+            total=Sum('number_of_animals')
+        )['total'] or 0
+
 
     context = {
         'low_stock_drugs': low_stock_drugs,
@@ -154,6 +208,10 @@ def main_index(request):
         'piggery_events': piggery_events,
         'paddock_events': paddock_events,
         'small_ruminant_events': small_ruminant_events,
+        'piggery_total': piggery_total,
+        'paddock_total': paddock_total,
+        'sheep_total': sheep_total,
+        'goat_total': goat_total,
     }
 
     return render(request, 'main/index.html', context)
