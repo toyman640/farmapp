@@ -50,8 +50,13 @@
           <div class="census-card pig">
             <div class="census-overlay"></div>
             <i class="fa fa-dot-circle-o census-icon"></i>
+
             <h6>Pigs</h6>
             <h2 class="count" data-count="{{ piggery_total }}">0</h2>
+
+            <a href="{% url 'main:piggery_census_records_admin' %}" class="census-btn">
+              View Records
+            </a>
           </div>
         </div>
 
@@ -59,9 +64,14 @@
         <div class="col-md-3">
           <div class="census-card cattle">
             <div class="census-overlay"></div>
-            <i class="fa fa-paw census-icon"></i> <!-- Closest FA solid icon for large livestock if no Pro -->
+            <i class="fa fa-paw census-icon"></i>
+
             <h6>Cattle</h6>
             <h2 class="count" data-count="{{ paddock_total }}">0</h2>
+
+            <a href="{% url 'main:paddock_census_records_admin' %}" class="census-btn">
+              View Records
+            </a>
           </div>
         </div>
 
@@ -69,9 +79,14 @@
         <div class="col-md-3">
           <div class="census-card sheep">
             <div class="census-overlay"></div>
-            <i class="fa fa-cloud census-icon"></i> <!-- Represents woolly sheep visually -->
+            <i class="fa fa-cloud census-icon"></i>
+
             <h6>Sheep</h6>
             <h2 class="count" data-count="{{ sheep_total }}">0</h2>
+
+            <a href="{% url 'main:small_ruminant_census_records_admin' %}" class="census-btn">
+              View Records
+            </a>
           </div>
         </div>
 
@@ -79,9 +94,14 @@
         <div class="col-md-3">
           <div class="census-card goat">
             <div class="census-overlay"></div>
-            <i class="fa fa-leaf census-icon"></i> <!-- Suggests mountain goat environment -->
+            <i class="fa fa-leaf census-icon"></i>
+
             <h6>Goats</h6>
             <h2 class="count" data-count="{{ goat_total }}">0</h2>
+
+            <a href="{% url 'main:small_ruminant_census_records_admin' %}" class="census-btn">
+              View Records
+            </a>
           </div>
         </div>
 
@@ -666,18 +686,13 @@
   }
 
   /* Background themes */
-
-  /* .census-card.pig { background: linear-gradient(135deg,#ff7b7b,#ff4d4d); }
-  .census-card.cattle { background: linear-gradient(135deg,#4facfe,#00c6ff); }
-  .census-card.sheep { background: linear-gradient(135deg,#43e97b,#38f9d7); }
-  .census-card.goat { background: linear-gradient(135deg,#f7971e,#ffd200); } */
   .census-card.pig { 
     background: linear-gradient(135deg, #ff9a9e, #fecfef);
     box-shadow: 0 8px 20px rgba(255, 154, 158, 0.3); 
   }
   .census-card.cattle { 
-      background: linear-gradient(135deg, #e6e9f0, #eef1f5); 
-      box-shadow: 0 8px 20px rgba(142, 158, 171, 0.3); 
+    background: linear-gradient(135deg, #2c3e50, #4b6cb7);
+    box-shadow: 0 10px 25px rgba(44, 62, 80, 0.4);
   }
   .census-card.sheep { 
       background: linear-gradient(135deg, #11998e, #38ef7d); 
@@ -686,6 +701,26 @@
   .census-card.goat { 
       background: linear-gradient(135deg, #606c88, #3f4c6b); 
       box-shadow: 0 8px 20px rgba(96, 108, 136, 0.3); 
+  }
+
+  .census-btn {
+    margin-top: 12px;
+    align-self: flex-start;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: 0.3s ease;
+  }
+
+  .census-btn:hover {
+    background: #fff;
+    color: #333;
+    text-decoration: none;
   }
 </style>
 
