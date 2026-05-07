@@ -25,6 +25,7 @@ from django.core.exceptions import FieldDoesNotExist
 from .forms import AdminEventEditReviewForm
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from collections import defaultdict
 
 
 class CustomLoginView(LoginView):
@@ -143,8 +144,10 @@ def main_index(request):
 
     piggery_total = 0
     paddock_total = 0
-    sheep_total = 0
-    goat_total = 0
+    # sheep_total = 0
+    # goat_total = 
+    # sheep_breakdown = defaultdict(int)
+    # goat_breakdown = defaultdict(int)
 
     # PIG
     latest_pig = Census.objects.filter(
@@ -168,28 +171,77 @@ def main_index(request):
         )['total'] or 0
 
 
-    # SHEEP
-    latest_sheep = Census.objects.filter(
+    # # SHEEP
+    # latest_sheep = Census.objects.filter(
+    #     animal__animal_name__iexact="sheep"
+    # ).order_by('-census_date').first()
+
+    # if latest_sheep:
+    #     for record in latest_sheep.records.select_related('animal_type'):
+    #         key = record.animal_type.animal_type_name.lower()  # ram, ewe, weaner
+    #         print(key)
+    #         sheep_breakdown[key] += record.number_of_animals
+
+
+    # # GOAT
+    # latest_goat = Census.objects.filter(
+    #     animal__animal_name__iexact="sheep"
+    # ).order_by('-census_date').first()
+
+    # if latest_goat:
+    #     for record in latest_goat.records.select_related('animal_type'):
+    #         key = record.animal_type.animal_type_name.lower()  # buck, doe, kid, weaner
+    #         goat_breakdown[key] += record.number_of_animals
+
+
+    # # Totals (still useful)
+    # sheep_total = sum(sheep_breakdown.values())
+    # goat_total = sum(goat_breakdown.values())
+
+    # # SHEEP
+    # latest_sheep = Census.objects.filter(
+    #     animal__animal_name__iexact="sheep"
+    # ).order_by('-census_date').first()
+
+    # sheep_total = 0
+    # if latest_sheep:
+    #     sheep_total = latest_sheep.records.aggregate(
+    #         total=Sum('number_of_animals')
+    #     )['total'] or 0
+
+
+    # # GOAT
+    # latest_goat = Census.objects.filter(
+    #     animal__animal_name__iexact="sheep"
+    # ).order_by('-census_date').first()
+
+    # goat_total = 0
+    # if latest_goat:
+    #     goat_total = latest_goat.records.aggregate(
+    #         total=Sum('number_of_animals')
+    #     )['total'] or 0
+
+    # Get latest SMALL RUMINANT census (stored as "sheep")
+    latest_small_ruminant = Census.objects.filter(
         animal__animal_name__iexact="sheep"
     ).order_by('-census_date').first()
 
 
-    if latest_sheep:
-        sheep_total = latest_sheep.records.aggregate(
-            total=Sum('number_of_animals')
-        )['total'] or 0
+    sheep_total = 0
+    goat_total = 0
 
+    if latest_small_ruminant:
+        for record in latest_small_ruminant.records.select_related('animal_type'):
+            name = record.animal_type.animal_type_name.lower()
+            count = record.number_of_animals
 
+            # SHEEP TYPES
+            if name in ['ram', 'ewe', 'lamb', 'weaner (sheep)']:
+                sheep_total += count
 
-    # GOAT
-    latest_goat = Census.objects.filter(
-        animal__animal_name__iexact="goat"
-    ).order_by('-census_date').first()
-
-    if latest_goat:
-        goat_total = latest_goat.records.aggregate(
-            total=Sum('number_of_animals')
-        )['total'] or 0
+            # GOAT TYPES
+            elif name in ['buck', 'doe', 'kid', 'weaner (goat)']:
+                goat_total += count
 
 
     context = {
@@ -210,6 +262,8 @@ def main_index(request):
         'paddock_total': paddock_total,
         'sheep_total': sheep_total,
         'goat_total': goat_total,
+        # 'sheep_breakdown': dict(sheep_breakdown),
+        # 'goat_breakdown': dict(goat_breakdown),
     }
 
     return render(request, 'main/index.html', context)
