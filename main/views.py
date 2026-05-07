@@ -46,7 +46,7 @@ class CustomLoginView(LoginView):
             if user.profile.is_boss:
               return reverse_lazy('main:main_index')
             elif user.profile.is_supervisor:
-              return reverse_lazy('farmrecord:dash_index')
+              return reverse_lazy('farmrecord:supervisor_index')
             elif user.profile.is_drug:
               return reverse_lazy('drugapp:drug_index')
             elif (

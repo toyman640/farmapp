@@ -1,361 +1,242 @@
-{% extends 'base.html' %}
+{% extends 'other/base.html' %}
 {% load static %}
-{% load mathfilters %}
-<!Doctype html>
-{% block title %}
-Skaal
-{% endblock %}
+
+{% block title %}Home{% endblock %}
 
 {% block content %}
-  <!-- /Navigation-->
-  <div class="content-wrapper">
-    <div class="container-fluid">
-      <!-- Breadcrumbs-->
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item active">My Dashboard user</li>
-      </ol>
-      {% comment %}
-      <div class="row">
-        
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card dashboard text-white bg-primary o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-inbox"></i>
-              </div>
-              <div class="mr-5"><h5><span class=" number">
-                {% for a in cowpop %}
-                {% if forloop.last %}
-                  {{ a.addc }}
-                {% endif %}
-                {% endfor %}
-              </span> Cows</h5></div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="{% url 'farmrecord:cencow_view' %}">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card dashboard text-white bg-warning o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-inbox"></i>
-              </div>
-				<div class="mr-5"><h5><span class=" number">
-          {% for d in pigcen %}
-          {% if forloop.last %}
-            {{ d.addp }}
+
+<div class="content-wrapper">
+  <div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'farmrecord:supervisor_index' %}">
+          Dashboard
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        Supervisor Dashboard
+      </li>
+    </ol>
+
+    <!-- Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert
+          {% if message.tags == 'success' %}
+            alert-success
+          {% elif message.tags == 'warning' %}
+            alert-warning
+          {% else %}
+            alert-info
           {% endif %}
-          {% endfor %}
-        </span> Pigs</h5></div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="{% url 'farmrecord:cenpig_view' %}">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
+        ">
+          {{ message }}
         </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card dashboard text-white bg-success o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-inbox"></i>
-              </div>
-              <div class="mr-5"><h5> <span class="number">
-                {% for i in sheepcen %}
-                {% if forloop.last %}
-                  {{ i.adds }}
-                {% endif %}
-                {% endfor %}
-              </span> Sheep</h5></div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="{% url 'farmrecord:censheep_view' %}">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card dashboard text-white bg-danger o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-inbox"></i> </i>
-              </div>
-              <div class="mr-5"><h5><span class="number">
-                {% for k in goatcen %}
-                {% if forloop.last %}
-                  {{ k.addg }}
-                {% endif %}
-                {% endfor %}
-              </span> Goats</h5></div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="{% url 'farmrecord:cengoat_view' %}">
-              <span class="float-left">View Details</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
-        </div>
-		</div>
-   
-    <div class="box_general padding_bottom">
-      <h4 class="text-center">Mortality rates for the month </h4>
-      <div class="row">
-        <div class="col-sm-3 pt-2">
-          <div class="card cow">
-            <div class="card-body">
-              <h5 class="card-title text-white">Bull <span class="float-right">
-                {% for a in bldn %}
-                {% if forloop.last %}
-                  {{ a.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-              <h5 class="card-title text-white">Cow <span class="float-right">
-                {% for b in cdn %}
-                {% if forloop.last %}
-                  {{ b.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-              <h5 class="card-title text-white">Calf <span class="float-right">
-                {% for c in cldn %}
-                {% if forloop.last %}
-                  {{ c.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-              <h5 class="card-title text-white">Total <span class="float-right">
-                {% for c in count %}
-                {% if forloop.last %}
-                  {{ c.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-3 pt-2">
-          <div class="card pig">
-            <div class="card-body">
-              <h5 class="card-title text-white">Matured Pigs<span class="float-right">
-                {% for p in matx %}
-                {% if forloop.last %}
-                  {{ p.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-              <h5 class="card-title text-white">  <marquee behavior="" direction="">(weaners, growers, boars, sows, hogs, dry sows, nursing mother)</marquee> </h5>
-              <h5 class="card-title text-white">Pigglet <span class="float-right">
-                {% for o in pltdn %}
-                {% if forloop.last %}
-                  {{ o.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-              <h5 class="card-title text-white">Total <span class="float-right">
-                {% for o in countp %}
-                {% if forloop.last %}
-                  {{ o.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-3 pt-2">
-          <div class="card sheep">
-            <div class="card-body">
-              <h5 class="card-title text-white">Ram <span class="float-right">
-                {% for j in rdn %}
-                {% if forloop.last %}
-                  {{ j.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-              <h5 class="card-title text-white">Ewe <span class="float-right">
-                {% for k in edn %}
-                {% if forloop.last %}
-                  {{ k.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-              <h5 class="card-title text-white">Lamb <span class="float-right">
-                {% for m in ldn %}
-                {% if forloop.last %}
-                  {{ m.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-              <h5 class="card-title text-white">Total <span class="float-right">
-                {% for m in counts %}
-                {% if forloop.last %}
-                  {{ m.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-3 pt-2">
-          <div class="card goat">
-            <div class="card-body">
-              <h5 class="card-title text-white">Doe <span class="float-right">
-                {% for l in ddn %}
-                {% if forloop.last %}
-                  {{ l.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-              <h5 class="card-title text-white">Buck <span class="float-right">
-                {% for r in bkdn %}
-                {% if forloop.last %}
-                  {{ r.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-              <h5 class="card-title text-white">Kid <span class="float-right">
-                {% for w in kdn %}
-                {% if forloop.last %}
-                  {{ w.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-              <h5 class="card-title text-white">Total<span class="float-right">
-                {% for w in countg %}
-                {% if forloop.last %}
-                  {{ w.total }}
-                {% endif %}
-                {% endfor %}
-              </span></h5>
-            </div>
-          </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- SUMMARY CARDS -->
+    <div class="row mb-4">
+
+      <!-- PIG -->
+      <div class="col-md-3 mb-3">
+        <div class="census-card pig">
+          <h6>Pigs</h6>
+          <h2>{{ pig_total }}</h2>
+          <small>
+            Latest Census:
+            {{ latest_pig.census_date }}
+          </small>
         </div>
       </div>
-    </div>
-      <div class="row">
-        <div class="col-lg-3 col-sm-6 cow">
-          <div class="row">
-            <div class="col-6 ">hello <h4>6</h4></div>
-            <div class="col-6 ">hello</div>
-            <div class="col-6 pt-5">hello4 <h4>3</h4></div>
-            <div class="col-6 pt-5">hello</div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-6 bg-warning">
-          <div class="row">
-            <div class="col-6 ">hello <h4>6</h4></div>
-            <div class="col-6 ">hello</div>
-            <div class="col-6 pt-5">hello4 <h4>3</h4></div>
-            <div class="col-6 pt-5">hello</div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-6 bg-danger">
-          <div class="row">
-            <div class="col-6 ">hello <h4>6</h4></div>
-            <div class="col-6 ">hello</div>
-            <div class="col-6 pt-5">hello4 <h4>3</h4></div>
-            <div class="col-6 pt-5">hello</div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-6 bg-primary">
-          <div class="row">
-            <div class="col-6 ">hello <h4>6</h4></div>
-            <div class="col-6 ">hello</div>
-            <div class="col-6 pt-5">hello4 <h4>3</h4></div>
-            <div class="col-6 pt-5">hello</div>
-          </div>
+
+      <!-- CATTLE -->
+      <div class="col-md-3 mb-3">
+        <div class="census-card cattle">
+          <h6>Cattle</h6>
+          <h2>{{ cattle_total }}</h2>
+          <small>
+            Latest Census:
+            {{ latest_cattle.census_date }}
+          </small>
         </div>
       </div>
+
+      <!-- SHEEP -->
+      <div class="col-md-3 mb-3">
+        <div class="census-card sheep">
+          <h6>Sheep</h6>
+          <h2>{{ sheep_total }}</h2>
+          <small>
+            Ram, Ewe, Lamb, Weaner
+          </small>
+        </div>
+      </div>
+
+      <!-- GOAT -->
+      <div class="col-md-3 mb-3">
+        <div class="census-card goat">
+          <h6>Goats</h6>
+          <h2>{{ goat_total }}</h2>
+          <small>
+            Buck, Doe, Kid, Weaner
+          </small>
+        </div>
+      </div>
+
     </div>
-		<h2></h2>
-		<div class="box_general padding_bottom">
-			<div class="header_box version_2">
-				<h2><i class="fa fa-bar-chart"></i>Cattle Mortality</h2>
-			</div>
-      <canvas id="myChart" width="400" height="150"></canvas>
-      <script>
-          const ctx = document.getElementById('myChart').getContext('2d');
-          const myChart = new Chart(ctx, {
-              type: 'bar',
-              data: {
-                  labels: [{% for count in count %} '{{ count.month|date:"M Y" }}', {% endfor %}],
-                  datasets: [{
-                      label: 'Mortality Rates',
-                      data: [{% for count in count %} {{count.total }}, {% endfor %}],
-                      backgroundColor: [
-                          'rgba(255, 99, 132, 0.9)',
-                          'rgba(54, 162, 235, 0.9)',
-                          'rgba(255, 206, 86, 0.9)',
-                          'rgba(75, 192, 192, 0.9)',
-                          'rgba(153, 102, 255, 0.9)',
-                          'rgba(255, 159, 64, 0.9)'
-                      ],
-                      borderColor: [
-                          'rgba(255, 99, 132, 1)',
-                          'rgba(54, 162, 235, 1)',
-                          'rgba(255, 206, 86, 1)',
-                          'rgba(75, 192, 192, 1)',
-                          'rgba(153, 102, 255, 1)',
-                          'rgba(255, 159, 64, 1)'
-                      ],
-                      borderWidth: 1
-                  }]
-              },
-              options: {
-                  scales: {
-                      y: {
-                          beginAtZero: true
-                          
 
-                      }
-                  }
-              }
-          });
-      </script>
+    <!-- RECORDS -->
+    <div class="row">
 
-		</div>
-    {% for a in count %}
-     {{ a.addcmot }}
-    {% endfor %}
-    {% endcomment %}
+      <!-- PIG RECORDS -->
+      <div class="col-md-4 mb-4">
+        <div class="box_general padding_bottom">
 
-    <!-- <div class="box_general padding_bottom">
-      <h1>Basic math filters</h1>
+          <h5 class="mb-3">
+            Pig Census Records
+          </h5>
 
-      <ul>
-          <li>8 + 3 = {{ 8|add:3 }}</li>
-      
-          <li>13 - 17 = {{ 13|sub:17 }}</li>
-      
-          {% with answer=40 %}
-          <li>42 * 0.5 = {{ answer|mul:0.5 }}</li>
-          {% endwith %}
-      
-          {% with numerator=12 denominator=3 %}
-          <li>12 / 3 = {{ numerator|div:denominator }}</li>
-          {% endwith %}
-      
-          <li>|-13| = {{ -13|abs }}</li>
-      </ul>
-    </div> -->
+          {% if latest_pig %}
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                  <th>Animal Type</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
 
-    
-   
-    
-	  </div>
-	  <!-- /.container-fluid-->
-   	</div>
-      {% endblock %}
+              <tbody>
+                {% for record in latest_pig.records.all %}
+                  <tr>
+                    <td>{{ record.animal_type }}</td>
+                    <td>{{ record.number_of_animals }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p>No pig census records.</p>
+          {% endif %}
+
+        </div>
+      </div>
+
+      <!-- CATTLE RECORDS -->
+      <div class="col-md-4 mb-4">
+        <div class="box_general padding_bottom">
+
+          <h5 class="mb-3">
+            Cattle Census Records
+          </h5>
+
+          {% if latest_cattle %}
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                  <th>Animal Type</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for record in latest_cattle.records.all %}
+                  <tr>
+                    <td>{{ record.animal_type }}</td>
+                    <td>{{ record.number_of_animals }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p>No cattle census records.</p>
+          {% endif %}
+
+        </div>
+      </div>
+
+      <!-- SMALL RUMINANTS -->
+      <div class="col-md-4 mb-4">
+        <div class="box_general padding_bottom">
+
+          <h5 class="mb-3">
+            Sheep & Goat Records
+          </h5>
+
+          {% if latest_small_ruminant %}
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                  <th>Animal Type</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for record in latest_small_ruminant.records.all %}
+                  <tr>
+                    <td>{{ record.animal_type }}</td>
+                    <td>{{ record.number_of_animals }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p>No small ruminant records.</p>
+          {% endif %}
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<style>
+
+  .census-card {
+    border-radius: 16px;
+    padding: 24px;
+    color: #fff;
+    min-height: 150px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  }
+
+  .census-card h6 {
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .census-card h2 {
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .census-card small {
+    opacity: 0.9;
+  }
+
+  .census-card.pig {
+    background: linear-gradient(135deg, #ff758c, #ff7eb3);
+  }
+
+  .census-card.cattle {
+    background: linear-gradient(135deg, #2c3e50, #4b79a1);
+  }
+
+  .census-card.sheep {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+  }
+
+  .census-card.goat {
+    background: linear-gradient(135deg, #606c88, #3f4c6b);
+  }
+
+</style>
+
+{% endblock %}
