@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db.models import Prefetch
-
-from .models import Census, CensusRecord
+from django.contrib import messages
+from .models import Census, CensusRecord, ExoticAnimalCensus
+from .forms import ExoticAnimalCensusForm
 
 
 @login_required
@@ -89,5 +90,87 @@ def supervisor_index(request):
   return render(
       request,
       'other/index.html',
+      context
+  )
+
+
+
+@login_required
+def create_exotic_animal_census(request):
+
+  if request.method == 'POST':
+    form = ExoticAnimalCensusForm(request.POST)
+
+    if form.is_valid():
+      form.save()
+
+      messages.success(
+        request,
+        'Census record created successfully.'
+      )
+
+      return redirect(
+        'farmrecord:create_exotic_animal_census'
+      )
+
+  else:
+    form = ExoticAnimalCensusForm()
+
+
+  # Latest records
+  latest_records = ExoticAnimalCensus.objects.order_by(
+    '-census_date'
+  )
+
+
+  context = {
+    'form': form,
+    'latest_records': latest_records,
+  }
+
+  return render(
+    request,
+    'other/create_exotic_animal_census.html',
+    context
+  )
+
+@login_required
+def exotic_animal_census_records(request):
+
+  records = ExoticAnimalCensus.objects.order_by(
+      '-census_date',
+      '-created_at'
+  )
+
+  # Totals
+  geese_total = ExoticAnimalCensus.objects.filter(
+      animal_name='geese'
+  ).aggregate_total = sum(
+      records.filter(
+          animal_name='geese'
+      ).values_list(
+          'total_animals',
+          flat=True
+      )
+  )
+
+  crocodile_total = sum(
+      records.filter(
+          animal_name='crocodile'
+      ).values_list(
+          'total_animals',
+          flat=True
+      )
+  )
+
+  context = {
+      'records': records,
+      'geese_total': geese_total,
+      'crocodile_total': crocodile_total,
+  }
+
+  return render(
+      request,
+      'other/exotic_animal_census_records.html',
       context
   )

@@ -105,3 +105,48 @@
 #             # 🧑‍⚕️ Other vets or general users — all animals and types remain available
 #             else:
 #                 self.fields['animal_type'].queryset = AnimalType.objects.all()
+
+from django import forms
+from .models import ExoticAnimalCensus
+
+class ExoticAnimalCensusForm(forms.ModelForm):
+
+  class Meta:
+    model = ExoticAnimalCensus
+
+    fields = [
+        'animal_name',
+        'census_date',
+        'total_animals',
+        'notes',
+    ]
+
+    widgets = {
+      'animal_name': forms.Select(
+          attrs={
+              'class': 'form-control'
+          }
+      ),
+
+      'census_date': forms.DateInput(
+          attrs={
+              'class': 'form-control',
+              'type': 'date'
+          }
+      ),
+
+      'total_animals': forms.NumberInput(
+          attrs={
+              'class': 'form-control',
+              'placeholder': 'Enter total animals'
+          }
+      ),
+
+      'notes': forms.Textarea(
+          attrs={
+              'class': 'form-control',
+              'rows': 4,
+              'placeholder': 'Optional notes'
+          }
+      ),
+    }

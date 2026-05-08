@@ -14,135 +14,145 @@
             <span class="nav-link-text">Dashboard</span>
           </a>
         </li>
-		<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#mortality" data-parent="#mylistings">
-            <i class="fa fa-fw fa-list"></i>
-            <span class="nav-link-text">Piggery</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+              <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#mortality" data-parent="#mylistings">
+                <i class="fa fa-fw fa-list"></i>
+                <span class="nav-link-text">Piggery</span>
+              </a>
+              <ul class="sidenav-second-level collapse" id="mortality">
+                <li>
+                  <a href="{% url 'farmrecord:supervisor_index' %}">Mortality</a>
+                </li>
+          <li>
+                  <a href="{% url 'farmrecord:supervisor_index' %}">Culling</a>
+                </li>
+          <li>
+                  <a href="{% url 'farmrecord:supervisor_index' %}" >Farrowing</a>
+                </li>
+          <li>
+                <a href="{% url 'farmrecord:supervisor_index' %}">Procurement</a>
+
+              <li>
+                  <a href="{% url 'farmrecord:supervisor_index' %}">Sales</a>
+                </li>
+                <li>
+                  <a  class="nav-link" data-toggle="modal" data-target="#exampleModalP">Records</a>
+                </li>
+              </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+          <a class="nav-link" href="{% url 'farmrecord:exotic_animal_census_records' %}">
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <span class="nav-link-text">Records</span>
           </a>
-          <ul class="sidenav-second-level collapse" id="mortality">
-            <li>
-              <a href="{% url 'farmrecord:supervisor_index' %}">Mortality</a>
-            </li>
-			<li>
-              <a href="{% url 'farmrecord:supervisor_index' %}">Culling</a>
-            </li>
-			<li>
-              <a href="{% url 'farmrecord:supervisor_index' %}" >Farrowing</a>
-            </li>
-      <li>
-            <a href="{% url 'farmrecord:supervisor_index' %}">Procurement</a>
-
-          <li>
-              <a href="{% url 'farmrecord:supervisor_index' %}">Sales</a>
-            </li>
-            <li>
-              <a  class="nav-link" data-toggle="modal" data-target="#exampleModalP">Records</a>
-            </li>
-          </ul>
-    </li>
-    <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#sheep" data-parent="#mylistings">
-            <i class="fa fa-fw fa-list"></i>
-            <span class="nav-link-text">Small Ruminant(sheep)</span>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+          <a class="nav-link" href="{% url 'farmrecord:create_exotic_animal_census' %}">
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <span class="nav-link-text">New Record</span>
           </a>
-          <ul class="sidenav-second-level collapse" id="sheep">
-            <li>
-              <a href="{% url 'farmrecord:supervisor_index' %}">Mortality</a>
-            </li>
-			<li>
-              <a href="{% url 'farmrecord:supervisor_index' %}">Culling</a>
-            </li>
-			<li>
-              <a href="{% url 'farmrecord:supervisor_index' %}" >Lambing</a>
-            </li>
-      <li>
-            <a href="{% url 'farmrecord:supervisor_index' %}">Procurement</a>
-
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+              <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#sheep" data-parent="#mylistings">
+                <i class="fa fa-fw fa-list"></i>
+                <span class="nav-link-text">Small Ruminant(sheep)</span>
+              </a>
+              <ul class="sidenav-second-level collapse" id="sheep">
+                <li>
+                  <a href="{% url 'farmrecord:supervisor_index' %}">Mortality</a>
+                </li>
           <li>
-              <a href="{% url 'farmrecord:supervisor_index' %}">Sales</a>
-            </li>
+                  <a href="{% url 'farmrecord:supervisor_index' %}">Culling</a>
+                </li>
+          <li>
+                  <a href="{% url 'farmrecord:supervisor_index' %}" >Lambing</a>
+                </li>
+          <li>
+                <a href="{% url 'farmrecord:supervisor_index' %}">Procurement</a>
+
+              <li>
+                  <a href="{% url 'farmrecord:supervisor_index' %}">Sales</a>
+                </li>
+                <li>
+                  <a  class="nav-link" data-toggle="modal" data-target="#exampleModalS">Records</a>
+                </li>
+              </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#goat" data-parent="#mylistings">
+            <i class="fa fa-fw fa-list"></i>
+            <span class="nav-link-text">Small Ruminant(goat)</span>
+          </a>
+                  <ul class="sidenav-second-level collapse" id="goat">
+                    <li>
+                      <a href="{% url 'farmrecord:supervisor_index' %}">Mortality</a>
+                    </li>
+              <li>
+                      <a href="{% url 'farmrecord:supervisor_index' %}">Culling</a>
+                    </li>
+              <li>
+                      <a href="{% url 'farmrecord:supervisor_index' %}">Kidding</a>
+                    </li>
+              <li>
+                    <a href="{% url 'farmrecord:supervisor_index' %}">Procurement</a>
+
+                  <li>
+                      <a href="{% url 'farmrecord:supervisor_index' %}">Sales</a>
+                    </li>
+                    <li>
+                      <a  class="nav-link" data-toggle="modal" data-target="#exampleModalG">Records</a>
+                    </li>
+                  </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#cow" data-parent="#mylistings">
+            <i class="fa fa-fw fa-list"></i>
+            <span class="nav-link-text">Large Ruminant</span>
+          </a>
+              <ul class="sidenav-second-level collapse" id="cow">
+                <li>
+                  <a href="{% url 'farmrecord:supervisor_index' %}">Mortality</a>
+                </li>
             <li>
-              <a  class="nav-link" data-toggle="modal" data-target="#exampleModalS">Records</a>
+                  <a href="{% url 'farmrecord:supervisor_index' %}">Culling</a>
+                </li>
+            <li>
+                  <a href="{% url 'farmrecord:supervisor_index' %}">Calving</a>
+                </li>
+            <li>
+                <a href="{% url 'farmrecord:supervisor_index' %}">Procurement</a>
+
+              <li>
+                  <a href="{% url 'farmrecord:supervisor_index' %}">Sales</a>
+                </li>
+                <li>
+                  <a  class="nav-link" data-toggle="modal" data-target="#exampleModalC">Records</a>
+                </li>
+              </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#Procurement" data-parent="#mylistings">
+            <i class="fa fa-fw fa-list"></i>
+            <span class="nav-link-text">Monthly Census</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="Procurement">
+            <li>
+              <a href="{% url 'farmrecord:supervisor_index' %}">Piggery</a>
+            </li>
+        <li>
+              <a href="{% url 'farmrecord:supervisor_index' %}">Paddock</a>
+            </li>
+        <li>
+              <a href="{% url 'farmrecord:supervisor_index' %}">Small ruminant(goat)</a>
+            </li>
+        <li>
+            <a href="{% url 'farmrecord:supervisor_index' %}">Small ruminant(sheep)</a>
+            <li>
+              <a class="nav-link" data-toggle="modal" data-target="#exampleModalCen">Records</a>
             </li>
           </ul>
-    </li>
-<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-  <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#goat" data-parent="#mylistings">
-    <i class="fa fa-fw fa-list"></i>
-    <span class="nav-link-text">Small Ruminant(goat)</span>
-  </a>
-          <ul class="sidenav-second-level collapse" id="goat">
-            <li>
-              <a href="{% url 'farmrecord:supervisor_index' %}">Mortality</a>
-            </li>
-      <li>
-              <a href="{% url 'farmrecord:supervisor_index' %}">Culling</a>
-            </li>
-      <li>
-              <a href="{% url 'farmrecord:supervisor_index' %}">Kidding</a>
-            </li>
-      <li>
-            <a href="{% url 'farmrecord:supervisor_index' %}">Procurement</a>
 
-          <li>
-              <a href="{% url 'farmrecord:supervisor_index' %}">Sales</a>
-            </li>
-            <li>
-              <a  class="nav-link" data-toggle="modal" data-target="#exampleModalG">Records</a>
-            </li>
-          </ul>
-</li>
-<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-  <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#cow" data-parent="#mylistings">
-    <i class="fa fa-fw fa-list"></i>
-    <span class="nav-link-text">Large Ruminant</span>
-  </a>
-      <ul class="sidenav-second-level collapse" id="cow">
-        <li>
-          <a href="{% url 'farmrecord:supervisor_index' %}">Mortality</a>
         </li>
-    <li>
-          <a href="{% url 'farmrecord:supervisor_index' %}">Culling</a>
-        </li>
-    <li>
-          <a href="{% url 'farmrecord:supervisor_index' %}">Calving</a>
-        </li>
-    <li>
-        <a href="{% url 'farmrecord:supervisor_index' %}">Procurement</a>
-
-      <li>
-          <a href="{% url 'farmrecord:supervisor_index' %}">Sales</a>
-        </li>
-        <li>
-          <a  class="nav-link" data-toggle="modal" data-target="#exampleModalC">Records</a>
-        </li>
-      </ul>
-</li>
-<li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
-  <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#Procurement" data-parent="#mylistings">
-    <i class="fa fa-fw fa-list"></i>
-    <span class="nav-link-text">Monthly Census</span>
-  </a>
-  <ul class="sidenav-second-level collapse" id="Procurement">
-    <li>
-      <a href="{% url 'farmrecord:supervisor_index' %}">Piggery</a>
-    </li>
-<li>
-      <a href="{% url 'farmrecord:supervisor_index' %}">Paddock</a>
-    </li>
-<li>
-      <a href="{% url 'farmrecord:supervisor_index' %}">Small ruminant(goat)</a>
-    </li>
-<li>
-    <a href="{% url 'farmrecord:supervisor_index' %}">Small ruminant(sheep)</a>
-    <li>
-      <a class="nav-link" data-toggle="modal" data-target="#exampleModalCen">Records</a>
-    </li>
-  </ul>
-
-</li>
-		
-		
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listingsc">
           <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#chart" data-parent="#mylistingsc">
             <i class="fa fa-fw fa-list"></i>

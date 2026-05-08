@@ -195,3 +195,32 @@ class CensusRecord(models.Model):
 @receiver([post_save, post_delete], sender=CensusRecord)
 def update_census_total(sender, instance, **kwargs):
     instance.census.update_total()
+
+
+
+class ExoticAnimalCensus(models.Model):
+
+    ANIMAL_CHOICES = [
+        ('geese', 'Geese'),
+        ('crocodile', 'Crocodile'),
+    ]
+
+    animal_name = models.CharField(max_length=20,choices=ANIMAL_CHOICES)
+
+    census_date = models.DateField(default=timezone.now)
+
+    total_animals = models.PositiveIntegerField()
+
+    notes = models.TextField(null=True,blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-census_date']
+        verbose_name = "Exotic Animal Census"
+        verbose_name_plural = "Exotic Animal Census Records"
+
+    def __str__(self):
+        return f"{self.get_animal_name_display()} Census - {self.census_date}"

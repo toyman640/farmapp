@@ -1,0 +1,119 @@
+{% extends 'other/base.html' %}
+{% load static %}
+
+{% block title %}Exotic Animal Census Records{% endblock %}
+
+{% block content %}
+
+<div class="content-wrapper">
+  <div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'farmrecord:supervisor_index' %}">
+          Dashboard
+        </a>
+      </li>
+
+      <li class="breadcrumb-item active">
+        Exotic Animal Census Records
+      </li>
+    </ol>
+
+    <!-- SUMMARY -->
+    <div class="row mb-4">
+
+      <div class="col-md-6 mb-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body text-center">
+            <h5>Geese</h5>
+            <h2>{{ geese_total }}</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body text-center">
+            <h5>Crocodiles</h5>
+            <h2>{{ crocodile_total }}</h2>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RECORDS -->
+    <div class="box_general padding_bottom">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>
+          Census Records
+        </h4>
+
+        <a
+          href="{% url 'farmrecord:create_exotic_animal_census' %}"
+          class="btn btn-primary"
+        >
+          Add Record
+        </a>
+      </div>
+
+      <div class="table-responsive">
+
+        <table class="table table-bordered table-striped">
+
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Animal</th>
+              <th>Total Animals</th>
+              <th>Census Date</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {% for record in records %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+
+                <td>
+                  {{ record.get_animal_name_display }}
+                </td>
+
+                <td>
+                  {{ record.total_animals }}
+                </td>
+
+                <td>
+                  {{ record.census_date }}
+                </td>
+
+                <td>
+                  {{ record.notes|default:"-" }}
+                </td>
+              </tr>
+
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-center">
+                  No records found.
+                </td>
+              </tr>
+            {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
