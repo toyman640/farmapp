@@ -1,0 +1,133 @@
+{% extends 'other/base.html' %}
+{% load static %}
+
+{% block title %}Edit Census Record{% endblock %}
+
+{% block content %}
+
+<div class="content-wrapper">
+  <div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'farmrecord:supervisor_index' %}">
+          Dashboard
+        </a>
+      </li>
+
+      <li class="breadcrumb-item">
+        <a href="{% url 'farmrecord:exotic_animal_census_records' %}">
+          Census Records
+        </a>
+      </li>
+
+      <li class="breadcrumb-item active">
+        Edit Record
+      </li>
+    </ol>
+
+    <!-- Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert
+          {% if message.tags == 'success' %}
+            alert-success
+          {% elif message.tags == 'error' %}
+            alert-danger
+          {% else %}
+            alert-info
+          {% endif %}
+        ">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="row justify-content-center">
+
+      <div class="col-md-6">
+
+        <div class="card shadow-sm border-0">
+
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Edit Census Record</h5>
+          </div>
+
+          <div class="card-body">
+
+            <form method="POST" novalidate>
+              {% csrf_token %}
+
+              <!-- Animal -->
+              <div class="form-group">
+                <label>Animal</label>
+                {{ form.animal_name }}
+                {% if form.animal_name.errors %}
+                  <small class="text-danger">
+                    {{ form.animal_name.errors.0 }}
+                  </small>
+                {% endif %}
+              </div>
+
+              <!-- Census Date -->
+              <div class="form-group">
+                <label>Census Date</label>
+                {{ form.census_date }}
+                {% if form.census_date.errors %}
+                  <small class="text-danger">
+                    {{ form.census_date.errors.0 }}
+                  </small>
+                {% endif %}
+              </div>
+
+              <!-- Total Animals -->
+              <div class="form-group">
+                <label>Total Animals</label>
+                {{ form.total_animals }}
+                {% if form.total_animals.errors %}
+                  <small class="text-danger">
+                    {{ form.total_animals.errors.0 }}
+                  </small>
+                {% endif %}
+              </div>
+
+              <!-- Notes -->
+              <div class="form-group">
+                <label>Notes</label>
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                  <small class="text-danger">
+                    {{ form.notes.errors.0 }}
+                  </small>
+                {% endif %}
+              </div>
+
+              <!-- Buttons -->
+              <div class="d-flex justify-content-between mt-4">
+
+                <a href="{% url 'farmrecord:exotic_animal_census_records' %}"
+                   class="btn btn-secondary">
+                  Cancel
+                </a>
+
+                <button type="submit" class="btn btn-success">
+                  Update Record
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
