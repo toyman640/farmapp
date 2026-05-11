@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Prefetch
 from django.contrib import messages
 from .models import Census, CensusRecord, ExoticAnimalCensus
 from .forms import ExoticAnimalCensusForm
+from django.http import JsonResponse
 
 
 @login_required
@@ -174,3 +175,76 @@ def exotic_animal_census_records(request):
       'other/exotic_animal_census_records.html',
       context
   )
+
+
+
+@login_required
+def edit_exotic_animal_census(request, pk):
+
+  record = get_object_or_404(
+      ExoticAnimalCensus,
+      pk=pk
+  )
+
+  if request.method == 'POST':
+
+      form = ExoticAnimalCensusForm(
+          request.POST,
+          instance=record
+      )
+
+      if form.is_valid():
+
+          form.save()
+
+          messages.success(
+              request,
+              'Census record updated successfully.'
+          )
+
+          return redirect(
+              'farmrecord:exotic_animal_census_records'
+          )
+
+  else:
+
+      form = ExoticAnimalCensusForm(
+          instance=record
+      )
+
+  context = {
+      'form': form,
+      'record': record,
+  }
+
+  return render(
+      request,
+      'other/edit_exotic_animal_census.html',
+      context
+  )
+
+
+
+@login_required
+def exotic_animal_census_detail(request, pk):
+
+  record = get_object_or_404(
+    ExoticAnimalCensus,
+    pk=pk
+  )
+
+  print('record:', record)
+
+  data = {
+    'id': record.id,
+    'animal_name': record.animal_name,
+    'animal_display': record.get_animal_name_display(),
+    'total_animals': record.total_animals,
+    'census_date': record.census_date.strftime('%Y-%m-%d'),
+    'notes': record.notes,
+    'created_at': record.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+    'updated_at': record.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+  }
+  print("Modal Data:", data)
+
+  return JsonResponse(data)

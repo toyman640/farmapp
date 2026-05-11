@@ -10,7 +10,8 @@ urlpatterns = [
     path('', views.supervisor_index, name='supervisor_index'),
     # path('census-records/', views.census_records, name='census_records'),
     path('census-records/exotic/', views.create_exotic_animal_census, name='create_exotic_animal_census'),
-    path('exotic-animal-census-records/',views.exotic_animal_census_records,name='exotic_animal_census_records'
-),
+    path('exotic-animal-census-records/',views.exotic_animal_census_records,name='exotic_animal_census_records'),
+    path('exotic-animal-census/<int:pk>/', views.exotic_animal_census_detail,name='exotic_animal_census_detail'),
+    path('edit-exotic-animal-census/<int:pk>/',views.edit_exotic_animal_census,name='edit_exotic_animal_census' ),
 ]
 

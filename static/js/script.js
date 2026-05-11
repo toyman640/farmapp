@@ -33,7 +33,6 @@ $('.number').each(function () {
     });
 });
 
-
 // $(document).ready(function() {
 //     $('.select2-drug').select2({
 //         placeholder: "Search drug...",

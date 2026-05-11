@@ -48,6 +48,7 @@
     <div class="box_general padding_bottom">
 
       <div class="d-flex justify-content-between align-items-center mb-3">
+
         <h4>
           Census Records
         </h4>
@@ -58,6 +59,7 @@
         >
           Add Record
         </a>
+
       </div>
 
       <div class="table-responsive">
@@ -71,6 +73,7 @@
               <th>Total Animals</th>
               <th>Census Date</th>
               <th>Notes</th>
+              <th width="180">Actions</th>
             </tr>
           </thead>
 
@@ -78,7 +81,10 @@
 
             {% for record in records %}
               <tr>
-                <td>{{ forloop.counter }}</td>
+
+                <td>
+                  {{ forloop.counter }}
+                </td>
 
                 <td>
                   {{ record.get_animal_name_display }}
@@ -93,13 +99,44 @@
                 </td>
 
                 <td>
-                  {{ record.notes|default:"-" }}
+                  {{ record.notes|default:"-"|truncatewords:10 }}
                 </td>
+
+                <td>
+
+                  <!-- VIEW -->
+                  <button
+                    type="button"
+                    class="btn btn-info btn-sm view-record"
+
+                    data-toggle="modal"
+                    data-target="#recordModal"
+
+                    data-animal="{{ record.get_animal_name_display }}"
+                    data-total="{{ record.total_animals }}"
+                    data-date="{{ record.census_date|date:'Y-m-d' }}"
+                    data-notes="{{ record.notes }}"
+                    data-created="{{ record.created_at|date:'Y-m-d H:i:s' }}"
+
+                  >
+                      View
+                  </button>
+                 
+                  <!-- EDIT -->
+                  <a
+                    href="{% url 'farmrecord:edit_exotic_animal_census' record.id %}"
+                    class="btn btn-primary btn-sm"
+                  >
+                    Edit
+                  </a>
+
+                </td>
+
               </tr>
 
             {% empty %}
               <tr>
-                <td colspan="5" class="text-center">
+                <td colspan="6" class="text-center">
                   No records found.
                 </td>
               </tr>
@@ -115,5 +152,120 @@
 
   </div>
 </div>
+
+<!-- DETAIL MODAL -->
+<div
+  class="modal fade" id="recordModal"
+  tabindex="-1"
+  role="dialog"
+>
+
+  <div
+    class="modal-dialog modal-dialog-centered"
+    role="document"
+  >
+
+    <div class="modal-content">
+
+      <div class="modal-header bg-primary text-white">
+
+        <h5 class="modal-title">
+          Census Record Details
+        </h5>
+
+        <button
+          type="button"
+          class="close text-white"
+          data-dismiss="modal"
+        >
+          <span>&times;</span>
+        </button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <table class="table table-bordered">
+
+          <tr>
+            <th>Animal</th>
+            <td id="modal-animal"> </td>
+          </tr>
+
+          <tr>
+            <th>Total Animals</th>
+            <td id="modal-total"></td>
+          </tr>
+
+          <tr>
+            <th>Census Date</th>
+            <td id="modal-date"></td>
+          </tr>
+
+          <tr>
+            <th>Notes</th>
+            <td>
+              <div id="modal-notes" class="notes-box"></div>
+            </td>
+          </tr>
+
+          <tr>
+            <th>Created At</th>
+            <td id="modal-created"></td>
+          </tr>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+  #modal-notes {
+    max-height: 150px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .notes-box {
+    max-height: 180px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+</style>
+
+<script>
+$(document).on('click', '.view-record', function () {
+   
+
+    console.log("CLICK WORKING");
+
+    let animal = $(this).attr('data-animal');
+    let total = $(this).attr('data-total');
+    let date = $(this).attr('data-date');
+    let notes = $(this).attr('data-notes');
+    let created = $(this).attr('data-created');
+
+    console.log(animal);
+
+    $('#modal-animal').html(animal);
+
+    $('#modal-total').html(total);
+
+    $('#modal-date').html(date);
+
+    $('#modal-notes').html(notes ? notes : '-');
+
+    $('#modal-created').html(created);
+
+});
+
+</script>
 
 {% endblock %}
