@@ -63,7 +63,21 @@
       </div>
 
       <div class="table-responsive">
+        <div class="row mb-3">
 
+            <div class="col-md-4">
+
+                <input
+                  type="text"
+                  id="search-input"
+                  class="form-control"
+                  placeholder="Search animal..."
+                  value="{{ search_query }}"
+                >
+
+            </div>
+
+        </div>
         <table class="table table-bordered table-striped">
 
           <thead>
@@ -77,74 +91,20 @@
             </tr>
           </thead>
 
-          <tbody>
+          <tbody id="record-table-body">
 
-            {% for record in records %}
-              <tr>
-
-                <td>
-                  {{ forloop.counter }}
-                </td>
-
-                <td>
-                  {{ record.get_animal_name_display }}
-                </td>
-
-                <td>
-                  {{ record.total_animals }}
-                </td>
-
-                <td>
-                  {{ record.census_date }}
-                </td>
-
-                <td>
-                  {{ record.notes|default:"-"|truncatewords:10 }}
-                </td>
-
-                <td>
-
-                  <!-- VIEW -->
-                  <button
-                    type="button"
-                    class="btn btn-info btn-sm view-record"
-
-                    data-toggle="modal"
-                    data-target="#recordModal"
-
-                    data-animal="{{ record.get_animal_name_display }}"
-                    data-total="{{ record.total_animals }}"
-                    data-date="{{ record.census_date|date:'Y-m-d' }}"
-                    data-notes="{{ record.notes }}"
-                    data-created="{{ record.created_at|date:'Y-m-d H:i:s' }}"
-
-                  >
-                      View
-                  </button>
-                 
-                  <!-- EDIT -->
-                  <a
-                    href="{% url 'farmrecord:edit_exotic_animal_census' record.id %}"
-                    class="btn btn-primary btn-sm"
-                  >
-                    Edit
-                  </a>
-
-                </td>
-
-              </tr>
-
-            {% empty %}
-              <tr>
-                <td colspan="6" class="text-center">
-                  No records found.
-                </td>
-              </tr>
-            {% endfor %}
+              {% include 'other/partials/exotic_animal_rows.html' %}
 
           </tbody>
 
         </table>
+        <div
+          id="loading-spinner"
+          class="text-center my-3"
+          style="display:none;"
+        >
+            Loading records...
+        </div>
 
       </div>
 
@@ -241,28 +201,120 @@
 </style>
 
 <script>
+
+let page = 2;
+
+let loading = false;
+
+let hasNext = true;
+
+
+// VIEW MODAL
 $(document).on('click', '.view-record', function () {
-   
 
-    console.log("CLICK WORKING");
+    $('#modal-animal').html($(this).data('animal'));
 
-    let animal = $(this).attr('data-animal');
-    let total = $(this).attr('data-total');
-    let date = $(this).attr('data-date');
-    let notes = $(this).attr('data-notes');
-    let created = $(this).attr('data-created');
+    $('#modal-total').html($(this).data('total'));
 
-    console.log(animal);
+    $('#modal-date').html($(this).data('date'));
 
-    $('#modal-animal').html(animal);
+    $('#modal-notes').html($(this).data('notes') || '-');
 
-    $('#modal-total').html(total);
+    $('#modal-created').html($(this).data('created'));
 
-    $('#modal-date').html(date);
+});
 
-    $('#modal-notes').html(notes ? notes : '-');
 
-    $('#modal-created').html(created);
+// SEARCH
+$('#search-input').on('keyup', function () {
+
+    let search = $(this).val();
+
+    page = 2;
+
+    hasNext = true;
+
+    loading = false;
+
+    $.ajax({
+
+        url: window.location.pathname,
+
+        data: {
+            search: search
+        },
+
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+
+        success: function (response) {
+
+            $('#record-table-body').html(response.html);
+
+            hasNext = response.has_next;
+
+        }
+
+    });
+
+});
+
+
+// INFINITE SCROLL
+$(window).on('scroll', function () {
+  alert("scroll event triggered");
+
+    if (loading || !hasNext) return;
+
+    if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+
+        loading = true;
+
+        $('#loading-spinner').show();
+
+        let search = $('#search-input').val();
+
+        $.ajax({
+
+            url: window.location.pathname,
+
+            data: {
+                page: page,
+                search: search
+            },
+
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+
+            success: function (response) {
+
+                $('#record-table-body').append(response.html);
+
+                hasNext = response.has_next;
+
+                if (hasNext) {
+                    page++;
+                }
+
+                loading = false;
+
+                $('#loading-spinner').hide();
+
+            },
+
+            error: function () {
+
+                loading = false;
+
+                $('#loading-spinner').hide();
+
+            }
+
+        });
+
+    }
 
 });
 

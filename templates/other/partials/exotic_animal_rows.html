@@ -1,0 +1,46 @@
+{% for record in records %}
+
+<tr>
+
+    <td>{{ forloop.counter }}</td>
+
+    <td>{{ record.get_animal_name_display }}</td>
+
+    <td>{{ record.total_animals }}</td>
+
+    <td>{{ record.census_date }}</td>
+
+    <td>
+        {{ record.notes|default:"-"|truncatewords:10 }}
+    </td>
+
+    <td>
+
+        <button
+            type="button"
+            class="btn btn-info btn-sm view-record"
+
+            data-toggle="modal"
+            data-target="#recordModal"
+
+            data-animal="{{ record.get_animal_name_display }}"
+            data-total="{{ record.total_animals }}"
+            data-date="{{ record.census_date|date:'Y-m-d' }}"
+            data-notes="{{ record.notes }}"
+            data-created="{{ record.created_at|date:'Y-m-d H:i:s' }}"
+        >
+            View
+        </button>
+
+        <a
+            href="{% url 'farmrecord:edit_exotic_animal_census' record.id %}"
+            class="btn btn-primary btn-sm"
+        >
+            Edit
+        </a>
+
+    </td>
+
+</tr>
+
+{% endfor %}
