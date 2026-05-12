@@ -1,6 +1,6 @@
 {% extends 'other/base.html' %}
 {% load static %}
-
+<!Doctype html>
 {% block title %}Exotic Animal Census Records{% endblock %}
 
 {% block content %}
@@ -52,6 +52,14 @@
         <h4>
           Census Records
         </h4>
+
+        <button
+          type="button"
+          id="test-button"
+          class="btn btn-success"
+        >
+          Test
+        </button>
 
         <a
           href="{% url 'farmrecord:create_exotic_animal_census' %}"
@@ -201,6 +209,7 @@
 </style>
 
 <script>
+    
 
 let page = 2;
 
@@ -260,10 +269,9 @@ $('#search-input').on('keyup', function () {
 
 });
 
-
 // INFINITE SCROLL
 $(window).on('scroll', function () {
-  alert("scroll event triggered");
+
 
     if (loading || !hasNext) return;
 
@@ -315,6 +323,12 @@ $(window).on('scroll', function () {
         });
 
     }
+
+});
+
+$(document).on('click', '#test-button', function () {
+
+  alert('button clicked');
 
 });
 
