@@ -285,7 +285,9 @@ def exotic_animal_census_records(request):
         html = render_to_string(
             'exortic/partials/exotic_animal_rows.html',
             {
-                'records': page_obj.object_list
+                # 'records': page_obj.object_list
+                'records': page_obj,
+                'page_obj': page_obj
             },
             request=request
         )

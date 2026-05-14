@@ -2,7 +2,7 @@
 
 <tr>
 
-    <td>{{ forloop.counter }}</td>
+    <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
 
     <td>{{ record.get_animal_name_display }}</td>
 
