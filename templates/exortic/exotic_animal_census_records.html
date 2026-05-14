@@ -48,43 +48,70 @@
     <!-- RECORDS -->
     <div class="box_general padding_bottom">
 
-      <div class="d-flex justify-content-between align-items-center mb-3">
-
-        <h4>
-          Census Records
-        </h4>
-
-        <button
-          type="button"
-          id="test-button"
-          class="btn btn-success"
-        >
-          Test
-        </button>
-
-        <a
-          href="{% url 'farmrecord:create_exotic_animal_census' %}"
-          class="btn btn-primary"
-        >
-          Add Record
-        </a>
-
-      </div>
+     
 
       <div class="table-responsive">
         <div class="row mb-3">
 
-            <div class="col-md-4">
+          <div class="col-md-3 mb-2">
 
-                <input
-                  type="text"
-                  id="search-input"
+              <select
+                  id="animal-type"
                   class="form-control"
-                  placeholder="Search animal..."
-                  value="{{ search_query|default_if_none:'' }}"
-                >
+              >
+                  <option value="">All Animals</option>
 
-            </div>
+                  <option
+                      value="geese"
+                      {% if animal_type == 'geese' %}selected{% endif %}
+                  >
+                      Geese
+                  </option>
+
+                  <option
+                      value="crocodile"
+                      {% if animal_type == 'crocodile' %}selected{% endif %}
+                  >
+                      Crocodile
+                  </option>
+
+              </select>
+
+          </div>
+
+          <div class="col-md-3 mb-2">
+
+              <input
+                  type="date"
+                  id="start-date"
+                  class="form-control"
+                  value="{{ start_date }}"
+              >
+
+          </div>
+
+          <div class="col-md-3 mb-2">
+
+              <input
+                  type="date"
+                  id="end-date"
+                  class="form-control"
+                  value="{{ end_date }}"
+              >
+
+          </div>
+
+          <div class="col-md-3 mb-2">
+
+              <button
+                  type="button"
+                  id="filter-button"
+                  class="btn btn-primary btn-block"
+              >
+                  Filter
+              </button>
+
+          </div>
 
         </div>
         <table class="table table-bordered table-striped">

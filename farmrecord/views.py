@@ -137,108 +137,6 @@ def create_exotic_animal_census(request):
     context
   )
 
-# @login_required
-# def exotic_animal_census_records(request):
-
-#   records = ExoticAnimalCensus.objects.order_by(
-#       '-census_date',
-#       '-created_at'
-#   )
-
-#   # Totals
-#   geese_total = ExoticAnimalCensus.objects.filter(
-#       animal_name='geese'
-#   ).aggregate_total = sum(
-#       records.filter(
-#           animal_name='geese'
-#       ).values_list(
-#           'total_animals',
-#           flat=True
-#       )
-#   )
-
-#   crocodile_total = sum(
-#       records.filter(
-#           animal_name='crocodile'
-#       ).values_list(
-#           'total_animals',
-#           flat=True
-#       )
-#   )
-
-#   context = {
-#       'records': records,
-#       'geese_total': geese_total,
-#       'crocodile_total': crocodile_total,
-#   }
-
-#   return render(
-#       request,
-#       'other/exotic_animal_census_records.html',
-#       context
-#   )
-
-
-# @login_required
-# def exotic_animal_census_records(request):
-
-#     search_query = request.GET.get('search', '')
-
-#     records = ExoticAnimalCensus.objects.order_by(
-#         '-census_date',
-#         '-created_at'
-#     )
-
-#     # SEARCH
-#     if search_query:
-#         records = records.filter(
-#             animal_name__icontains=search_query
-#         )
-
-#     # PAGINATION
-#     paginator = Paginator(records, 1)
-
-#     page_number = request.GET.get('page')
-
-#     page_obj = paginator.get_page(page_number)
-
-#     # AJAX REQUEST
-#     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-
-#         html = render_to_string(
-#             'other/partials/exotic_animal_rows.html',
-#             {
-#                 'records': page_obj
-#             }
-#         )
-
-#         return JsonResponse({
-#             'html': html,
-#             'has_next': page_obj.has_next()
-#         })
-
-#     # TOTALS
-#     geese_total = records.filter(
-#         animal_name='geese'
-#     ).count()
-
-#     crocodile_total = records.filter(
-#         animal_name='crocodile'
-#     ).count()
-
-#     context = {
-#         'records': page_obj,
-#         'geese_total': geese_total,
-#         'crocodile_total': crocodile_total,
-#         'search_query': search_query,
-#     }
-
-#     return render(
-#         request,
-#         'other/exotic_animal_census_records.html',
-#         context
-#     )
-
 @login_required
 def exotic_animal_census_records(request):
 
@@ -247,14 +145,29 @@ def exotic_animal_census_records(request):
         '-created_at'
     )
 
-    search_query = request.GET.get('search')
+    animal_type = request.GET.get('animal_type')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
 
-    if search_query:
+    # FILTER BY ANIMAL TYPE
+    if animal_type:
         records = records.filter(
-            animal_name__icontains=search_query
+            animal_name=animal_type
         )
 
-    paginator = Paginator(records, 1)
+    # FILTER BY START DATE
+    if start_date:
+        records = records.filter(
+            census_date__gte=start_date
+        )
+
+    # FILTER BY END DATE
+    if end_date:
+        records = records.filter(
+            census_date__lte=end_date
+        )
+
+    paginator = Paginator(records, 10)
 
     page_number = request.GET.get('page')
 
@@ -280,12 +193,10 @@ def exotic_animal_census_records(request):
 
     # AJAX REQUEST
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        print('AJAX HEADER:', request.headers.get('X-Requested-With'))
-        print('PAGE:', request.GET.get('page'))
+
         html = render_to_string(
             'exortic/partials/exotic_animal_rows.html',
             {
-                # 'records': page_obj.object_list
                 'records': page_obj,
                 'page_obj': page_obj
             },
@@ -297,14 +208,15 @@ def exotic_animal_census_records(request):
             'has_next': page_obj.has_next()
         })
 
-    print('PAGE OBJECT:', list(page_obj))
-
     context = {
-        'records': page_obj.object_list,
+        'records': page_obj,
         'page_obj': page_obj,
         'geese_total': geese_total,
         'crocodile_total': crocodile_total,
-        'search_query': search_query,
+
+        'animal_type': animal_type,
+        'start_date': start_date,
+        'end_date': end_date,
     }
 
     return render(
@@ -312,6 +224,81 @@ def exotic_animal_census_records(request):
         'exortic/exotic_animal_census_records.html',
         context
     )
+
+
+# @login_required
+# def exotic_animal_census_records(request):
+
+#     records = ExoticAnimalCensus.objects.order_by(
+#         '-census_date',
+#         '-created_at'
+#     )
+
+#     search_query = request.GET.get('search')
+
+#     if search_query:
+#         records = records.filter(
+#             animal_name__icontains=search_query
+#         )
+
+#     paginator = Paginator(records, 1)
+
+#     page_number = request.GET.get('page')
+
+#     page_obj = paginator.get_page(page_number)
+
+#     geese_total = sum(
+#         records.filter(
+#             animal_name='geese'
+#         ).values_list(
+#             'total_animals',
+#             flat=True
+#         )
+#     )
+
+#     crocodile_total = sum(
+#         records.filter(
+#             animal_name='crocodile'
+#         ).values_list(
+#             'total_animals',
+#             flat=True
+#         )
+#     )
+
+#     # AJAX REQUEST
+#     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#         print('AJAX HEADER:', request.headers.get('X-Requested-With'))
+#         print('PAGE:', request.GET.get('page'))
+#         html = render_to_string(
+#             'exortic/partials/exotic_animal_rows.html',
+#             {
+#                 # 'records': page_obj.object_list
+#                 'records': page_obj,
+#                 'page_obj': page_obj
+#             },
+#             request=request
+#         )
+
+#         return JsonResponse({
+#             'html': html,
+#             'has_next': page_obj.has_next()
+#         })
+
+#     print('PAGE OBJECT:', list(page_obj))
+
+#     context = {
+#         'records': page_obj.object_list,
+#         'page_obj': page_obj,
+#         'geese_total': geese_total,
+#         'crocodile_total': crocodile_total,
+#         'search_query': search_query,
+#     }
+
+#     return render(
+#         request,
+#         'exortic/exotic_animal_census_records.html',
+#         context
+#     )
 
 @login_required
 def edit_exotic_animal_census(request, pk):

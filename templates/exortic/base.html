@@ -152,40 +152,46 @@
   });
 
 
-  // SEARCH
-  // $('#search-input').on('keyup', function () {
+  $('#filter-button').on('click', function () {
 
-  //     let search = $(this).val();
+    page = 2;
 
-  //     page = 2;
+    hasNext = true;
 
-  //     hasNext = true;
+    loading = false;
 
-  //     loading = false;
+    let animalType = $('#animal-type').val();
 
-  //     $.ajax({
+    let startDate = $('#start-date').val();
 
-  //         url: window.location.pathname,
+    let endDate = $('#end-date').val();
 
-  //         data: {
-  //             search: search
-  //         },
+    $.ajax({
 
-  //         headers: {
-  //             'X-Requested-With': 'XMLHttpRequest'
-  //         },
+      url: window.location.pathname,
 
-  //         success: function (response) {
+      data: {
+        page: page,
+        animal_type: animalType,
+        start_date: startDate,
+        end_date: endDate
+      },
 
-  //             $('#record-table-body').html(response.html);
+      headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+      },
 
-  //             hasNext = response.has_next;
+      success: function (response) {
 
-  //         }
+          $('#record-table-body').html(response.html);
 
-  //     });
+          hasNext = response.has_next;
 
-  // });
+      }
+
+    });
+
+  });
 
   // INFINITE SCROLL
   $(window).on('scroll', function () {
