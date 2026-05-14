@@ -26,7 +26,7 @@
             data-animal="{{ record.get_animal_name_display }}"
             data-total="{{ record.total_animals }}"
             data-date="{{ record.census_date|date:'Y-m-d' }}"
-            data-notes="{{ record.notes }}"
+            data-notes="{{ record.notes|escapejs }}"
             data-created="{{ record.created_at|date:'Y-m-d H:i:s' }}"
         >
             View

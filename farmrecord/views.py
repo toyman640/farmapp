@@ -92,7 +92,7 @@ def supervisor_index(request):
 
   return render(
       request,
-      'other/index.html',
+      'exortic/index.html',
       context
   )
 
@@ -133,7 +133,7 @@ def create_exotic_animal_census(request):
 
   return render(
     request,
-    'other/create_exotic_animal_census.html',
+    'exortic/create_exotic_animal_census.html',
     context
   )
 
@@ -280,11 +280,12 @@ def exotic_animal_census_records(request):
 
     # AJAX REQUEST
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-
+        print('AJAX HEADER:', request.headers.get('X-Requested-With'))
+        print('PAGE:', request.GET.get('page'))
         html = render_to_string(
-            'other/partials/exotic_animal_rows.html',
+            'exortic/partials/exotic_animal_rows.html',
             {
-                'records': page_obj
+                'records': page_obj.object_list
             },
             request=request
         )
@@ -294,8 +295,11 @@ def exotic_animal_census_records(request):
             'has_next': page_obj.has_next()
         })
 
+    print('PAGE OBJECT:', list(page_obj))
+
     context = {
-        'records': page_obj,
+        'records': page_obj.object_list,
+        'page_obj': page_obj,
         'geese_total': geese_total,
         'crocodile_total': crocodile_total,
         'search_query': search_query,
@@ -303,7 +307,7 @@ def exotic_animal_census_records(request):
 
     return render(
         request,
-        'other/exotic_animal_census_records.html',
+        'exortic/exotic_animal_census_records.html',
         context
     )
 
@@ -348,7 +352,7 @@ def edit_exotic_animal_census(request, pk):
 
   return render(
       request,
-      'other/edit_exotic_animal_census.html',
+      'exortic/edit_exotic_animal_census.html',
       context
   )
 

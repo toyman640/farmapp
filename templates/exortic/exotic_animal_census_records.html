@@ -1,4 +1,5 @@
-{% extends 'other/base.html' %}
+{% extends 'exortic/base.html' %}
+
 {% load static %}
 <!Doctype html>
 {% block title %}Exotic Animal Census Records{% endblock %}
@@ -80,7 +81,7 @@
                   id="search-input"
                   class="form-control"
                   placeholder="Search animal..."
-                  value="{{ search_query }}"
+                  value="{{ search_query|default_if_none:'' }}"
                 >
 
             </div>
@@ -101,7 +102,7 @@
 
           <tbody id="record-table-body">
 
-              {% include 'other/partials/exotic_animal_rows.html' %}
+              {% include 'exortic/partials/exotic_animal_rows.html' %}
 
           </tbody>
 
@@ -128,10 +129,7 @@
   role="dialog"
 >
 
-  <div
-    class="modal-dialog modal-dialog-centered"
-    role="document"
-  >
+  <div class="modal-dialog modal-dialog-centered" role="document">
 
     <div class="modal-content">
 
@@ -208,130 +206,5 @@
   }
 </style>
 
-<script>
-    
-
-let page = 2;
-
-let loading = false;
-
-let hasNext = true;
-
-
-// VIEW MODAL
-$(document).on('click', '.view-record', function () {
-
-    $('#modal-animal').html($(this).data('animal'));
-
-    $('#modal-total').html($(this).data('total'));
-
-    $('#modal-date').html($(this).data('date'));
-
-    $('#modal-notes').html($(this).data('notes') || '-');
-
-    $('#modal-created').html($(this).data('created'));
-
-});
-
-
-// SEARCH
-$('#search-input').on('keyup', function () {
-
-    let search = $(this).val();
-
-    page = 2;
-
-    hasNext = true;
-
-    loading = false;
-
-    $.ajax({
-
-        url: window.location.pathname,
-
-        data: {
-            search: search
-        },
-
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-
-        success: function (response) {
-
-            $('#record-table-body').html(response.html);
-
-            hasNext = response.has_next;
-
-        }
-
-    });
-
-});
-
-// INFINITE SCROLL
-$(window).on('scroll', function () {
-
-
-    if (loading || !hasNext) return;
-
-    if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-
-        loading = true;
-
-        $('#loading-spinner').show();
-
-        let search = $('#search-input').val();
-
-        $.ajax({
-
-            url: window.location.pathname,
-
-            data: {
-                page: page,
-                search: search
-            },
-
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-
-            success: function (response) {
-
-                $('#record-table-body').append(response.html);
-
-                hasNext = response.has_next;
-
-                if (hasNext) {
-                    page++;
-                }
-
-                loading = false;
-
-                $('#loading-spinner').hide();
-
-            },
-
-            error: function () {
-
-                loading = false;
-
-                $('#loading-spinner').hide();
-
-            }
-
-        });
-
-    }
-
-});
-
-$(document).on('click', '#test-button', function () {
-
-  alert('button clicked');
-
-});
-
-</script>
 
 {% endblock %}
