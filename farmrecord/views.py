@@ -167,7 +167,7 @@ def exotic_animal_census_records(request):
             census_date__lte=end_date
         )
 
-    paginator = Paginator(records, 10)
+    paginator = Paginator(records, 2)
 
     page_number = request.GET.get('page')
 
