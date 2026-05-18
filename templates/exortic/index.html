@@ -37,6 +37,33 @@
       {% endfor %}
     {% endif %}
 
+    <div class="row mb-4">
+      <div class="col-md-6 mb-3">
+      <div class="census-card geese">
+        <h6>Geese</h6>
+        <h2 class="text-center">{{ geese_total }}</h2>
+       
+      </div>
+      </div>
+      <div class="col-md-6 mb-3">
+      <div class="census-card crocodile">
+        <h6>Crocodile</h6>
+        <h2 class="text-center">{{ crocodile_total }}</h2>
+       
+      </div>
+      </div>
+    </div>
+
+    <style>
+      .census-card.geese {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .census-card.crocodile {
+      background: linear-gradient(135deg, #134e5e, #71b280);
+      }
+    </style>
+
     <!-- SUMMARY CARDS -->
     <div class="row mb-4">
 
@@ -87,6 +114,7 @@
       </div>
 
     </div>
+   
 
     <!-- RECORDS -->
     <div class="row">
