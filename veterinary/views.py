@@ -358,6 +358,8 @@ def create_census(request):
         form = CensusForm(request.POST, user=user)
         # formset = CensusRecordFormSet(request.POST, user=user)
         formset = CensusRecordFormSet(request.POST, user=user, prefix='records')
+        
+
 
         if form.is_valid() and formset.is_valid():
             census = form.save(commit=False)
@@ -371,13 +373,14 @@ def create_census(request):
             return redirect('veterinary:census_records')
         else:
             
-            print(form.errors)
-            print(formset.errors)
-            print(formset.non_form_errors())
+            # print(form.errors)
+            # print(formset.errors)
+            # print(formset.non_form_errors())
             messages.error(request, "Please correct the errors below.")
     else:
         form = CensusForm(user=user)
         formset = CensusRecordFormSet(user=user)
+        print("form:", form)
 
     return render(request, 'vet/census_form.html', {'form': form, 'formset': formset})
 

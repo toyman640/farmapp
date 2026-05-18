@@ -158,17 +158,17 @@ class CensusRecordForm(forms.ModelForm):
             if getattr(user.profile, 'is_vet_piggery', False):
                 self.fields['animal_type'].queryset = AnimalType.objects.filter(
                     animal__animal_name__iexact='pig',
-                    animal_type_name__in=['boar', 'sow', 'weaner(pig)', 'piglet']
+                    animal_type_name__in=['boar', 'sow', 'weaner (pig)', 'piglet']
                 )
             elif getattr(user.profile, 'is_vet_paddock', False):
                 self.fields['animal_type'].queryset = AnimalType.objects.filter(
                     animal__animal_name__iexact='cattle',
-                    animal_type_name__in=['bull', 'cow', 'weaner(cattle)', 'calf']
+                    animal_type_name__in=['bull', 'cow', 'weaner (cattle)', 'calf']
                 )
             elif getattr(user.profile, 'is_vet_smallruminant', False):
                 self.fields['animal_type'].queryset = AnimalType.objects.filter(
                     animal__animal_name__in=['sheep', 'goat'],
-                    animal_type_name__in=['ram', 'ewe', 'weaner(sheep)', 'lamb', 'buck', 'doe', 'weaner(goat)', 'kid']
+                    animal_type_name__in=['ram', 'ewe', 'weaner (sheep)', 'lamb', 'buck', 'doe', 'weaner (goat)', 'kid']
                 )
             else:
                 self.fields['animal_type'].queryset = AnimalType.objects.none()

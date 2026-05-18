@@ -15,9 +15,27 @@
 
     <div class="p-4 shadow-sm rounded bg-white">
       <h4 class="text-primary mb-3">
-        New Census for {{ form.animal.value|title }}
+        <!-- New Census for {{ form.animal.value|title }} -->
+         New Census Record
       </h4>
+      {% if messages %}
+        <div class="mt-3">
+          {% for message in messages %}
+            <div class="alert message-alert
+              {% if message.tags == 'success' %}alert-success
+              {% elif message.tags == 'warning' %}alert-warning
+              {% else %}alert-info{% endif %}
+              alert-dismissible fade show" role="alert">
 
+              {{ message }}
+
+              <button type="button" class="close" data-dismiss="alert">
+                &times;
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
       <form method="post" id="census-form">
         {% csrf_token %}
         {{ form.as_p }}
