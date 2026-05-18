@@ -356,7 +356,8 @@ def create_census(request):
 
     if request.method == 'POST':
         form = CensusForm(request.POST, user=user)
-        formset = CensusRecordFormSet(request.POST, user=user)
+        # formset = CensusRecordFormSet(request.POST, user=user)
+        formset = CensusRecordFormSet(request.POST, user=user, prefix='records')
 
         if form.is_valid() and formset.is_valid():
             census = form.save(commit=False)
@@ -369,6 +370,10 @@ def create_census(request):
             messages.success(request, "Census record created successfully.")
             return redirect('veterinary:census_records')
         else:
+            
+            print(form.errors)
+            print(formset.errors)
+            print(formset.non_form_errors())
             messages.error(request, "Please correct the errors below.")
     else:
         form = CensusForm(user=user)
@@ -411,10 +416,7 @@ def census_records(request):
         end = parse_date(end_date)
         if end:
             censuses = censuses.filter(census_date__lt=end + timedelta(days=1))
-    # if start_date:
-    #     censuses = censuses.filter(census_date__gte=parse_date(start_date))
-    # if end_date:
-    #     censuses = censuses.filter(census_date__lte=parse_date(end_date))
+
 
     # Ensure uniqueness
     censuses = censuses.distinct()

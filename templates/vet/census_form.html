@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const input  = document.getElementById("animalCountInput");
   const addBtn = document.getElementById("addRecordBtn");
   const container = document.getElementById("recordsContainer");
-  const totalForms = document.querySelector('[name$="-TOTAL_FORMS"]');
+  const totalForms = document.querySelector('[name="records-TOTAL_FORMS"]');
 
   let records = [];
 
@@ -142,8 +142,8 @@ document.addEventListener("DOMContentLoaded", () => {
     records.forEach((rec, i) => {
       container.insertAdjacentHTML("beforeend", `
         <div class="hidden-formset d-none">
-          <input type="hidden" name="form-${i}-animal_type" value="${rec.typeId}">
-          <input type="hidden" name="form-${i}-number_of_animals" value="${rec.count}">
+          <input type="hidden" name="records-${i}-animal_type" value="${rec.typeId}">
+          <input type="hidden" name="records-${i}-number_of_animals" value="${rec.count}">
         </div>
       `);
     });
