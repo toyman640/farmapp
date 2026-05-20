@@ -350,39 +350,39 @@ def event_detail(request, pk):
   return render(request, 'vet/event_details.html', context)
 
 
-@login_required
-def create_census(request):
-    user = request.user
+# @login_required
+# def create_census(request):
+#     user = request.user
 
-    if request.method == 'POST':
-        form = CensusForm(request.POST, user=user)
-        # formset = CensusRecordFormSet(request.POST, user=user)
-        formset = CensusRecordFormSet(request.POST, user=user, prefix='records')
+#     if request.method == 'POST':
+#         form = CensusForm(request.POST, user=user)
+#         # formset = CensusRecordFormSet(request.POST, user=user)
+#         formset = CensusRecordFormSet(request.POST, user=user, prefix='records')
         
 
 
-        if form.is_valid() and formset.is_valid():
-            census = form.save(commit=False)
-            census.save()
-            records = formset.save(commit=False)
-            for record in records:
-                record.census = census
-                record.save()
-            census.update_total()
-            messages.success(request, "Census record created successfully.")
-            return redirect('veterinary:census_records')
-        else:
+#         if form.is_valid() and formset.is_valid():
+#             census = form.save(commit=False)
+#             census.save()
+#             records = formset.save(commit=False)
+#             for record in records:
+#                 record.census = census
+#                 record.save()
+#             census.update_total()
+#             messages.success(request, "Census record created successfully.")
+#             return redirect('veterinary:census_records')
+#         else:
             
-            # print(form.errors)
-            # print(formset.errors)
-            # print(formset.non_form_errors())
-            messages.error(request, "Please correct the errors below.")
-    else:
-        form = CensusForm(user=user)
-        formset = CensusRecordFormSet(user=user)
-        print("form:", form)
+#             # print(form.errors)
+#             # print(formset.errors)
+#             # print(formset.non_form_errors())
+#             messages.error(request, "Please correct the errors below.")
+#     else:
+#         form = CensusForm(user=user)
+#         formset = CensusRecordFormSet(user=user)
+#         print("form:", form)
 
-    return render(request, 'vet/census_form.html', {'form': form, 'formset': formset})
+#     return render(request, 'vet/census_form.html', {'form': form, 'formset': formset})
 
 
 
@@ -439,6 +439,141 @@ def census_records(request):
     })
 
 
+@login_required
+def create_census(request):
+
+    user = request.user
+
+    if request.method == 'POST':
+
+        form = CensusForm(request.POST, user=user)
+
+        formset = CensusRecordFormSet(
+            request.POST,
+            user=user,
+            prefix='records'
+        )
+
+        if form.is_valid() and formset.is_valid():
+
+            census = form.save()
+
+            records = formset.save(commit=False)
+
+            for record in records:
+                record.census = census
+                record.save()
+
+            census.update_total()
+
+            messages.success(
+                request,
+                "Census created successfully."
+            )
+
+            return redirect('veterinary:census_records')
+
+    else:
+
+        form = CensusForm(user=user)
+
+        formset = CensusRecordFormSet(
+            user=user,
+            prefix='records'
+        )
+
+    return render(
+        request,
+        'vet/census_form.html',
+        {
+            'form': form,
+            'formset': formset,
+            'is_edit': False,
+            'existing_records': []
+        }
+    )
+
+
+@login_required
+def edit_census(request, pk):
+
+    user = request.user
+
+    census = get_object_or_404(
+        Census,
+        pk=pk
+    )
+
+    if request.method == 'POST':
+
+        form = CensusForm(
+            request.POST,
+            instance=census,
+            user=user
+        )
+
+        formset = CensusRecordFormSet(
+            request.POST,
+            instance=census,
+            user=user,
+            prefix='records'
+        )
+
+        if form.is_valid() and formset.is_valid():
+
+            form.save()
+
+            # delete old records
+            census.records.all().delete()
+
+            records = formset.save(commit=False)
+
+            for record in records:
+                record.census = census
+                record.save()
+
+            census.update_total()
+
+            messages.success(
+                request,
+                "Census updated successfully."
+            )
+
+            return redirect('veterinary:census_records')
+
+    else:
+
+        form = CensusForm(
+            instance=census,
+            user=user
+        )
+
+        formset = CensusRecordFormSet(
+            instance=census,
+            user=user,
+            prefix='records'
+        )
+
+    existing_records = [
+        {
+            'typeId': record.animal_type.id,
+            'typeText': record.animal_type.animal_type_name,
+            'count': record.number_of_animals,
+        }
+        for record in census.records.all()
+    ]
+
+    return render(
+        request,
+        'vet/census_form.html',
+        {
+            'form': form,
+            'formset': formset,
+            'is_edit': True,
+            'census': census,
+            'existing_records': existing_records
+        }
+    )
 
 @login_required
 def edit_event(request, pk):

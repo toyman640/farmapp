@@ -10,7 +10,13 @@
       <li class="breadcrumb-item">
         <a href="{% url 'veterinary:vet_index' %}">Home</a>
       </li>
-      <li class="breadcrumb-item active">New Census</li>
+      <li class="breadcrumb-item active">
+        {% if is_edit %}
+          Edit Census Record
+        {% else %}
+          New Census Record
+        {% endif %}
+      </li>
     </ol>
 
     <div class="p-4 shadow-sm rounded bg-white">
@@ -72,16 +78,30 @@
 
         <!-- ================= SUBMIT ================= -->
         <div class="text-end">
-          <button type="submit" class="btn btn-primary px-4">
-            Save Census
-          </button>
+          {% if is_edit %}
+            <button type="submit" class="btn btn-primary px-4 me-2">
+              Update Census
+            </button>
+            <a href="{% url 'veterinary:census_records' %}" class="btn btn-secondary px-4">
+              Back
+            </a>
+          {% else %}
+            <button type="submit" class="btn btn-primary px-4 me-2">
+              Save Census
+            </button>
+            <a href="{% url 'veterinary:census_records' %}" class="btn btn-secondary px-4">
+              Records
+            </a>
+          {% endif %}
         </div>
 
       </form>
     </div>
   </div>
 </div>
-
+<div>
+ {{ existing_records|json_script:"existing-records" }} 
+</div>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -91,7 +111,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("recordsContainer");
   const totalForms = document.querySelector('[name="records-TOTAL_FORMS"]');
 
-  let records = [];
+  // let records = [];
+  let records = JSON.parse(
+    document.getElementById(
+      'existing-records'
+    ).textContent
+  );
+
+  renderRecords();
+  updateSelectOptions();
 
   // ---------------- ADD RECORD ----------------
   addBtn.addEventListener("click", () => {

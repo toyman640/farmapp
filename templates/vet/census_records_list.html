@@ -31,7 +31,12 @@
         {% endif %}
         <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 border-top mt-4 pt-3"> 
           <div></div>
-          <div><button class="btn btn-sm btn-warning">Edit</button></div>
+          <a
+            href="{% url 'veterinary:edit_census' census.id %}"
+            class="btn btn-sm btn-warning"
+          >
+            Edit
+          </a>
         </div>
       </div>
     {% endfor %}
