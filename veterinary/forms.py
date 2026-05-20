@@ -174,16 +174,6 @@ class CensusRecordForm(forms.ModelForm):
                 self.fields['animal_type'].queryset = AnimalType.objects.none()
 
 
-# ✅ Custom inline formset that accepts user
-# class BaseCensusRecordFormSet(BaseInlineFormSet):
-#     def __init__(self, *args, **kwargs):
-#         self.user = kwargs.pop('user', None)
-#         super().__init__(*args, **kwargs)
-
-#     def _construct_form(self, i, **kwargs):
-#         kwargs['user'] = self.user
-#         return super()._construct_form(i, **kwargs)
-
 class BaseCensusRecordFormSet(BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)

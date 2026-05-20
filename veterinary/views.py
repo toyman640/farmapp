@@ -482,12 +482,15 @@ def create_census(request):
             prefix='records'
         )
 
+        animal_type_qs = formset.form.base_fields['animal_type'].queryset
+
     return render(
         request,
         'vet/census_form.html',
         {
             'form': form,
             'formset': formset,
+            'animal_type_qs': animal_type_qs,
             'is_edit': False,
             'existing_records': []
         }

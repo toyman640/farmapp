@@ -103,104 +103,27 @@
  {{ existing_records|json_script:"existing-records" }} 
 </div>
 <script>
+
 document.addEventListener("DOMContentLoaded", () => {
 
   const select = document.getElementById("animalTypeSelect");
-  const input  = document.getElementById("animalCountInput");
+  const input = document.getElementById("animalCountInput");
   const addBtn = document.getElementById("addRecordBtn");
   const container = document.getElementById("recordsContainer");
-  const totalForms = document.querySelector('[name="records-TOTAL_FORMS"]');
+  const totalForms = document.querySelector(
+    '[name="records-TOTAL_FORMS"]'
+  );
 
-  // let records = [];
+  // ================= EXISTING RECORDS =================
   let records = JSON.parse(
     document.getElementById(
-      'existing-records'
+      "existing-records"
     ).textContent
   );
 
-  renderRecords();
-  updateSelectOptions();
-
-  // ---------------- ADD RECORD ----------------
-  addBtn.addEventListener("click", () => {
-    const typeId = select.value;
-    const typeText = select.options[select.selectedIndex]?.text;
-    const count = input.value;
-
-    if (!typeId || !count) {
-      alert("Select animal type and enter number");
-      return;
-    }
-
-    // prevent duplicate selection
-    if (records.some(r => r.typeId === typeId)) {
-      alert("This animal type already added");
-      return;
-    }
-
-    records.push({ typeId, typeText, count });
-
-    renderRecords();
-    updateSelectOptions();
-
-    // reset inputs
-    select.value = "";
-    input.value = "";
-  });
-
-  // ---------------- DELETE RECORD ----------------
-  function deleteRecord(index) {
-    records.splice(index, 1);
-    renderRecords();
-    updateSelectOptions();
-  }
-
-  // ---------------- RENDER ----------------
-  function renderRecords() {
-    container.innerHTML = "";
-
-    records.forEach((rec, index) => {
-      const row = document.createElement("div");
-      row.className = "d-flex justify-content-between align-items-center border p-2 mb-2 rounded";
-
-      row.innerHTML = `
-        <div>
-          <strong>${rec.typeText}</strong> — ${rec.count}
-        </div>
-        <button type="button" class="btn btn-danger btn-sm">
-          Delete
-        </button>
-      `;
-
-      row.querySelector("button").onclick = () => deleteRecord(index);
-
-      container.appendChild(row);
-    });
-
-    rebuildFormset();
-  }
-
-  // ---------------- FORMSET SYNC ----------------
-  function rebuildFormset() {
-    // remove old hidden inputs
-    document.querySelectorAll(".hidden-formset").forEach(el => el.remove());
-
-    records.forEach((rec, i) => {
-      container.insertAdjacentHTML("beforeend", `
-        <div class="hidden-formset d-none">
-          <input type="hidden" name="records-${i}-animal_type" value="${rec.typeId}">
-          <input type="hidden" name="records-${i}-number_of_animals" value="${rec.count}">
-        </div>
-      `);
-    });
-
-    totalForms.value = records.length;
-  }
-
-  // ---------------- OPTION FILTER ----------------
+  // ================= MASTER OPTIONS =================
   let masterOptions = [];
 
-  // store all options once
   Array.from(select.options).forEach(opt => {
     if (opt.value) {
       masterOptions.push({
@@ -210,24 +133,162 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // ================= INITIAL LOAD =================
+  renderRecords();
+  updateSelectOptions();
+
+  // ================= ADD RECORD =================
+  addBtn.addEventListener("click", () => {
+
+    const typeId = select.value;
+    const typeText =
+      select.options[select.selectedIndex]?.text;
+
+    const count = input.value.trim();
+
+    if (!typeId || !count) {
+      alert("Select animal type and enter number");
+      return;
+    }
+
+    // prevent duplicate animal type
+    if (records.some(r => String(r.typeId) === String(typeId))) {
+      alert("This animal type already added");
+      return;
+    }
+
+    records.push({
+      typeId,
+      typeText,
+      count
+    });
+
+    // refresh UI
+    renderRecords();
+    updateSelectOptions();
+
+    // clear inputs
+    select.value = "";
+    input.value = "";
+
+    // focus back to select
+    select.focus();
+  });
+
+  // ================= DELETE RECORD =================
+  function deleteRecord(index) {
+
+    records.splice(index, 1);
+
+    renderRecords();
+    updateSelectOptions();
+  }
+
+  // ================= RENDER RECORDS =================
+  function renderRecords() {
+
+    container.innerHTML = "";
+
+    records.forEach((rec, index) => {
+
+      const row = document.createElement("div");
+
+      row.className =
+        "d-flex justify-content-between align-items-center border p-3 mb-2 rounded";
+
+      row.innerHTML = `
+        <div>
+          <strong>${rec.typeText}</strong>
+          — ${rec.count}
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-danger btn-sm"
+        >
+          Delete
+        </button>
+      `;
+
+      row.querySelector("button")
+        .addEventListener("click", () => {
+          deleteRecord(index);
+        });
+
+      container.appendChild(row);
+    });
+
+    rebuildFormset();
+  }
+
+  // ================= REBUILD FORMSET =================
+  function rebuildFormset() {
+
+    // remove previous hidden fields
+    document
+      .querySelectorAll(".hidden-formset")
+      .forEach(el => el.remove());
+
+    records.forEach((rec, i) => {
+
+      const wrapper = document.createElement("div");
+
+      wrapper.classList.add(
+        "hidden-formset",
+        "d-none"
+      );
+
+      wrapper.innerHTML = `
+        <input
+          type="hidden"
+          name="records-${i}-animal_type"
+          value="${rec.typeId}"
+        >
+
+        <input
+          type="hidden"
+          name="records-${i}-number_of_animals"
+          value="${rec.count}"
+        >
+      `;
+
+      document
+        .getElementById("census-form")
+        .appendChild(wrapper);
+    });
+
+    totalForms.value = records.length;
+  }
+
+  // ================= UPDATE OPTIONS =================
   function updateSelectOptions() {
-    const selected = records.map(r => r.typeId);
+
+    const selectedIds = records.map(
+      r => String(r.typeId)
+    );
 
     // reset dropdown
-    select.innerHTML = '<option value="">--- Select ---</option>';
+    select.innerHTML =
+      '<option value="">--- Select ---</option>';
 
-    // rebuild only available options
     masterOptions.forEach(opt => {
-      if (!selected.includes(opt.value)) {
-        const option = document.createElement("option");
+
+      // only show unused options
+      if (!selectedIds.includes(String(opt.value))) {
+
+        const option =
+          document.createElement("option");
+
         option.value = opt.value;
         option.textContent = opt.text;
+
         select.appendChild(option);
       }
     });
   }
 
 });
+
 </script>
 
 <style>
