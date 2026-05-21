@@ -471,7 +471,13 @@ def create_census(request):
                 "Census created successfully."
             )
 
-            return redirect('veterinary:census_records')
+            # return redirect('veterinary:census_records')
+            return render(request, 'vet/census_form.html', {
+                'form': form,
+                'formset': formset,
+                'is_edit': False,
+                'existing_records': []
+            })
 
     else:
 
@@ -548,7 +554,26 @@ def edit_census(request, pk):
                 "Census updated successfully."
             )
 
-            return redirect('veterinary:census_records')
+            existing_records = [
+                {
+                    'id': record.id,
+                    'typeId': record.animal_type.id,
+                    'typeText': record.animal_type.animal_type_name,
+                    'count': record.number_of_animals,
+                }
+                for record in census.records.all()
+            ]
+
+            # Render page directly to show modal
+            return render(request, 'vet/census_form.html', {
+                'form': form,
+                'formset': formset,
+                'is_edit': True,
+                'census': census,
+                'existing_records': existing_records
+            })
+
+            # return redirect('veterinary:census_records')
 
     else:
 

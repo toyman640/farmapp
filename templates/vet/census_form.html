@@ -12,21 +12,16 @@
         {% if is_edit %}Edit Census{% else %}New Census{% endif %}
       </h4>
 
+      <!-- Error / Warning Messages stay inline as normal -->
       {% if messages %}
-        <div class="mt-3">
+        <div class="mt-3 id-messages-container">
           {% for message in messages %}
-            <div class="alert message-alert
-              {% if message.tags == 'success' %}alert-success
-              {% elif message.tags == 'warning' %}alert-warning
-              {% else %}alert-info{% endif %}
-              alert-dismissible fade show" role="alert">
-
-              {{ message }}
-
-              <button type="button" class="close" data-dismiss="alert">
-                &times;
-              </button>
-            </div>
+            {% if 'success' not in message.tags %}
+              <div class="alert message-alert {% if message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+              </div>
+            {% endif %}
           {% endfor %}
         </div>
       {% endif %}
@@ -35,7 +30,6 @@
         {% csrf_token %}
 
         {{ form.as_p }}
-
         {{ formset.management_form }}
 
         <!-- INPUT AREA -->
@@ -71,14 +65,31 @@
             {% if is_edit %}Update Census{% else %}Save Census{% endif %}
           </button>
           
-          <a href="{% url 'veterinary:census_records' %}" class="btn btn-secondary px-4">
+          <a id="cancelBtn" href="{% url 'veterinary:census_records' %}" class="btn btn-secondary px-4">
             Cancel
           </a>
-         
         </div>
 
       </form>
 
+    </div>
+  </div>
+</div>
+
+<!-- Dynamic Success Modal Container -->
+<div class="modal fade" id="successRedirectModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center p-4">
+      <div class="modal-body">
+        <div class="text-success mb-3">
+          <!-- Big checkmark icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+          </svg>
+        </div>
+        <h4 class="modal-title mb-2" id="modalMessageText"></h4>
+        <p class="text-muted small">Redirecting to records in <span id="countdownTimer">3</span> seconds...</p>
+      </div>
     </div>
   </div>
 </div>
@@ -88,6 +99,41 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
+  // ================= AUTO-REDIRECT MODAL HANDLING =================
+  // Safely grab Django messages parsed into raw strings
+  const successMessages = [
+    {% if messages %}
+      {% for message in messages %}
+        {% if 'success' in message.tags %}"{{ message|escapejs }}",{% endif %}
+      {% endfor %}
+    {% endif %}
+  ];
+
+  if (successMessages.length > 0) {
+    const targetUrl = document.getElementById("cancelBtn").getAttribute("href");
+    const modalMessageText = document.getElementById("modalMessageText");
+    const countdownTimer = document.getElementById("countdownTimer");
+    
+    // Set the text from django messages
+    modalMessageText.textContent = successMessages[0];
+
+    // Show the modal using jQuery (Standard for Bootstrap 4 layouts)
+    $('#successRedirectModal').modal('show');
+
+    // Countdown and automatic redirect sequence
+    let timeLeft = 3;
+    const interval = setInterval(() => {
+      timeLeft -= 1;
+      countdownTimer.textContent = timeLeft;
+      
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        window.location.href = targetUrl;
+      }
+    }, 1000);
+  }
+
+  // ================= FORM LOGIC VARIABLES =================
   const select = document.getElementById("animalTypeSelect");
   const input = document.getElementById("animalCountInput");
   const addBtn = document.getElementById("addRecordBtn");
@@ -102,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
     typeId: r.typeId,
     typeText: r.typeText,
     count: r.count,
-    _deleted: false // Track deletion state explicitly
+    _deleted: false 
   }));
 
   // ================= MASTER OPTIONS =================
@@ -131,12 +177,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Check if the item exists but was previously flagged as deleted
     const hiddenMatch = records.find(r => String(r.typeId) === String(typeId));
     
     if (hiddenMatch) {
       if (hiddenMatch._deleted) {
-        // Resurrect it instead of duplicating
         hiddenMatch._deleted = false;
         hiddenMatch.count = count;
       } else {
@@ -166,10 +210,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const rec = records[index];
 
     if (rec.id) {
-      // Keep it in the array but flag it so Django gets the DELETE marker
       rec._deleted = true;
     } else {
-      // If it was just added in UI and never saved, safe to drop completely
       records.splice(index, 1);
     }
 
@@ -182,7 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
     container.innerHTML = "";
 
     records.forEach((rec, index) => {
-      // Do not display items flagged as deleted in the layout list
       if (rec._deleted) return;
 
       const row = document.createElement("div");
@@ -220,13 +261,11 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("census-form").appendChild(wrapper);
     });
 
-    // TOTAL_FORMS must accurately report the whole array length, including deleted ones
     totalForms.value = records.length;
   }
 
   // ================= UPDATE OPTIONS =================
   function updateSelectOptions() {
-    // Only count active items as selected IDs
     const activeSelectedIds = records
       .filter(r => !r._deleted)
       .map(r => String(r.typeId));
@@ -249,6 +288,11 @@ document.addEventListener("DOMContentLoaded", () => {
 #recordsContainer div {
   background: #f8f9fa;
 }
+/* Style adjustments for a cleaner splash modal experience */
+#successRedirectModal .modal-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
 </style>
-
 {% endblock %}
