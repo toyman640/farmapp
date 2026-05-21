@@ -93,6 +93,16 @@
           {{ form.image }}
         </div>
 
+        {% if edit_mode and not request.user.profile.is_boss %}
+          <div class="form-group">
+            <label>Note to Admin</label>
+            {{ form.edit_note|as_crispy_field }}
+            <small class="text-muted">
+              This note will be visible to the admin during review.
+            </small>
+          </div>
+        {% endif %}
+
         <div class="mt-3">
           {% if edit_mode %}
             <button type="submit" class="btn btn-primary">Update Record</button>
@@ -106,66 +116,36 @@
             </button>
           {% endif %}
         </div>
-        {% if edit_mode and not request.user.profile.is_boss %}
-          <div class="form-group">
-            <label>Note to Admin</label>
-            {{ form.edit_note }}
-            <small class="text-muted">
-              This note will be visible to the admin during review.
-            </small>
-          </div>
-        {% endif %}
       </form>
     </div>
   </div>
 </div>
 
-<!-- ==================== EDIT SUCCESS MODAL ==================== -->
-<div class="modal fade" id="editSuccessModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-center">
-      <div class="modal-header text-white justify-content-center">
-        <h5 class="text-center">Edit Submitted</h5>
-        <button type="button" class="close text-danger" data-dismiss="modal">
-          &times;
-        </button>
+<!-- ==================== UNIFIED AUTO-REDIRECT FEEDBACK MODAL ==================== -->
+<div class="modal fade" id="successRedirectModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center p-4">
+      <div class="modal-body">
+        <div id="modalIconContainer" class="text-success mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+          </svg>
+        </div>
+        <h4 class="modal-title mb-2" id="modalMessageTitle">Record Processed</h4>
+        <p class="mb-3" id="modalMessageBody"></p>
+        <div id="countdownContainer">
+          <p class="text-muted small">Redirecting in <span id="countdownTimer">3</span> seconds...</p>
+        </div>
       </div>
-      <div class="modal-body" id="editModalMessage">
-        
-      </div>
-      <div class="modal-footer justify-content-center">
-        <a href="#" id="modalProceedBtn" class="btn btn-success">
-          Proceed
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== CREATE FEEDBACK MODAL ==================== -->
-<div class="modal fade" id="createFeedbackModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-center">
-      <div class="modal-header justify-content-center">
-        <h5 id="createModalTitle"></h5>
-        <button type="button" class="close text-danger" data-dismiss="modal">
-          &times;
-        </button>
-      </div>
-      <div class="modal-body" id="createModalMessage"></div>
     </div>
   </div>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  // $("#createFeedbackModal").modal("show");
-
-
-
   const isEditMode   = {{ edit_mode|yesno:"true,false" }};
-  const isPiggery   = {{ is_vet_piggery|yesno:"true,false" }};
-  const submitUrl   = {% if edit_mode %}
+  const isPiggery    = {{ is_vet_piggery|yesno:"true,false" }};
+  const submitUrl    = {% if edit_mode %}
                         "{% url 'veterinary:edit_event' event.id %}"
                       {% else %}
                         "{% url 'veterinary:create_event' %}"
@@ -188,13 +168,11 @@ document.addEventListener("DOMContentLoaded", () => {
       penSelect.appendChild(opt);
     }
   }
+
   function handleLineLogic() {
     const lineValue = lineSelect.value;
-
     const isDenmark = lineValue === "Denmark 1" || lineValue === "Denmark 2";
-
     blockSelect.disabled = isDenmark;
-
     if (isDenmark) {
       blockSelect.value = "";
     }
@@ -227,7 +205,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // -------------------- Live Updates --------------------
   if (isPiggery) {
-    // lineSelect.addEventListener("change", updateHiddenLocation);
     lineSelect.addEventListener("change", () => {
       handleLineLogic();
       updateHiddenLocation();
@@ -241,10 +218,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // -------------------- Designation Toggle --------------------
   const eventName = document.getElementById("id_event_name");
-  const designationGroup =
-    document.getElementById("id_designation").closest(".form-group");
+  const designationGroup = document.getElementById("id_designation")?.closest(".form-group");
 
   function toggleDesignation() {
+    if (!eventName || !designationGroup) return;
     if (eventName.value.toLowerCase() === "culling") {
       designationGroup.style.display = "block";
     } else {
@@ -254,16 +231,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   toggleDesignation();
-  eventName.addEventListener("change", toggleDesignation);
-  form.querySelectorAll(".is-invalid").forEach(el => {
-    el.classList.remove("is-invalid");
-  });
+  if (eventName) {
+    eventName.addEventListener("change", toggleDesignation);
+  }
 
   // -------------------- AJAX Submit --------------------
   function ajaxSubmit(actionType) {
     updateHiddenLocation();
     const formData = new FormData(form);
     formData.append("actionType", actionType);
+
+    // Clear previous invalid UI indicators
+    form.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
 
     fetch(submitUrl, {
       method: "POST",
@@ -272,72 +251,83 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(r => r.json())
     .then(data => {
-      const modal = $("#createFeedbackModal");
-      const title = document.getElementById("createModalTitle");
-      const message = document.getElementById("createModalMessage");
+      const modal = $("#successRedirectModal");
+      const title = document.getElementById("modalMessageTitle");
+      const body = document.getElementById("modalMessageBody");
+      const iconContainer = document.getElementById("modalIconContainer");
+      const countdownContainer = document.getElementById("countdownContainer");
+      const countdownTimer = document.getElementById("countdownTimer");
 
       if (data.status === "success") {
-
-        // ================= EDIT MODE (UNCHANGED) =================
-        if (isEditMode) {
-          document.getElementById("editModalMessage").innerText = data.message;
-          document.getElementById("modalProceedBtn").href = data.redirect_url;
-
-          $("#editSuccessModal").modal("show");
-
-          setTimeout(() => {
-            window.location.href = data.redirect_url;
-          }, 9000);
-          return;
-        }
-
-        // remove previous state
-        title.classList.remove("text-success", "text-danger");
-
-        // ================= CREATE MODE =================
-        if (data.status === "success") {
-          title.innerText = "Record entered Successfully";
-          title.classList.add("text-success");
-        } else {
-          title.innerText = "Error";
-          title.classList.add("text-danger");
-        }
-        // title.innerText = "Success";
-        message.innerText = data.message;
-        modal.modal("show");
+        // Build Success UI state
+        iconContainer.className = "text-success mb-3";
+        iconContainer.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+          </svg>`;
+        
+        title.textContent = isEditMode ? "Changes Saved" : "Record Entered Successfully";
+        title.className = "modal-title mb-2 text-success";
+        body.textContent = data.message;
 
         if (actionType === "add") {
-          // stay on page, reset after short delay
+          // Add Another Configuration: Dismisses without hard location redirecting
+          countdownContainer.style.display = "none";
+          modal.modal("show");
+
           setTimeout(() => {
             modal.modal("hide");
             form.reset();
+            if (locationSelect) locationSelect.value = "";
             hiddenLocation.value = "";
-          }, 2000);
+            toggleDesignation();
+          }, 2500);
+
         } else {
-          // proceed → show message first, THEN redirect
-          setTimeout(() => {
-            window.location.href = data.redirect_url;
-          }, 9000);
+          // Proceed or Edit Configuration: Executes 3-Second Countdown redirect
+          countdownContainer.style.display = "block";
+          countdownTimer.textContent = "3";
+          modal.modal("show");
+
+          let timeLeft = 3;
+          const interval = setInterval(() => {
+            timeLeft -= 1;
+            countdownTimer.textContent = timeLeft;
+            if (timeLeft <= 0) {
+              clearInterval(interval);
+              window.location.href = data.redirect_url;
+            }
+          }, 1000);
         }
 
       } else if (data.status === "error") {
-
-        // ================= ERROR HANDLING =================
-        title.innerText = "Error";
-        message.innerText = data.message;
-
+        // Build Error UI state
+        iconContainer.className = "text-danger mb-3";
+        iconContainer.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+          </svg>`;
+        
+        title.textContent = "Submission Error";
+        title.className = "modal-title mb-2 text-danger";
+        body.textContent = data.message || "Please correct the highlighted data issues.";
+        countdownContainer.style.display = "none";
+        
         modal.modal("show");
 
-        // Optional: highlight fields (useful)
+        // Map field-level error styles to crispy forms DOM nodes
         if (data.errors) {
           Object.keys(data.errors).forEach(field => {
-            const input = document.getElementById(`id_${field}`);
-            if (input) {
-              input.classList.add("is-invalid");
+            const inputEl = document.getElementById(`id_${field}`);
+            if (inputEl) {
+              inputEl.classList.add("is-invalid");
             }
           });
         }
       }
+    })
+    .catch(err => {
+      console.error("Submission failed:", err);
     });
   }
 
@@ -346,17 +336,22 @@ document.addEventListener("DOMContentLoaded", () => {
   if (addBtn) addBtn.onclick = () => ajaxSubmit("add");
   if (proceedBtn) proceedBtn.onclick = () => ajaxSubmit("proceed");
 
-  // -------------------- Normal Submit --------------------
-  // form.addEventListener("submit", updateHiddenLocation);
+  // Hook normal submit behavior for Edit workflow
   form.addEventListener("submit", function(e) {
     updateHiddenLocation();
-
     if (isEditMode) {
-      e.preventDefault();   // stop normal submit
-      ajaxSubmit("edit");   // use ajax instead
+      e.preventDefault();
+      ajaxSubmit("edit");
     }
   });
 });
 </script>
 
+<style>
+#successRedirectModal .modal-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+</style>
 {% endblock %}
