@@ -524,16 +524,22 @@ def edit_census(request, pk):
 
         if form.is_valid() and formset.is_valid():
 
-            form.save()
+            
 
-            # delete old records
-            census.records.all().delete()
+            census = form.save()
 
+            # save new + edited records
             records = formset.save(commit=False)
 
+            # save records
             for record in records:
                 record.census = census
                 record.save()
+
+            # delete removed records
+            for obj in formset.deleted_objects:
+                obj.delete()
+
 
             census.update_total()
 
@@ -559,6 +565,7 @@ def edit_census(request, pk):
 
     existing_records = [
         {
+            'id': record.id,
             'typeId': record.animal_type.id,
             'typeText': record.animal_type.animal_type_name,
             'count': record.number_of_animals,
