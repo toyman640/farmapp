@@ -174,6 +174,9 @@ class Census(models.Model):
     total_animals = models.PositiveIntegerField(default=0, editable=False)
     notes = models.TextField(null=True, blank=True)
 
+    # Add this missing line right here:
+    is_pending_review = models.BooleanField(default=False)
+
     def __str__(self):
         return f"Census for {self.animal} on {self.census_date}"
 
@@ -197,6 +200,20 @@ def update_census_total(sender, instance, **kwargs):
     instance.census.update_total()
 
 
+
+class CensusApprovalQueue(models.Model):
+    census = models.ForeignKey(Census, on_delete=models.CASCADE, related_name='pending_changes')
+    requested_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # Change 'help_with' to 'help_text' right here:
+    form_data_payload = models.JSONField(help_text="Serialized form & formset data fields")
+    
+    is_processed = models.BooleanField(default=False)
+    approved = models.BooleanField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Pending edit for {self.census} by {self.requested_by}"
 
 class ExoticAnimalCensus(models.Model):
 

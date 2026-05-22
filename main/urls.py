@@ -40,5 +40,6 @@ urlpatterns = [
     path('approve-event-edit/<int:pk>/', views.approve_event_edit, name='approve_event_edit'),
     path('dismiss-event-edit/<int:pk>/', views.dismiss_event_edit, name='dismiss_event_edit'),
     path('admin/event/<int:pk>/', views.admin_event_detail, name='admin_event_detail'),
-     path('events/<int:pk>/delete/', views.admin_delete_event, name='admin_delete_event'),
+    path('events/<int:pk>/delete/', views.admin_delete_event, name='admin_delete_event'),
+    path('census-edit/<int:edit_id>/approve/', views.approve_census_edit, name='approve_census_edit'),
 ]

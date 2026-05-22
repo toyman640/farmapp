@@ -592,6 +592,181 @@
       </div>
     </div>
 
+    <!-- Census History & Approval Panel -->
+    <div class="box_general padding_bottom">
+      <div class="header_box version_2 d-flex justify-content-between align-items-center">
+        <h2><i class="fa fa-clock text-warning"></i> Census Edit History</h2>
+        <form method="get" id="statusFilterForm">
+          <select name="status" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
+            <option value="pending" {% if current_status == "pending" %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if current_status == "approved" %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if current_status == "rejected" %}selected{% endif %}>Rejected</option>
+          </select>
+        </form>
+      </div>
+
+      <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="thead-dark">
+            <tr>
+              <th>#</th>
+              <th>Animal</th>
+              <th>Type Modifications (Changes)</th>
+              <th>Submission Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for edit in census_edits %}
+            <tr class="{% if not edit.is_processed %}table-warning{% elif edit.approved == False %}table-danger{% endif %}">
+              <td>{{ forloop.counter }}</td>
+              <td>
+                <strong>{{ edit.census.animal.animal_name|title }}</strong>
+                <div class="small text-muted">Orig. Date: {{ edit.census.census_date }}</div>
+              </td>
+              <td>
+                <div class="d-flex flex-column gap-2">
+                  <!-- If your backend reconstructs old vs new records into edit.records, keep it here -->
+                  {% for item in edit.records %}
+                    <div class="d-flex align-items-center flex-wrap gap-2 text-sm">
+                      <span class="fw-bold text-secondary" style="min-width: 110px;">{{ item.animal_type_name }}:</span>
+                      
+                      {% if item.is_deleted %}
+                        <span class="badge bg-danger text-decoration-line-through text-uppercase">Removed</span>
+                        <span class="badge bg-light text-dark border"><small class="text-muted">Was:</small> {{ item.old_count }}</span>
+                      {% else %}
+                        <span class="badge bg-light text-dark border"><small class="text-muted">Old:</small> {{ item.old_count }}</span>
+                        <i class="fa fa-arrow-right text-muted px-1 small"></i>
+                        <span class="badge bg-warning text-dark"><small class="text-muted">Edit:</small> {{ item.new_count }}</span>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                  
+                  <!-- Check payload or model for notes -->
+                  {% if edit.census.notes %}
+                    <div class="small text-muted mt-1 border-top pt-1 text-italic" style="max-width: 400px;">
+                      <i class="fa fa-comment-alt me-1"></i> "{{ edit.census.notes|truncatechars:65 }}"
+                    </div>
+                  {% endif %}
+                </div>
+              </td>
+              <td>
+                {{ edit.created_at|date:"M d, Y" }}
+                <div class="small text-muted">{{ edit.created_at|date:"H:i" }}</div>
+              </td>
+              <td>
+                {% if not edit.is_processed %}
+                  <span class="badge bg-warning text-dark px-2 py-1">Submitted</span>
+                {% else %}
+                  {% if edit.approved %}
+                    <span class="badge bg-success px-2 py-1">Approved</span>
+                  {% else %}
+                    <span class="badge bg-danger px-2 py-1">Rejected</span>
+                  {% endif %}
+                {% endif %}
+              </td>
+              <td>
+                {% if not edit.is_processed %}
+                  <button
+                    class="btn btn-sm btn-primary"
+                    data-toggle="modal"
+                    data-target="#reviewCensusModal{{ edit.id }}">
+                    Review
+                  </button>
+                {% else %}
+                  <button
+                    class="btn btn-sm btn-outline-secondary"
+                    data-toggle="modal"
+                    data-target="#reviewCensusModal{{ edit.id }}">
+                    View Log
+                  </button>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                <i class="fa fa-folder-open d-block mb-2 fa-2x text-muted"></i>
+                No census records found for selection: <strong>{{ current_status }}</strong>.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- MODALS FOR APPROVAL AND REVIEW -->
+      {% for edit in census_edits %}
+      <div class="modal fade" id="reviewCensusModal{{ edit.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title">Review Census Changes — {{ edit.census.animal.animal_name|title }}</h5>
+              <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              
+              <div class="alert alert-info">
+                <strong>Requested By:</strong> {{ edit.requested_by.username }}<br>
+                <strong>Submission Notes:</strong> {{ edit.census.notes|default:"No notes provided with this modification request." }}
+              </div>
+
+              <h6 class="fw-bold mb-2">Detailed Metric Changes</h6>
+              <table class="table table-sm table-bordered align-middle">
+                <thead class="bg-light">
+                  <tr>
+                    <th>Classification</th>
+                    <th class="text-center">Previous Group Count</th>
+                    <th class="text-center">Proposed Group Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in edit.records %}
+                  <tr class="{% if item.is_deleted %}table-danger{% elif item.old_count != item.new_count %}table-warning{% endif %}">
+                    <td>{{ item.animal_type_name }}</td>
+                    <td class="text-center text-muted">{{ item.old_count }}</td>
+                    <td class="text-center fw-bold">
+                      {% if item.is_deleted %}
+                        <span class="text-danger text-decoration-line-through">Removed</span>
+                      {% else %}
+                        {{ item.new_count }}
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+              <form method="post" action="{% url 'main:approve_census_edit' edit.id %}">
+                {% csrf_token %}
+                <div class="form-group mt-3">
+                  <label class="fw-bold">Reviewer Log Comments (Optional)</label>
+                  <textarea name="admin_note" class="form-control" rows="3" placeholder="Enter reason or notes for logging..." {% if edit.is_processed %}disabled{% endif %}></textarea>
+                </div>
+                
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                  {% if not edit.is_processed %}
+                    <button name="action" value="approve" class="btn btn-success action-btn">
+                      <span class="btn-text">Approve Changes</span>
+                    </button>
+                    <button name="action" value="reject" class="btn btn-danger action-btn">
+                      <span class="btn-text">Reject Changes</span>
+                    </button>
+                  {% else %}
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close Record View</button>
+                  {% endif %}
+                </div>
+              </form>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
 
 
 

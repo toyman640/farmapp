@@ -19,13 +19,14 @@ from itertools import chain
 from django.utils import timezone
 from django.db.models import Q, F, Count, Sum, Max
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
-from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit, Animals, AnimalType
+from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit, Animals, AnimalType, CensusApprovalQueue
 import calendar
 from django.core.exceptions import FieldDoesNotExist
 from .forms import AdminEventEditReviewForm
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from collections import defaultdict
+from django.db import transaction
 
 
 class CustomLoginView(LoginView):
@@ -86,6 +87,24 @@ def main_index(request):
 
     today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
     pending_updates = PendingStockUpdate.objects.filter(approved=False)
+    # --- FIXED: Translate status choices into actual model flags ---
+    current_status = request.GET.get('status', 'pending')
+    
+    if current_status == 'approved':
+        # Processed and approved is True
+        census_edits = CensusApprovalQueue.objects.filter(is_processed=True, approved=True)
+    elif current_status == 'rejected':
+        # Processed and approved is False
+        census_edits = CensusApprovalQueue.objects.filter(is_processed=True, approved=False)
+    else:
+        # Default: 'pending' (not yet processed)
+        current_status = 'pending'
+        census_edits = CensusApprovalQueue.objects.filter(is_processed=False)
+
+    # Order by submission timestamp
+    census_edits = census_edits.order_by('-created_at')
+    # ---------------------------------------------------------------
+    # --------------------------------------------
     pending_event_edits = PendingEventEdit.objects.filter(status='pending')
 
     pending_updates_count = pending_updates.count() if request.user.is_staff or request.user.is_superuser else 0
@@ -171,55 +190,7 @@ def main_index(request):
         )['total'] or 0
 
 
-    # # SHEEP
-    # latest_sheep = Census.objects.filter(
-    #     animal__animal_name__iexact="sheep"
-    # ).order_by('-census_date').first()
-
-    # if latest_sheep:
-    #     for record in latest_sheep.records.select_related('animal_type'):
-    #         key = record.animal_type.animal_type_name.lower()  # ram, ewe, weaner
-    #         print(key)
-    #         sheep_breakdown[key] += record.number_of_animals
-
-
-    # # GOAT
-    # latest_goat = Census.objects.filter(
-    #     animal__animal_name__iexact="sheep"
-    # ).order_by('-census_date').first()
-
-    # if latest_goat:
-    #     for record in latest_goat.records.select_related('animal_type'):
-    #         key = record.animal_type.animal_type_name.lower()  # buck, doe, kid, weaner
-    #         goat_breakdown[key] += record.number_of_animals
-
-
-    # # Totals (still useful)
-    # sheep_total = sum(sheep_breakdown.values())
-    # goat_total = sum(goat_breakdown.values())
-
-    # # SHEEP
-    # latest_sheep = Census.objects.filter(
-    #     animal__animal_name__iexact="sheep"
-    # ).order_by('-census_date').first()
-
-    # sheep_total = 0
-    # if latest_sheep:
-    #     sheep_total = latest_sheep.records.aggregate(
-    #         total=Sum('number_of_animals')
-    #     )['total'] or 0
-
-
-    # # GOAT
-    # latest_goat = Census.objects.filter(
-    #     animal__animal_name__iexact="sheep"
-    # ).order_by('-census_date').first()
-
-    # goat_total = 0
-    # if latest_goat:
-    #     goat_total = latest_goat.records.aggregate(
-    #         total=Sum('number_of_animals')
-    #     )['total'] or 0
+   
 
     # Get latest SMALL RUMINANT census (stored as "sheep")
     latest_small_ruminant = Census.objects.filter(
@@ -249,6 +220,8 @@ def main_index(request):
         'today_dispatches': today_dispatches,
         'today_date': today,
         'pending_updates': pending_updates,
+        'census_edits': census_edits,               # ADDED
+        'current_status': current_status,           # ADDED
         'pending_event_edits': pending_event_edits,
         'pending_updates_count': pending_updates_count,
         'recent_drugs': combined_new_drugs,
@@ -268,6 +241,75 @@ def main_index(request):
 
     return render(request, 'main/index.html', context)
 
+@login_required
+def approve_census_edit(request, edit_id):
+    # Only allow staff or superusers to process approvals
+    if not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, "You do not have permission to approve census changes.")
+        return redirect('main:main_index')
+
+    if request.method == "POST":
+        queue_item = get_object_or_404(CensusApprovalQueue, id=edit_id, is_processed=False)
+        action = request.POST.get('action')
+        admin_note = request.POST.get('admin_note', '').strip()
+
+        with transaction.atomic():
+            if action == 'approve':
+                payload = queue_item.form_data_payload or {}
+                
+                # 1. Update the parent Census metadata if note or date changed
+                census = queue_item.census
+                if 'notes' in payload:
+                    census.notes = payload['notes']
+                if 'census_date' in payload:
+                    census.census_date = payload['census_date']
+                census.is_pending_review = False
+                census.save()
+
+                # 2. Extract and process the formset records from the JSON payload
+                # Adjust 'records' to match the exact key name you use to save your formset list
+                records_data = payload.get('records', [])
+                
+                for record in records_data:
+                    # Case A: Record marked for deletion
+                    if record.get('is_deleted'):
+                        CensusRecord.objects.filter(
+                            census=census, 
+                            animal_type_id=record.get('animal_type_id')
+                        ).delete()
+                    
+                    # Case B: Update existing or create new record row
+                    else:
+                        animal_type_id = record.get('animal_type_id')
+                        new_count = record.get('new_count', 0)
+                        
+                        if animal_type_id:
+                            CensusRecord.objects.update_or_create(
+                                census=census,
+                                animal_type_id=animal_type_id,
+                                defaults={'number_of_animals': new_count}
+                            )
+
+                # Force recalculate totals via your model's built-in helper method
+                census.update_total()
+                
+                queue_item.approved = True
+                messages.success(request, f"Census changes for {census.animal.animal_name} successfully approved!")
+
+            elif action == 'reject':
+                # Reverting pending flag so it can be edited or resubmitted later
+                census = queue_item.census
+                census.is_pending_review = False
+                census.save()
+
+                queue_item.approved = False
+                messages.warning(request, f"Census update request for {census.animal.animal_name} was rejected.")
+
+            # Save historical notes if you choose to expand your schema, then mark processed
+            queue_item.is_processed = True
+            queue_item.save()
+
+    return redirect('main:main_index')
 
 
 @login_required
