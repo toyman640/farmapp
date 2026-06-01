@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Census Change Request</h2>
+    <p><strong>Vet:</strong> {{ vet_name }} has requested changes to Census #{{ census_id }}.</p>
+
+    <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th>Category (Before)</th>
+                <th>Count (Before)</th>
+                <th>Category (After)</th>
+                <th>Count (After)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for old, new in combined_records %}
+            <tr>
+                <td>{{ old.type|default:"-" }}</td>
+                <td>{{ old.count|default:"-" }}</td>
+                <td>{{ new.type|default:"-" }}</td>
+                <td>{{ new.count|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p><a href="{{ review_url }}">Review and Approve Changes Here</a></p>
+</body>
+</html>

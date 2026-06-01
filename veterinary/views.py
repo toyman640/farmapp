@@ -20,6 +20,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from itertools import zip_longest
 
 User = get_user_model()
 # Create your views here.
@@ -526,114 +528,6 @@ def create_census(request):
     )
 
 
-# @login_required
-# def edit_census(request, pk):
-
-#     user = request.user
-
-#     census = get_object_or_404(
-#         Census,
-#         pk=pk
-#     )
-
-#     if request.method == 'POST':
-
-#         form = CensusForm(
-#             request.POST,
-#             instance=census,
-#             user=user
-#         )
-
-#         formset = CensusRecordFormSet(
-#             request.POST,
-#             instance=census,
-#             user=user,
-#             prefix='records'
-#         )
-
-#         if form.is_valid() and formset.is_valid():
-
-            
-
-#             census = form.save()
-
-#             # save new + edited records
-#             records = formset.save(commit=False)
-
-#             # save records
-#             for record in records:
-#                 record.census = census
-#                 record.save()
-
-#             # delete removed records
-#             for obj in formset.deleted_objects:
-#                 obj.delete()
-
-
-#             census.update_total()
-
-#             messages.success(
-#                 request,
-#                 "Census updated successfully."
-#             )
-
-#             existing_records = [
-#                 {
-#                     'id': record.id,
-#                     'typeId': record.animal_type.id,
-#                     'typeText': record.animal_type.animal_type_name,
-#                     'count': record.number_of_animals,
-#                 }
-#                 for record in census.records.all()
-#             ]
-
-#             # Render page directly to show modal
-#             return render(request, 'vet/census_form.html', {
-#                 'form': form,
-#                 'formset': formset,
-#                 'is_edit': True,
-#                 'census': census,
-#                 'existing_records': existing_records
-#             })
-
-#             # return redirect('veterinary:census_records')
-
-#     else:
-
-#         form = CensusForm(
-#             instance=census,
-#             user=user
-#         )
-
-#         formset = CensusRecordFormSet(
-#             instance=census,
-#             user=user,
-#             prefix='records'
-#         )
-
-#     existing_records = [
-#         {
-#             'id': record.id,
-#             'typeId': record.animal_type.id,
-#             'typeText': record.animal_type.animal_type_name,
-#             'count': record.number_of_animals,
-#         }
-#         for record in census.records.all()
-#     ]
-
-#     return render(
-#         request,
-#         'vet/census_form.html',
-#         {
-#             'form': form,
-#             'formset': formset,
-#             'is_edit': True,
-#             'census': census,
-#             'existing_records': existing_records
-#         }
-#     )
-
-
 @login_required
 def edit_census(request, pk):
     user = request.user
@@ -664,6 +558,50 @@ def edit_census(request, pk):
                 messages.success(request, "Census updated directly by administrator.")
             else:
                 # Vet modification flow: Serialize data and stage it in the queue
+                # serialized_payload = {
+                #     'main_form': {
+                #         'census_date': form.cleaned_data['census_date'].isoformat(),
+                #         'notes': form.cleaned_data['notes'],
+                #     },
+                #     'records': [
+                #         {
+                #             'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
+                #             'animal_type': f.cleaned_data['animal_type'].id,
+                #             'number_of_animals': f.cleaned_data['number_of_animals'],
+                #             'DELETE': f.cleaned_data.get('DELETE', False)
+                #         }
+                #         for f in formset.forms if f.has_changed() or f.cleaned_data.get('id')
+                #     ]
+                # }
+
+                # # Save changes to the queue and lock the active record
+                # CensusApprovalQueue.objects.create(
+                #     census=census,
+                #     requested_by=user,
+                #     form_data_payload=serialized_payload
+                # )
+                # census.is_pending_review = True
+                # census.save()
+
+                # # Send email notification to administrators
+                # try:
+                #     admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
+                #     if admin_emails:
+                #         review_url = request.build_absolute_uri(reverse('veterinary:census_records'))
+                #         send_mail(
+                #             subject="⚠️ Notice: Census Change Pending Approval",
+                #             message=f"Vet {user.get_full_name()} has requested modifications to {census}.\n\nReview changes here: {review_url}",
+                #             from_email=settings.DEFAULT_FROM_EMAIL,
+                #             recipient_list=admin_emails,
+                #             # fail_silently=True
+                #             fail_silently=False
+                #         )
+                # except Exception as e:
+                #     print(f"Mail loop breakdown: {e}")
+
+                # messages.success(request, "Your updates have been submitted to the administrator for verification.")
+                # ... inside your 'else' (Vet modification flow) block ...
+
                 serialized_payload = {
                     'main_form': {
                         'census_date': form.cleaned_data['census_date'].isoformat(),
@@ -680,31 +618,57 @@ def edit_census(request, pk):
                     ]
                 }
 
-                # Save changes to the queue and lock the active record
-                CensusApprovalQueue.objects.create(
-                    census=census,
-                    requested_by=user,
-                    form_data_payload=serialized_payload
-                )
-                census.is_pending_review = True
-                census.save()
+                # 1. Capture the "Before" state (the current census records)
+                old_records = [
+                    {'type': r.animal_type.animal_type_name, 'count': r.number_of_animals}
+                    for r in census.records.all()
+                ]
 
-                # Send email notification to administrators
-                try:
-                    admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
-                    if admin_emails:
-                        review_url = request.build_absolute_uri(reverse('veterinary:review_queues'))
-                        send_mail(
-                            subject="⚠️ Notice: Census Change Pending Approval",
-                            message=f"Vet {user.get_full_name()} has requested modifications to {census}.\n\nReview changes here: {review_url}",
-                            from_email=settings.DEFAULT_FROM_EMAIL,
-                            recipient_list=admin_emails,
-                            fail_silently=True
-                        )
-                except Exception as e:
-                    print(f"Mail loop breakdown: {e}")
+                # 2. Prepare the "After" state from your serialized_payload
+                new_records = []
+                for item in serialized_payload['records']:
+                    # Resolve the type name for the email template
+                    try:
+                        type_obj = AnimalType.objects.get(id=item['animal_type'])
+                        type_name = type_obj.animal_type_name
+                    except AnimalType.DoesNotExist:
+                        type_name = "Unknown"
+                        
+                    new_records.append({
+                        'type': type_name,
+                        'count': item['number_of_animals']
+                    })
+
+                combined_records = list(zip_longest(old_records, new_records, fillvalue=None))
+
+                # 3. Create the email
+                subject = "New Census Edit Pending Approval"
+                context = {
+                    'vet_name': user.get_full_name(),
+                    'census_id': census.pk,
+                    'old_records': {'values': old_records},
+                    'new_records': new_records,
+                    'combined_records': combined_records,
+                    'review_url': request.build_absolute_uri(reverse('veterinary:census_records'))
+                }
+
+                html_content = render_to_string('emails/census_edit_status.html', context)
+                text_content = f"New census edit submitted by {user.get_full_name()} for Census #{census.pk}"
+
+                admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
+
+                if admin_emails:
+                    email = EmailMultiAlternatives(
+                        subject,
+                        text_content,
+                        settings.DEFAULT_FROM_EMAIL,
+                        admin_emails
+                    )
+                    email.attach_alternative(html_content, "text/html")
+                    email.send()
 
                 messages.success(request, "Your updates have been submitted to the administrator for verification.")
+                # ... proceed to render or redirect ...
 
             existing_records = [
                 {
@@ -744,6 +708,7 @@ def edit_census(request, pk):
         'census': census,
         'existing_records': existing_records
     })
+
 
 @login_required
 def edit_event(request, pk):
