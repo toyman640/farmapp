@@ -92,10 +92,6 @@ def vet_index(request):
     census_queries = census_queries.select_related('census', 'census__animal')
     
 
-    # census_queries = CensusApprovalQueue.objects.filter(
-    #     requested_by=request.user,
-    #     is_processed=is_processed_val
-    # ).select_related('census', 'census__animal')
 
     if census_status in ["approved", "rejected"]:
         approved_bool = True if census_status == "approved" else False
