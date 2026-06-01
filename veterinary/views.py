@@ -40,12 +40,15 @@ def vet_index(request):
     ).select_related('drug')
     restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
-    status = request.GET.get("status", "pending")
+    # status = request.GET.get("status", "pending")
+    # Get status filters independently
+    event_status = request.GET.get("event_status", "pending")
+    census_status = request.GET.get("census_status", "pending")
 
     # Pending edits
     pending_edits = PendingEventEdit.objects.filter(
         submitted_by=request.user,
-        status=status
+        status=event_status
     ).select_related(
         "event", "event__animal", "event__animal_type", "reviewed_by"
     )
@@ -72,33 +75,30 @@ def vet_index(request):
         "approved": True,
         "rejected": True
     }
-    is_processed_val = is_processed_map.get(status, False)
+    is_processed_val = is_processed_map.get(census_status, False)
 
     # 1. Start with the base query
-    census_queries = CensusApprovalQueue.objects.filter(requested_by=request.user)
+    census_queries = CensusApprovalQueue.objects.filter(requested_by=request.user).select_related('census', 'census__animal')
 
     # 2. Filter based on status
-    if status == "pending":
+    if census_status == "pending":
         census_queries = census_queries.filter(is_processed=False)
-    elif status == "approved":
+    elif census_status == "approved":
         census_queries = census_queries.filter(is_processed=True, approved=True)
-    elif status == "rejected":
+    elif census_status == "rejected":
         census_queries = census_queries.filter(is_processed=True, approved=False)
 
     # 3. Add select_related
     census_queries = census_queries.select_related('census', 'census__animal')
-    # Temporary debug
-    print(f"DEBUG: Status={status}, Found={census_queries.count()} records.")
-    for q in census_queries:
-        print(f"DEBUG: ID={q.id}, Processed={q.is_processed}, Approved={q.approved}")
+    
 
     # census_queries = CensusApprovalQueue.objects.filter(
     #     requested_by=request.user,
     #     is_processed=is_processed_val
     # ).select_related('census', 'census__animal')
 
-    if status in ["approved", "rejected"]:
-        approved_bool = True if status == "approved" else False
+    if census_status in ["approved", "rejected"]:
+        approved_bool = True if census_status == "approved" else False
         census_queries = census_queries.filter(approved=approved_bool)
 
     # Hydrate JSON payloads with readable DB items for the template
@@ -137,7 +137,7 @@ def vet_index(request):
             'census': queue_item.census,
             'main_form': payload.get('main_form', {}),
             'records': processed_records,
-            'status': status
+            'status': census_status
         })
 
     # -------------------- Latest census per animal --------------------
@@ -172,7 +172,9 @@ def vet_index(request):
         'recent_drugs': combined_new_drugs,
         'event_edits': pending_edits,
         'census_edits': census_edits,
-        'current_status': status,
+        # 'current_status': status,
+        'current_event_status': event_status,
+        'current_census_status': census_status,
         'census_list': census_list,
     }
 
@@ -839,7 +841,7 @@ def edit_census(request, pk):
         
         if active_request:
             messages.error(request, "This census record is currently locked pending admin approval.")
-            return redirect('veterinary:vet_index')
+            return redirect('veterinary:census_records')
         else:
             # Sync state: Record was marked pending, but queue entry was deleted.
             # Reset flag and allow user to proceed.

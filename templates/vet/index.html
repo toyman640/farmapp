@@ -225,7 +225,7 @@
       <div class="header_box version_2 d-flex justify-content-between align-items-center">
         <h2><i class="fa fa-clock text-warning"></i> Event Edit History</h2>
         <form method="get">
-          <select name="status" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
+          <select name="event_status" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
             <option value="pending" {% if current_status == "pending" %}selected{% endif %}>Pending</option>
             <option value="approved" {% if current_status == "approved" %}selected{% endif %}>Approved</option>
             <option value="rejected" {% if current_status == "rejected" %}selected{% endif %}>Rejected</option>
@@ -288,7 +288,7 @@
       <div class="header_box version_2 d-flex justify-content-between align-items-center">
         <h2><i class="fa fa-clock text-warning"></i> Census Edit History</h2>
         <form method="get">
-          <select name="status" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
+          <select name="census_status" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
             <option value="pending" {% if current_status == "pending" %}selected{% endif %}>Pending</option>
             <option value="approved" {% if current_status == "approved" %}selected{% endif %}>Approved</option>
             <option value="rejected" {% if current_status == "rejected" %}selected{% endif %}>Rejected</option>
