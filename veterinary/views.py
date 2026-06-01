@@ -915,6 +915,12 @@ def edit_census(request, pk):
                 email.attach_alternative(html_content, "text/html")
                 email.send()
 
+            # messages.success(request, "Your updates have been submitted to the administrator for verification.")
+            # return redirect('veterinary:vet_index')
+            # Instead of just redirecting, return a success message
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'success', 'message': 'Your updates have been submitted to the administrator for verification.'})
+            
             messages.success(request, "Your updates have been submitted to the administrator for verification.")
             return redirect('veterinary:vet_index')
 
