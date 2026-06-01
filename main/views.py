@@ -23,7 +23,7 @@ from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit,
 import calendar
 from django.core.exceptions import FieldDoesNotExist
 from .forms import AdminEventEditReviewForm
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, EmailMessage
 from django.conf import settings
 from collections import defaultdict
 from django.db import transaction
@@ -214,13 +214,45 @@ def main_index(request):
             elif name in ['buck', 'doe', 'kid', 'weaner (goat)']:
                 goat_total += count
 
+    # Add this logic to process/hydrate the records for the template
+    processed_census_edits = []
+    for queue_item in census_edits:
+        payload = queue_item.form_data_payload or {}
+        records_payload = payload.get('records', [])
+        
+        # Pull baseline from the actual Census object
+        db_records = {
+            r.animal_type_id: r.number_of_animals 
+            for r in queue_item.census.records.all()
+        }
+
+        processed_records = []
+        for item in records_payload:
+            type_id = item.get('animal_type')
+            try:
+                type_obj = AnimalType.objects.get(id=type_id)
+                type_name = type_obj.animal_type_name
+            except AnimalType.DoesNotExist:
+                type_name = "Unknown"
+
+            processed_records.append({
+                'animal_type_name': type_name,
+                'new_count': item.get('number_of_animals', 0),
+                'old_count': db_records.get(type_id, 0),
+                'is_deleted': item.get('DELETE', False)
+            })
+
+        # Attach the processed records to the object so the template can see them
+        queue_item.records = processed_records
+        processed_census_edits.append(queue_item)
 
     context = {
         'low_stock_drugs': low_stock_drugs,
         'today_dispatches': today_dispatches,
         'today_date': today,
         'pending_updates': pending_updates,
-        'census_edits': census_edits,               # ADDED
+        'census_edits': processed_census_edits,
+        # 'census_edits': census_edits,               # ADDED
         'current_status': current_status,           # ADDED
         'pending_event_edits': pending_event_edits,
         'pending_updates_count': pending_updates_count,
@@ -241,6 +273,77 @@ def main_index(request):
 
     return render(request, 'main/index.html', context)
 
+# @login_required
+# def approve_census_edit(request, edit_id):
+#     # Only allow staff or superusers to process approvals
+#     if not (request.user.is_staff or request.user.is_superuser):
+#         messages.error(request, "You do not have permission to approve census changes.")
+#         return redirect('main:main_index')
+
+#     if request.method == "POST":
+#         queue_item = get_object_or_404(CensusApprovalQueue, id=edit_id, is_processed=False)
+#         action = request.POST.get('action')
+#         admin_note = request.POST.get('admin_note', '').strip()
+
+#         with transaction.atomic():
+#             if action == 'approve':
+#                 payload = queue_item.form_data_payload or {}
+                
+#                 # 1. Update the parent Census metadata if note or date changed
+#                 census = queue_item.census
+#                 if 'notes' in payload:
+#                     census.notes = payload['notes']
+#                 if 'census_date' in payload:
+#                     census.census_date = payload['census_date']
+#                 census.is_pending_review = False
+#                 census.save()
+
+#                 # 2. Extract and process the formset records from the JSON payload
+#                 # Adjust 'records' to match the exact key name you use to save your formset list
+#                 records_data = payload.get('records', [])
+                
+#                 for record in records_data:
+#                     # Case A: Record marked for deletion
+#                     if record.get('is_deleted'):
+#                         CensusRecord.objects.filter(
+#                             census=census, 
+#                             animal_type_id=record.get('animal_type_id')
+#                         ).delete()
+                    
+#                     # Case B: Update existing or create new record row
+#                     else:
+#                         animal_type_id = record.get('animal_type_id')
+#                         new_count = record.get('new_count', 0)
+                        
+#                         if animal_type_id:
+#                             CensusRecord.objects.update_or_create(
+#                                 census=census,
+#                                 animal_type_id=animal_type_id,
+#                                 defaults={'number_of_animals': new_count}
+#                             )
+
+#                 # Force recalculate totals via your model's built-in helper method
+#                 census.update_total()
+                
+#                 queue_item.approved = True
+#                 messages.success(request, f"Census changes for {census.animal.animal_name} successfully approved!")
+
+#             elif action == 'reject':
+#                 # Reverting pending flag so it can be edited or resubmitted later
+#                 census = queue_item.census
+#                 census.is_pending_review = False
+#                 census.save()
+
+#                 queue_item.approved = False
+#                 messages.warning(request, f"Census update request for {census.animal.animal_name} was rejected.")
+
+#             # Save historical notes if you choose to expand your schema, then mark processed
+#             queue_item.is_processed = True
+#             queue_item.save()
+
+#     return redirect('main:main_index')
+
+
 @login_required
 def approve_census_edit(request, edit_id):
     # Only allow staff or superusers to process approvals
@@ -252,6 +355,9 @@ def approve_census_edit(request, edit_id):
         queue_item = get_object_or_404(CensusApprovalQueue, id=edit_id, is_processed=False)
         action = request.POST.get('action')
         admin_note = request.POST.get('admin_note', '').strip()
+
+        # Capture the vet (the user who requested the change) before saving
+        vet = queue_item.requested_by
 
         with transaction.atomic():
             if action == 'approve':
@@ -271,22 +377,29 @@ def approve_census_edit(request, edit_id):
                 records_data = payload.get('records', [])
                 
                 for record in records_data:
+
+                    # Use 'animal_type' instead of 'animal_type_id' if that's what is in your JSON
+                    type_id = record.get('animal_type') or record.get('animal_type_id')
+
                     # Case A: Record marked for deletion
                     if record.get('is_deleted'):
                         CensusRecord.objects.filter(
                             census=census, 
-                            animal_type_id=record.get('animal_type_id')
+                            animal_type_id=type_id
                         ).delete()
                     
                     # Case B: Update existing or create new record row
                     else:
-                        animal_type_id = record.get('animal_type_id')
-                        new_count = record.get('new_count', 0)
+                        # animal_type_id = record.get('animal_type_id')
+                        # new_count = record.get('new_count', 0)
+                        new_count = record.get('new_count') or record.get('number_of_animals')
+
+                        print(f"DEBUG: Processing record: {record}")
                         
-                        if animal_type_id:
+                        if type_id:
                             CensusRecord.objects.update_or_create(
                                 census=census,
-                                animal_type_id=animal_type_id,
+                                animal_type_id=type_id,
                                 defaults={'number_of_animals': new_count}
                             )
 
@@ -304,6 +417,32 @@ def approve_census_edit(request, edit_id):
 
                 queue_item.approved = False
                 messages.warning(request, f"Census update request for {census.animal.animal_name} was rejected.")
+
+            # --- Email Logic ---
+            subject = f"Census Update {action.title()}d: {queue_item.census.animal.animal_name}"
+            
+            # Prepare context for the email template
+            email_context = {
+                'vet_name': vet.username,
+                'animal_name': queue_item.census.animal.animal_name,
+                'status': action,
+                'admin_note': admin_note
+            }
+            
+            # Render the HTML content
+            email_body = render_to_string('emails/census_status_update.html', email_context)
+            
+            # Send the email
+            email = EmailMessage(
+                subject=subject,
+                body=email_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[vet.email],
+            )
+            email.content_subtype = "html"  # Crucial for HTML templates
+            email.send(fail_silently=True) # Set to False if you want to catch errors
+            
+            # --- End Email Logic ---
 
             # Save historical notes if you choose to expand your schema, then mark processed
             queue_item.is_processed = True
