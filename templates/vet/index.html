@@ -15,6 +15,27 @@
       <li class="breadcrumb-item active">My Dashboard</li>
     </ol>
 
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert
+            {% if message.tags == 'success' %}alert-success
+            {% elif message.tags == 'warning' %}alert-warning
+            {% elif message.tags == 'error' %}alert-danger
+            {% else %}alert-info{% endif %}
+            alert-dismissible fade show auto-dismiss-alert"
+            role="alert">
+
+            {{ message }}
+
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <style>
       .stat-card {
         color: white;
@@ -305,6 +326,7 @@
               <th>Type Modifications (Changes)</th>
               <th>Submission Date</th>
               <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -348,8 +370,17 @@
                 <div class="small text-muted">{{ edit.queue_obj.created_at|date:"H:i" }}</div>
               </td>
               <td>
+                <span class="badge {% if edit.status == 'pending' %}bg-warning text-dark{% elif edit.status == 'approved' %}bg-success{% else %}bg-danger{% endif %} px-2 py-1">
+                  {{ edit.status|title }}
+                </span>
+              </td>
+              <td>
                 {% if edit.status == "pending" %}
-                  <span class="badge bg-warning text-dark px-2 py-1">Submitted</span>
+                 
+                  <button type="button" class="btn btn-sm btn-outline-danger d-block mt-1" 
+                          onclick="openRetractModal({{ edit.queue_obj.id }})">
+                    <i class="fa fa-undo"></i> Retract
+                  </button>
                 {% else %}
                   <span class="badge {% if edit.status == 'approved' %}bg-success{% else %}bg-danger{% endif %} px-2 py-1">
                     {{ edit.status|title }}
@@ -397,6 +428,25 @@
     {% endif %}
     {% endfor %}
   </div>
+  <div class="modal fade" id="retractModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-danger font-weight-bold">Confirm Retraction</h5>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to retract this edit request? This will unlock the census record and notify the administrator.
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <form id="retractForm" method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Retract Request</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -419,5 +469,14 @@ document.addEventListener('DOMContentLoaded', function () {
     animate();
   });
 });
+
+function openRetractModal(queueId) {
+    const form = document.getElementById('retractForm');
+    // Set the action URL dynamically
+    form.action = "{% url 'veterinary:retract_census_edit' 0 %}".replace('0', queueId);
+    $('#retractModal').modal('show');
+}
+
+
 </script>
 {% endblock %}

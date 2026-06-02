@@ -1109,3 +1109,30 @@ def delete_event(request, pk):
         messages.success(request, "Event deleted successfully!")
         return redirect('veterinary:event_records')
     return redirect('veterinary:event_detail', pk=pk)
+
+
+@login_required
+def retract_census_edit(request, queue_id):
+    queue_item = get_object_or_404(CensusApprovalQueue, id=queue_id, requested_by=request.user)
+
+    if queue_item.is_processed:
+        messages.error(request, "Cannot retract a request that has already been processed.")
+        return redirect('veterinary:vet_index')
+
+    census = queue_item.census
+    
+    # Notify admins
+    subject = f"Census Edit Retracted by {request.user.get_full_name()}"
+    text_content = f"The edit request for Census #{census.pk} was retracted by the vet."
+    admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
+    
+    if admin_emails:
+        send_mail(subject, text_content, settings.DEFAULT_FROM_EMAIL, admin_emails)
+
+    # Unlock the census and remove the queue item
+    census.is_pending_review = False
+    census.save()
+    queue_item.delete()
+
+    messages.success(request, "Your edit request has been retracted successfully.")
+    return redirect('veterinary:vet_index')
