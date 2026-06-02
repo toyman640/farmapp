@@ -21,6 +21,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.views.decorators.http import require_POST
 from itertools import zip_longest
 
 User = get_user_model()
@@ -1100,6 +1101,29 @@ def edit_event(request, pk):
         'is_vet_piggery': request.user.profile.is_vet_piggery,
     })
 
+
+@login_required
+@require_POST
+def retract_event_edit(request, edit_id):
+    # Fetch the pending edit belonging to the user
+    pending_edit = get_object_or_404(PendingEventEdit, id=edit_id, submitted_by=request.user)
+
+    if pending_edit.status != 'pending':
+        messages.error(request, "This request has already been processed.")
+        return redirect('veterinary:vet_index')
+
+    # Notify Admins
+    admin_emails = [u.email for u in User.objects.filter(is_staff=True, is_active=True) if u.email]
+    if admin_emails:
+        subject = f"Event Edit Retracted by {request.user.get_full_name()}"
+        message = f"The edit request for event '{pending_edit.event.event_name}' was retracted by the vet."
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails)
+
+    # Delete the record
+    pending_edit.delete()
+
+    messages.success(request, "The edit request has been retracted.")
+    return redirect('veterinary:vet_index')
 
 @login_required
 def delete_event(request, pk):

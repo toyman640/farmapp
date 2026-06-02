@@ -18,4 +18,5 @@ urlpatterns = [
   path('census/<int:pk>/edit/',views.edit_census,name='edit_census'),
   path('census/records/', views.census_records, name='census_records'),
   path('census/retract/<int:queue_id>/', views.retract_census_edit, name='retract_census_edit'),
+  path('event/retract/<int:edit_id>/', views.retract_event_edit, name='retract_event_edit'),
 ]

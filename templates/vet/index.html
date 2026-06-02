@@ -258,7 +258,7 @@
         <table class="table table-hover mb-0">
           <thead class="thead-dark">
             <tr>
-              <th>#</th>
+              
               <th>Event</th>
               <th>Animal</th>
               <th>Type</th>
@@ -266,20 +266,40 @@
               <th>Location</th>
               <th>Date</th>
               <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {% for edit in event_edits %}
             {% if edit.status == "pending" %}
             <tr class="table-warning">
-              <td>{{ forloop.counter }}</td>
+              
               <td><strong>{{ edit.data.event_name|default:edit.event.event_name }}</strong></td>
               <td>{{ edit.data.animal_obj|default:edit.event.animal }}</td>
               <td>{{ edit.data.animal_type_obj|default:edit.event.animal_type }}</td>
               <td>{{ edit.data.number_of_animals|default:edit.event.number_of_animals }}</td>
               <td>{{ edit.data.location|default:edit.event.location }}</td>
               <td>{{ edit.submitted_at|date:"M d, Y" }}</td>
-              <td><span class="badge bg-warning text-dark">Submitted</span></td>
+              <td>
+                {% if edit.status == "pending" %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                {% else %}
+                    <span class="badge {% if edit.status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ edit.status|title }}
+                    </span>
+                {% endif %}
+              </td>
+              <td>
+                {% if edit.status == "pending" %}
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                            onclick="openEventRetractModal('{{ edit.id }}')">
+                        <i class="fa fa-undo"></i> Retract
+                    </button>
+                {% else %}
+                    <button class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#reviewModal{{ edit.id }}">View</button>
+                {% endif %}
+              </td>
+              <!-- <td><span class="badge bg-warning text-dark">Submitted</span></td> -->
             </tr>
             {% else %}
             <tr>
@@ -447,6 +467,25 @@
       </div>
     </div>
   </div>
+  <div class="modal fade" id="eventRetractModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Retract Event Edit</h5>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to retract this event edit request? This will remove the request from the admin queue.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <form id="eventRetractForm" method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Retract</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -471,10 +510,16 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function openRetractModal(queueId) {
-    const form = document.getElementById('retractForm');
-    // Set the action URL dynamically
-    form.action = "{% url 'veterinary:retract_census_edit' 0 %}".replace('0', queueId);
-    $('#retractModal').modal('show');
+  const form = document.getElementById('retractForm');
+  // Set the action URL dynamically
+  form.action = "{% url 'veterinary:retract_census_edit' 0 %}".replace('0', queueId);
+  $('#retractModal').modal('show');
+}
+
+function openEventRetractModal(editId) {
+  const form = document.getElementById('eventRetractForm');
+  form.action = "{% url 'veterinary:retract_event_edit' 0 %}".replace('0', editId);
+  $('#eventRetractModal').modal('show');
 }
 
 
