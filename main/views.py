@@ -419,13 +419,25 @@ def approve_census_edit(request, edit_id):
                 messages.warning(request, f"Census update request for {census.animal.animal_name} was rejected.")
 
             # --- Email Logic ---
-            subject = f"Census Update {action.title()}d: {queue_item.census.animal.animal_name}"
+            # subject = f"Census Update {action.title()}d: {queue_item.census.animal.animal_name}"
+
+            # Define the past tense mapping
+            status_map = {
+                'approve': 'Approved',
+                'reject': 'Rejected'
+            }
+
+            # Use the map to get the correct string
+            status_text = status_map.get(action, action.title())
+
+            # Use the mapped variable in your subject
+            subject = f"Census Update {status_text}: {queue_item.census.animal.animal_name}"
             
             # Prepare context for the email template
             email_context = {
                 'vet_name': vet.username,
                 'animal_name': queue_item.census.animal.animal_name,
-                'status': action,
+                'status': status_text,
                 'admin_note': admin_note
             }
             

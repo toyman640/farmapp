@@ -208,6 +208,10 @@ class CensusApprovalQueue(models.Model):
     
     # Change 'help_with' to 'help_text' right here:
     form_data_payload = models.JSONField(help_text="Serialized form & formset data fields")
+
+    # request_note = models.TextField(null=True, blank=True)
+    request_note = models.TextField(null=True, blank=True, verbose_name="Vet's Request Note")
+    admin_comment = models.TextField(null=True, blank=True, verbose_name="Admin's Feedback Note")
     
     is_processed = models.BooleanField(default=False)
     approved = models.BooleanField(null=True, blank=True)

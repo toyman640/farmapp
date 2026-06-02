@@ -852,6 +852,9 @@ def edit_census(request, pk):
         formset = CensusRecordFormSet(request.POST, instance=census, user=user, prefix='records')
 
         if form.is_valid() and formset.is_valid():
+            # Capture the user's note from the POST data
+            user_note = request.POST.get('request_note', '').strip()
+            
             # 1. Prepare serialized payload for the queue
             serialized_payload = {
                 'main_form': {
@@ -873,7 +876,8 @@ def edit_census(request, pk):
             CensusApprovalQueue.objects.create(
                 census=census,
                 requested_by=user,
-                form_data_payload=serialized_payload
+                form_data_payload=serialized_payload,
+                request_note=user_note
             )
 
             # 3. Lock the record
@@ -903,7 +907,8 @@ def edit_census(request, pk):
                 'vet_name': user.get_full_name(),
                 'census_id': census.pk,
                 'combined_records': combined_records,
-                'review_url': request.build_absolute_uri(reverse('veterinary:vet_index'))
+                'review_url': request.build_absolute_uri(reverse('veterinary:vet_index')),
+                'user_note': user_note,
             }
 
             html_content = render_to_string('emails/census_edit_status.html', context)
