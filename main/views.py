@@ -354,7 +354,7 @@ def approve_census_edit(request, edit_id):
     if request.method == "POST":
         queue_item = get_object_or_404(CensusApprovalQueue, id=edit_id, is_processed=False)
         action = request.POST.get('action')
-        admin_note = request.POST.get('admin_note', '').strip()
+        admin_comment = request.POST.get('admin_comment', '').strip()
 
         # Capture the vet (the user who requested the change) before saving
         vet = queue_item.requested_by
@@ -438,7 +438,7 @@ def approve_census_edit(request, edit_id):
                 'vet_name': vet.username,
                 'animal_name': queue_item.census.animal.animal_name,
                 'status': status_text,
-                'admin_note': admin_note
+                'admin_comment': admin_comment
             }
             
             # Render the HTML content

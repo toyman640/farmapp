@@ -508,17 +508,18 @@ def create_census(request):
 
             census.update_total()
 
-            messages.success(
-                request,
-                "Census created successfully."
-            )
+            # messages.success(request,"Census created successfully.")
 
             # return redirect('veterinary:census_records')
-            return render(request, 'vet/census_form.html', {
-                'form': form,
-                'formset': formset,
-                'is_edit': False,
-                'existing_records': []
+            # return render(request, 'vet/census_form.html', {
+            #     'form': form,
+            #     'formset': formset,
+            #     'is_edit': False,
+            #     'existing_records': []
+            # })
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Census created successfully.'
             })
 
     else:
