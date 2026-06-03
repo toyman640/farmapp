@@ -469,7 +469,7 @@
     </div>
     <div class="box_general padding_bottom data-card">
       <div class="header_box version_2">
-        <h2><i class="fa fa-bell text-danger"></i> Events to approve</h2>
+        <h2><i class="fa fa-bell text-warning"></i> Approve events edit record(s)</h2>
       </div>
 
       <div>
@@ -507,9 +507,10 @@
               </tr>
             {% empty %}
               <tr>
-                <td colspan="8" class="text-center text-muted">
-                  No pending event edits.
-                </td>
+                <td colspan="8" class="text-center text-muted py-4">
+                <i class="fa fa-folder-open d-block mb-2 fa-2x text-muted"></i>
+                No Pending Event Records For Edit Approval.
+              </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -532,35 +533,38 @@
                 </div>
 
                 <!-- Comparison table -->
-                <table class="table table-sm table-bordered">
-                  <thead class="thead-light">
-                    <tr>
-                      <th>Field</th>
-                      <th>Current Value</th>
-                      <th>Proposed Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for field, new_value in edit.data.items %}
-                        {% if field != "designation" or edit.data.event_name == "culling" %}
-                            {% with current_value=edit.event|get_attr:field %}
-                            <tr class="{% if current_value != new_value %}table-warning{% endif %}">
-                                <td>{{ field|title }}</td>
-                                <td>{{ current_value }}</td>
-                                <td>
-                                    {% if field in "animal animal_type" %}
-                                        {{ new_value|resolve_fk:field }}
-                                    {% else %}
-                                        {{ new_value }}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endwith %}
-                        {% endif %}
-                    {% endfor %}
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
 
-                  </tbody>
-                </table>
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="thead-dark">
+                      <tr>
+                        <th>Field</th>
+                        <th>Current Value</th>
+                        <th>Proposed Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for field, new_value in edit.data.items %}
+                          {% if field != "designation" or edit.data.event_name == "culling" %}
+                              {% with current_value=edit.event|get_attr:field %}
+                              <tr class="{% if current_value != new_value %}table-warning{% endif %}">
+                                  <td>{{ field|title }}</td>
+                                  <td>{{ current_value }}</td>
+                                  <td>
+                                      {% if field in "animal animal_type" %}
+                                          {{ new_value|resolve_fk:field }}
+                                      {% else %}
+                                          {{ new_value }}
+                                      {% endif %}
+                                  </td>
+                              </tr>
+                              {% endwith %}
+                          {% endif %}
+                      {% endfor %}
+  
+                    </tbody>
+                  </table>
+                </div>
 
                 <!-- Admin note + actions -->
                 <form method="post" action="{% url 'main:approve_event_edit' edit.id %}">
@@ -595,14 +599,14 @@
     <!-- Census History & Approval Panel -->
     <div class="box_general padding_bottom">
       <div class="header_box version_2 d-flex justify-content-between align-items-center">
-        <h2><i class="fa fa-clock text-warning"></i> Census Edit History</h2>
-        <form method="get" id="statusFilterForm">
+        <h2><i class="fa fa-bell text-warning"></i>Approve census edit record(s)</h2>
+        <!-- <form method="get" id="statusFilterForm">
           <select name="status" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
             <option value="pending" {% if current_status == "pending" %}selected{% endif %}>Pending</option>
             <option value="approved" {% if current_status == "approved" %}selected{% endif %}>Approved</option>
             <option value="rejected" {% if current_status == "rejected" %}selected{% endif %}>Rejected</option>
           </select>
-        </form>
+        </form> -->
       </div>
 
       <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
@@ -688,7 +692,7 @@
             <tr>
               <td colspan="6" class="text-center text-muted py-4">
                 <i class="fa fa-folder-open d-block mb-2 fa-2x text-muted"></i>
-                No census records found for selection: <strong>{{ current_status }}</strong>.
+                No census records found for edit approval.
               </td>
             </tr>
             {% endfor %}
