@@ -7,7 +7,7 @@ from datetime import timedelta,datetime
 # from django.db.models import F
 from django.db.models.functions import Lower, TruncMonth
 from django.utils.timezone import localtime, now, localdate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from drugapp.models import Dispatch, Drug, InventoryLog, PendingStockUpdate
@@ -27,6 +27,7 @@ from django.core.mail import EmailMultiAlternatives, EmailMessage
 from django.conf import settings
 from collections import defaultdict
 from django.db import transaction
+from veterinary.forms import *
 
 
 class CustomLoginView(LoginView):
@@ -1298,3 +1299,99 @@ def admin_delete_event(request, pk):
 
     # If GET request, redirect back to event detail
     return redirect('main:admin_event_detail', pk=pk)
+
+@user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
+def delete_census_admin(request, pk):
+    census = get_object_or_404(Census, pk=pk)
+    if request.method == 'POST':
+        census.delete()
+        # Return JSON for your AJAX modal trigger
+        return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
+    return redirect('main:paddock_census_records_admin')
+
+# @login_required
+# @user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
+# def admin_edit_census(request, pk):
+#     census = get_object_or_404(Census, pk=pk)
+    
+#     if request.method == 'POST':
+#         form = CensusForm(request.POST, instance=census, user=request.user)
+#         formset = CensusRecordFormSet(request.POST, instance=census, user=request.user, prefix='records')
+
+#         if form.is_valid() and formset.is_valid():
+#             form.save()
+#             formset.save()
+#             census.update_total()
+#             return JsonResponse({'status': 'success', 'message': 'Census record updated successfully.'})
+
+#     # GET request
+#     form = CensusForm(instance=census, user=request.user)
+#     formset = CensusRecordFormSet(instance=census, user=request.user, prefix='records')
+
+#     existing_records = [
+#         {'id': r.id, 'typeId': r.animal_type.id, 'typeText': r.animal_type.animal_type_name, 'count': r.number_of_animals}
+#         for r in census.records.all()
+#     ]
+
+#     return render(request, 'main/admin_edit_census.html', {
+#         'form': form,
+#         'formset': formset,
+#         'is_edit': True,
+#         'census': census,
+#         'existing_records': existing_records
+#     })
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
+def admin_edit_census(request, pk):
+    census = get_object_or_404(Census, pk=pk)
+    
+    if request.method == 'POST':
+        form = CensusForm(request.POST, instance=census, user=request.user)
+        formset = CensusRecordFormSet(request.POST, instance=census, user=request.user, prefix='records')
+
+        if form.is_valid() and formset.is_valid():
+            # 1. Save the changes
+            form.save()
+            formset.save()
+            census.update_total()
+            
+            # 2. CLEAR PENDING STATUS
+            # If the admin is editing, the record is no longer "pending review"
+            if census.is_pending_review:
+                census.is_pending_review = False
+                census.save()
+                
+                # Also mark any associated approval requests as processed/resolved
+                CensusApprovalQueue.objects.filter(
+                    census=census, 
+                    is_processed=False
+                ).update(is_processed=True)
+            
+            return JsonResponse({'status': 'success', 'message': 'Census record updated successfully.'})
+
+    # GET request logic remains the same...
+    form = CensusForm(instance=census, user=request.user)
+    formset = CensusRecordFormSet(instance=census, user=request.user, prefix='records')
+    print(
+        "EMPTY FORM:",
+        list(
+            formset.empty_form.fields['animal_type']
+            .queryset
+            .values_list('animal_type_name', flat=True)
+        )
+    )
+
+    existing_records = [
+        {'id': r.id, 'typeId': r.animal_type.id, 'typeText': r.animal_type.animal_type_name, 'count': r.number_of_animals}
+        for r in census.records.all()
+    ]
+
+
+    return render(request, 'main/admin_edit_census.html', {
+        'form': form,
+        'formset': formset,
+        'is_edit': True,
+        'census': census,
+        'existing_records': existing_records
+    })

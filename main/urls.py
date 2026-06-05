@@ -42,4 +42,6 @@ urlpatterns = [
     path('admin/event/<int:pk>/', views.admin_event_detail, name='admin_event_detail'),
     path('events/<int:pk>/delete/', views.admin_delete_event, name='admin_delete_event'),
     path('census-edit/<int:edit_id>/approve/', views.approve_census_edit, name='approve_census_edit'),
+    # path('admin/census/edit/<int:pk>/', views.admin_edit_census, name='admin_edit_census'),
+    path('admin/census/delete/<int:pk>/', views.delete_census_admin, name='delete_census_admin'),
 ]

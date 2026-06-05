@@ -152,6 +152,7 @@ class CensusRecordForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        
 
         # Filter animal types by vet section
         if user:
