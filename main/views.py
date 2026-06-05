@@ -1341,57 +1341,57 @@ def delete_census_admin(request, pk):
 #         'existing_records': existing_records
 #     })
 
-@login_required
-@user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
-def admin_edit_census(request, pk):
-    census = get_object_or_404(Census, pk=pk)
+# @login_required
+# @user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
+# def admin_edit_census(request, pk):
+#     census = get_object_or_404(Census, pk=pk)
     
-    if request.method == 'POST':
-        form = CensusForm(request.POST, instance=census, user=request.user)
-        formset = CensusRecordFormSet(request.POST, instance=census, user=request.user, prefix='records')
+#     if request.method == 'POST':
+#         form = CensusForm(request.POST, instance=census, user=request.user)
+#         formset = CensusRecordFormSet(request.POST, instance=census, user=request.user, prefix='records')
 
-        if form.is_valid() and formset.is_valid():
-            # 1. Save the changes
-            form.save()
-            formset.save()
-            census.update_total()
+#         if form.is_valid() and formset.is_valid():
+#             # 1. Save the changes
+#             form.save()
+#             formset.save()
+#             census.update_total()
             
-            # 2. CLEAR PENDING STATUS
-            # If the admin is editing, the record is no longer "pending review"
-            if census.is_pending_review:
-                census.is_pending_review = False
-                census.save()
+#             # 2. CLEAR PENDING STATUS
+#             # If the admin is editing, the record is no longer "pending review"
+#             if census.is_pending_review:
+#                 census.is_pending_review = False
+#                 census.save()
                 
-                # Also mark any associated approval requests as processed/resolved
-                CensusApprovalQueue.objects.filter(
-                    census=census, 
-                    is_processed=False
-                ).update(is_processed=True)
+#                 # Also mark any associated approval requests as processed/resolved
+#                 CensusApprovalQueue.objects.filter(
+#                     census=census, 
+#                     is_processed=False
+#                 ).update(is_processed=True)
             
-            return JsonResponse({'status': 'success', 'message': 'Census record updated successfully.'})
+#             return JsonResponse({'status': 'success', 'message': 'Census record updated successfully.'})
 
-    # GET request logic remains the same...
-    form = CensusForm(instance=census, user=request.user)
-    formset = CensusRecordFormSet(instance=census, user=request.user, prefix='records')
-    print(
-        "EMPTY FORM:",
-        list(
-            formset.empty_form.fields['animal_type']
-            .queryset
-            .values_list('animal_type_name', flat=True)
-        )
-    )
+#     # GET request logic remains the same...
+#     form = CensusForm(instance=census, user=request.user)
+#     formset = CensusRecordFormSet(instance=census, user=request.user, prefix='records')
+#     print(
+#         "EMPTY FORM:",
+#         list(
+#             formset.empty_form.fields['animal_type']
+#             .queryset
+#             .values_list('animal_type_name', flat=True)
+#         )
+#     )
 
-    existing_records = [
-        {'id': r.id, 'typeId': r.animal_type.id, 'typeText': r.animal_type.animal_type_name, 'count': r.number_of_animals}
-        for r in census.records.all()
-    ]
+#     existing_records = [
+#         {'id': r.id, 'typeId': r.animal_type.id, 'typeText': r.animal_type.animal_type_name, 'count': r.number_of_animals}
+#         for r in census.records.all()
+#     ]
 
 
-    return render(request, 'main/admin_edit_census.html', {
-        'form': form,
-        'formset': formset,
-        'is_edit': True,
-        'census': census,
-        'existing_records': existing_records
-    })
+#     return render(request, 'main/admin_edit_census.html', {
+#         'form': form,
+#         'formset': formset,
+#         'is_edit': True,
+#         'census': census,
+#         'existing_records': existing_records
+#     })
