@@ -416,14 +416,27 @@ def event_records(request):
     return render(request, 'vet/entry-records.html', context)
 
 
+# @login_required
+# def event_detail(request, pk):
+#   event = get_object_or_404(EventType.objects.select_related('animal', 'animal_type'), pk=pk)
+
+#   context = {
+#     'event': event
+#   }
+#   return render(request, 'vet/event_details.html', context)
+
 @login_required
 def event_detail(request, pk):
-  event = get_object_or_404(EventType.objects.select_related('animal', 'animal_type'), pk=pk)
+    event = get_object_or_404(EventType.objects.select_related('animal', 'animal_type'), pk=pk)
+    
+    # Check if this event already has a pending edit in the queue
+    has_pending_edit = PendingEventEdit.objects.filter(event=event, status='pending').exists()
 
-  context = {
-    'event': event
-  }
-  return render(request, 'vet/event_details.html', context)
+    context = {
+        'event': event,
+        'has_pending_edit': has_pending_edit, # Pass to template
+    }
+    return render(request, 'vet/event_details.html', context)
 
 
 
