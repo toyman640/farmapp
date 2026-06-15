@@ -9,11 +9,11 @@
 <div class="content-wrapper">
   <div class="container-fluid">
     {% if show_prompt %}
-    <div class="update-marquee bg-primary text-white py-2">
+    <!-- <div class="update-marquee bg-primary text-white py-2">
       <marquee behavior="scroll" direction="left" scrollamount="6">
          🚀 <strong>New Update:</strong> Admins can now add and update inventory items, and also dispatch them seamlessly!
       </marquee>
-    </div>
+    </div> -->
     {% endif %}
 
     <!-- Breadcrumbs-->
@@ -526,8 +526,12 @@
                 <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
               </div>
               <div class="modal-body">
+                <!-- <div>
+                  <p>Vet Note: {{ edit.vet_note|default:"No note provided." }}</p>
+                </div> -->
                 <!-- Vet note -->
-                <div class="alert alert-info">
+                <!-- Stable vet note box (not an auto-dismissing alert) -->
+                <div class="bg-info text-white p-3 mb-3 rounded">
                   <strong>Vet note:</strong><br>
                   {{ edit.vet_note|default:"No note provided." }}
                 </div>

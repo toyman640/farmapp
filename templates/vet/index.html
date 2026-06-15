@@ -448,7 +448,7 @@
     {% endif %}
     {% endfor %}
   </div>
-  <div class="modal fade" id="retractModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <!-- <div class="modal fade" id="retractModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header border-0">
@@ -485,7 +485,61 @@
         </div>
       </div>
     </div>
+  </div> -->
+  <!-- Census Retraction Modal -->
+  <div class="modal fade" id="retractModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-danger font-weight-bold">Confirm Retraction</h5>
+        </div>
+        <form id="retractForm" method="post" action="">
+          {% csrf_token %}
+          <div class="modal-body">
+            <p>Are you sure you want to retract this edit request? This will unlock the census record and notify the administrator.</p>
+            
+            <!-- Added Reason Field -->
+            <div class="form-group mt-3">
+              <label for="census_retraction_reason" class="fw-bold text-muted">Reason for Retraction:</label>
+              <textarea name="retraction_reason" id="census_retraction_reason" class="form-control" rows="3" placeholder="Provide a brief explanation..." required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger">Yes, Retract Request</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
+
+  <!-- Event Retraction Modal -->
+  <div class="modal fade" id="eventRetractModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Retract Event Edit</h5>
+        </div>
+        <form id="eventRetractForm" method="post" action="">
+          {% csrf_token %}
+          <div class="modal-body">
+            <p>Are you sure you want to retract this event edit request? This will remove the request from the admin queue.</p>
+            
+            <!-- Added Reason Field -->
+            <div class="form-group mt-3">
+              <label for="event_retraction_reason" class="fw-bold text-muted">Reason for Retraction:</label>
+              <textarea name="retraction_reason" id="event_retraction_reason" class="form-control" rows="3" placeholder="Provide a brief explanation..." required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger">Yes, Retract</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -509,15 +563,35 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+// function openRetractModal(queueId) {
+//   const form = document.getElementById('retractForm');
+//   // Set the action URL dynamically
+//   form.action = "{% url 'veterinary:retract_census_edit' 0 %}".replace('0', queueId);
+//   $('#retractModal').modal('show');
+// }
+
+// function openEventRetractModal(editId) {
+//   const form = document.getElementById('eventRetractForm');
+//   form.action = "{% url 'veterinary:retract_event_edit' 0 %}".replace('0', editId);
+//   $('#eventRetractModal').modal('show');
+// }
+
 function openRetractModal(queueId) {
   const form = document.getElementById('retractForm');
-  // Set the action URL dynamically
+  // Clear any old text input value upon modal initialization
+  const textInput = document.getElementById('census_retraction_reason');
+  if(textInput) textInput.value = '';
+  
   form.action = "{% url 'veterinary:retract_census_edit' 0 %}".replace('0', queueId);
   $('#retractModal').modal('show');
 }
 
 function openEventRetractModal(editId) {
   const form = document.getElementById('eventRetractForm');
+  // Clear any old text input value upon modal initialization
+  const textInput = document.getElementById('event_retraction_reason');
+  if(textInput) textInput.value = '';
+  
   form.action = "{% url 'veterinary:retract_event_edit' 0 %}".replace('0', editId);
   $('#eventRetractModal').modal('show');
 }

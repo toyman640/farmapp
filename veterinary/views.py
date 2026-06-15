@@ -371,15 +371,15 @@ def event_records(request):
 
         if profile.is_vet_piggery:
             events = events.filter(animal__animal_name='pig')
-            event_types = ['mortality', 'culling', 'farrowing', 'sale', 'procurement']
+            event_types = ['culling', 'farrowing', 'gift', 'mortality', 'procurement', 'sale', 'treatment']
 
         elif profile.is_vet_paddock:
             events = events.filter(animal__animal_name='cattle')
-            event_types = ['mortality', 'calving', 'farrowing', 'sale', 'procurement']
+            event_types = ['calving', 'gift', 'mortality', 'procurement', 'sale', 'treatment', 'vaccination']
 
         elif profile.is_vet_smallruminant:
             events = events.filter(animal__animal_name__in=['sheep', 'goat'])
-            event_types = ['mortality', 'culling', 'lambing', 'kidding', 'sale', 'procurement']
+            event_types = ['culling', 'gift', 'kidding', 'lambing', 'mortality', 'procurement', 'sale', 'treatment', 'vaccination']
 
         elif not profile.is_vet:
             events = EventType.objects.none()
@@ -875,12 +875,25 @@ def edit_census(request, pk):
             }
 
             # 2. Save to queue
-            CensusApprovalQueue.objects.create(
+            # CensusApprovalQueue.objects.create(
+            #     census=census,
+            #     requested_by=user,
+            #     form_data_payload=serialized_payload,
+            #     request_note=user_note
+            # )
+
+            queue_item = CensusApprovalQueue.objects.create(
                 census=census,
                 requested_by=user,
                 form_data_payload=serialized_payload,
                 request_note=user_note
             )
+
+            # # 3. Lock the record
+            # census.is_pending_review = True
+            # census.save()
+            # Generate identifier
+            request_id = f"SKAAL-CEN-{queue_item.id}"
 
             # 3. Lock the record
             census.is_pending_review = True
@@ -904,7 +917,8 @@ def edit_census(request, pk):
             combined_records = list(zip_longest(old_records, new_records, fillvalue=None))
 
             # 5. Send Email
-            subject = "New Census Edit Pending Approval"
+            # subject = "New Census Edit Pending Approval"
+            subject = f"[{request_id}] New Census Edit Pending Approval"
             context = {
                 'vet_name': user.get_full_name(),
                 'census_id': census.pk,
@@ -1036,7 +1050,9 @@ def edit_event(request, pk):
                         pending.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
                     except AnimalType.DoesNotExist:
                         pending.data["animal_type_obj"] = None
-                subject = "New Event Edit Pending Approval"
+
+                request_id = f"SKAAL-EVT-{pending.id}"
+                subject = f"[{request_id}] New Event Edit Pending Approval"
                 context = {
                     'edit': pending,
                     'event': event,
@@ -1103,6 +1119,33 @@ def edit_event(request, pk):
     })
 
 
+# @login_required
+# @require_POST
+# def retract_event_edit(request, edit_id):
+#     # Fetch the pending edit belonging to the user
+#     pending_edit = get_object_or_404(PendingEventEdit, id=edit_id, submitted_by=request.user)
+
+#     # Store the ID before deleting
+#     request_id = f"SKAAL-EVT-{pending_edit.id}"
+#     event_name = pending_edit.event.event_name
+
+#     if pending_edit.status != 'pending':
+#         messages.error(request, "This request has already been processed.")
+#         return redirect('veterinary:vet_index')
+
+#     # Notify Admins
+#     admin_emails = [u.email for u in User.objects.filter(is_staff=True, is_active=True) if u.email]
+#     if admin_emails:
+#         subject = f"[{request_id}] Event Edit Retracted by {request.user.get_full_name()}"
+#         message = f"The edit request for event '{pending_edit.event.event_name}' was retracted by the vet."
+#         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails)
+
+#     # Delete the record
+#     pending_edit.delete()
+
+#     messages.success(request, "The edit request has been retracted.")
+#     return redirect('veterinary:vet_index')
+
 @login_required
 @require_POST
 def retract_event_edit(request, edit_id):
@@ -1113,11 +1156,21 @@ def retract_event_edit(request, edit_id):
         messages.error(request, "This request has already been processed.")
         return redirect('veterinary:vet_index')
 
+    # Capture the context input from POST (without saving to the model)
+    reason = request.POST.get('retraction_reason', '').strip()
+    reason_str = reason if reason else "No reason provided."
+
+    # Store the ID before deleting
+    request_id = f"SKAAL-EVT-{pending_edit.id}"
+
     # Notify Admins
     admin_emails = [u.email for u in User.objects.filter(is_staff=True, is_active=True) if u.email]
     if admin_emails:
-        subject = f"Event Edit Retracted by {request.user.get_full_name()}"
-        message = f"The edit request for event '{pending_edit.event.event_name}' was retracted by the vet."
+        subject = f"[{request_id}] Event Edit Retracted by {request.user.get_full_name()}"
+        message = (
+            f"The edit request for event '{pending_edit.event.event_name}' was retracted by the vet.\n\n"
+            f"Reason for Retraction:\n{reason_str}"
+        )
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails)
 
     # Delete the record
@@ -1136,7 +1189,38 @@ def delete_event(request, pk):
     return redirect('veterinary:event_detail', pk=pk)
 
 
+# @login_required
+# def retract_census_edit(request, queue_id):
+#     queue_item = get_object_or_404(CensusApprovalQueue, id=queue_id, requested_by=request.user)
+
+#     # Store identifier before deleting the object
+#     request_id = f"SKAAL-CEN-{queue_item.id}"
+#     census = queue_item.census
+
+#     if queue_item.is_processed:
+#         messages.error(request, "Cannot retract a request that has already been processed.")
+#         return redirect('veterinary:vet_index')
+
+#     census = queue_item.census
+    
+#     # Notify admins
+#     subject = f"[{request_id}] Census Edit Retracted by {request.user.get_full_name()}"
+#     text_content = f"The edit request for Census #{census.pk} was retracted by the vet."
+#     admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
+    
+#     if admin_emails:
+#         send_mail(subject, text_content, settings.DEFAULT_FROM_EMAIL, admin_emails)
+
+#     # Unlock the census and remove the queue item
+#     census.is_pending_review = False
+#     census.save()
+#     queue_item.delete()
+
+#     messages.success(request, "Your edit request has been retracted successfully.")
+#     return redirect('veterinary:vet_index')
+
 @login_required
+@require_POST
 def retract_census_edit(request, queue_id):
     queue_item = get_object_or_404(CensusApprovalQueue, id=queue_id, requested_by=request.user)
 
@@ -1144,11 +1228,20 @@ def retract_census_edit(request, queue_id):
         messages.error(request, "Cannot retract a request that has already been processed.")
         return redirect('veterinary:vet_index')
 
+    # Capture the context input from POST (without saving to the model)
+    reason = request.POST.get('retraction_reason', '').strip()
+    reason_str = reason if reason else "No reason provided."
+
+    # Store identifier before deleting the object
+    request_id = f"SKAAL-CEN-{queue_item.id}"
     census = queue_item.census
     
     # Notify admins
-    subject = f"Census Edit Retracted by {request.user.get_full_name()}"
-    text_content = f"The edit request for Census #{census.pk} was retracted by the vet."
+    subject = f"[{request_id}] Census Edit Retracted by {request.user.get_full_name()}"
+    text_content = (
+        f"The edit request for Census #{census.pk} was retracted by the vet.\n\n"
+        f"Reason for Retraction:\n{reason_str}"
+    )
     admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
     
     if admin_emails:
