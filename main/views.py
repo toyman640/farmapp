@@ -7,7 +7,7 @@ from datetime import timedelta,datetime
 # from django.db.models import F
 from django.db.models.functions import Lower, TruncMonth
 from django.utils.timezone import localtime, now, localdate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from drugapp.models import Dispatch, Drug, InventoryLog, PendingStockUpdate
@@ -17,14 +17,17 @@ from django.core.paginator import Paginator
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from itertools import chain
 from django.utils import timezone
-from django.db.models import Q, F, Count, Sum
+from django.db.models import Q, F, Count, Sum, Max
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
-from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit, Animals, AnimalType
+from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit, Animals, AnimalType, CensusApprovalQueue
 import calendar
 from django.core.exceptions import FieldDoesNotExist
 from .forms import AdminEventEditReviewForm
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, EmailMessage
 from django.conf import settings
+from collections import defaultdict
+from django.db import transaction
+from veterinary.forms import *
 
 
 class CustomLoginView(LoginView):
@@ -45,7 +48,7 @@ class CustomLoginView(LoginView):
             if user.profile.is_boss:
               return reverse_lazy('main:main_index')
             elif user.profile.is_supervisor:
-              return reverse_lazy('farmrecord:dash_index')
+              return reverse_lazy('farmrecord:supervisor_index')
             elif user.profile.is_drug:
               return reverse_lazy('drugapp:drug_index')
             elif (
@@ -85,6 +88,24 @@ def main_index(request):
 
     today_dispatches = Dispatch.objects.filter(dispatched_at__date=today)
     pending_updates = PendingStockUpdate.objects.filter(approved=False)
+    # --- FIXED: Translate status choices into actual model flags ---
+    current_status = request.GET.get('status', 'pending')
+    
+    if current_status == 'approved':
+        # Processed and approved is True
+        census_edits = CensusApprovalQueue.objects.filter(is_processed=True, approved=True)
+    elif current_status == 'rejected':
+        # Processed and approved is False
+        census_edits = CensusApprovalQueue.objects.filter(is_processed=True, approved=False)
+    else:
+        # Default: 'pending' (not yet processed)
+        current_status = 'pending'
+        census_edits = CensusApprovalQueue.objects.filter(is_processed=False)
+
+    # Order by submission timestamp
+    census_edits = census_edits.order_by('-created_at')
+    # ---------------------------------------------------------------
+    # --------------------------------------------
     pending_event_edits = PendingEventEdit.objects.filter(status='pending')
 
     pending_updates_count = pending_updates.count() if request.user.is_staff or request.user.is_superuser else 0
@@ -100,7 +121,32 @@ def main_index(request):
     restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
 
-    yesterday_events = EventType.objects.filter(created_at__date=yesterday)
+    # yesterday_events = EventType.objects.filter(created_at__date=yesterday)
+
+    # Get latest timestamp
+    latest_event_date = EventType.objects.aggregate(
+        latest_date=Max('created_at__date')
+    )['latest_date']
+
+    # Get all events from that date
+    if latest_event_date:
+        events_by_date = EventType.objects.filter(created_at__date=latest_event_date)
+    else:
+        events_by_date = EventType.objects.none()
+
+    # Split by animal type (adjust names based on your DB values)
+    piggery_events = events_by_date.filter(
+    animal_type__animal__animal_name__iexact="pig"
+    )
+
+    paddock_events = events_by_date.filter(
+        animal_type__animal__animal_name__iexact="cattle"
+    )
+
+    small_ruminant_events = events_by_date.filter(
+        animal_type__animal__animal_name__in=["sheep", "goat"]
+    )
+
     # Resolve updated animal type IDs into objects
     for p in pending_event_edits:
         animal_type_id = p.data.get("animal_type")
@@ -113,60 +159,309 @@ def main_index(request):
         else:
             p.animal_type_obj = None
 
+    # Get latest census per animal
+    # Get latest census per animal (FIXED LOGIC)
+
+    piggery_total = 0
+    paddock_total = 0
+    # sheep_total = 0
+    # goat_total = 
+    # sheep_breakdown = defaultdict(int)
+    # goat_breakdown = defaultdict(int)
+
+    # PIG
+    latest_pig = Census.objects.filter(
+        animal__animal_name__iexact="pig"
+    ).order_by('-census_date').first()
+
+    if latest_pig:
+        piggery_total = latest_pig.records.aggregate(
+            total=Sum('number_of_animals')
+        )['total'] or 0
+
+
+    # CATTLE
+    latest_cattle = Census.objects.filter(
+        animal__animal_name__iexact="cattle"
+    ).order_by('-census_date').first()
+
+    if latest_cattle:
+        paddock_total = latest_cattle.records.aggregate(
+            total=Sum('number_of_animals')
+        )['total'] or 0
+
+
+   
+
+    # Get latest SMALL RUMINANT census (stored as "sheep")
+    latest_small_ruminant = Census.objects.filter(
+        animal__animal_name__iexact="sheep"
+    ).order_by('-census_date').first()
+
+
+    sheep_total = 0
+    goat_total = 0
+
+    if latest_small_ruminant:
+        for record in latest_small_ruminant.records.select_related('animal_type'):
+            name = record.animal_type.animal_type_name.lower()
+            count = record.number_of_animals
+
+            # SHEEP TYPES
+            if name in ['ram', 'ewe', 'lamb', 'weaner (sheep)']:
+                sheep_total += count
+
+            # GOAT TYPES
+            elif name in ['buck', 'doe', 'kid', 'weaner (goat)']:
+                goat_total += count
+
+    # Add this logic to process/hydrate the records for the template
+    processed_census_edits = []
+    for queue_item in census_edits:
+        payload = queue_item.form_data_payload or {}
+        records_payload = payload.get('records', [])
+        
+        # Pull baseline from the actual Census object
+        db_records = {
+            r.animal_type_id: r.number_of_animals 
+            for r in queue_item.census.records.all()
+        }
+
+        processed_records = []
+        for item in records_payload:
+            type_id = item.get('animal_type')
+            try:
+                type_obj = AnimalType.objects.get(id=type_id)
+                type_name = type_obj.animal_type_name
+            except AnimalType.DoesNotExist:
+                type_name = "Unknown"
+
+            processed_records.append({
+                'animal_type_name': type_name,
+                'new_count': item.get('number_of_animals', 0),
+                'old_count': db_records.get(type_id, 0),
+                'is_deleted': item.get('DELETE', False)
+            })
+
+        # Attach the processed records to the object so the template can see them
+        queue_item.records = processed_records
+        processed_census_edits.append(queue_item)
 
     context = {
         'low_stock_drugs': low_stock_drugs,
         'today_dispatches': today_dispatches,
         'today_date': today,
         'pending_updates': pending_updates,
+        'census_edits': processed_census_edits,
+        # 'census_edits': census_edits,               # ADDED
+        'current_status': current_status,           # ADDED
         'pending_event_edits': pending_event_edits,
         'pending_updates_count': pending_updates_count,
         'recent_drugs': combined_new_drugs,
-        'yesterday_events': yesterday_events,
+        # 'yesterday_events': yesterday_events,
         'show_prompt': True,
+        'latest_event_date': latest_event_date,
+        'piggery_events': piggery_events,
+        'paddock_events': paddock_events,
+        'small_ruminant_events': small_ruminant_events,
+        'piggery_total': piggery_total,
+        'paddock_total': paddock_total,
+        'sheep_total': sheep_total,
+        'goat_total': goat_total,
+        # 'sheep_breakdown': dict(sheep_breakdown),
+        # 'goat_breakdown': dict(goat_breakdown),
     }
 
     return render(request, 'main/index.html', context)
 
-
 # @login_required
-# def approve_event_edit(request, pk):
-#     pending_edit = get_object_or_404(PendingEventEdit, pk=pk)
+# def approve_census_edit(request, edit_id):
+#     # Only allow staff or superusers to process approvals
+#     if not (request.user.is_staff or request.user.is_superuser):
+#         messages.error(request, "You do not have permission to approve census changes.")
+#         return redirect('main:main_index')
 
-#     # Apply pending data to the main event
-#     event = pending_edit.event
-#     data = pending_edit.data
+#     if request.method == "POST":
+#         queue_item = get_object_or_404(CensusApprovalQueue, id=edit_id, is_processed=False)
+#         action = request.POST.get('action')
+#         admin_note = request.POST.get('admin_note', '').strip()
 
-#     for field, value in data.items():
-#         if field == "image" and value:  # ✅ handle image updates separately
-#             # You might receive image file path or ID — adjust accordingly
-#             EventImage.objects.create(event=event, image=value)
-#             continue
+#         with transaction.atomic():
+#             if action == 'approve':
+#                 payload = queue_item.form_data_payload or {}
+                
+#                 # 1. Update the parent Census metadata if note or date changed
+#                 census = queue_item.census
+#                 if 'notes' in payload:
+#                     census.notes = payload['notes']
+#                 if 'census_date' in payload:
+#                     census.census_date = payload['census_date']
+#                 census.is_pending_review = False
+#                 census.save()
 
-#         # Skip unknown fields
-#         try:
-#             field_obj = EventType._meta.get_field(field)
-#         except FieldDoesNotExist:
-#             continue
+#                 # 2. Extract and process the formset records from the JSON payload
+#                 # Adjust 'records' to match the exact key name you use to save your formset list
+#                 records_data = payload.get('records', [])
+                
+#                 for record in records_data:
+#                     # Case A: Record marked for deletion
+#                     if record.get('is_deleted'):
+#                         CensusRecord.objects.filter(
+#                             census=census, 
+#                             animal_type_id=record.get('animal_type_id')
+#                         ).delete()
+                    
+#                     # Case B: Update existing or create new record row
+#                     else:
+#                         animal_type_id = record.get('animal_type_id')
+#                         new_count = record.get('new_count', 0)
+                        
+#                         if animal_type_id:
+#                             CensusRecord.objects.update_or_create(
+#                                 census=census,
+#                                 animal_type_id=animal_type_id,
+#                                 defaults={'number_of_animals': new_count}
+#                             )
 
-#         # Handle foreign keys (Animal, AnimalType)
-#         if field_obj.is_relation:
-#             related_model = field_obj.related_model
-#             try:
-#                 value = related_model.objects.get(pk=value)
-#             except related_model.DoesNotExist:
-#                 continue
+#                 # Force recalculate totals via your model's built-in helper method
+#                 census.update_total()
+                
+#                 queue_item.approved = True
+#                 messages.success(request, f"Census changes for {census.animal.animal_name} successfully approved!")
 
-#         setattr(event, field, value)
+#             elif action == 'reject':
+#                 # Reverting pending flag so it can be edited or resubmitted later
+#                 census = queue_item.census
+#                 census.is_pending_review = False
+#                 census.save()
 
-#     event.is_approved = True
-#     event.save()
+#                 queue_item.approved = False
+#                 messages.warning(request, f"Census update request for {census.animal.animal_name} was rejected.")
 
-#     # Remove pending edit after approval
-#     pending_edit.delete()
+#             # Save historical notes if you choose to expand your schema, then mark processed
+#             queue_item.is_processed = True
+#             queue_item.save()
 
-#     messages.success(request, "Event edit approved and applied successfully!")
 #     return redirect('main:main_index')
+
+
+@login_required
+def approve_census_edit(request, edit_id):
+    # Only allow staff or superusers to process approvals
+    if not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, "You do not have permission to approve census changes.")
+        return redirect('main:main_index')
+
+    if request.method == "POST":
+        queue_item = get_object_or_404(CensusApprovalQueue, id=edit_id, is_processed=False)
+        action = request.POST.get('action')
+        admin_comment = request.POST.get('admin_comment', '').strip()
+
+        # Capture the vet (the user who requested the change) before saving
+        vet = queue_item.requested_by
+
+        with transaction.atomic():
+            if action == 'approve':
+                payload = queue_item.form_data_payload or {}
+                
+                # 1. Update the parent Census metadata if note or date changed
+                census = queue_item.census
+                if 'notes' in payload:
+                    census.notes = payload['notes']
+                if 'census_date' in payload:
+                    census.census_date = payload['census_date']
+                census.is_pending_review = False
+                census.save()
+
+                # 2. Extract and process the formset records from the JSON payload
+                # Adjust 'records' to match the exact key name you use to save your formset list
+                records_data = payload.get('records', [])
+                
+                for record in records_data:
+
+                    # Use 'animal_type' instead of 'animal_type_id' if that's what is in your JSON
+                    type_id = record.get('animal_type') or record.get('animal_type_id')
+
+                    # Case A: Record marked for deletion
+                    if record.get('is_deleted'):
+                        CensusRecord.objects.filter(
+                            census=census, 
+                            animal_type_id=type_id
+                        ).delete()
+                    
+                    # Case B: Update existing or create new record row
+                    else:
+                        # animal_type_id = record.get('animal_type_id')
+                        # new_count = record.get('new_count', 0)
+                        new_count = record.get('new_count') or record.get('number_of_animals')
+
+                        print(f"DEBUG: Processing record: {record}")
+                        
+                        if type_id:
+                            CensusRecord.objects.update_or_create(
+                                census=census,
+                                animal_type_id=type_id,
+                                defaults={'number_of_animals': new_count}
+                            )
+
+                # Force recalculate totals via your model's built-in helper method
+                census.update_total()
+                
+                queue_item.approved = True
+                messages.success(request, f"Census changes for {census.animal.animal_name} successfully approved!")
+
+            elif action == 'reject':
+                # Reverting pending flag so it can be edited or resubmitted later
+                census = queue_item.census
+                census.is_pending_review = False
+                census.save()
+
+                queue_item.approved = False
+                messages.warning(request, f"Census update request for {census.animal.animal_name} was rejected.")
+
+            # --- Email Logic ---
+            # subject = f"Census Update {action.title()}d: {queue_item.census.animal.animal_name}"
+
+            # Define the past tense mapping
+            status_map = {
+                'approve': 'Approved',
+                'reject': 'Rejected'
+            }
+
+            # Use the map to get the correct string
+            status_text = status_map.get(action, action.title())
+
+            # Use the mapped variable in your subject
+            subject = f"Census Update {status_text}: {queue_item.census.animal.animal_name}"
+            
+            # Prepare context for the email template
+            email_context = {
+                'vet_name': vet.username,
+                'animal_name': queue_item.census.animal.animal_name,
+                'status': status_text,
+                'admin_comment': admin_comment
+            }
+            
+            # Render the HTML content
+            email_body = render_to_string('emails/census_status_update.html', email_context)
+            
+            # Send the email
+            email = EmailMessage(
+                subject=subject,
+                body=email_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[vet.email],
+            )
+            email.content_subtype = "html"  # Crucial for HTML templates
+            email.send(fail_silently=True) # Set to False if you want to catch errors
+            
+            # --- End Email Logic ---
+
+            # Save historical notes if you choose to expand your schema, then mark processed
+            queue_item.is_processed = True
+            queue_item.save()
+
+    return redirect('main:main_index')
 
 
 @login_required
@@ -371,7 +666,7 @@ def drug_filter(request):
 
           # Query the filtered dispatches
           result = Drug.objects.filter(**filters).order_by('-entered_at')
-          print(result)
+        
 
           return render(request, 'main/filter-drug-list.html', {'drugs': result, 'drug_query': drug_query})
 
@@ -599,7 +894,7 @@ def admin_add_drug(request):
         return redirect('main:admin_add_drug')
 
       else:
-        # print("Form errors:", form.errors)
+       
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Handle AJAX errors
           return JsonResponse({"success": False, "message": "Error adding drug. Please check your input."})
@@ -633,127 +928,6 @@ def admin_dispatch_drug(request):
   return render(request, "main/admin-dispatch-drug.html", {"form": form})
 
 
-# def small_ruminant_records_admin(request):
-#   # Get only events related to sheep and goat
-#   records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat']).order_by('-created_at')
-#   context = {'records': records}
-#   return render(request, 'main/small-ruminant-records-admin.html', context)
-
-
-# def small_ruminant_records_admin(request):
-#   event_type = request.GET.get('event_type')
-#   start_date = request.GET.get('start_date')
-#   end_date = request.GET.get('end_date')
-
-#   records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-
-#   if event_type:
-#       records = records.filter(event_name=event_type)
-
-#   if start_date and end_date:
-#       records = records.filter(created_at__range=[start_date, end_date])
-#   elif start_date:
-#       records = records.filter(created_at__gte=start_date)
-#   elif end_date:
-#       records = records.filter(created_at__lte=end_date)
-
-#   event_types = EventType.objects.values_list('event_name', flat=True).distinct()
-
-#   context = {
-#       'records': records.order_by('-created_at'),
-#       'event_types': event_types,
-#       'selected_event': event_type,
-#   }
-#   return render(request, 'main/small-ruminant-records-admin.html', context)
-
-
-# def small_ruminant_records_admin(request):
-#     event_type = request.GET.get('event_type')
-#     start_date = request.GET.get('start_date')
-#     end_date = request.GET.get('end_date')
-
-#     # ----- Event Records -----
-#     records = EventType.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-
-#     if event_type:
-#         records = records.filter(event_name=event_type)
-
-#     if start_date and end_date:
-#         records = records.filter(created_at__range=[start_date, end_date])
-#     elif start_date:
-#         records = records.filter(created_at__gte=start_date)
-#     elif end_date:
-#         records = records.filter(created_at__lte=end_date)
-
-#     event_types = EventType.objects.values_list('event_name', flat=True).distinct()
-
-#     # ----- Census Records -----
-#     census_records = (
-#         Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-#         .order_by('-census_date')
-#     )
-
-#     # ----- Chart Data (Monthly Totals) -----
-#     census_data = (
-#         Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
-#         .annotate(month=TruncMonth('census_date'))
-#         .values('month')
-#         .annotate(total=Count('id'))
-#         .order_by('month')
-#     )
-
-#     census_months = [d['month'].strftime('%B %Y') for d in census_data]
-#     census_totals = [d['total'] for d in census_data]
-
-#     context = {
-#         'records': records.order_by('-created_at'),
-#         'event_types': event_types,
-#         'selected_event': event_type,
-#         'census_records': census_records,   # ✅ added this
-#         'census_months': census_months,
-#         'census_totals': census_totals,
-#     }
-#     return render(request, 'main/small-ruminant-records-admin.html', context)
-
-# def small_ruminant_stats(request):
-#   # ----- Census Data -----
-#   census_data = (
-#       Census.objects.filter(animal__animal_name__iexact='sheep')
-#       .annotate(month=TruncMonth('census_date'))
-#       .values('month')
-#       .annotate(total=Count('id'))
-#       .order_by('month')
-#   )
-
-#   census_labels = [calendar.month_name[d['month'].month] for d in census_data]
-#   census_values = [d['total'] for d in census_data]
-
-#   # ----- Event Data -----
-#   event_type = request.GET.get('type', 'mortality')
-#   event_data = (
-#       EventType.objects.filter(
-#           animal__animal_name__iexact='sheep',
-#           event_name__iexact=event_type
-#       )
-#       .annotate(month=TruncMonth('created_at'))
-#       .values('month')
-#       .annotate(total=Count('id'))
-#       .order_by('month')
-#   )
-
-
-#   event_labels = [calendar.month_name[d['month'].month] for d in event_data]
-#   event_values = [d['total'] for d in event_data]
-
-#   context = {
-#       'census_labels': census_labels,
-#       'census_values': census_values,
-#       'event_labels': event_labels,
-#       'event_values': event_values,
-#       'selected_type': event_type,
-#   }
-#   return render(request, 'main/small_ruminant_stats.html', context)
-
 @login_required
 def small_ruminant_stats(request):
     # ----- Census Data -----
@@ -780,7 +954,7 @@ def small_ruminant_stats(request):
         .annotate(total=Sum('number_of_animals'))  # ✅ sum event animals
         .order_by('month')
     )
-    print(event_data)
+  
 
     event_labels = [calendar.month_name[d['month'].month] for d in event_data]
     event_values = [d['total'] or 0 for d in event_data]
@@ -1125,3 +1299,99 @@ def admin_delete_event(request, pk):
 
     # If GET request, redirect back to event detail
     return redirect('main:admin_event_detail', pk=pk)
+
+@user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
+def delete_census_admin(request, pk):
+    census = get_object_or_404(Census, pk=pk)
+    if request.method == 'POST':
+        census.delete()
+        # Return JSON for your AJAX modal trigger
+        return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
+    return redirect('main:paddock_census_records_admin')
+
+# @login_required
+# @user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
+# def admin_edit_census(request, pk):
+#     census = get_object_or_404(Census, pk=pk)
+    
+#     if request.method == 'POST':
+#         form = CensusForm(request.POST, instance=census, user=request.user)
+#         formset = CensusRecordFormSet(request.POST, instance=census, user=request.user, prefix='records')
+
+#         if form.is_valid() and formset.is_valid():
+#             form.save()
+#             formset.save()
+#             census.update_total()
+#             return JsonResponse({'status': 'success', 'message': 'Census record updated successfully.'})
+
+#     # GET request
+#     form = CensusForm(instance=census, user=request.user)
+#     formset = CensusRecordFormSet(instance=census, user=request.user, prefix='records')
+
+#     existing_records = [
+#         {'id': r.id, 'typeId': r.animal_type.id, 'typeText': r.animal_type.animal_type_name, 'count': r.number_of_animals}
+#         for r in census.records.all()
+#     ]
+
+#     return render(request, 'main/admin_edit_census.html', {
+#         'form': form,
+#         'formset': formset,
+#         'is_edit': True,
+#         'census': census,
+#         'existing_records': existing_records
+#     })
+
+# @login_required
+# @user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
+# def admin_edit_census(request, pk):
+#     census = get_object_or_404(Census, pk=pk)
+    
+#     if request.method == 'POST':
+#         form = CensusForm(request.POST, instance=census, user=request.user)
+#         formset = CensusRecordFormSet(request.POST, instance=census, user=request.user, prefix='records')
+
+#         if form.is_valid() and formset.is_valid():
+#             # 1. Save the changes
+#             form.save()
+#             formset.save()
+#             census.update_total()
+            
+#             # 2. CLEAR PENDING STATUS
+#             # If the admin is editing, the record is no longer "pending review"
+#             if census.is_pending_review:
+#                 census.is_pending_review = False
+#                 census.save()
+                
+#                 # Also mark any associated approval requests as processed/resolved
+#                 CensusApprovalQueue.objects.filter(
+#                     census=census, 
+#                     is_processed=False
+#                 ).update(is_processed=True)
+            
+#             return JsonResponse({'status': 'success', 'message': 'Census record updated successfully.'})
+
+#     # GET request logic remains the same...
+#     form = CensusForm(instance=census, user=request.user)
+#     formset = CensusRecordFormSet(instance=census, user=request.user, prefix='records')
+#     print(
+#         "EMPTY FORM:",
+#         list(
+#             formset.empty_form.fields['animal_type']
+#             .queryset
+#             .values_list('animal_type_name', flat=True)
+#         )
+#     )
+
+#     existing_records = [
+#         {'id': r.id, 'typeId': r.animal_type.id, 'typeText': r.animal_type.animal_type_name, 'count': r.number_of_animals}
+#         for r in census.records.all()
+#     ]
+
+
+#     return render(request, 'main/admin_edit_census.html', {
+#         'form': form,
+#         'formset': formset,
+#         'is_edit': True,
+#         'census': census,
+#         'existing_records': existing_records
+#     })

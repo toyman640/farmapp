@@ -1,0 +1,9 @@
+<p>Hello {{ vet_name }},</p>
+
+<p>Your request to update the census for <strong>{{ animal_name }}</strong> has been <strong>{{ status }}</strong>.</p>
+
+{% if admin_comment %}
+<p><strong>Admin Comment:</strong> {{ admin_comment }}</p>
+{% endif %}
+
+<p>Thank you.</p>

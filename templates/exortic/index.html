@@ -1,0 +1,271 @@
+{% extends 'exortic/base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<div class="content-wrapper">
+  <div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'farmrecord:supervisor_index' %}">
+          Dashboard
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        Supervisor Dashboard
+      </li>
+    </ol>
+
+    <!-- Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert
+          {% if message.tags == 'success' %}
+            alert-success
+          {% elif message.tags == 'warning' %}
+            alert-warning
+          {% else %}
+            alert-info
+          {% endif %}
+        ">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="row mb-4">
+      <div class="col-md-6 mb-3">
+      <div class="census-card geese">
+        <h6>Geese</h6>
+        <h2 class="text-center">{{ geese_total }}</h2>
+       
+      </div>
+      </div>
+      <div class="col-md-6 mb-3">
+      <div class="census-card crocodile">
+        <h6>Crocodile</h6>
+        <h2 class="text-center">{{ crocodile_total }}</h2>
+       
+      </div>
+      </div>
+    </div>
+
+    <style>
+      .census-card.geese {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .census-card.crocodile {
+      background: linear-gradient(135deg, #134e5e, #71b280);
+      }
+    </style>
+
+    <!-- SUMMARY CARDS -->
+    <div class="row mb-4">
+
+      <!-- PIG -->
+      <div class="col-md-3 mb-3">
+        <div class="census-card pig">
+          <h6>Pigs</h6>
+          <h2>{{ pig_total }}</h2>
+          <small>
+            Latest Census:
+            {{ latest_pig.census_date }}
+          </small>
+        </div>
+      </div>
+
+      <!-- CATTLE -->
+      <div class="col-md-3 mb-3">
+        <div class="census-card cattle">
+          <h6>Cattle</h6>
+          <h2>{{ cattle_total }}</h2>
+          <small>
+            Latest Census:
+            {{ latest_cattle.census_date }}
+          </small>
+        </div>
+      </div>
+
+      <!-- SHEEP -->
+      <div class="col-md-3 mb-3">
+        <div class="census-card sheep">
+          <h6>Sheep</h6>
+          <h2>{{ sheep_total }}</h2>
+          <small>
+            Ram, Ewe, Lamb, Weaner
+          </small>
+        </div>
+      </div>
+
+      <!-- GOAT -->
+      <div class="col-md-3 mb-3">
+        <div class="census-card goat">
+          <h6>Goats</h6>
+          <h2>{{ goat_total }}</h2>
+          <small>
+            Buck, Doe, Kid, Weaner
+          </small>
+        </div>
+      </div>
+
+    </div>
+   
+
+    <!-- RECORDS -->
+    <div class="row">
+
+      <!-- PIG RECORDS -->
+      <div class="col-md-4 mb-4">
+        <div class="box_general padding_bottom">
+
+          <h5 class="mb-3">
+            Pig Census Records
+          </h5>
+
+          {% if latest_pig %}
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                  <th>Animal Type</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for record in latest_pig.records.all %}
+                  <tr>
+                    <td>{{ record.animal_type }}</td>
+                    <td>{{ record.number_of_animals }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p>No pig census records.</p>
+          {% endif %}
+
+        </div>
+      </div>
+
+      <!-- CATTLE RECORDS -->
+      <div class="col-md-4 mb-4">
+        <div class="box_general padding_bottom">
+
+          <h5 class="mb-3">
+            Cattle Census Records
+          </h5>
+
+          {% if latest_cattle %}
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                  <th>Animal Type</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for record in latest_cattle.records.all %}
+                  <tr>
+                    <td>{{ record.animal_type }}</td>
+                    <td>{{ record.number_of_animals }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p>No cattle census records.</p>
+          {% endif %}
+
+        </div>
+      </div>
+
+      <!-- SMALL RUMINANTS -->
+      <div class="col-md-4 mb-4">
+        <div class="box_general padding_bottom">
+
+          <h5 class="mb-3">
+            Sheep & Goat Records
+          </h5>
+
+          {% if latest_small_ruminant %}
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                  <th>Animal Type</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for record in latest_small_ruminant.records.all %}
+                  <tr>
+                    <td>{{ record.animal_type }}</td>
+                    <td>{{ record.number_of_animals }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p>No small ruminant records.</p>
+          {% endif %}
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<style>
+
+  .census-card {
+    border-radius: 16px;
+    padding: 24px;
+    color: #fff;
+    min-height: 150px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  }
+
+  .census-card h6 {
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .census-card h2 {
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .census-card small {
+    opacity: 0.9;
+  }
+
+  .census-card.pig {
+    background: linear-gradient(135deg, #ff758c, #ff7eb3);
+  }
+
+  .census-card.cattle {
+    background: linear-gradient(135deg, #2c3e50, #4b79a1);
+  }
+
+  .census-card.sheep {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+  }
+
+  .census-card.goat {
+    background: linear-gradient(135deg, #606c88, #3f4c6b);
+  }
+
+</style>
+
+
+{% endblock %}

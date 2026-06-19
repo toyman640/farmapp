@@ -66,6 +66,11 @@
                   {% if census.notes %}
                     <div class="mt-2"><strong>Notes:</strong> {{ census.notes }}</div>
                   {% endif %}
+                  <div class="d-flex justify-content-end mb-2">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ census.id }})">
+                      <i class="fa fa-trash"></i> Delete
+                    </button>
+                  </div>
                 </div>
               {% endfor %}
             </div>
@@ -78,6 +83,31 @@
       {% else %}
         <div class="alert alert-info">No census records found.</div>
       {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Confirm Deletion</h5></div>
+      <div class="modal-body">Are you sure you want to permanently delete this census record?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <form id="deleteForm" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4">
+      <h5 class="text-success" id="successMessage"></h5>
+      <button type="button" class="btn btn-primary mt-3" onclick="location.reload()">OK</button>
     </div>
   </div>
 </div>
@@ -129,6 +159,30 @@
         })
         .catch(() => loading = false);
     }
+  });
+  const deleteUrlBase = "{% url 'main:delete_census_admin' 0 %}";
+
+  function confirmDelete(id) {
+    const form = document.getElementById('deleteForm');
+    form.action = deleteUrlBase.replace('0', id);
+    $('#deleteModal').modal('show');
+  }
+
+  document.getElementById('deleteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    fetch(this.action, { 
+        method: 'POST', 
+        headers: {'X-CSRFToken': '{{ csrf_token }}'} 
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success') {
+            $('#deleteModal').modal('hide');
+            document.getElementById('successMessage').textContent = data.message;
+            $('#successModal').modal('show');
+        }
+    })
+    .catch(err => console.error("Deletion failed:", err));
   });
 </script>
 

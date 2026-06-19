@@ -1,0 +1,249 @@
+{% extends 'exortic/base.html' %}
+
+{% load static %}
+<!Doctype html>
+{% block title %}Exotic Animal Census Records{% endblock %}
+
+{% block content %}
+
+<div class="content-wrapper">
+  <div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'farmrecord:supervisor_index' %}">
+          Dashboard
+        </a>
+      </li>
+
+      <li class="breadcrumb-item active">
+        Exotic Animal Census Records
+      </li>
+    </ol>
+
+    <!-- SUMMARY -->
+    <div class="row mb-4">
+
+      <div class="col-md-6 mb-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body text-center">
+            <h5>Geese</h5>
+            <h2>{{ geese_total }}</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <div class="card shadow-sm border-0">
+          <div class="card-body text-center">
+            <h5>Crocodiles</h5>
+            <h2>{{ crocodile_total }}</h2>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RECORDS -->
+    <div class="box_general padding_bottom">
+
+     
+
+      <div class="table-responsive">
+        <div class="row mb-3">
+
+          <div class="col-md-3 mb-2">
+
+              <select
+                  id="animal-type"
+                  class="form-control"
+              >
+                  <option value="">All Animals</option>
+
+                  <option
+                      value="geese"
+                      {% if animal_type == 'geese' %}selected{% endif %}
+                  >
+                      Geese
+                  </option>
+
+                  <option
+                      value="crocodile"
+                      {% if animal_type == 'crocodile' %}selected{% endif %}
+                  >
+                      Crocodile
+                  </option>
+
+              </select>
+
+          </div>
+
+          <div class="col-md-3 mb-2">
+
+              <input
+                  type="date"
+                  id="start-date"
+                  class="form-control"
+                  value="{{ start_date }}"
+              >
+
+          </div>
+
+          <div class="col-md-3 mb-2">
+
+              <input
+                  type="date"
+                  id="end-date"
+                  class="form-control"
+                  value="{{ end_date }}"
+              >
+
+          </div>
+
+          <div class="col-md-3 mb-2">
+
+              <div class="d-flex">
+
+                  <button
+                      type="button"
+                      id="filter-button"
+                      class="btn btn-primary mr-2 flex-fill"
+                  >
+                      Filter
+                  </button>
+
+                  <button
+                      type="button"
+                      id="reset-button"
+                      class="btn btn-secondary flex-fill"
+                  >
+                      Reset
+                  </button>
+
+              </div>
+
+          </div>
+
+        </div>
+        <table class="table table-bordered table-striped">
+
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Animal</th>
+              <th>Total Animals</th>
+              <th>Census Date</th>
+              <th>Notes</th>
+              <th width="180">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="record-table-body">
+
+              {% include 'exortic/partials/exotic_animal_rows.html' %}
+
+          </tbody>
+
+        </table>
+        <div
+          id="loading-spinner"
+          class="text-center my-3"
+          style="display:none;"
+        >
+            Loading records...
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div
+  class="modal fade" id="recordModal"
+  tabindex="-1"
+  role="dialog"
+>
+
+  <div class="modal-dialog modal-dialog-centered" role="document">
+
+    <div class="modal-content">
+
+      <div class="modal-header bg-primary text-white">
+
+        <h5 class="modal-title">
+          Census Record Details
+        </h5>
+
+        <button
+          type="button"
+          class="close text-white"
+          data-dismiss="modal"
+        >
+          <span>&times;</span>
+        </button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <table class="table table-bordered">
+
+          <tr>
+            <th>Animal</th>
+            <td id="modal-animal"> </td>
+          </tr>
+
+          <tr>
+            <th>Total Animals</th>
+            <td id="modal-total"></td>
+          </tr>
+
+          <tr>
+            <th>Census Date</th>
+            <td id="modal-date"></td>
+          </tr>
+
+          <tr>
+            <th>Notes</th>
+            <td>
+              <div id="modal-notes" class="notes-box"></div>
+            </td>
+          </tr>
+
+          <tr>
+            <th>Created At</th>
+            <td id="modal-created"></td>
+          </tr>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+  #modal-notes {
+    max-height: 150px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .notes-box {
+    max-height: 180px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+</style>
+
+
+{% endblock %}

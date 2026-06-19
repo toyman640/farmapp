@@ -1,0 +1,88 @@
+{% extends 'exortic/base.html' %}
+{% load static %}
+
+{% block title %}Add Census Record{% endblock %}
+
+{% block content %}
+
+<div class="content-wrapper">
+  <div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'farmrecord:supervisor_index' %}">
+          Dashboard
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        Add Census Record
+      </li>
+    </ol>
+
+    <!-- Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert
+          {% if message.tags == 'success' %}
+            alert-success
+          {% elif message.tags == 'warning' %}
+            alert-warning
+          {% else %}
+            alert-info
+          {% endif %}
+        ">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="row justify-content-center">
+
+      <div class="col-md-6">
+
+        <div class="box_general padding_bottom">
+
+          <h4 class="mb-4">
+            Add Census Record
+          </h4>
+
+          <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-group">
+              <label>Animal</label>
+              {{ form.animal_name }}
+            </div>
+
+            <div class="form-group">
+              <label>Census Date</label>
+              {{ form.census_date }}
+            </div>
+
+            <div class="form-group">
+              <label>Total Animals</label>
+              {{ form.total_animals }}
+            </div>
+
+            <div class="form-group">
+              <label>Notes</label>
+              {{ form.notes }}
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              Save Record
+            </button>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

@@ -6,12 +6,33 @@
 
   <div class="col col-event">
     <span class="event-badge
-      {% if event.event_name == 'mortality' %}mortality
-      {% elif event.event_name == 'culling' %}culling
-      {% elif event.event_name in 'farrowing calving lambing kidding' %}birthing
-      {% elif event.event_name == 'procurement' %}procurement
-      {% elif event.event_name == 'sale' %}sale
-      {% else %}default{% endif %}
+      {% if event.event_name == 'mortality' %}
+          mortality
+
+      {% elif event.event_name == 'culling' %}
+          culling
+
+      {% elif event.event_name == 'procurement' %}
+          procurement
+
+      {% elif event.event_name == 'sale' %}
+          sale
+
+      {% elif event.event_name == 'treatment' %}
+          treatment
+
+      {% elif event.event_name == 'vaccination' %}
+          vaccination
+
+      {% elif event.event_name == 'gift' %}
+          gift
+
+      {% elif event.event_name == 'farrowing' or event.event_name == 'calving' or event.event_name == 'lambing' or event.event_name == 'kidding' %}
+          birthing
+
+      {% else %}
+          default
+      {% endif %}
     ">
       {{ event.get_event_name_display }}
     </span>

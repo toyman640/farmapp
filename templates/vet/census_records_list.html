@@ -1,34 +1,43 @@
 {% regroup censuses by census_date|date:"F Y" as month_list %}
 {% for month in month_list %}
   <div class="mb-5">
-    <h5 class="bg-light text-primary px-3 py-2 rounded border fw-semibold">{{ month.grouper }}</h5>
+    <h5 class="bg-primary text-white px-3 py-2 rounded border fw-semibold">{{ month.grouper }}</h5>
     {% for census in month.list %}
-      <div class="border rounded p-3 mb-3 bg-light">
-        <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <div class="border rounded p-4 mb-4 bg-white shadow-sm">
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 pb-3 border-bottom">
           <div><strong>Date:</strong> {{ census.census_date|date:"d M Y" }}</div>
-          <div><strong>Animal:</strong> {{ census.animal }}</div>
-          <div><strong>Total:</strong> {{ census.total_animals }}</div>
+          
+          <div class="fs-4"><strong>Total:</strong> <span class="text-primary fw-bold" style="font-size: 1.5rem;">{{ census.total_animals }}</span></div>
         </div>
         {% if census.records.all %}
-          <div class="row mt-3">
+          <div class="row mt-4">
             {% for record in census.records.all %}
               <div class="col-md-4 mb-3">
-                <div class="card shadow-sm border-0 h-100">
+                <div class="card shadow-sm border-0 h-100 bg-gradient">
                   <div class="card-body text-center">
-                    <h6 class="fw-semibold text-primary mb-1">{{ record.animal_type }}</h6>
-                    <p class="mb-0"><strong>{{ record.number_of_animals }}</strong> animals</p>
-                    <i class="fa fa-paw text-secondary fs-5 mt-2"></i>
+                    <h6 class="fw-semibold text-primary mb-3">{{ record.animal_type }}</h6>
+                    <div class="fs-2 fw-bold text-success mb-2">{{ record.number_of_animals }}</div>
+                    <p class="mb-0 text-muted small">animals</p>
                   </div>
                 </div>
               </div>
             {% endfor %}
           </div>
         {% else %}
-          <p class="text-muted mt-2">No detailed records available.</p>
+          <p class="text-muted mt-3">No detailed records available.</p>
         {% endif %}
         {% if census.notes %}
-          <div class="mt-2"><strong>Notes:</strong> {{ census.notes }}</div>
+          <div class="mt-4 pt-3 border-top"><strong>Notes:</strong> <span class="text-muted">{{ census.notes }}</span></div>
         {% endif %}
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 border-top mt-4 pt-3"> 
+          <div></div>
+          <a
+            href="{% url 'veterinary:edit_census' census.id %}"
+            class="btn btn-sm btn-warning"
+          >
+            Edit
+          </a>
+        </div>
       </div>
     {% endfor %}
   </div>

@@ -11,7 +11,7 @@
     </ol>
 
     <div class="box_general p-4 bg-white shadow-sm rounded">
-      <h4 class="text-primary mb-3">🐄 Paddock Census Records</h4>
+      <h4 class="text-primary mb-3">🐄 Paddock Census Records 1</h4>
 
       <!-- Filter Section -->
       <form method="get" class="filters-section row g-3 mb-4">
@@ -54,7 +54,7 @@
                             <div class="card-body text-center">
                               <h6 class="fw-semibold text-primary mb-1">{{ record.animal_type }}</h6>
                               <p class="mb-0"><strong>{{ record.number_of_animals }}</strong> animals</p>
-                              <i class="fa fa-paw text-secondary fs-5 mt-2"></i>
+                              <i class="fa fa-pig text-secondary fs-5 mt-2"></i>
                             </div>
                           </div>
                         </div>
@@ -66,6 +66,12 @@
                   {% if census.notes %}
                     <div class="mt-2"><strong>Notes:</strong> {{ census.notes }}</div>
                   {% endif %}
+                  <div class="d-flex justify-content-end mb-2">
+                   
+                    <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ census.id }})">
+                      <i class="fa fa-trash"></i> Delete
+                    </button>
+                </div>
                 </div>
               {% endfor %}
             </div>
@@ -81,6 +87,38 @@
     </div>
   </div>
 </div>
+
+<!-- Delete census modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Deletion</h5>
+      </div>
+      <div class="modal-body">Are you sure you want to permanently delete this census record?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <form id="deleteForm" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center p-4">
+        <h5 class="text-success" id="successMessage"></h5>
+        <button type="button" class="btn btn-primary mt-3" onclick="location.reload()">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <script>
   // Prevent future dates
@@ -129,6 +167,29 @@
         })
         .catch(() => loading = false);
     }
+  });
+
+  const deleteUrlBase = "{% url 'main:delete_census_admin' 0 %}";
+
+  function confirmDelete(id) {
+    const form = document.getElementById('deleteForm');
+   
+    form.action = deleteUrlBase.replace('0', id);
+    $('#deleteModal').modal('show');
+  }
+
+  // Add event listener to delete form to handle AJAX success
+  document.getElementById('deleteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    fetch(this.action, { method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'} })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success') {
+            $('#deleteModal').modal('hide');
+            document.getElementById('successMessage').textContent = data.message;
+            $('#successModal').modal('show');
+        }
+    });
   });
 </script>
 

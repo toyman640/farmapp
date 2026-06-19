@@ -40,24 +40,29 @@ class AnimalType(models.Model):
     ANIMAL_TYPE_CHOICES = [
         ('sow', 'Sow'),
         ('boar', 'Boar'),
-        ('weaner(pig)', 'Weaner(Pig)'),
+        ('weaner (pig)', 'Weaner (Pig)'),
         ('piglet', 'Piglet'),
         ('cow', 'Cow'),
         ('bull', 'Bull'),
-        ('weaner(cattle)', 'Weaner(Cattle)'),
+        ('gilt', 'Gilt'),
+        ('hog', 'Hog'),
+        ('weaner (cattle)', 'Weaner (Cattle)'),
         ('calf', 'Calf'),
         ('ewe', 'Ewe'),
         ('ram', 'Ram'),
-        ('weaner(sheep)', 'Weaner(Sheep)'),
+        ('weaner (sheep)', 'Weaner (Sheep)'),
         ('lamb', 'Lamb'),
         ('buck', 'Buck'),
         ('doe', 'Doe'),
-        ('weaner(goat)', 'Weaner(Goat)'),
+        ('weaner (goat)', 'Weaner (Goat)'),
         ('kid', 'Kid'),
     ]
     animal = models.ForeignKey(Animals, on_delete=models.CASCADE, related_name="animal_types")
     animal_type_name = models.CharField(max_length=30, choices=ANIMAL_TYPE_CHOICES, unique=True)
     animal_type_description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['animal_type_name']  # alphabetical
 
     def __str__(self):
         return self.animal_type_name
@@ -72,17 +77,20 @@ class EventType(models.Model):
         ('procurement', 'Procurement'),
         ('culling', 'Culling'),
         ('sale', 'Sale'),
+        ('treatment', 'Treatment'),
+        ('vaccination', 'Vaccination'),
+        ('gift', 'Gift'),
     ]
 
     # 🔹 Piggery Locations: Line + Block (A–Z)
-    PIGGERY_LINES = [f"Line {i}" for i in range(1, 10)]
+    PIGGERY_LINES = [f"Line {i}" for i in range(1, 10)] + [ "Denmark 1", "Denmark 2",]
     PIGGERY_BLOCKS = [f"Block {chr(j)}" for j in range(65, 91)]  # A–Z
     PIGGERY_PENS = [f"Pen {i}" for i in range(1, 101)]  # 1–100
 
     PADDOCK_LOCATIONS = [(f"Paddock {i}", f"Paddock {i}") for i in range(1, 9)] + [
-        ('Isolation', 'Isolation')
+        ('Isolation', 'Isolation'), ('General Heard', 'General Heard')
     ]
-    SMALL_RUMINANT_LOCATIONS = [(f"Ewe {i}", f"Ewe {i}") for i in range(1, 6)]
+    SMALL_RUMINANT_LOCATIONS = [(f"Pen {i}", f"Pen {i}") for i in range(1, 11)]
 
     LOCATION_CHOICES = {
         'cattle': PADDOCK_LOCATIONS,
@@ -166,6 +174,9 @@ class Census(models.Model):
     total_animals = models.PositiveIntegerField(default=0, editable=False)
     notes = models.TextField(null=True, blank=True)
 
+    # Add this missing line right here:
+    is_pending_review = models.BooleanField(default=False)
+
     def __str__(self):
         return f"Census for {self.animal} on {self.census_date}"
 
@@ -187,3 +198,50 @@ class CensusRecord(models.Model):
 @receiver([post_save, post_delete], sender=CensusRecord)
 def update_census_total(sender, instance, **kwargs):
     instance.census.update_total()
+
+
+
+class CensusApprovalQueue(models.Model):
+    census = models.ForeignKey(Census, on_delete=models.CASCADE, related_name='pending_changes')
+    requested_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # Change 'help_with' to 'help_text' right here:
+    form_data_payload = models.JSONField(help_text="Serialized form & formset data fields")
+
+    # request_note = models.TextField(null=True, blank=True)
+    request_note = models.TextField(null=True, blank=True, verbose_name="Vet's Request Note")
+    admin_comment = models.TextField(null=True, blank=True, verbose_name="Admin's Feedback Note")
+    
+    is_processed = models.BooleanField(default=False)
+    approved = models.BooleanField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Pending edit for {self.census} by {self.requested_by}"
+
+class ExoticAnimalCensus(models.Model):
+
+    ANIMAL_CHOICES = [
+        ('geese', 'Geese'),
+        ('crocodile', 'Crocodile'),
+    ]
+
+    animal_name = models.CharField(max_length=20,choices=ANIMAL_CHOICES)
+
+    census_date = models.DateField(default=timezone.now)
+
+    total_animals = models.PositiveIntegerField()
+
+    notes = models.TextField(null=True,blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-census_date']
+        verbose_name = "Exotic Animal Census"
+        verbose_name_plural = "Exotic Animal Census Records"
+
+    def __str__(self):
+        return f"{self.get_animal_name_display()} Census - {self.census_date}"

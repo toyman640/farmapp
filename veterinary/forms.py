@@ -83,13 +83,13 @@ class EventForm(forms.ModelForm):
                 self.fields['animal_type'].queryset = AnimalType.objects.filter(animal=animal_obj)
 
             section_events = {
-                'pig': [('mortality', 'Mortality'), ('farrowing', 'Farrowing'),
-                        ('procurement', 'Procurement'), ('culling', 'Culling'), ('sale', 'Sale')],
-                'cattle': [('mortality', 'Mortality'), ('calving', 'Calving'),
-                           ('procurement', 'Procurement'), ('culling', 'Culling'), ('sale', 'Sale')],
-                'sheep': [('mortality', 'Mortality'), ('lambing', 'Lambing'),
-                          ('kidding', 'Kidding'), ('procurement', 'Procurement'),
-                          ('culling', 'Culling'), ('sale', 'Sale')],
+                'pig': [('culling', 'Culling'), ('farrowing', 'Farrowing'),
+                        ('gift', 'Gift'), ('mortality', 'Mortality'), ('procurement', 'Procurement'), ('sale', 'Sale'), ('treatment', 'Treatment')],
+                'cattle': [('calving', 'Calving'), ('culling', 'Culling'),
+                           ('gift', 'Gift'), ('mortality', 'Mortality'), ('procurement', 'Procurement'), ('sale', 'Sale'), ('treatment', 'Treatment'), ('vaccination', 'Vaccination')],
+                'sheep': [('culling', 'Culling'), ('gift', 'Gift'), ('kidding', 'Kidding'),
+                          ('lambing', 'Lambing'), ('mortality', 'Mortality'), ('procurement', 'Procurement'),
+                          ('sale', 'Sale'), ('treatment', 'Treatment'), ('vaccination', 'Vaccination')],
             }
 
             self.fields['event_name'].choices = [('', '--- Select Event ---')] + section_events.get(vet_section, [])
@@ -152,37 +152,28 @@ class CensusRecordForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        
 
         # Filter animal types by vet section
         if user:
             if getattr(user.profile, 'is_vet_piggery', False):
                 self.fields['animal_type'].queryset = AnimalType.objects.filter(
                     animal__animal_name__iexact='pig',
-                    animal_type_name__in=['boar', 'sow', 'weaner(pig)', 'piglet']
+                    animal_type_name__in=['boar', 'sow', 'weaner (pig)', 'piglet']
                 )
             elif getattr(user.profile, 'is_vet_paddock', False):
                 self.fields['animal_type'].queryset = AnimalType.objects.filter(
                     animal__animal_name__iexact='cattle',
-                    animal_type_name__in=['bull', 'cow', 'weaner(cattle)', 'calf']
+                    animal_type_name__in=['bull', 'cow', 'weaner (cattle)', 'calf']
                 )
             elif getattr(user.profile, 'is_vet_smallruminant', False):
                 self.fields['animal_type'].queryset = AnimalType.objects.filter(
                     animal__animal_name__in=['sheep', 'goat'],
-                    animal_type_name__in=['ram', 'ewe', 'weaner(sheep)', 'lamb', 'buck', 'doe', 'weaner(goat)', 'kid']
+                    animal_type_name__in=['ram', 'ewe', 'weaner (sheep)', 'lamb', 'buck', 'doe', 'weaner (goat)', 'kid']
                 )
             else:
                 self.fields['animal_type'].queryset = AnimalType.objects.none()
 
-
-# ✅ Custom inline formset that accepts user
-# class BaseCensusRecordFormSet(BaseInlineFormSet):
-#     def __init__(self, *args, **kwargs):
-#         self.user = kwargs.pop('user', None)
-#         super().__init__(*args, **kwargs)
-
-#     def _construct_form(self, i, **kwargs):
-#         kwargs['user'] = self.user
-#         return super()._construct_form(i, **kwargs)
 
 class BaseCensusRecordFormSet(BaseInlineFormSet):
     def __init__(self, *args, **kwargs):

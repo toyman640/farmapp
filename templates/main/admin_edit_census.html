@@ -1,0 +1,369 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Edit Census{% endblock %}
+
+{% block content %}
+<div class="content-wrapper census-page">
+  <div class="container-fluid">
+    <div class="p-4 shadow-sm rounded bg-white">
+      <h4 class="text-primary mb-3">Admin: Edit Census Record</h4>
+
+      <form method="post" id="census-form" action="{% url 'main:admin_edit_census' census.pk %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {{ formset.management_form }}
+
+        <div class="row mb-3">
+          <div class="col-md-5">
+            <label>Animal Type</label>
+            <select id="animalTypeSelect" class="form-control">
+              <option value="">--- Select ---</option>
+              {% for opt in formset.empty_form.fields.animal_type.queryset %}
+                <option value="{{ opt.id }}">{{ opt.animal_type_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-5">
+            <label>Number</label>
+            <input type="number" id="animalCountInput" class="form-control">
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="button" id="addRecordBtn" class="btn btn-success w-100">Add</button>
+          </div>
+        </div>
+
+        <div id="recordsContainer" class="mb-3"></div>
+
+        <div class="text-end">
+          <button type="submit" class="btn btn-primary px-4">Update Census</button>
+          <a id="cancelBtn" href="{% url 'main:paddock_census_records_admin' %}" class="btn btn-secondary px-4">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="successRedirectModal" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center p-4">
+      <div class="modal-body">
+        <h4 class="modal-title mb-2" id="modalMessageText"></h4>
+        <p class="text-muted small">Redirecting to records in <span id="countdownTimer">3</span> seconds...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ existing_records|json_script:"existing-records" }}
+
+<script>
+  const censusForm = document.getElementById("census-form");
+
+  censusForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const formData = new FormData(censusForm);
+
+    fetch(censusForm.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        document.getElementById("modalMessageText").textContent = data.message;
+        $('#successRedirectModal').modal('show');
+
+        const targetUrl = document.getElementById("cancelBtn").getAttribute("href");
+        let timeLeft = 3;
+        const countdownTimer = document.getElementById("countdownTimer");
+        
+        const interval = setInterval(() => {
+          timeLeft -= 1;
+          countdownTimer.textContent = timeLeft;
+          if (timeLeft <= 0) {
+            clearInterval(interval);
+            window.location.href = targetUrl;
+          }
+        }, 1000);
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+      
+
+      const select = document.getElementById("animalTypeSelect");
+      const input = document.getElementById("animalCountInput");
+      const addBtn = document.getElementById("addRecordBtn");
+      const container = document.getElementById("recordsContainer");
+      const totalForms = document.querySelector('[name="records-TOTAL_FORMS"]');
+
+      // -------------------------
+      // INITIAL RECORDS
+      // -------------------------
+      let records = JSON.parse(
+          document.getElementById("existing-records").textContent
+      ).map(r => ({
+          id: r.id || null,
+          typeId: String(r.typeId),
+          typeText: r.typeText,
+          count: r.count,
+          _deleted: false
+      }));
+
+      // -------------------------
+      // MASTER OPTION LIST
+      // -------------------------
+      const masterOptions = [];
+      
+      // Select the hidden/original source of truth
+      const selectElement = document.getElementById("animalTypeSelect");
+      
+      // Store ALL options present in the HTML template initially
+      Array.from(selectElement.options).forEach(opt => {
+          if (opt.value) { // Ignore the "--- Select ---" placeholder
+              masterOptions.push({
+                  value: String(opt.value),
+                  text: opt.text
+              });
+          }
+      });
+
+      
+
+      // -------------------------
+      // RENDER RECORDS
+      // -------------------------
+      function renderRecords() {
+
+          container.innerHTML = "";
+
+          records.forEach((rec, index) => {
+
+              if (rec._deleted) return;
+
+              const row = document.createElement("div");
+
+              row.className =
+                  "d-flex justify-content-between align-items-center border p-3 mb-2 rounded";
+
+              row.innerHTML = `
+                  <div>
+                      <strong>${rec.typeText}</strong> — ${rec.count}
+                  </div>
+
+                  <button
+                      type="button"
+                      class="btn btn-danger btn-sm"
+                      onclick="deleteRecord(${index})">
+                      Delete
+                  </button>
+              `;
+
+              container.appendChild(row);
+          });
+
+          rebuildFormset();
+      }
+
+      // -------------------------
+      // REBUILD FORMSET
+      // -------------------------
+      function rebuildFormset() {
+
+          document.querySelectorAll(".hidden-formset")
+              .forEach(el => el.remove());
+
+          records.forEach((rec, i) => {
+
+              const wrapper = document.createElement("div");
+
+              wrapper.classList.add(
+                  "hidden-formset",
+                  "d-none"
+              );
+
+              wrapper.innerHTML = `
+                  <input type="hidden"
+                        name="records-${i}-id"
+                        value="${rec.id || ''}">
+
+                  <input type="hidden"
+                        name="records-${i}-animal_type"
+                        value="${rec.typeId}">
+
+                  <input type="hidden"
+                        name="records-${i}-number_of_animals"
+                        value="${rec.count}">
+
+                  <input type="hidden"
+                        name="records-${i}-DELETE"
+                        value="${rec._deleted ? 'on' : ''}">
+              `;
+
+              censusForm.appendChild(wrapper);
+          });
+
+          totalForms.value = records.length;
+      }
+
+      // -------------------------
+      // UPDATE SELECT OPTIONS
+      // -------------------------
+      function updateSelectOptions() {
+
+          const currentValue = select.value;
+
+          const activeIds = records
+              .filter(r => !r._deleted)
+              .map(r => String(r.typeId));
+
+          console.log("Active IDs:", activeIds);
+          console.log("Records:", records);
+
+          select.innerHTML =
+              '<option value="">--- Select ---</option>';
+
+          masterOptions.forEach(opt => {
+
+              if (!activeIds.includes(String(opt.value))) {
+
+                  const option =
+                      document.createElement("option");
+
+                  option.value = opt.value;
+                  option.textContent = opt.text;
+
+                  select.appendChild(option);
+              }
+          });
+
+          if (
+              [...select.options]
+              .some(o => o.value === currentValue)
+          ) {
+              select.value = currentValue;
+          }
+      }
+
+      // -------------------------
+      // DELETE RECORD
+      // -------------------------
+      // window.deleteRecord = function(index) {
+
+      //     const record = records[index];
+
+      //     if (!record) return;
+
+          
+      //     record._deleted = true;
+
+      //     renderRecords();
+      //     updateSelectOptions();
+      // };
+      window.deleteRecord = function(index) {
+
+        const record = records[index];
+
+        if (!record) return;
+
+        record._deleted = true;
+
+        console.log("Deleted:", record.typeText);
+
+        renderRecords();
+        updateSelectOptions();
+
+        console.log(
+            [...select.options].map(o => ({
+                value: o.value,
+                text: o.text
+            }))
+        );
+      };
+
+      // -------------------------
+      // ADD RECORD
+      // -------------------------
+      addBtn.addEventListener("click", () => {
+
+          const typeId = String(select.value);
+          const count = input.value.trim();
+
+          if (!typeId || !count) {
+              alert(
+                  "Select animal type and enter number."
+              );
+              return;
+          }
+
+          const typeText =
+              select.options[
+                  select.selectedIndex
+              ].text;
+
+          // Active record already exists?
+          const existingActive =
+              records.find(
+                  r =>
+                      String(r.typeId) === typeId &&
+                      !r._deleted
+              );
+
+          if (existingActive) {
+              alert(
+                  "This animal type has already been added."
+              );
+              return;
+          }
+
+          // Previously deleted record?
+          const deletedRecord =
+              records.find(
+                  r =>
+                      String(r.typeId) === typeId &&
+                      r._deleted
+              );
+
+          if (deletedRecord) {
+
+              deletedRecord._deleted = false;
+              deletedRecord.count = count;
+
+          } else {
+
+              records.push({
+                  id: null,
+                  typeId: typeId,
+                  typeText: typeText,
+                  count: count,
+                  _deleted: false
+              });
+
+          }
+
+          renderRecords();
+          updateSelectOptions();
+
+          select.value = "";
+          input.value = "";
+          select.focus();
+      });
+
+      // -------------------------
+      // INITIALIZE
+      // -------------------------
+      renderRecords();
+      updateSelectOptions();
+
+  });
+</script>
+{% endblock %}
+
+
+

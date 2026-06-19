@@ -1,7 +1,5 @@
 {% extends 'vet/base.html' %}
 {% load crispy_forms_tags %}
-
-
 {% load static %}
 <!Doctype html>
 {% block title %}
@@ -9,100 +7,539 @@
 {% endblock %}
 
 {% block content %}
-  <!-- Navigation-->
-  
-  <!-- /Navigation-->
-  <div class="content-wrapper">
-    <div class="container-fluid">
-      <!-- Breadcrumbs-->
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
-      </ol>
-	  <!-- Icon Cards-->
-      <div class="row">
-        
-        
-		</div>
-   
-    <!-- <div class="box_general padding_bottom">
-      <h4 class="text-center">Vet Dashboard</h4>
-			
-		</div> -->
-    <style>
-  .stat-card {
-    color: white;
-    text-align: center;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-  }
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <!-- Breadcrumbs-->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+      <li class="breadcrumb-item active">My Dashboard</li>
+    </ol>
 
-  .stat-card p {
-    margin-bottom: 8px;
-    opacity: 0.9;
-  }
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert
+            {% if message.tags == 'success' %}alert-success
+            {% elif message.tags == 'warning' %}alert-warning
+            {% elif message.tags == 'error' %}alert-danger
+            {% else %}alert-info{% endif %}
+            alert-dismissible fade show auto-dismiss-alert"
+            role="alert">
 
-  .stat-card h3 {
-    margin: 0;
-    font-weight: bold;
-  }
+            {{ message }}
 
-  .stat-card.color-1 { background-color: #fc4017; }
-  .stat-card.color-2 { background-color: #00a54f; }
-  .stat-card.color-3 { background-color: #a3cd38; }
-  .stat-card.color-4 { background-color: #f8741f; }
-  .stat-card.color-5 { background-color: #ef1e19; }
-  .stat-card.color-6 { background-color: #fdc90d; color: #000; }
-  .stat-card.color-7 { background-color: #fff79a; color: #000; }
-  .stat-card.color-8 { background-color: #76bf51; }
-</style>
-
-<div class="row g-3 mb-4">
-
-  {% for census in census_list %}
-  <div class="col-12">
-    <div class="box_general padding_bottom">
-
-      <h5 class="mb-3 fw-bold">
-        <i class="fa fa-bar-chart-o"></i>
-        {{ census.animal.animal_name|title }} — {{ census.census_date }}
-      </h5>
-
-      <div class="mb-3 p-2 rounded" style="background: rgba(255,255,255,0.2);">
-        <strong>Total Animals:</strong> {{ census.total_animals }}
-      </div>
-
-      {% if census.records.exists %}
-      <div class="row g-3">
-
-        {% for record in census.records.all|slice:":8" %}
-        <div class="col-md-3 col-sm-6 mb-3">
-          <div class="stat-card color-{{ forloop.counter }}" style="min-height: 150px; padding: 20%;">
-            <p>{{ record.animal_type.animal_type_name }}</p>
-            <h3 class="count-up">{{ record.number_of_animals }}</h3>
-          </div>
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
         </div>
         {% endfor %}
+    </div>
+    {% endif %}
 
+    <style>
+      .stat-card {
+        color: white;
+        text-align: center;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        padding: 25px 15px;
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: default;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .stat-card p {
+        margin-bottom: 10px;
+        opacity: 0.95;
+        font-size: 0.95rem;
+      }
+
+      .stat-card h3 {
+        margin: 10px 0 0;
+        font-weight: 700;
+        font-size: 2rem;
+      }
+
+      .stat-card.color-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+      .stat-card.color-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+      .stat-card.color-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+      .stat-card.color-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+      .stat-card.color-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+      .stat-card.color-6 { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+      .stat-card.color-7 { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+      .stat-card.color-8 { background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%); }
+      .stat-card.color-9 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
+      .box_general {
+        border-radius: 12px;
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: box-shadow 0.3s;
+      }
+
+      .box_general:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      }
+
+      .header_box {
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 15px;
+      }
+
+      .header_box h2 {
+        color: #2c3e50;
+        font-weight: 600;
+      }
+
+      table thead {
+        background-color: #34495e;
+        color: white;
+      }
+
+      table tbody tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      .badge {
+        padding: 6px 12px;
+        font-weight: 500;
+        border-radius: 20px;
+      }
+
+      .alert {
+        border-radius: 8px;
+        border-left: 4px solid;
+      }
+
+      .alert-success {
+        border-left-color: #00a54f;
+        background-color: #f0fdf4;
+      }
+
+      .alert-info {
+        border-left-color: #3498db;
+        background-color: #eff6ff;
+      }
+
+      .alert-light {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+      }
+    </style>
+
+    <!-- Census Section -->
+    <div class="row g-3 mb-4">
+      {% for census in census_list %}
+      <div class="col-12">
+        <div class="box_general padding_bottom">
+          <h5 class="mb-3 fw-bold">
+            <i class="fa fa-bar-chart-o text-primary"></i>
+            {{ census.animal.animal_name|title }} — {{ census.census_date }}
+          </h5>
+
+            <div class="mb-3 p-3 rounded bg-light">
+            <strong>Total Animals:</strong> <span class="text-primary fw-bold" style="font-size: 1.25rem;">{{ census.total_animals }}</span>
+            </div>
+
+          {% if census.records.exists %}
+          <div class="row g-3">
+            {% for record in census.records.all|slice:":8" %}
+            <div class="col-md-3 col-sm-6 mb-3">
+              <div class="stat-card color-{{ forloop.counter }}" style="min-height: 150px; display: flex; flex-direction: column; justify-content: center;">
+                <p>{{ record.animal_type.animal_type_name }}</p>
+                <h3 class="count-up">{{ record.number_of_animals }}</h3>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+            <p class="text-muted mb-0">No census records available.</p>
+          {% endif %}
+        </div>
       </div>
-      {% else %}
-        <p class="text-muted mb-0">No census records available.</p>
-      {% endif %}
+      {% empty %}
+      <div class="col-12">
+        <div class="alert alert-info">
+          <i class="fa fa-info-circle"></i> No census records for your section yet.
+        </div>
+      </div>
+      {% endfor %}
+    </div>
 
+    <!-- Dispatch & Drugs -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-lg-6">
+        <div class="box_general padding_bottom">
+          <div class="header_box version_2">
+            <h2><i class="fa fa-truck text-info"></i> Dispatch for {{ today_date }}</h2>
+          </div>
+          <div class="table-responsive" style="height: 350px; overflow-y: auto;">
+            <table class="table table-hover mb-0">
+              <thead class="thead-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Drug</th>
+                  <th>Quantity</th>
+                  <th>Unit</th>
+                  <th>Dispatched By</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for dispatch in today_dispatches %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ dispatch.drug.drug_name }}</td>
+                  <td><strong>{{ dispatch.quantity }}</strong></td>
+                  <td>{{ dispatch.unit.name }}</td>
+                  <td>{{ dispatch.dispatched_by.get_full_name|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center text-muted">No dispatches for today.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="alert alert-light mt-3 mb-0">
+            <a href="{% url 'veterinary:dispatch_view' %}" class="alert-link"><i class="fa fa-arrow-right"></i> View dispatch records</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="box_general padding_bottom">
+          <div class="header_box version_2">
+            <h2><i class="fa fa-plus-circle text-success"></i> New/Restocked Drugs</h2>
+          </div>
+          <div style="height: 350px; overflow-y: auto;">
+            {% if recent_drugs %}
+            <div class="alert alert-success">
+              <h5 class="mb-3">🛒 New or Restocked (last 24hrs)</h5>
+              <ul class="mb-0">
+                {% for drug in recent_drugs %}
+                <li class="mb-2">
+                  <strong>{{ drug.drug_name }}</strong> 
+                  <span class="badge bg-secondary">{{ drug.batch_number }}</span>
+                  <br><small class="text-muted">Qty: {{ drug.quantity }} {{ drug.unit.name }}</small>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% else %}
+            <div class="alert alert-secondary">
+              <h5 class="mb-0">No new drugs in the last 24 hours.</h5>
+            </div>
+            {% endif %}
+          </div>
+          <div class="alert alert-light mt-3 mb-0">
+            <a href="{% url 'veterinary:drugs_view' %}" class="alert-link"><i class="fa fa-arrow-right"></i> View drugs records</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event History -->
+    <div class="box_general padding_bottom" id="event-history">
+      <div class="header_box version_2 d-flex justify-content-between align-items-center">
+        <h2><i class="fa fa-clock text-warning"></i> Event Edit History</h2>
+        <form method="get" action="#event-history">
+          <select name="event_status" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
+            <option value="pending" {% if current_event_status == "pending" %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if current_event_status == "approved" %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if current_event_status == "rejected" %}selected{% endif %}>Rejected</option>
+          </select>
+        </form>
+      </div>
+
+      <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-hover mb-0">
+          <thead class="thead-dark">
+            <tr>
+              
+              <th>Event</th>
+              <th>Animal</th>
+              <th>Type</th>
+              <th>Count</th>
+              <th>Location</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for edit in event_edits %}
+            {% if edit.status == "pending" %}
+            <tr class="table-warning">
+              
+              <td><strong>{{ edit.data.event_name|default:edit.event.event_name }}</strong></td>
+              <td>{{ edit.data.animal_obj|default:edit.event.animal }}</td>
+              <td>{{ edit.data.animal_type_obj|default:edit.event.animal_type }}</td>
+              <td>{{ edit.data.number_of_animals|default:edit.event.number_of_animals }}</td>
+              <td>{{ edit.data.location|default:edit.event.location }}</td>
+              <td>{{ edit.submitted_at|date:"M d, Y" }}</td>
+              <td>
+                {% if edit.status == "pending" %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                {% else %}
+                    <span class="badge {% if edit.status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ edit.status|title }}
+                    </span>
+                {% endif %}
+              </td>
+              <td>
+                {% if edit.status == "pending" %}
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                            onclick="openEventRetractModal('{{ edit.id }}')">
+                        <i class="fa fa-undo"></i> Retract
+                    </button>
+                {% else %}
+                    <button class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#reviewModal{{ edit.id }}">View</button>
+                {% endif %}
+              </td>
+              <!-- <td><span class="badge bg-warning text-dark">Submitted</span></td> -->
+            </tr>
+            {% else %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ edit.event.event_name }}</td>
+              <td>{{ edit.event.animal }}</td>
+              <td>{{ edit.event.animal_type }}</td>
+              <td>{{ edit.event.number_of_animals }}</td>
+              <td>{{ edit.event.location }}</td>
+              <td>{{ edit.reviewed_at|date:"M d, Y" }}</td>
+              <td>
+                <span class="badge {% if edit.status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">{{ edit.status|title }}</span>
+                <button class="btn btn-sm btn-outline-secondary ms-2" data-toggle="modal" data-target="#reviewModal{{ edit.id }}">View</button>
+              </td>
+            </tr>
+            {% endif %}
+            {% empty %}
+            <tr><td colspan="8" class="text-center text-muted">No records found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Census History -->
+    <div class="box_general padding_bottom">
+      <div class="header_box version_2 d-flex justify-content-between align-items-center">
+        <h2><i class="fa fa-clock text-warning"></i> Census Edit History</h2>
+        <form method="get" action="#census-history">
+          <select name="census_status" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
+            <option value="pending" {% if current_census_status == "pending" %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if current_census_status == "approved" %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if current_census_status == "rejected" %}selected{% endif %}>Rejected</option>
+          </select>
+        </form>
+      </div>
+
+      <div class="table-responsive" style="max-height: 400px; overflow-y: auto;" id="census-history">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="thead-dark">
+            <tr>
+              <th>#</th>
+              <th>Animal</th>
+              <th>Type Modifications (Changes)</th>
+              <th>Submission Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for edit in census_edits %}
+            <tr class="{% if edit.status == 'pending' %}table-warning{% elif edit.status == 'rejected' %}table-danger{% endif %}">
+              <td>{{ forloop.counter }}</td>
+              <td>
+                <strong>{{ edit.census.animal.animal_name|title }}</strong>
+                <div class="small text-muted">Orig. Date: {{ edit.main_form.census_date|default:edit.census.census_date }}</div>
+              </td>
+              <td>
+                <div class="d-flex flex-column gap-2">
+                  {% for item in edit.records %}
+                    <div class="d-flex align-items-center flex-wrap gap-2 text-sm">
+                      <span class="fw-bold text-secondary" style="min-width: 110px;">{{ item.animal_type_name }}:</span>
+                      
+                      {% if item.is_deleted %}
+                        <span class="badge bg-danger text-decoration-line-through text-uppercase">Removed</span>
+                        <span class="badge bg-light text-dark border"><small class="text-muted">Was:</small> {{ item.old_count }}</span>
+                      {% else %}
+                        <!-- Old Baseline Tag -->
+                        <span class="badge bg-light text-dark border"><small class="text-muted">Old:</small> {{ item.old_count }}</span>
+                        
+                        <i class="fa fa-arrow-right text-muted px-1 small"></i>
+                        
+                        <!-- Proposed Mutation Tag -->
+                        <span class="badge bg-warning text-dark"><small class="text-muted">Edit:</small> {{ item.new_count }}</span>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                  
+                  {% if edit.main_form.notes %}
+                    <div class="small text-muted mt-1 border-top pt-1 text-italic" style="max-width: 400px;">
+                      <i class="fa fa-comment-alt me-1"></i> "{{ edit.main_form.notes|truncatechars:65 }}"
+                    </div>
+                  {% endif %}
+                </div>
+              </td>
+              <td>
+                {{ edit.queue_obj.created_at|date:"M d, Y" }}
+                <div class="small text-muted">{{ edit.queue_obj.created_at|date:"H:i" }}</div>
+              </td>
+              <td>
+                <span class="badge {% if edit.status == 'pending' %}bg-warning text-dark{% elif edit.status == 'approved' %}bg-success{% else %}bg-danger{% endif %} px-2 py-1">
+                  {{ edit.status|title }}
+                </span>
+              </td>
+              <td>
+                {% if edit.status == "pending" %}
+                 
+                  <button type="button" class="btn btn-sm btn-outline-danger d-block mt-1" 
+                          onclick="openRetractModal({{ edit.queue_obj.id }})">
+                    <i class="fa fa-undo"></i> Retract
+                  </button>
+                {% else %}
+                  <span class="badge {% if edit.status == 'approved' %}bg-success{% else %}bg-danger{% endif %} px-2 py-1">
+                    {{ edit.status|title }}
+                  </span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">
+                <i class="fa fa-folder-open d-block mb-2 fa-2x text-muted"></i>
+                No pending census records found for status selection: <strong>{{ current_status }}</strong>.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    {% for edit in event_edits %}
+    {% if edit.status != "pending" %}
+    <div class="modal fade" id="reviewModal{{ edit.id }}" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-3">
+          <div class="modal-header border-bottom">
+            <h5 class="modal-title">Event Edit — {{ edit.status|title }}</h5>
+            <button type="button" class="btn-close" data-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Event:</strong> {{ edit.event }}</p>
+            <p><strong>Reviewed by:</strong> {{ edit.reviewed_by }}</p>
+            <p><strong>Date:</strong> {{ edit.reviewed_at|date:"M d, Y H:i" }}</p>
+            {% if edit.admin_note %}
+            <div class="alert alert-info mt-3">{{ edit.admin_note }}</div>
+            {% endif %}
+            {% if edit.vet_note %}
+            <div class="alert alert-secondary mt-3">{{ edit.vet_note }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+  <!-- <div class="modal fade" id="retractModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-danger font-weight-bold">Confirm Retraction</h5>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to retract this edit request? This will unlock the census record and notify the administrator.
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <form id="retractForm" method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Retract Request</button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
-  {% empty %}
-  <div class="col-12">
-    <div class="alert alert-info">
-      <i class="fa fa-info-circle"></i>
-      No census records for your section yet.
+  <div class="modal fade" id="eventRetractModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Retract Event Edit</h5>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to retract this event edit request? This will remove the request from the admin queue.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <form id="eventRetractForm" method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Retract</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div> -->
+  <!-- Census Retraction Modal -->
+  <div class="modal fade" id="retractModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-danger font-weight-bold">Confirm Retraction</h5>
+        </div>
+        <form id="retractForm" method="post" action="">
+          {% csrf_token %}
+          <div class="modal-body">
+            <p>Are you sure you want to retract this edit request? This will unlock the census record and notify the administrator.</p>
+            
+            <!-- Added Reason Field -->
+            <div class="form-group mt-3">
+              <label for="census_retraction_reason" class="fw-bold text-muted">Reason for Retraction:</label>
+              <textarea name="retraction_reason" id="census_retraction_reason" class="form-control" rows="3" placeholder="Provide a brief explanation..." required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger">Yes, Retract Request</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-  {% endfor %}
 
+  <!-- Event Retraction Modal -->
+  <div class="modal fade" id="eventRetractModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Retract Event Edit</h5>
+        </div>
+        <form id="eventRetractForm" method="post" action="">
+          {% csrf_token %}
+          <div class="modal-body">
+            <p>Are you sure you want to retract this event edit request? This will remove the request from the admin queue.</p>
+            
+            <!-- Added Reason Field -->
+            <div class="form-group mt-3">
+              <label for="event_retraction_reason" class="fw-bold text-muted">Reason for Retraction:</label>
+              <textarea name="retraction_reason" id="event_retraction_reason" class="form-control" rows="3" placeholder="Provide a brief explanation..." required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger">Yes, Retract</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -125,244 +562,40 @@ document.addEventListener('DOMContentLoaded', function () {
     animate();
   });
 });
+
+// function openRetractModal(queueId) {
+//   const form = document.getElementById('retractForm');
+//   // Set the action URL dynamically
+//   form.action = "{% url 'veterinary:retract_census_edit' 0 %}".replace('0', queueId);
+//   $('#retractModal').modal('show');
+// }
+
+// function openEventRetractModal(editId) {
+//   const form = document.getElementById('eventRetractForm');
+//   form.action = "{% url 'veterinary:retract_event_edit' 0 %}".replace('0', editId);
+//   $('#eventRetractModal').modal('show');
+// }
+
+function openRetractModal(queueId) {
+  const form = document.getElementById('retractForm');
+  // Clear any old text input value upon modal initialization
+  const textInput = document.getElementById('census_retraction_reason');
+  if(textInput) textInput.value = '';
+  
+  form.action = "{% url 'veterinary:retract_census_edit' 0 %}".replace('0', queueId);
+  $('#retractModal').modal('show');
+}
+
+function openEventRetractModal(editId) {
+  const form = document.getElementById('eventRetractForm');
+  // Clear any old text input value upon modal initialization
+  const textInput = document.getElementById('event_retraction_reason');
+  if(textInput) textInput.value = '';
+  
+  form.action = "{% url 'veterinary:retract_event_edit' 0 %}".replace('0', editId);
+  $('#eventRetractModal').modal('show');
+}
+
+
 </script>
-
-
-
-
-      <div class="row g-2">
-        <div class="col-12 col-md-6" >
-
-          <div class="box_general padding_bottom">
-            <div class="header_box version_2" >
-              <h2><i class="fa fa-bar-chart"></i>Dispatch for {{ today_date }}</h2>
-            </div>
-
-            <div class="table-responsive" style="height: 350px ; overflow-y: auto;" >
-              <table class="table table-bordered table-striped">
-                <thead class="thead-dark">
-                  <tr>
-                    <th >#</th>
-                    <th >Drug</th>
-                    <th >Quantity</th>
-                    <th >Unit</th>
-                    <th >Dispatched By</th>
-                   
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for dispatch in today_dispatches %}
-                    <tr>
-                      <td>{{ forloop.counter }}</td>
-                      <td>{{ dispatch.drug.drug_name }}</td>
-                      <td>{{ dispatch.quantity }}</td>
-                      <td>{{ dispatch.unit.name }}</td>
-                      <td>{{ dispatch.dispatched_by.get_full_name|default:"-" }}</td>
-                      
-                    </tr>
-                  {% empty %}
-                    <tr>
-                      <td colspan="6" class="text-center">No dispatches for today.</td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-            <hr class="line">
-            <!-- <div style="margin-bottom: 0; padding-bottom: 0;">
-              <p>View dispatch records</p>
-            </div> -->
-            <div class="alert alert-light" role="alert">
-              <a href="{% url 'veterinary:dispatch_view' %}" class="alert-link">View dispatch records</a>
-            </div>
-          </div>
-
-        </div>
-        <div class="col-12 col-md-6">
-
-          <div class="box_general padding_bottom">
-            <div class="header_box version_2">
-              <h2><i class="fa fa-plus-circle text-success"></i>New/Restocked Drugs</h2>
-            </div>
-            <div style="height: 350px ; overflow-y: auto;">
-
-              {% if recent_drugs %}
-                 <div class="alert alert-success"  >
-                   <h5>🛒 New or Restocked Drugs (last 24hrs)</h5>
-                   <ul class="mb-0">
-                     {% for drug in recent_drugs %}
-                       <li>
-                         <strong>{{ drug.drug_name }}</strong> (Batch: {{ drug.batch_number }}) — 
-                         Quantity: {{ drug.quantity }} {{ drug.unit.name }}
-                       </li>
-                     {% endfor %}
-                   </ul>
-                 </div>
-               {% else %}
-                 <div class="alert alert-secondary">
-                   <h5>🛒 No new or restocked drugs in the last 24 hours.</h5>
-                 </div>
-               {% endif %}
-            </div>
-            <hr class="line">
-            <!-- <div class="" style="margin-bottom: 0; padding-bottom: 0;">
-              <p>View drugs records</p>
-            </div> -->
-            <div class="alert alert-light" role="alert">
-              <a href="{% url 'veterinary:drugs_view' %}" class="alert-link">View drugs records</a>
-            </div>
-
-          </div>
-        </div>
-      </div>
-      <div class="box_general padding_bottom">
-
-        <!-- HEADER + FILTER -->
-        <div class="header_box version_2 d-flex justify-content-between align-items-center">
-          <h2>
-        <i class="fa fa-clock text-warning"></i>
-        Event Edit History
-          </h2>
-
-          <form method="get">
-        <select name="status" class="form-control form-control-sm"
-            onchange="this.form.submit()">
-          <option value="pending" {% if current_status == "pending" %}selected{% endif %}>
-            Pending
-          </option>
-          <option value="approved" {% if current_status == "approved" %}selected{% endif %}>
-            Approved
-          </option>
-          <option value="rejected" {% if current_status == "rejected" %}selected{% endif %}>
-            Rejected
-          </option>
-        </select>
-          </form>
-        </div>
-
-        <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
-          <table class="table table-bordered table-striped">
-        <thead class="thead-dark">
-          <tr>
-            <th>#</th>
-            <th>Event</th>
-            <th>Animal</th>
-            <th>Animal Type</th>
-            <th>No. of Animals</th>
-            <th>Location</th>
-            <th>Date</th>
-            <th>Status / Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {% for edit in event_edits %}
-
-          {% if edit.status == "pending" %}
-          <!-- =================== PENDING (2 ROWS) =================== -->
-
-          <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ edit.data.event_name|default:edit.event.event_name }}</td>
-            <td>{{ edit.data.animal_obj|default:edit.event.animal }}</td>
-            <td>{{ edit.data.animal_type_obj|default:edit.event.animal_type }}</td>
-            <td>{{ edit.data.number_of_animals|default:edit.event.number_of_animals }}</td>
-            <td>{{ edit.data.location|default:edit.event.location }}</td>
-            <td>{{ edit.submitted_at|date:"M d, Y H:i" }}</td>
-            <td><span class="badge badge-warning">Submitted</span></td>
-          </tr>
-
-          <tr style="opacity: 0.7;">
-            <td></td>
-            <td>{{ edit.event.event_name }}</td>
-            <td>{{ edit.event.animal }}</td>
-            <td>{{ edit.event.animal_type }}</td>
-            <td>{{ edit.event.number_of_animals }}</td>
-            <td>{{ edit.event.location }}</td>
-            <td>{{ edit.event.created_at|date:"M d, Y H:i" }}</td>
-            <td><span class="badge badge-secondary">Original</span></td>
-          </tr>
-
-          {% else %}
-          <!-- =================== APPROVED / REJECTED =================== -->
-
-          <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ edit.event.event_name }}</td>
-            <td>{{ edit.event.animal }}</td>
-            <td>{{ edit.event.animal_type }}</td>
-            <td>{{ edit.event.number_of_animals }}</td>
-            <td>{{ edit.event.location }}</td>
-            <td>{{ edit.reviewed_at|date:"M d, Y H:i" }}</td>
-            <td>
-          <span class="badge {% if edit.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}">
-            {{ edit.status|title }}
-          </span>
-          <button class="btn btn-sm btn-outline-secondary ms-2"
-              data-toggle="modal"
-              data-target="#reviewModal{{ edit.id }}">
-            View
-          </button>
-            </td>
-          </tr>
-
-          {% endif %}
-          {% empty %}
-          <tr>
-            <td colspan="8" class="text-center text-muted">
-          No records found.
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-          </table>
-        </div>
-      </div>
-
-
-      {% for edit in event_edits %}
-      {% if edit.status != "pending" %}
-      <div class="modal fade" id="reviewModal{{ edit.id }}" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content">
-
-            <div class="modal-header">
-              <h5 class="modal-title">
-                Event Edit {{ edit.status|title }}
-              </h5>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-
-            <div class="modal-body">
-              <p><strong>Event:</strong> {{ edit.event }}</p>
-              <p><strong>Reviewed by:</strong> {{ edit.reviewed_by }}</p>
-              <p><strong>Reviewed at:</strong> {{ edit.reviewed_at|date:"M d, Y H:i" }}</p>
-
-              {% if edit.admin_note %}
-              <div class="alert alert-info">
-                <strong>Admin note:</strong><br>
-                {{ edit.admin_note }}
-              </div>
-              {% endif %}
-
-              {% if edit.vet_note %}
-              <div class="alert alert-secondary">
-                <strong>Your note:</strong><br>
-                {{ edit.vet_note }}
-              </div>
-              {% endif %}
-            </div>
-
-          </div>
-        </div>
-      </div>
-      {% endif %}
-      {% endfor %}
-
-
-    </div>
-		
-	  </div>
-	  <!-- /.container-fluid-->
-   	</div>
 {% endblock %}

@@ -9,11 +9,11 @@
 <div class="content-wrapper">
   <div class="container-fluid">
     {% if show_prompt %}
-    <div class="update-marquee bg-primary text-white py-2">
+    <!-- <div class="update-marquee bg-primary text-white py-2">
       <marquee behavior="scroll" direction="left" scrollamount="6">
          🚀 <strong>New Update:</strong> Admins can now add and update inventory items, and also dispatch them seamlessly!
       </marquee>
-    </div>
+    </div> -->
     {% endif %}
 
     <!-- Breadcrumbs-->
@@ -41,21 +41,278 @@
         {% endfor %}
       </div>
     {% endif %}
-    <div>
 
-      <h4 class="mt-4 mb-3 text-center">Event Records (Previous Day)</h4>
+    <div class="box_general padding_bottom">
       <div class="row g-3">
-        {% for event in yesterday_events %}
-          <div class="col-md-4">
-            <div class="box_general padding_bottom data-card text-center p-3 shadow-sm rounded bg-white">
-              <h5>{{ event.get_event_name_display }}</h5>
-              <p class="text-muted mb-0">{{ event.animal }} — {{ event.animal_type }}</p>
-              <small>{{ event.created_at|date:"M d, Y H:i" }}</small>
+
+        <!-- PIG -->
+        <div class="col-md-3">
+          <div class="census-card pig">
+            <div class="census-overlay"></div>
+            <i class="fa fa-dot-circle-o census-icon"></i>
+
+            <h6>Pigs</h6>
+            <h2 class="count" data-count="{{ piggery_total }}">0</h2>
+
+            <a href="{% url 'main:piggery_census_records_admin' %}" class="census-btn">
+              View Records
+            </a>
+          </div>
+        </div>
+
+        <!-- CATTLE -->
+        <div class="col-md-3">
+          <div class="census-card cattle">
+            <div class="census-overlay"></div>
+            <i class="fa fa-paw census-icon"></i>
+
+            <h6>Cattle</h6>
+            <h2 class="count" data-count="{{ paddock_total }}">0</h2>
+
+            <a href="{% url 'main:paddock_census_records_admin' %}" class="census-btn">
+              View Records
+            </a>
+          </div>
+        </div>
+
+        <!-- SHEEP -->
+        <!-- <div class="col-md-3">
+          <div class="census-card sheep">
+            <div class="census-overlay"></div>
+            <i class="fa fa-cloud census-icon"></i>
+
+            <h6>Sheep</h6>
+            <h2 class="count" data-count="{{ sheep_total }}">0</h2>
+
+            <a href="{% url 'main:small_ruminant_census_records_admin' %}" class="census-btn">
+              View Records
+            </a>
+          </div>
+        </div> -->
+        <div class="col-md-3">
+          <div class="census-card sheep">
+            <div class="census-overlay"></div>
+            <i class="fa fa-cloud census-icon"></i>
+
+            <h6>Sheep</h6>
+
+            <!-- TOTAL -->
+            <h2 class="count" data-count="{{ sheep_total }}">0</h2>
+
+            
+
+            <a href="{% url 'main:small_ruminant_census_records_admin' %}" class="census-btn">
+              View Records
+            </a>
+          </div>
+        </div>
+
+        <!-- GOAT -->
+        <!-- <div class="col-md-3">
+          <div class="census-card goat">
+            <div class="census-overlay"></div>
+            <i class="fa fa-leaf census-icon"></i>
+
+            <h6>Goats</h6>
+            <h2 class="count" data-count="{{ goat_total }}">0</h2>
+
+            <a href="{% url 'main:small_ruminant_census_records_admin' %}" class="census-btn">
+              View Records
+            </a>
+          </div>
+        </div> -->
+        <div class="col-md-3">
+          <div class="census-card goat">
+            <div class="census-overlay"></div>
+            <i class="fa fa-leaf census-icon"></i>
+
+            <h6>Goats</h6>
+
+            <!-- TOTAL -->
+            <h2 class="count" data-count="{{ goat_total }}">0</h2>
+
+           
+            <a href="{% url 'main:small_ruminant_census_records_admin' %}" class="census-btn">
+              View Records
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="box_general padding_bottom">
+
+      <!-- Date shown once -->
+      <h4 class="mt-4 mb-4 text-center">
+        Event Records ({{ latest_event_date|date:"F d, Y" }})
+      </h4>
+
+      <div class="row g-3">
+
+        <!-- ✅ PIGGERY CARD -->
+        <div class="col-md-4">
+          <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
+            <!-- <div class="card-ribbon">More</div> -->
+            <a href="{% url 'main:piggery_event_records_admin' %}" class="card-ribbon text-decoration-none">
+              More
+            </a>
+
+            <h5 class="text-center mb-2">Piggery</h5>
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
+              <small class="fw-bold">Event</small>
+              <small class="fw-bold">Number(s)</small>
+            </div>
+
+            <!-- Scrollable body -->
+            <div style="overflow-y: auto; flex-grow: 1;">
+
+              {% for event in piggery_events %}
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+
+                  <!-- LEFT -->
+                  <div>
+                    <span class="
+                      {% if event.event_name == 'mortality' %}text-danger
+                      {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
+                      {% elif event.event_name == 'procurement' %}text-primary
+                      {% elif event.event_name == 'culling' %}text-warning
+                      {% else %}text-dark
+                      {% endif %}
+                      fw-semibold
+                    ">
+                      {{ event.get_event_name_display }}
+                    </span><br>
+
+                    <small class="text-muted">
+                      {{ event.animal_type }}
+                    </small>
+                  </div>
+
+                  <!-- RIGHT -->
+                  <div class="fw-bold">
+                    {{ event.number_of_animals }}
+                  </div>
+
+                </div>
+              {% empty %}
+                <p class="text-muted text-center mt-3">No records</p>
+              {% endfor %}
+
             </div>
           </div>
-        {% empty %}
-          <p class="text-muted text-center pl-3">No events recorded yesterday.</p>
-        {% endfor %}
+        </div>
+
+        <!-- ✅ PADDOCK CARD -->
+        <div class="col-md-4">
+          <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
+            <a href="{% url 'main:paddock_event_records_admin' %}" class="card-ribbon text-decoration-none">
+              More
+            </a>
+
+            <h5 class="text-center mb-2">Paddock</h5>
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
+              <small class="fw-bold">Event</small>
+              <small class="fw-bold">Number(s)</small>
+            </div>
+
+            <!-- Scrollable body -->
+            <div style="overflow-y: auto; flex-grow: 1;">
+
+              {% for event in paddock_events %}
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+
+                  <!-- LEFT -->
+                  <div>
+                    <span class="
+                      {% if event.event_name == 'mortality' %}text-danger
+                      {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
+                      {% elif event.event_name == 'procurement' %}text-primary
+                      {% elif event.event_name == 'culling' %}text-warning
+                      {% else %}text-dark
+                      {% endif %}
+                      fw-semibold
+                    ">
+                      {{ event.get_event_name_display }}
+                    </span><br>
+
+                    <small class="text-muted">
+                      {{ event.animal_type }}
+                    </small>
+                  </div>
+
+                  <!-- RIGHT -->
+                  <div class="fw-bold">
+                    {{ event.number_of_animals }}
+                  </div>
+
+                </div>
+              {% empty %}
+                <p class="text-muted text-center mt-3">No records</p>
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ SMALL RUMINANT CARD -->
+        <div class="col-md-4">
+          <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
+
+            <a href="{% url 'main:small_ruminant_event_records_admin' %}" class="card-ribbon text-decoration-none">
+              More
+            </a>
+
+            <h5 class="text-center mb-2">Small Ruminant</h5>
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
+              <small class="fw-bold">Event</small>
+              <small class="fw-bold">Number(s)</small>
+            </div>
+
+            <!-- Scrollable body -->
+            <div style="overflow-y: auto; flex-grow: 1;">
+
+              {% for event in small_ruminant_events %}
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+
+                  <!-- LEFT -->
+                  <div>
+                    <span class="
+                      {% if event.event_name == 'mortality' %}text-danger
+                      {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
+                      {% elif event.event_name == 'procurement' %}text-primary
+                      {% elif event.event_name == 'culling' %}text-warning
+                      {% else %}text-dark
+                      {% endif %}
+                      fw-semibold
+                    ">
+                      {{ event.get_event_name_display }}
+                    </span><br>
+
+                    <small class="text-muted">
+                      {{ event.animal_type }}
+                    </small>
+                  </div>
+
+                  <!-- RIGHT -->
+                  <div class="fw-bold">
+                    {{ event.number_of_animals }}
+                  </div>
+
+                </div>
+              {% empty %}
+                <p class="text-muted text-center mt-3">No records</p>
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -212,7 +469,7 @@
     </div>
     <div class="box_general padding_bottom data-card">
       <div class="header_box version_2">
-        <h2><i class="fa fa-bell text-danger"></i> Events to approve</h2>
+        <h2><i class="fa fa-bell text-warning"></i> Approve events edit record(s)</h2>
       </div>
 
       <div>
@@ -250,9 +507,10 @@
               </tr>
             {% empty %}
               <tr>
-                <td colspan="8" class="text-center text-muted">
-                  No pending event edits.
-                </td>
+                <td colspan="8" class="text-center text-muted py-4">
+                <i class="fa fa-folder-open d-block mb-2 fa-2x text-muted"></i>
+                No Pending Event Records For Edit Approval.
+              </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -268,42 +526,49 @@
                 <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
               </div>
               <div class="modal-body">
+                <!-- <div>
+                  <p>Vet Note: {{ edit.vet_note|default:"No note provided." }}</p>
+                </div> -->
                 <!-- Vet note -->
-                <div class="alert alert-info">
+                <!-- Stable vet note box (not an auto-dismissing alert) -->
+                <div class="bg-info text-white p-3 mb-3 rounded">
                   <strong>Vet note:</strong><br>
                   {{ edit.vet_note|default:"No note provided." }}
                 </div>
 
                 <!-- Comparison table -->
-                <table class="table table-sm table-bordered">
-                  <thead class="thead-light">
-                    <tr>
-                      <th>Field</th>
-                      <th>Current Value</th>
-                      <th>Proposed Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for field, new_value in edit.data.items %}
-                        {% if field != "designation" or edit.data.event_name == "culling" %}
-                            {% with current_value=edit.event|get_attr:field %}
-                            <tr class="{% if current_value != new_value %}table-warning{% endif %}">
-                                <td>{{ field|title }}</td>
-                                <td>{{ current_value }}</td>
-                                <td>
-                                    {% if field in "animal animal_type" %}
-                                        {{ new_value|resolve_fk:field }}
-                                    {% else %}
-                                        {{ new_value }}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endwith %}
-                        {% endif %}
-                    {% endfor %}
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
 
-                  </tbody>
-                </table>
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="thead-dark">
+                      <tr>
+                        <th>Field</th>
+                        <th>Current Value</th>
+                        <th>Proposed Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for field, new_value in edit.data.items %}
+                          {% if field != "designation" or edit.data.event_name == "culling" %}
+                              {% with current_value=edit.event|get_attr:field %}
+                              <tr class="{% if current_value != new_value %}table-warning{% endif %}">
+                                  <td>{{ field|title }}</td>
+                                  <td>{{ current_value }}</td>
+                                  <td>
+                                      {% if field in "animal animal_type" %}
+                                          {{ new_value|resolve_fk:field }}
+                                      {% else %}
+                                          {{ new_value }}
+                                      {% endif %}
+                                  </td>
+                              </tr>
+                              {% endwith %}
+                          {% endif %}
+                      {% endfor %}
+  
+                    </tbody>
+                  </table>
+                </div>
 
                 <!-- Admin note + actions -->
                 <form method="post" action="{% url 'main:approve_event_edit' edit.id %}">
@@ -335,6 +600,190 @@
       </div>
     </div>
 
+    <!-- Census History & Approval Panel -->
+    <div class="box_general padding_bottom">
+      <div class="header_box version_2 d-flex justify-content-between align-items-center">
+        <h2><i class="fa fa-bell text-warning"></i>Approve census edit record(s)</h2>
+        <!-- <form method="get" id="statusFilterForm">
+          <select name="status" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
+            <option value="pending" {% if current_status == "pending" %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if current_status == "approved" %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if current_status == "rejected" %}selected{% endif %}>Rejected</option>
+          </select>
+        </form> -->
+      </div>
+
+      <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="thead-dark">
+            <tr>
+              <th>#</th>
+              <th>Animal</th>
+              <th>Type Modifications (Changes)</th>
+              <th>Submission Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for edit in census_edits %}
+            <tr class="{% if not edit.is_processed %}table-warning{% elif edit.approved == False %}table-danger{% endif %}">
+              <td>{{ forloop.counter }}</td>
+              <td>
+                <strong>{{ edit.census.animal.animal_name|title }}</strong>
+                <div class="small text-muted">Orig. Date: {{ edit.census.census_date }}</div>
+              </td>
+              <td>
+                <div class="d-flex flex-column gap-2">
+                  <!-- If your backend reconstructs old vs new records into edit.records, keep it here -->
+                  {% for item in edit.records %}
+                    <div class="d-flex align-items-center flex-wrap gap-2 text-sm">
+                      <span class="fw-bold text-secondary" style="min-width: 110px;">{{ item.animal_type_name }}:</span>
+                      
+                      {% if item.is_deleted %}
+                        <span class="badge bg-danger text-decoration-line-through text-uppercase">Removed</span>
+                        <span class="badge bg-light text-dark border"><small class="text-muted">Was:</small> {{ item.old_count }}</span>
+                      {% else %}
+                        <span class="badge bg-light text-dark border"><small class="text-muted">Old:</small> {{ item.old_count }}</span>
+                        <i class="fa fa-arrow-right text-muted px-1 small"></i>
+                        <span class="badge bg-warning text-dark"><small class="text-muted">Edit:</small> {{ item.new_count }}</span>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                  
+                  <!-- Check payload or model for notes -->
+                  {% if edit.census.notes %}
+                    <div class="small text-muted mt-1 border-top pt-1 text-italic" style="max-width: 400px;">
+                      <i class="fa fa-comment-alt me-1"></i> "{{ edit.census.notes|truncatechars:65 }}"
+                    </div>
+                  {% endif %}
+                </div>
+              </td>
+              <td>
+                {{ edit.created_at|date:"M d, Y" }}
+                <div class="small text-muted">{{ edit.created_at|date:"H:i" }}</div>
+              </td>
+              <td>
+                {% if not edit.is_processed %}
+                  <span class="badge bg-warning text-dark px-2 py-1">Pending</span>
+                {% else %}
+                  {% if edit.approved %}
+                    <span class="badge bg-success px-2 py-1">Approved</span>
+                  {% else %}
+                    <span class="badge bg-danger px-2 py-1">Rejected</span>
+                  {% endif %}
+                {% endif %}
+              </td>
+              <td>
+                {% if not edit.is_processed %}
+                  <button
+                    class="btn btn-sm btn-primary"
+                    data-toggle="modal"
+                    data-target="#reviewCensusModal{{ edit.id }}">
+                    Review
+                  </button>
+                {% else %}
+                  <button
+                    class="btn btn-sm btn-outline-secondary"
+                    data-toggle="modal"
+                    data-target="#reviewCensusModal{{ edit.id }}">
+                    View Log
+                  </button>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                <i class="fa fa-folder-open d-block mb-2 fa-2x text-muted"></i>
+                No census records found for edit approval.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- MODALS FOR APPROVAL AND REVIEW -->
+      {% for edit in census_edits %}
+      <div class="modal fade" id="reviewCensusModal{{ edit.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title">Review Census Changes — {{ edit.census.animal.animal_name|title }}</h5>
+              <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              
+              <div class="" style="background-color: #e8f5e9; border-color: #c8e6c9; color: #2e7d32; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <strong>Requested By:</strong> {{ edit.requested_by.username }}<br>
+                <strong>Submission Notes:</strong> {{ edit.census.notes|default:"No notes provided with this modification request." }}
+              </div>
+
+              <h6 class="fw-bold mb-2">Detailed Metric Changes</h6>
+              <div class="p-3 mb-3" style="background-color: #fff3cd; border-left: 5px solid #ffc107; border-radius: 4px;">
+                <div class="d-flex align-items-start">
+                    <i class="fa fa-exclamation-triangle text-warning mr-3 mt-1"></i>
+                    <div>
+                        <strong class="text-warning d-block mb-1">Edit Note:</strong>
+                        <p class="mb-0 text-dark">{{ edit.request_note|default:"No reason provided." }}</p>
+                    </div>
+                </div>
+              </div>
+              <table class="table table-sm table-bordered align-middle">
+                <thead class="bg-light">
+                  <tr>
+                    <th>Classification</th>
+                    <th class="text-center">Previous Group Count</th>
+                    <th class="text-center">Proposed Group Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in edit.records %}
+                  <tr class="{% if item.is_deleted %}table-danger{% elif item.old_count != item.new_count %}table-warning{% endif %}">
+                    <td>{{ item.animal_type_name }}</td>
+                    <td class="text-center text-muted">{{ item.old_count }}</td>
+                    <td class="text-center fw-bold">
+                      {% if item.is_deleted %}
+                        <span class="text-danger text-decoration-line-through">Removed</span>
+                      {% else %}
+                        {{ item.new_count }}
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+              <form method="post" action="{% url 'main:approve_census_edit' edit.id %}">
+                {% csrf_token %}
+                <div class="form-group mt-3">
+                  <label class="fw-bold">Reviewer Log Comments (Optional)</label>
+                  <textarea name="admin_comment" class="form-control" rows="3" placeholder="Enter reason or notes for logging..." {% if edit.is_processed %}disabled{% endif %}></textarea>
+                </div>
+                
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                  {% if not edit.is_processed %}
+                    <button name="action" value="approve" class="btn btn-success action-btn mr-2">
+                      <span class="btn-text btn-sm">Approve</span>
+                    </button>
+                    <button name="action" value="reject" class="btn btn-danger action-btn">
+                      <span class="btn-text btn-sm">Reject</span>
+                    </button>
+                  {% else %}
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close Record View</button>
+                  {% endif %}
+                </div>
+              </form>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
 
 
 
@@ -364,6 +813,159 @@
 </div>
 {% endif %}
 </div>
+
+<style>
+  .data-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-ribbon {
+    position: absolute;
+    top: 12px;
+    right: -40px;
+    transform: rotate(45deg);
+    background: #0d6efd;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 50px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 10;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .card-ribbon:hover {
+    background: #0b5ed7;
+  }
+
+  /* Enhanced Census Cards */
+  .census-card {
+    position: relative;
+    height: 140px;
+    border-radius: 20px; /* Rounder corners */
+    padding: 24px;
+    color: #fff;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Space out title and number */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid rgba(255,255,255,0.1); /* Thin border for glass look */
+  }
+
+  .census-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  }
+
+  /* Background Icon Styling */
+  .census-icon {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 5rem;
+    opacity: 0.15; /* Subtly visible in the corner */
+    transform: rotate(-15deg);
+    transition: 0.3s ease;
+  }
+
+  .census-card:hover .census-icon {
+    transform: rotate(0deg) scale(1.1);
+    opacity: 0.25;
+  }
+
+  /* Glassy Overlay for better text readability */
+  .census-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom right, rgba(255,255,255,0.1), rgba(0,0,0,0.05));
+    
+  }
+
+  .census-card h6 {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .census-card h2 {
+    font-size: 38px;
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+  }
+
+  /* Optional: Add "Animals" unit label */
+  .census-card h2::after {
+    /* content: ' heads'; */
+    font-size: 14px;
+    font-weight: 400;
+    margin-left: 8px;
+    opacity: 0.8;
+  }
+
+  /* Background themes */
+  .census-card.pig { 
+    background: linear-gradient(135deg, #ff9a9e, #fecfef);
+    box-shadow: 0 8px 20px rgba(255, 154, 158, 0.3); 
+  }
+  .census-card.cattle { 
+    background: linear-gradient(135deg, #2c3e50, #4b6cb7);
+    box-shadow: 0 10px 25px rgba(44, 62, 80, 0.4);
+  }
+  .census-card.sheep { 
+      background: linear-gradient(135deg, #11998e, #38ef7d); 
+      box-shadow: 0 8px 20px rgba(230, 233, 240, 0.3); 
+  }
+  .census-card.goat { 
+      background: linear-gradient(135deg, #606c88, #3f4c6b); 
+      box-shadow: 0 8px 20px rgba(96, 108, 136, 0.3); 
+  }
+
+  .census-btn {
+    margin-top: 12px;
+    align-self: flex-start;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: 0.3s ease;
+  }
+
+  .census-btn:hover {
+    background: #fff;
+    color: #333;
+    text-decoration: none;
+  }
+
+  .census-breakdown {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    margin-top: 6px;
+    opacity: 0.9;
+  }
+
+  .census-breakdown small {
+    line-height: 1.2;
+  }
+
+  .census-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 8px;
+    font-size: 12px;
+  }
+</style>
 
 <script>
    $(document).ready(function () {
@@ -432,5 +1034,26 @@
   }, 3000);
 
   });
+
+  document.querySelectorAll('.count').forEach(el => {
+    let target = +el.getAttribute('data-count');
+    let count = 0;
+    let speed = Math.max(10, target / 50);
+
+    const update = () => {
+      count += speed;
+      if (count < target) {
+        el.innerText = Math.floor(count);
+        requestAnimationFrame(update);
+      } else {
+        el.innerText = target;
+      }
+    };
+
+    update();
+  });
+  setTimeout(function () {
+    $(".alert").alert("close");
+  }, 3000);
 </script>
 {% endblock %}

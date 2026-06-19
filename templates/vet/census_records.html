@@ -10,6 +10,27 @@
       <li class="breadcrumb-item active">Census Records</li>
     </ol>
 
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert
+            {% if message.tags == 'success' %}alert-success
+            {% elif message.tags == 'warning' %}alert-warning
+            {% elif message.tags == 'error' %}alert-danger
+            {% else %}alert-info{% endif %}
+            alert-dismissible fade show auto-dismiss-alert"
+            role="alert">
+
+            {{ message }}
+
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <div class="box_general p-4 bg-white shadow-sm rounded">
       <h4 class="text-primary mb-3">Census Records</h4>
 
@@ -34,7 +55,7 @@
       </form>
 
       {% if censuses %}
-        <div id="census-list">
+        <div id="census-list-items">
           {% include 'vet/census_records_list.html' %}
         </div>
 
@@ -84,7 +105,7 @@
         .then(data => {
           document.getElementById('loader').style.display = 'none';
           if (data.html.trim()) {
-            document.getElementById('census-list').insertAdjacentHTML('beforeend', data.html);
+            document.getElementById('census-list-items').insertAdjacentHTML('beforeend', data.html);
           }
           hasNext = data.has_next;
           if (hasNext) page++;
