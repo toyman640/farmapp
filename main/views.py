@@ -711,41 +711,79 @@ def drug_filter(request):
 
   return render(request, 'main/filter-drug-list.html', {'drug_query': drug_query})
 
+# @login_required
+# def update_drug_quantity(request, drug_id):
+#     drug = get_object_or_404(Drug, id=drug_id)
+    
+#     if request.method == "POST":
+#         form = UpdateDrugQuantityForm(request.POST)
+#         if form.is_valid():
+#             added_amount = form.cleaned_data["quantity"]
+            
+#             try:
+#                 # 1. Admin/Staff: Perform additive update immediately
+#                 if request.user.is_staff or request.user.is_superuser:
+#                     drug.update_stock_additive(added_amount, request.user)
+#                     messages.success(request, "Stock updated successfully!")
+                
+              
+#                 else:
+#                     PendingStockUpdate.objects.create(
+#                         drug=drug,
+#                         requested_quantity=added_amount,
+#                         requested_by=request.user
+#                     )
+#                     messages.info(request, "Stock update request submitted for approval.")
+                    
+#             except Exception as e:
+#                 # Catch potential errors (like negative math)
+#                 messages.error(request, f"Update failed: {str(e)}")
+#         else:
+#             messages.error(request, "Invalid form data.")
+
+#     else:
+#         form = UpdateDrugQuantityForm()
+
+#     return render(request, "main/admin-update-drug.html", {"form": form, "drug": drug})
+
+
 @login_required
 def update_drug_quantity(request, drug_id):
     drug = get_object_or_404(Drug, id=drug_id)
     
+    # Check if a pending request already exists
+    has_pending = PendingStockUpdate.objects.filter(drug=drug).exists()
+
     if request.method == "POST":
         form = UpdateDrugQuantityForm(request.POST)
         if form.is_valid():
             added_amount = form.cleaned_data["quantity"]
             
             try:
-                # 1. Admin/Staff: Perform additive update immediately
                 if request.user.is_staff or request.user.is_superuser:
+                    if has_pending:
+                        return JsonResponse({'status': 'error', 'message': 'Cannot update: A pending request exists.'}, status=400)
+                    
                     drug.update_stock_additive(added_amount, request.user)
-                    messages.success(request, "Stock updated successfully!")
+                    return JsonResponse({'status': 'success', 'message': 'Stock updated successfully!'})
                 
-                # 2. Regular User: Create a request for approval
                 else:
+                    if has_pending:
+                        return JsonResponse({'status': 'error', 'message': 'You already have a pending request for this drug.'}, status=400)
+                    
                     PendingStockUpdate.objects.create(
                         drug=drug,
                         requested_quantity=added_amount,
                         requested_by=request.user
                     )
-                    messages.info(request, "Stock update request submitted for approval.")
+                    return JsonResponse({'status': 'success', 'message': 'Request submitted for approval.'})
                     
             except Exception as e:
-                # Catch potential errors (like negative math)
-                messages.error(request, f"Update failed: {str(e)}")
-        else:
-            messages.error(request, "Invalid form data.")
+                return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        
+        return JsonResponse({'status': 'error', 'message': 'Invalid form data.'}, status=400)
 
-    else:
-        form = UpdateDrugQuantityForm()
-
-    return render(request, "main/admin-update-drug.html", {"form": form, "drug": drug})
-
+    return render(request, "main/admin-update-drug.html", {"form": UpdateDrugQuantityForm(), "drug": drug})
 
 @login_required
 def dispatch_drug_main(request):
