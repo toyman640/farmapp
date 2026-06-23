@@ -616,23 +616,36 @@ def drug_detail(request, drug_id):
   return render(request, 'main/drug-info.html', {'drug': drug})
 
 
+# @login_required
+# def edit_drug(request, drug_id):
+#     drug = get_object_or_404(Drug, id=drug_id)
+
+#     if request.method == 'POST':
+#         form = DrugForm(request.POST, instance=drug, is_editing=True)
+#         if form.is_valid():
+#           correct_quantity = form.cleaned_data['quantity']
+
+#           drug.correct_stock(correct_quantity, request.user)
+
+#           messages.success(request, "Drug stock corrected successfully!")
+#           return redirect('main:drugs_inventory')
+#     else:
+#         form = DrugForm(instance=drug)
+
+#     return render(request, 'main/modify-drug.html', {'edit_drug_form': form, 'drug': drug})
+
+
 @login_required
 def edit_drug(request, drug_id):
     drug = get_object_or_404(Drug, id=drug_id)
-
     if request.method == 'POST':
-        form = DrugForm(request.POST, instance=drug, is_editing=True)
+        form = DrugForm(request.POST, instance=drug)
         if form.is_valid():
-          correct_quantity = form.cleaned_data['quantity']
-
-          drug.correct_stock(correct_quantity, request.user)
-
-          messages.success(request, "Drug stock corrected successfully!")
-          return redirect('main:drugs_inventory')
-    else:
-        form = DrugForm(instance=drug)
-
-    return render(request, 'main/modify-drug.html', {'edit_drug_form': form, 'drug': drug})
+            # Use absolute update for admin corrections
+            drug.update_stock_absolute(form.cleaned_data['quantity'], request.user)
+            messages.success(request, "Stock corrected to new value.")
+            return redirect('main:drugs_inventory')
+    return render(request, 'main/modify-drug.html', {'edit_drug_form': DrugForm(instance=drug)})
 
 
 @login_required
@@ -675,23 +688,36 @@ def drug_filter(request):
 
   return render(request, 'main/filter-drug-list.html', {'drug_query': drug_query})
 
-
 @login_required
 def update_drug_quantity(request, drug_id):
     drug = get_object_or_404(Drug, id=drug_id)
+    
     if request.method == "POST":
         form = UpdateDrugQuantityForm(request.POST)
         if form.is_valid():
-            new_quantity = form.cleaned_data["quantity"]
+            added_amount = form.cleaned_data["quantity"]
+            
             try:
-                drug.request_stock_update(new_quantity, request.user)
+                # 1. Admin/Staff: Perform additive update immediately
                 if request.user.is_staff or request.user.is_superuser:
+                    drug.update_stock_additive(added_amount, request.user)
                     messages.success(request, "Stock updated successfully!")
+                
+                # 2. Regular User: Create a request for approval
                 else:
+                    PendingStockUpdate.objects.create(
+                        drug=drug,
+                        requested_quantity=added_amount,
+                        requested_by=request.user
+                    )
                     messages.info(request, "Stock update request submitted for approval.")
-            except ValueError as e:
-                messages.error(request, str(e))
-        # ✅ No redirect — stay on the same page
+                    
+            except Exception as e:
+                # Catch potential errors (like negative math)
+                messages.error(request, f"Update failed: {str(e)}")
+        else:
+            messages.error(request, "Invalid form data.")
+
     else:
         form = UpdateDrugQuantityForm()
 
@@ -1309,89 +1335,3 @@ def delete_census_admin(request, pk):
         return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
     return redirect('main:paddock_census_records_admin')
 
-# @login_required
-# @user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
-# def admin_edit_census(request, pk):
-#     census = get_object_or_404(Census, pk=pk)
-    
-#     if request.method == 'POST':
-#         form = CensusForm(request.POST, instance=census, user=request.user)
-#         formset = CensusRecordFormSet(request.POST, instance=census, user=request.user, prefix='records')
-
-#         if form.is_valid() and formset.is_valid():
-#             form.save()
-#             formset.save()
-#             census.update_total()
-#             return JsonResponse({'status': 'success', 'message': 'Census record updated successfully.'})
-
-#     # GET request
-#     form = CensusForm(instance=census, user=request.user)
-#     formset = CensusRecordFormSet(instance=census, user=request.user, prefix='records')
-
-#     existing_records = [
-#         {'id': r.id, 'typeId': r.animal_type.id, 'typeText': r.animal_type.animal_type_name, 'count': r.number_of_animals}
-#         for r in census.records.all()
-#     ]
-
-#     return render(request, 'main/admin_edit_census.html', {
-#         'form': form,
-#         'formset': formset,
-#         'is_edit': True,
-#         'census': census,
-#         'existing_records': existing_records
-#     })
-
-# @login_required
-# @user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
-# def admin_edit_census(request, pk):
-#     census = get_object_or_404(Census, pk=pk)
-    
-#     if request.method == 'POST':
-#         form = CensusForm(request.POST, instance=census, user=request.user)
-#         formset = CensusRecordFormSet(request.POST, instance=census, user=request.user, prefix='records')
-
-#         if form.is_valid() and formset.is_valid():
-#             # 1. Save the changes
-#             form.save()
-#             formset.save()
-#             census.update_total()
-            
-#             # 2. CLEAR PENDING STATUS
-#             # If the admin is editing, the record is no longer "pending review"
-#             if census.is_pending_review:
-#                 census.is_pending_review = False
-#                 census.save()
-                
-#                 # Also mark any associated approval requests as processed/resolved
-#                 CensusApprovalQueue.objects.filter(
-#                     census=census, 
-#                     is_processed=False
-#                 ).update(is_processed=True)
-            
-#             return JsonResponse({'status': 'success', 'message': 'Census record updated successfully.'})
-
-#     # GET request logic remains the same...
-#     form = CensusForm(instance=census, user=request.user)
-#     formset = CensusRecordFormSet(instance=census, user=request.user, prefix='records')
-#     print(
-#         "EMPTY FORM:",
-#         list(
-#             formset.empty_form.fields['animal_type']
-#             .queryset
-#             .values_list('animal_type_name', flat=True)
-#         )
-#     )
-
-#     existing_records = [
-#         {'id': r.id, 'typeId': r.animal_type.id, 'typeText': r.animal_type.animal_type_name, 'count': r.number_of_animals}
-#         for r in census.records.all()
-#     ]
-
-
-#     return render(request, 'main/admin_edit_census.html', {
-#         'form': form,
-#         'formset': formset,
-#         'is_edit': True,
-#         'census': census,
-#         'existing_records': existing_records
-#     })
