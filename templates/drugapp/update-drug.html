@@ -2,31 +2,76 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
-<!Doctype html>
-{% block title %} Home {% endblock %}
-
-
 {% block content %}
 <div class="content-wrapper">
   <div class="container-fluid">
-    <!-- Breadcrumbs -->
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'drugapp:dispatch_drug' %}">Dispatch Records</a></li>
-      <li class="breadcrumb-item active">Edit Drug</li>
+      <li class="breadcrumb-item active">Update Drug</li>
     </ol>
 
-    <!-- 🚀 Alert Messages (Hidden by Default) -->
-    <div id="alert-container"></div>
     <div class="box_general padding_bottom">
       <div class="container mt-4">
         <h2>Update Stock For: {{ drug.drug_name }}</h2>
-        <form method="POST">
+        <form method="POST" id="updateForm">
           {% csrf_token %}
-          {{ form| crispy }}
+          {{ form|crispy }}
           <button type="submit" class="btn btn-primary">Update Stock</button>
           <a class="btn btn-secondary" href="{% url 'drugapp:drugs_list' %}">Back</a>
+        </form>
+      </div>
     </div>
   </div>
 </div>
 
+<div class="modal fade" id="statusModal" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div id="modalIcon" style="font-size: 3rem; margin-bottom: 15px;"></div>
+        <h5 id="modalMessage"></h5>
+        <p id="countdownContainer" class="text-muted small mt-2" style="display:none;">
+            Redirecting in <span id="countdownTimer">3</span>s...
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$('#updateForm').on('submit', function(e) {
+    e.preventDefault();
+    var $btn = $(this).find('button[type="submit"]');
+    $btn.prop('disabled', true).text('Updating...');
+
+    $.ajax({
+        type: 'POST',
+        url: window.location.href,
+        data: $(this).serialize(),
+        success: function(response) {
+            $('#modalIcon').html('<i class="fa fa-check-circle" style="color: #28a745;"></i>');
+            $('#modalMessage').text(response.message).css('color', '#28a745');
+            $('#countdownContainer').show();
+            $('#statusModal').modal('show');
+            
+            var timeLeft = 3;
+            var timer = setInterval(function() {
+                timeLeft--;
+                $('#countdownTimer').text(timeLeft);
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    window.location.href = "{% url 'drugapp:drugs_list' %}";
+                }
+            }, 1000);
+        },
+        error: function(response) {
+            var msg = response.responseJSON ? response.responseJSON.message : "Error occurred.";
+            $('#modalIcon').html('<i class="fa fa-times-circle" style="color: #dc3545;"></i>');
+            $('#modalMessage').text(msg).css('color', '#dc3545');
+            $('#statusModal').modal('show');
+            $btn.prop('disabled', false).text('Update Stock');
+        }
+    });
+});
+</script>
 {% endblock %}

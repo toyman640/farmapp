@@ -610,10 +610,22 @@ def drugs_inventory(request):
   return render(request, 'main/record-display.html',)
 
 
+# @login_required
+# def drug_detail(request, drug_id):
+#   drug = get_object_or_404(Drug, id=drug_id)
+#   return render(request, 'main/drug-info.html', {'drug': drug})
+
 @login_required
 def drug_detail(request, drug_id):
-  drug = get_object_or_404(Drug, id=drug_id)
-  return render(request, 'main/drug-info.html', {'drug': drug})
+    drug = get_object_or_404(Drug, id=drug_id)
+    
+    # Check for pending updates directly in the view
+    has_pending = drug.pending_updates.filter(approved=False).exists()
+    
+    return render(request, 'main/drug-info.html', {
+        'drug': drug, 
+        'has_pending': has_pending
+    })
 
 
 # @login_required
