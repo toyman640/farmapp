@@ -635,17 +635,40 @@ def drug_detail(request, drug_id):
 #     return render(request, 'main/modify-drug.html', {'edit_drug_form': form, 'drug': drug})
 
 
+# @login_required
+# def edit_drug(request, drug_id):
+#     drug = get_object_or_404(Drug, id=drug_id)
+#     if request.method == 'POST':
+#         form = DrugForm(request.POST, instance=drug)
+#         if form.is_valid():
+#             # Use absolute update for admin corrections
+#             drug.update_stock_absolute(form.cleaned_data['quantity'], request.user)
+#             messages.success(request, "Stock corrected to new value.")
+#             return redirect('main:drugs_inventory')
+#     return render(request, 'main/modify-drug.html', {'edit_drug_form': DrugForm(instance=drug)})
+
+
 @login_required
 def edit_drug(request, drug_id):
     drug = get_object_or_404(Drug, id=drug_id)
+    has_pending = PendingStockUpdate.objects.filter(drug=drug).exists()
+
     if request.method == 'POST':
         form = DrugForm(request.POST, instance=drug)
         if form.is_valid():
-            # Use absolute update for admin corrections
-            drug.update_stock_absolute(form.cleaned_data['quantity'], request.user)
-            messages.success(request, "Stock corrected to new value.")
-            return redirect('main:drugs_inventory')
-    return render(request, 'main/modify-drug.html', {'edit_drug_form': DrugForm(instance=drug)})
+            try:
+                drug.update_stock_absolute(form.cleaned_data['quantity'], request.user)
+                return JsonResponse({'status': 'success', 'message': 'Stock corrected successfully!'})
+            except Exception as e:
+                return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid form submission.'}, status=400)
+
+    return render(request, 'main/modify-drug.html', {
+        'edit_drug_form': DrugForm(instance=drug), 
+        'drug': drug,
+        'has_pending': has_pending
+    })
 
 
 @login_required
