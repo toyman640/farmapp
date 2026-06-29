@@ -80,7 +80,8 @@
         </div>
       </div>
       {% endif %}
-
+      
+      <div id="form-error-display" class="alert alert-danger" style="display: none;"></div>
       <form method="post" id="dispatchFormSet">
         {% csrf_token %}
         <div id="formset-container" class="row">
@@ -290,175 +291,195 @@
 </div>
 
 <script>
-      document.addEventListener("DOMContentLoaded", function () {
-          var formsetContainer = document.getElementById("formset-container");
-          var addFormBtn = document.getElementById("add-form-btn");
-          var totalForms = document.getElementById("id_form-TOTAL_FORMS");
-          var submitBtn = document.getElementById("submit-btn");
-          var maxForms = 3;
+    document.addEventListener("DOMContentLoaded", function () {
+        // --- Shared Elements ---
+        const formsetContainer = document.getElementById("formset-container");
+        const addFormBtn = document.getElementById("add-form-btn");
+        const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+        const submitBtn = document.getElementById("submit-btn");
+        const maxForms = 3;
 
-          function updateSubmitButton() {
-              submitBtn.style.display = formsetContainer.children.length > 0 ? "block" : "none";
-          }
+        // --- Stock Validation Map ---
+        const drugStockMap = {
+            {% for drug in drugs %}
+                "{{ drug.id }}": {{ drug.quantity }},
+            {% endfor %}
+        };
 
-          function addRemoveFormEvent(removeBtn) {
-              removeBtn.addEventListener("click", function () {
-                  this.closest(".form-row").remove();
-                  totalForms.value = formsetContainer.children.length;
-                  updateSubmitButton();
-              });
-          }
+        // --- Core Functions ---
+        function updateDropdowns() {
+            document.querySelectorAll('.drug-select').forEach(select => {
+                Array.from(select.options).forEach(option => {
+                    if (option.value && drugStockMap[option.value] <= 0) {
+                        option.disabled = true;
+                    }
+                });
+            });
+        }
 
-          // Attach remove event to existing forms
-          document.querySelectorAll(".remove-form").forEach(addRemoveFormEvent);
-          updateSubmitButton();
+        function updateSubmitButton() {
+            submitBtn.style.display = formsetContainer.children.length > 0 ? "block" : "none";
+        }
 
-          addFormBtn.addEventListener("click", function () {
-              var formIndex = Number(totalForms.value);
+        function addRemoveFormEvent(removeBtn) {
+            removeBtn.addEventListener("click", function () {
+                this.closest(".form-row").remove();
+                totalForms.value = formsetContainer.children.length;
+                updateSubmitButton();
+            });
+        }
 
-              if (formIndex < maxForms) {
-                  var emptyForm = `{{ formset.empty_form|crispy|escapejs }}`;
-                  var newFormHTML = emptyForm.replace(/__prefix__/g, formIndex);
+        // --- Initial Setups ---
+        document.querySelectorAll(".remove-form").forEach(addRemoveFormEvent);
+        updateSubmitButton();
+        updateDropdowns();
 
-                  var newFormDiv = document.createElement("div");
-                  newFormDiv.classList.add("col-lg-4", "col-md-6", "col-sm-12", "mb-3", "form-row");
-                  newFormDiv.innerHTML = `
+        // --- Add Form Button ---
+        addFormBtn.addEventListener("click", function () {
+            var formIndex = Number(totalForms.value);
+            if (formIndex < maxForms) {
+                var emptyForm = `{{ formset.empty_form|crispy|escapejs }}`;
+                var newFormHTML = emptyForm.replace(/__prefix__/g, formIndex);
+
+                var newFormDiv = document.createElement("div");
+                newFormDiv.classList.add("col-lg-4", "col-md-6", "col-sm-12", "mb-3", "form-row");
+                newFormDiv.innerHTML = `
                     <div class="form-card p-3">
                       ${newFormHTML}
                       <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
                     </div>
-                  `;
+                `;
 
-                  formsetContainer.appendChild(newFormDiv);
-                  totalForms.value = formsetContainer.children.length;
-
-                  // Attach event to the newly added remove button
-                  addRemoveFormEvent(newFormDiv.querySelector(".remove-form"));
-
-                  updateSubmitButton();
-              } else {
-                  alert("Maximum of 3 forms allowed!");
-              }
-          });
-      });
-      document.addEventListener("DOMContentLoaded", function () {
-        var collapseIcon = document.querySelector(".fa-angle-down");
-        var dispatchCollapse = document.getElementById("dispatchCollapse");
-
-        collapseIcon.style.cursor = "pointer"; // Set cursor to pointer
-
-        collapseIcon.addEventListener("click", function () {
-            if (dispatchCollapse.classList.contains("show")) {
-                this.classList.remove("fa-angle-up");
-                this.classList.add("fa-angle-down");
+                formsetContainer.appendChild(newFormDiv);
+                totalForms.value = formsetContainer.children.length;
+                addRemoveFormEvent(newFormDiv.querySelector(".remove-form"));
+                updateSubmitButton();
+                updateDropdowns(); 
             } else {
-                this.classList.remove("fa-angle-down");
-                this.classList.add("fa-angle-up");
+                alert("Maximum of 3 forms allowed!");
+            }
+        });
+
+        // --- Form Submission Validation ---
+        // --- Form Submission Validation ---
+        document.getElementById('dispatchFormSet').addEventListener('submit', function(e) {
+            let hasError = false;
+            let errorMessage = "";
+            const errorDisplay = document.getElementById('form-error-display');
+
+            // Reset previous error
+            errorDisplay.style.display = 'none';
+            errorDisplay.textContent = "";
+
+            document.querySelectorAll('.form-row').forEach(row => {
+                const drugSelect = row.querySelector('.drug-select');
+                const qtyInput = row.querySelector('.qty-input');
+                
+                if (drugSelect && qtyInput) {
+                    const selectedId = drugSelect.value;
+                    const requestedQty = parseInt(qtyInput.value);
+                    const available = drugStockMap[selectedId];
+
+                    if (selectedId && (requestedQty > available || requestedQty <= 0)) {
+                        errorMessage = `Error: Insufficient stock or invalid quantity for selected drug. Available: ${available}`;
+                        hasError = true;
+                    }
+                }
+            });
+
+            if (hasError) {
+                e.preventDefault(); // Stop submission
+                errorDisplay.textContent = errorMessage;
+                errorDisplay.style.display = 'block'; // Show Bootstrap alert
+                
+                // Optional: Scroll to the error message
+                errorDisplay.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
     });
-      document.addEventListener("DOMContentLoaded", function () {
-        const scrollableCards = document.querySelectorAll(".dispatch-card");
 
+    // --- UI/UX Helpers ---
+    document.addEventListener("DOMContentLoaded", function () {
+        const collapseIcon = document.querySelector(".fa-angle-down");
+        const dispatchCollapse = document.getElementById("dispatchCollapse");
+        if (collapseIcon && dispatchCollapse) {
+            collapseIcon.addEventListener("click", function () {
+                this.classList.toggle("fa-angle-up");
+                this.classList.toggle("fa-angle-down");
+            });
+        }
+
+        const scrollableCards = document.querySelectorAll(".dispatch-card");
         scrollableCards.forEach(card => {
             let timeout;
-
             card.addEventListener("scroll", function () {
-                // Show scrollbar when scrolling
-                card.style.scrollbarColor = "#888 #f1f1f1"; // For Firefox
-                card.querySelector("::-webkit-scrollbar-thumb")?.style.setProperty("opacity", "1");
-
-                // Clear previous timeout
+                card.style.scrollbarColor = "#888 #f1f1f1";
                 clearTimeout(timeout);
-
-                // Hide scrollbar after 1 second of inactivity
                 timeout = setTimeout(() => {
-                    card.style.scrollbarColor = "transparent transparent"; // For Firefox
-                    card.querySelector("::-webkit-scrollbar-thumb")?.style.setProperty("opacity", "0");
+                    card.style.scrollbarColor = "transparent transparent";
                 }, 1000);
             });
         });
-      });
-      function showDetails(id, name, quantity, unit, date, dispatcher) {
-      document.getElementById("viewDrugName").textContent = name;
-      document.getElementById("viewQuantity").textContent = quantity + " " + unit;
-      document.getElementById("viewDate").textContent = date;
-      document.getElementById("viewDispatcher").textContent = dispatcher;
+    });
+
+    function showDetails(id, name, quantity, unit, date, dispatcher) {
+        document.getElementById("viewDrugName").textContent = name;
+        document.getElementById("viewQuantity").textContent = quantity + " " + unit;
+        document.getElementById("viewDate").textContent = date;
+        document.getElementById("viewDispatcher").textContent = dispatcher;
     }
+
+    // --- AJAX and Filters ---
     $(document).ready(function () {
-    var dispatchIdToDelete = null; // Store the ID of the dispatch to delete
+        var dispatchIdToDelete = null;
 
-    // Event listener for delete buttons
-    $(".delete-dispatch").click(function (event) {
-      event.preventDefault(); // Prevent the default link action
-
-      // Get the dispatch ID from the data-id attribute
-      dispatchIdToDelete = $(this).data("id");
-    });
-
-    // Handle the confirm delete action
-    $("#confirmDeleteBtn").click(function () {
-      var csrfToken = $("input[name=csrfmiddlewaretoken]").val();
-      var row = $(".delete-dispatch[data-id='" + dispatchIdToDelete + "']").closest("tr");
-
-      // Perform the AJAX request to delete the dispatch record
-      $.ajax({
-        url: `/drug-inventory/dispatch/delete/${dispatchIdToDelete}/`,
-
-        type: "POST",
-        data: {
-          csrfmiddlewaretoken: csrfToken
-        },
-        success: function (data) {
-          if (data.success) {
-            alert(data.message);
-            row.remove(); // Remove the row from the table
-          } else {
-            alert("Failed to delete dispatch.");
-          }
-          $('#deleteModal').modal('hide'); // Close the modal
-        },
-        error: function () {
-          alert("An error occurred. Please try again.");
-          $('#deleteModal').modal('hide'); // Close the modal in case of error
-        }
-      });
-    });
-  });
-
-document.addEventListener("DOMContentLoaded", function () {
-    const today = new Date().toISOString().split("T")[0];
-
-    // Set max date to today
-    document.querySelector("[name='start_date']").setAttribute("max", today);
-    document.querySelector("[name='end_date']").setAttribute("max", today);
-
-    document.getElementById("filter-form").addEventListener("submit", function (event) {
-        const startDate = document.querySelector("[name='start_date']").value;
-        const endDate = document.querySelector("[name='end_date']").value;
-
-        // If the user enters one date but not the other, show an error message
-        if ((startDate && !endDate) || (!startDate && endDate)) {
+        $(".delete-dispatch").click(function (event) {
             event.preventDefault();
-            showError("Please select both the start and end dates.");
-        }
+            dispatchIdToDelete = $(this).data("id");
+        });
+
+        $("#confirmDeleteBtn").click(function () {
+            var csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+            var row = $(".delete-dispatch[data-id='" + dispatchIdToDelete + "']").closest("tr");
+
+            $.ajax({
+                url: `/drug-inventory/dispatch/delete/${dispatchIdToDelete}/`,
+                type: "POST",
+                data: { csrfmiddlewaretoken: csrfToken },
+                success: function (data) {
+                    if (data.success) {
+                        alert(data.message);
+                        row.remove();
+                    } else {
+                        alert("Failed to delete.");
+                    }
+                    $('#deleteModal').modal('hide');
+                }
+            });
+        });
     });
 
-    function showError(message) {
-        const errorContainer = document.getElementById("error-message");
-        errorContainer.textContent = message;
-        errorContainer.style.display = "block";
+    document.addEventListener("DOMContentLoaded", function () {
+        const today = new Date().toISOString().split("T")[0];
+        const startInput = document.querySelector("[name='start_date']");
+        const endInput = document.querySelector("[name='end_date']");
+        
+        if (startInput) startInput.setAttribute("max", today);
+        if (endInput) endInput.setAttribute("max", today);
 
-        // Remove the error message after 3 seconds
-        setTimeout(() => {
-            errorContainer.style.display = "none";
-        }, 3000);
-    }
+        document.getElementById("filter-form").addEventListener("submit", function (event) {
+            const s = startInput.value;
+            const e = endInput.value;
+            if ((s && !e) || (!s && e)) {
+                event.preventDefault();
+                alert("Please select both start and end dates.");
+            }
+        });
+    });
 
-});
-
-setTimeout(function() {
-  document.getElementById('message-container').style.display = 'none';
-}, 1000);
+    setTimeout(function() {
+        const msg = document.getElementById('message-container');
+        if (msg) msg.style.display = 'none';
+    }, 3000);
 </script>
 {% endblock %}

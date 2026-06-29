@@ -198,6 +198,7 @@ def dispatch_drug(request):
   page_number = request.GET.get('page')
   page_obj = paginator.get_page(page_number)
   DispatchFormSet = formset_factory(DispatchForm, extra=0)
+  drugs = Drug.objects.all()
 
   grouped_dispatches = defaultdict(list)
   for dispatch in dispatched:
@@ -219,7 +220,7 @@ def dispatch_drug(request):
 
   else:
       formset = DispatchFormSet()
-  return render(request, 'drugapp/dispatch-drug.html', {'formset': formset, 'dispatch_filter': dispatch_filter, 'page_obj': page_obj,'grouped_dispatches': dict(grouped_dispatches) })
+  return render(request, 'drugapp/dispatch-drug.html', {'formset': formset, 'dispatch_filter': dispatch_filter,'drugs': drugs, 'page_obj': page_obj,'grouped_dispatches': dict(grouped_dispatches) })
 
 @login_required
 def dismiss_low_stock(request):

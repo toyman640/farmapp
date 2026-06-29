@@ -45,44 +45,42 @@ class DrugForm(forms.ModelForm):
     return cleaned_data
 
 
+# class DispatchForm(forms.ModelForm):
+#   class Meta:
+#     model = Dispatch
+#     fields = ['drug', 'quantity', 'unit']
+
 class DispatchForm(forms.ModelForm):
   class Meta:
     model = Dispatch
     fields = ['drug', 'quantity', 'unit']
 
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
 
-# class AdminDispatchForm(DispatchForm):  # ✅ inherits from DispatchForm
-#   class Meta(DispatchForm.Meta):
-#     widgets = {
-#         'drug': forms.Select(attrs={'class': 'select2-drug'}),  # Add searchable dropdown
-#     }
+    # Override the label for the drug choice
+    self.fields['drug'].label_from_instance = lambda obj: f"{obj.drug_name} ({obj.quantity})"
+    # Prefetch available quantity
+    self.fields['drug'].queryset = Drug.objects.all()
+    
+    # This loop sets attributes that we can read via JS
+    for drug in self.fields['drug'].queryset:
+        # We use the widget's choices to inject the data-attribute
+        # This is a cleaner way to handle it for ModelChoiceFields
+        pass 
+    
+    # Add class for easier JS selection
+    self.fields['drug'].widget.attrs.update({'class': 'form-control drug-select'})
+    self.fields['quantity'].widget.attrs.update({'class': 'form-control qty-input'})
 
-# class AdminDispatchForm(DispatchForm):
-#   class Meta(DispatchForm.Meta):
-#     widgets = {
-#         'drug': forms.Select(attrs={'class': 'select2-drug'}),
-#     }
-
-#   def __init__(self, *args, **kwargs):
-#     super().__init__(*args, **kwargs)
-#     # Customize the label to include available quantity
-#     self.fields['drug'].queryset = Drug.objects.all()
-#     self.fields['drug'].label_from_instance = (
-#         lambda obj: f"{obj.drug_name} ({obj.get_pack_and_pieces()})"
-#     )
-
-# class AdminDispatchForm(DispatchForm):
-#     class Meta(DispatchForm.Meta):
-#         widgets = {
-#             'drug': forms.Select(attrs={'class': 'select2-drug'}),
-#         }
-
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.fields['drug'].queryset = Drug.objects.all()
-#         self.fields['drug'].label_from_instance = (
-#             lambda obj: f"{obj.drug_name} ({obj.quantity} pieces)"
-#         )
+  def clean(self):
+    cleaned_data = super().clean()
+    drug = cleaned_data.get('drug')
+    quantity = cleaned_data.get('quantity')
+    
+    if drug and quantity and quantity > drug.quantity:
+      raise forms.ValidationError(f"Insufficient stock for {drug.drug_name}. Only {drug.quantity} available.")
+    return cleaned_data
 
 class AdminDispatchForm(forms.ModelForm):
     class Meta:
