@@ -2,7 +2,7 @@
 {% load static %}
 <!Doctype html>
 {% block title %}
-Cow Mortality
+Drug Info
 {% endblock %}
 
 {% block content %}
@@ -20,6 +20,12 @@ Cow Mortality
         <li class="breadcrumb-item active">Drug Info</li>
       </ol>
       <div class="box_general padding_bottom">
+        {% if has_pending %}
+          <div class="alert alert-info mt-3">
+              <i class="fa fa-info-circle"></i> 
+              <strong>Note:</strong> There are pending stock update requests for this drug that require approval.
+          </div>
+        {% endif %}
         {% if drug %}
           <h3>{{ drug.drug_name }}</h3>
           <p><strong>Manufacturer:</strong> {{ drug.manufacturer_name }}</p>
@@ -28,24 +34,40 @@ Cow Mortality
           <p><strong>Stock Quantity:</strong> {{ drug.quantity }} {{ drug.unit }}</p>
           <p><strong>Manufacturing Date:</strong> {{ drug.manufacturing_date }}</p>
           <p><strong>Expiry Date:</strong> {{ drug.expiry_date }}</p>
+          <p><strong>Amount in packs: </strong>{{ drug.get_pack_and_pieces }}</p>
           <p><strong>Restock Notification Quantity:</strong> {{ drug.restock_quantity_notify }} {{ drug.unit }}</p>
           <p><strong>Entered By:</strong> {{ drug.logged_by.first_name }}</p>
   
           <!-- Action Buttons -->
-          <div class="d-flex justify-content-between">
-            <div>
-              <a class="btn btn-warning" href="{% url 'main:drugs_inventory' %}">Back</a>
-              {% if not drug.has_been_edited %}
-              <a class="btn btn-primary" href="{% url 'main:edit_drug' drug.id %}">Edit</a>
-              {% else %}
-              <button class="btn btn-primary" disabled>Edit</button>
+          <div class="d-flex justify-content-between align-items-end">
+            
+            <div class="d-flex flex-column">
+              {% if has_pending %}
+                <div class="mb-2">
+                  <small class="text-danger font-weight-bold">
+                    <i class="fa fa-lock"></i> Pending approval exists. Edit/Update disabled.
+                  </small>
+                </div>
               {% endif %}
-            <a class="btn btn-primary" href="{% url 'main:update_drug_quantity' drug.id %}">Update quantity</a>
+
+              <div class="d-flex">
+                <a class="btn btn-warning mr-2" href="{% url 'main:drugs_inventory' %}">Back</a>
+                
+                {% if has_pending %}
+                  <button class="btn btn-primary mr-2" disabled>Edit</button>
+                  <button class="btn btn-primary" disabled>Update quantity</button>
+                {% else %}
+                  <a class="btn btn-primary mr-2" href="{% url 'main:edit_drug' drug.id %}">Edit</a>
+                  <a class="btn btn-primary" href="{% url 'main:update_drug_quantity' drug.id %}">Update quantity</a>
+                {% endif %}
+              </div>
             </div>
-            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Delete</button>
+
+            <div>
+              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Delete</button>
+            </div>
           </div>
         {% endif %}
-      </div>
     <div>
       <!-- delete modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -75,3 +97,10 @@ Cow Mortality
 	  </div>
   </div>
 {% endblock %}
+
+<style>
+  button:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.65;
+}
+</style>

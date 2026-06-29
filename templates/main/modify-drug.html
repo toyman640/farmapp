@@ -1,49 +1,102 @@
 {% extends 'main/base.html' %}
 {% load crispy_forms_tags %}
 {% load static %}
-<!Doctype html>
-{% block title %}
-Edit Drug
-{% endblock %}
+{% block title %}Edit Drug{% endblock %}
 
 {% block content %}
-  <!-- /Navigation-->
-  <div class="content-wrapper">
-    <div class="container-fluid">
-      <!-- Breadcrumbs-->
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item active">Edit Drug</li>
-      </ol>
-      <div class="box_general padding_bottom">
-        {% if edit_drug_form %}
-        <div class="container mt-4">
-          <h2>Edit Dispatch</h2>
-          <div class="content-wrapper">
-            <div class="container-fluid">
-              <h2>Edit Drug: {{ drug.drug_name }}</h2>
-              <form method="POST">
-                {% csrf_token %}
-                {{ edit_drug_form|crispy }}
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{% url 'main:drugs_inventory' %}">Back</a>
-              </form>
-            </div>
-          </div>
-          {% elif update_drug_form %}
-          <div class="container mt-4">
-            <h2>Update Stock For: {{ drug.drug_name }}</h2>
-            <form method="POST">
-              {% csrf_token %}
-              {{ update_drug_form| crispy }}
-              <button type="submit" class="btn btn-primary">Update Stock</button>
-              <a class="btn btn-secondary" href="{% url 'main:drugs_inventory' %}">Back</a>
-          </div>
-          {% endif %}
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+      <li class="breadcrumb-item active">Edit Drug</li>
+    </ol>
+
+    <div class="box_general padding_bottom">
+      {% if edit_drug_form %}
+        <h2>Edit Drug: {{ drug.drug_name }}</h2>
+        {% if has_pending %}
+        <div class="alert alert-warning">
+          <strong>Attention:</strong> There are currently pending stock update requests from staff members for this drug. 
+          Proceeding with this absolute correction will override the current stock level.
+        </div>
+        {% endif %}
+        <form method="POST">
+          {% csrf_token %}
+          {{ edit_drug_form|crispy }}
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <a class="btn btn-secondary" href="{% url 'main:drugs_inventory' %}">Back</a>
+        </form>
+
+      {% elif update_drug_form %}
+        <h2>Update Stock For: {{ drug.drug_name }}</h2>
+        <form method="POST">
+          {% csrf_token %}
+          {{ update_drug_form|crispy }}
+          <button type="submit" class="btn btn-primary">Update Stock</button>
+          <a class="btn btn-secondary" href="{% url 'main:drugs_inventory' %}">Back</a>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="statusModal" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div id="modalIcon" style="font-size: 3rem; margin-bottom: 15px;"></div>
+        <h5 id="modalMessage"></h5>
+        <p id="countdownContainer" class="text-muted small mt-2" style="display:none;">
+            Redirecting in <span id="countdownTimer">3</span>s...
+        </p>
       </div>
-	  </div>
-	  <!-- /.container-fluid-->
-   	</div>
-      {% endblock %}
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).on('submit', 'form', function(e) {
+    e.preventDefault();
+    
+    var $form = $(this);
+    var $submitBtn = $form.find('button[type="submit"]');
+    var originalBtnText = $submitBtn.text();
+
+    // Disable button and change text
+    $submitBtn.prop('disabled', true).text('Saving changes...');
+
+    $.ajax({
+        type: 'POST',
+        url: $form.attr('action') || window.location.href,
+        data: $form.serialize(),
+        success: function(response) {
+            $('#modalIcon').html('<i class="fa fa-check-circle" style="color: #28a745;"></i>');
+            $('#modalMessage').text(response.message).css('color', '#28a745');
+            $('#countdownContainer').show();
+            $('#statusModal').modal('show');
+
+            // Countdown logic
+            var timeLeft = 3;
+            var timer = setInterval(function() {
+                timeLeft--;
+                $('#countdownTimer').text(timeLeft);
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    window.location.href = "{% url 'main:drugs_inventory' %}";
+                }
+            }, 1000);
+        },
+        error: function(response) {
+            // Re-enable button on error
+            $submitBtn.prop('disabled', false).text(originalBtnText);
+            
+            var msg = response.responseJSON ? response.responseJSON.message : "An error occurred.";
+            $('#modalIcon').html('<i class="fa fa-times-circle" style="color: #dc3545;"></i>');
+            $('#modalMessage').text(msg).css('color', '#dc3545');
+            $('#countdownContainer').hide();
+            $('#statusModal').modal('show');
+        }
+    });
+});
+</script>
+{% endblock %}
