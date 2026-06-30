@@ -395,7 +395,7 @@ def approve_census_edit(request, edit_id):
                         # new_count = record.get('new_count', 0)
                         new_count = record.get('new_count') or record.get('number_of_animals')
 
-                        print(f"DEBUG: Processing record: {record}")
+                        
                         
                         if type_id:
                             CensusRecord.objects.update_or_create(

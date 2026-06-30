@@ -32,7 +32,7 @@ STATICFILES_DIRS = [STATIC_DIR,]
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -194,6 +194,6 @@ EMAIL_HOST = 'mail.skaalfarms.com'
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_USE_TLS = False
-EMAIL_HOST_USER = 'jece-staff@skaalfarms.com'
-EMAIL_HOST_PASSWORD = 'P@ssworD196400'
-DEFAULT_FROM_EMAIL = 'jece-staff@skaalfarms.com'
+EMAIL_HOST_USER = 'no-reply@skaalfarms.com'
+EMAIL_HOST_PASSWORD = 'DPH]ynry2!8WF5!t'
+DEFAULT_FROM_EMAIL = 'no-reply@skaalfarms.com'
