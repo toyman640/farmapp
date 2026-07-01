@@ -39,6 +39,7 @@ class Animals(models.Model):
 class AnimalType(models.Model):
     ANIMAL_TYPE_CHOICES = [
         ('sow', 'Sow'),
+        ('dry sow', "Dry Sow"),
         ('boar', 'Boar'),
         ('weaner (pig)', 'Weaner (Pig)'),
         ('piglet', 'Piglet'),
@@ -83,12 +84,12 @@ class EventType(models.Model):
     ]
 
     # 🔹 Piggery Locations: Line + Block (A–Z)
-    PIGGERY_LINES = [f"Line {i}" for i in range(1, 10)] + [ "Denmark 1", "Denmark 2",]
+    PIGGERY_LINES = [f"Line {i}" for i in range(1, 10)] + [ "Denmark",]
     PIGGERY_BLOCKS = [f"Block {chr(j)}" for j in range(65, 91)]  # A–Z
     PIGGERY_PENS = [f"Pen {i}" for i in range(1, 101)]  # 1–100
 
     PADDOCK_LOCATIONS = [(f"Paddock {i}", f"Paddock {i}") for i in range(1, 9)] + [
-        ('Isolation', 'Isolation'), ('General Heard', 'General Heard')
+        ('Isolation', 'Isolation'), ('General Herd', 'General Herd')
     ]
     SMALL_RUMINANT_LOCATIONS = [(f"Pen {i}", f"Pen {i}") for i in range(1, 11)]
 
