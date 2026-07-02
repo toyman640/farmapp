@@ -50,7 +50,7 @@
             <div id="message-container">
               {% if messages %}
                 {% for mes in messages %}
-                  <div class="alert {{ mes.tags }}">{{ mes }}</div>
+                  <div class="alert alert-{{ mes.tags }}">{{ mes }}</div>
                 {% endfor %}
               {% endif %}
             </div>
@@ -72,6 +72,14 @@
       </div>
     </div>
 
+    <style>
+      #message-container {
+        min-height: 50px; /* Adjust to match the height of your alert box */
+        margin-bottom: 10px;
+        visibility: visible; /* Keep it visible so it takes up space */
+      }
+    </style>
+
     <script>
       function togglePassword() {
         var x = document.getElementById("exampleInputPassword1");
@@ -88,9 +96,12 @@
       bgImage.src = "{% static 'img/pass-4.jpg' %}";
       bgImage.onload = hideSpinner; // Hide spinner when image loads
 
+      // Change your timeout logic to this:
       setTimeout(function() {
-        document.getElementById('message-container').style.display = 'none';
-      }, 2000);
+          var container = document.getElementById('message-container');
+          container.innerHTML = ''; // This clears the error message
+          // You don't need to change display: none anymore
+      }, 3000);
     </script>
 
   </body>

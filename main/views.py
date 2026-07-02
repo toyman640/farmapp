@@ -39,7 +39,7 @@ class CustomLoginView(LoginView):
         return response
 
     def form_invalid(self, form):
-        messages.error(self.request, "Invalid username or password. Please try again.")
+        messages.error(self.request, "Invalid credentials. Please check your details and try again.")
         return super().form_invalid(form)
 
     def get_success_url(self):
