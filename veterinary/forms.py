@@ -4,10 +4,10 @@ from django.forms import inlineformset_factory, BaseInlineFormSet
 
 
 class EventForm(forms.ModelForm):
-    image = forms.ImageField(
-        required=False,
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
-    )
+    # image = forms.ImageField(
+    #     required=False,
+    #     widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
+    # )
     number_of_animals = forms.IntegerField(
         required=True,
         min_value=1,
@@ -28,7 +28,7 @@ class EventForm(forms.ModelForm):
         fields = [
             'animal', 'animal_type', 'event_name',
             'location', 'number_of_animals',
-            'designation', 'notes', 'image'
+            'designation', 'notes',
         ]
 
     def __init__(self, *args, **kwargs):
