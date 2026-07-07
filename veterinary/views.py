@@ -395,7 +395,7 @@ def event_records(request):
     if end_date:
         events = events.filter(created_at__date__lte=parse_date(end_date))
 
-    events = events.order_by('-created_at')
+    events = events.order_by('-event_date')
 
     # Pagination (10 items per scroll)
     paginator = Paginator(events, 2)

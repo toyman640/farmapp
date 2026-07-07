@@ -1,6 +1,7 @@
 from django import forms
 from farmrecord.models import EventType, AnimalType, Animals, Census, CensusRecord
 from django.forms import inlineformset_factory, BaseInlineFormSet
+from django.utils import timezone
 
 
 class EventForm(forms.ModelForm):
@@ -23,10 +24,16 @@ class EventForm(forms.ModelForm):
         })
     )
 
+    # ... existing fields
+    event_date = forms.DateField(
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        initial=timezone.now().date()
+    )
+
     class Meta:
         model = EventType
         fields = [
-            'animal', 'animal_type', 'event_name',
+            'animal', 'animal_type', 'event_name', 'event_date',
             'location', 'number_of_animals',
             'designation', 'notes',
         ]
