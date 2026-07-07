@@ -50,6 +50,7 @@ class AnimalType(models.Model):
         ('weaner (cattle)', 'Weaner (Cattle)'),
         ('calf', 'Calf'),
         ('miniature cattle', 'Miniature Cattle'),
+        ('donkey', 'Donkey'),
         ('ewe', 'Ewe'),
         ('ram', 'Ram'),
         ('weaner (sheep)', 'Weaner (Sheep)'),

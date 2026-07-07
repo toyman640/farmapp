@@ -171,7 +171,7 @@ class CensusRecordForm(forms.ModelForm):
             elif getattr(user.profile, 'is_vet_paddock', False):
                 self.fields['animal_type'].queryset = AnimalType.objects.filter(
                     animal__animal_name__iexact='cattle',
-                    animal_type_name__in=['bull', 'cow', 'weaner (cattle)', 'calf', 'miniature cattle']
+                    animal_type_name__in=['bull', 'cow', 'weaner (cattle)', 'calf', 'miniature cattle', 'donkey']
                 )
             elif getattr(user.profile, 'is_vet_smallruminant', False):
                 self.fields['animal_type'].queryset = AnimalType.objects.filter(
