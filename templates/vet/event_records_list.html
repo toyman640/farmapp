@@ -2,7 +2,7 @@
   <a href="{% url 'veterinary:event_detail' event.id %}"
    class="event-row shadow-sm text-decoration-none">
 
-  <div class="col col-date">{{ event.created_at|date:"M d, Y H:i" }}</div>
+  <div class="col col-date">{{ event.event_date|date:"M d, Y" }}</div>
 
   <div class="col col-event">
     <span class="event-badge

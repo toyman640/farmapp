@@ -23,6 +23,7 @@
 
       <div class="row mb-2">
         <div class="col-md-6"><strong>Date Created:</strong> {{ event.created_at|date:"M d, Y H:i" }}</div>
+        <div class="col-md-6"><strong>Event Date:</strong> {{ event.event_date|date:"M d, Y" }}</div>
         <div class="col-md-6"><strong>Animal Type:</strong> {{ event.animal_type.animal_type_name|title }}</div>
       </div>
 
