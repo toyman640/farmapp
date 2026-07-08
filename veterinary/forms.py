@@ -1,5 +1,5 @@
 from django import forms
-from farmrecord.models import EventType, AnimalType, Animals, Census, CensusRecord
+from farmrecord.models import EventType, AnimalType, Animals, Census, CensusRecord, PiggeryCensusRecord
 from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.utils import timezone
 
@@ -214,5 +214,40 @@ CensusRecordFormSet = inlineformset_factory(
     validate_min=True,
     max_num=15,  # ✅ allow up to 15
     validate_max=True,
+    can_delete=True
+)
+
+
+class PiggeryCensusRecordForm(forms.ModelForm):
+    class Meta:
+        model = PiggeryCensusRecord
+        fields = ['line', 'number', 'note']
+        widgets = {
+            'line': forms.Select(attrs={'class': 'form-control'}),
+            'number': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Number of animals'}),
+            'note': forms.Textarea(attrs={'rows': 2, 'class': 'form-control', 'placeholder': 'Specific note for this line'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        # Pop 'user' before calling super()
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+class BasePiggeryCensusRecordFormSet(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None) # Pop user here
+        super().__init__(*args, **kwargs)
+
+    def _construct_form(self, i, **kwargs):
+        kwargs['user'] = self.user # Pass user to the form
+        return super()._construct_form(i, **kwargs)
+
+# Update your factory to use this formset class
+PiggeryCensusRecordFormSet = inlineformset_factory(
+    Census,
+    PiggeryCensusRecord,
+    form=PiggeryCensusRecordForm,
+    formset=BasePiggeryCensusRecordFormSet, # <--- Ensure this is set
+    extra=0,
     can_delete=True
 )

@@ -249,3 +249,35 @@ class ExoticAnimalCensus(models.Model):
 
     def __str__(self):
         return f"{self.get_animal_name_display()} Census - {self.census_date}"
+
+
+class PiggeryLine(models.Model):
+    """Stores the definitions (e.g., Line 1 (Breeding), Line 2 (Nursing))"""
+    name = models.CharField(max_length=50) # e.g., "Line 1"
+    specification = models.CharField(max_length=100) # e.g., "Breeding"
+
+    def __str__(self):
+        return f"{self.name} ({self.specification})"
+
+class PiggeryCensusRecord(models.Model):
+    """The actual data recorded during a census"""
+    census = models.ForeignKey(Census, on_delete=models.CASCADE, related_name='piggery_records')
+    line = models.ForeignKey(PiggeryLine, on_delete=models.PROTECT)
+    number = models.PositiveIntegerField(default=0)
+    total_general = models.PositiveIntegerField(default=0)
+    total_piglets = models.PositiveIntegerField(default=0)
+    note = models.TextField(null=True, blank=True)
+
+    def update_total(self):
+        # This handles both piggery and non-piggery
+        if hasattr(self, 'piggery_records'):
+            records = self.piggery_records.all()
+            self.total_general = sum(r.number for r in records)
+            self.total_piglets = sum(r.piglets for r in records)
+        else:
+            self.total_general = sum(r.number_of_animals for r in self.records.all())
+            self.total_piglets = 0 # Not applicable for standard census
+        self.save()
+
+    def __str__(self):
+        return f"{self.line} - {self.number}"
