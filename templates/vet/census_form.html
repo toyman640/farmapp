@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <input type="hidden" name="records-${i}-id" value="${rec.id || ''}">
         <input type="hidden" name="records-${i}-${isPiggery ? 'line' : 'animal_type'}" value="${rec.typeId}">
         <input type="hidden" name="records-${i}-${isPiggery ? 'number' : 'number_of_animals'}" value="${rec.count}">
-        ${isPiggery ? `<input type="hidden" name="records-${i}-piglets" value="${rec.piglets}">` : ''}
+        ${isPiggery ? `<input type="hidden" name="records-${i}-total_piglets" value="${rec.piglets}">` : ''}
         ${isPiggery ? `<input type="hidden" name="records-${i}-note" value="${rec.note}">` : ''}
         <input type="hidden" name="records-${i}-DELETE" value="">
       `;

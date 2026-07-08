@@ -9,24 +9,34 @@
         
         {% if user.profile.is_vet_piggery %}
            <!-- PIGGERY LAYOUT -->
-           <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-             <div><strong>Date:</strong> {{ census.census_date|date:"d M Y" }}</div>
-           </div>
+           <div class="card-header bg-light d-flex justify-content-between">
+                <span><strong>Date:</strong> {{ census.census_date|date:"d M Y" }}</span>
+                <span>
+                    Total Adults: <strong>{{ census.sum_adults|default:0 }}</strong> | 
+                    Total Piglets: <strong>{{ census.sum_piglets|default:0 }}</strong>
+                </span>
+            </div>
            <div class="row">
-             {% for record in census.piggery_records.all %}
-               <div class="col-md-4 mb-3">
-                 <div class="card shadow-sm border-0 h-100 bg-light">
-                   <div class="card-body">
-                     <h6 class="fw-bold text-primary">{{ record.line.name }}</h6>
-                     <small class="text-muted">{{ record.line.specification }}</small>
-                     <div class="d-flex justify-content-between mt-2">
-                       <span>Adults: <strong>{{ record.number }}</strong></span>
-                       <span>Piglets: <strong>{{ record.total_piglets }}</strong></span>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             {% endfor %}
+             <!-- Inside the PIGGERY LAYOUT loop -->
+            {% for record in census.piggery_records.all %}
+              <div class="col-md-4 mb-3">
+                <div class="card shadow-sm border-0 h-100 bg-light">
+                  <div class="card-body">
+                    <h6 class="fw-bold text-primary">{{ record.line.name }}</h6>
+                    <small class="text-muted">{{ record.line.specification }}</small>
+                    
+                    <div class="mt-2">
+                      <div>Adults: <strong>{{ record.number }}</strong></div>
+                      
+                      <!-- Only show piglets if specification is 'Nursing' -->
+                      {% if "nursing" in record.line.specification|lower %}
+                        <div>Piglets: <strong>{{ record.total_piglets }}</strong></div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
            </div>
         {% else %}
            <!-- STANDARD LAYOUT -->

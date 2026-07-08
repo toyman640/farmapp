@@ -269,15 +269,18 @@ class PiggeryCensusRecord(models.Model):
     note = models.TextField(null=True, blank=True)
 
     def update_total(self):
-        # This handles both piggery and non-piggery
-        if hasattr(self, 'piggery_records'):
-            records = self.piggery_records.all()
-            self.total_general = sum(r.number for r in records)
-            self.total_piglets = sum(r.piglets for r in records)
-        else:
-            self.total_general = sum(r.number_of_animals for r in self.records.all())
-            self.total_piglets = 0 # Not applicable for standard census
-        self.save()
+        # Access the parent census object
+        census = self.census
+        records = census.piggery_records.all()
+        
+        # Calculate totals for the entire census
+        total_gen = sum(r.number for r in records)
+        total_pig = sum(r.total_piglets for r in records)
+        
+        # If you have fields on the Census model to store these:
+        census.total_general = total_gen
+        census.total_piglets = total_pig
+        census.save()
 
     def __str__(self):
         return f"{self.line} - {self.number}"

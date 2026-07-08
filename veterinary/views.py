@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import EventForm, CensusForm, CensusRecordFormSet, PiggeryCensusRecordFormSet
 from drugapp.models import Dispatch, Drug, InventoryLog
 from django.utils.timezone import localtime, now, localdate, timedelta
-from django.db.models import Q, Prefetch, Max
+from django.db.models import Q, Prefetch, Max, Sum
 from itertools import chain, zip_longest
 from django.db.models import F
 from django.core.paginator import Paginator
@@ -453,7 +453,10 @@ def census_records(request):
 
     # 2. Apply filtering based on profile
     if vet_profile.is_vet_piggery:
-        censuses = censuses.filter(animal__animal_name__iexact='pig').prefetch_related(
+        censuses = censuses.filter(animal__animal_name__iexact='pig').annotate(
+            sum_adults=Sum('piggery_records__number'),
+            sum_piglets=Sum('piggery_records__total_piglets')
+        ).prefetch_related(
             Prefetch('piggery_records', queryset=PiggeryCensusRecord.objects.select_related('line'))
         )
     elif vet_profile.is_vet_paddock:

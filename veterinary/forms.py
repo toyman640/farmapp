@@ -221,13 +221,13 @@ CensusRecordFormSet = inlineformset_factory(
 class PiggeryCensusRecordForm(forms.ModelForm):
     class Meta:
         model = PiggeryCensusRecord
-        fields = ['line', 'number', 'note']
+        fields = ['line', 'number', 'total_piglets', 'note'] # Added total_piglets
         widgets = {
             'line': forms.Select(attrs={'class': 'form-control'}),
-            'number': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Number of animals'}),
-            'note': forms.Textarea(attrs={'rows': 2, 'class': 'form-control', 'placeholder': 'Specific note for this line'}),
+            'number': forms.NumberInput(attrs={'class': 'form-control'}),
+            'total_piglets': forms.NumberInput(attrs={'class': 'form-control'}),
+            'note': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
         }
-
     def __init__(self, *args, **kwargs):
         # Pop 'user' before calling super()
         self.user = kwargs.pop('user', None)
