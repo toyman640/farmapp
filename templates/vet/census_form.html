@@ -99,6 +99,18 @@
   </div>
 </div>
 
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center p-4">
+        <i class="fa fa-check-circle text-success" style="font-size: 3rem;"></i>
+        <h4 class="mt-3">Success!</h4>
+        <p>Census record created successfully. Redirecting...</p>
+      </div>
+    </div>
+  </div>
+</div>
 {{ existing_records|json_script:"existing-records" }}
 
 <script>
@@ -112,6 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const addBtn = document.getElementById("addRecordBtn");
   const container = document.getElementById("recordsContainer");
   const totalForms = document.querySelector('[name="records-TOTAL_FORMS"]');
+  const censusForm = document.getElementById("census-form");
 
   let records = JSON.parse(document.getElementById("existing-records").textContent).map(r => ({
     id: r.id || null, typeId: String(r.typeId), typeText: r.typeText, count: r.count, 
@@ -188,6 +201,36 @@ document.addEventListener("DOMContentLoaded", () => {
     select.value = ""; countInput.value = ""; if(pigletInput) pigletInput.value = "0"; if(noteInput) noteInput.value = "";
     if(pigletWrapper) pigletWrapper.style.display = "none";
     renderRecords();
+  });
+
+  censusForm.addEventListener("submit", (e) => {
+      e.preventDefault(); // Stop normal form submission
+
+      const formData = new FormData(censusForm);
+
+      fetch(window.location.href, {
+          method: "POST",
+          body: formData,
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.status === "success") {
+              // Show the modal
+              $('#successModal').modal('show');
+              
+              // Redirect after 3 seconds
+              setTimeout(() => {
+                  window.location.href = "{% url 'veterinary:census_records' %}";
+              }, 3000);
+          } else {
+              alert("There was an error saving the census. Please check your inputs.");
+          }
+      })
+      .catch(error => {
+          console.error("Error:", error);
+          alert("An unexpected error occurred.");
+      });
   });
 
   renderRecords();
