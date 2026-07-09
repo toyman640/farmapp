@@ -104,30 +104,77 @@ def vet_index(request):
         payload = queue_item.form_data_payload or {}
         records_payload = payload.get('records', [])
         
-        # Pull what currently lives in the DB for a side-by-side comparison
-        db_records = {
-            r.animal_type_id: r.number_of_animals 
-            for r in queue_item.census.records.all()
-        }
+        # FIX: Check if this is a Piggery census to use the correct related name
+        is_piggery = queue_item.census.animal.animal_name.lower() == 'pig'
+        
+        if is_piggery:
+            # Use piggery_records instead of records
+            db_records = {
+                r.line_id: r.number # Adjust to match your model fields
+                for r in queue_item.census.piggery_records.all()
+            }
+        else:
+            # Standard records
+            db_records = {
+                r.animal_type_id: r.number_of_animals 
+                for r in queue_item.census.records.all()
+            }
 
         processed_records = []
         for item in records_payload:
-            type_id = item.get('animal_type')
-            try:
-                type_obj = AnimalType.objects.get(id=type_id)
-                type_name = type_obj.animal_type_name
-            except AnimalType.DoesNotExist:
-                type_name = "Unknown Type"
+            # If piggery, we look up PiggeryLine, otherwise AnimalType
+            if is_piggery:
+                line_id = item.get('line')
+                try:
+                    line_obj = PiggeryLine.objects.get(id=line_id)
+                    type_name = str(line_obj)
+                except PiggeryLine.DoesNotExist:
+                    type_name = "Unknown Line"
+                old_count = db_records.get(int(line_id) if line_id else 0, 0)
+                new_count = item.get('number', 0)
+            else:
+                type_id = item.get('animal_type')
+                try:
+                    type_obj = AnimalType.objects.get(id=type_id)
+                    type_name = type_obj.animal_type_name
+                except AnimalType.DoesNotExist:
+                    type_name = "Unknown Type"
+                old_count = db_records.get(type_id, 0)
+                new_count = item.get('number_of_animals', 0)
 
-            # Match up payloads with existing database baselines
-            old_count = db_records.get(type_id, 0)
-            
             processed_records.append({
                 'animal_type_name': type_name,
-                'new_count': item.get('number_of_animals', 0),
+                'new_count': new_count,
                 'old_count': old_count,
                 'is_deleted': item.get('DELETE', False)
             })
+        # payload = queue_item.form_data_payload or {}
+        # records_payload = payload.get('records', [])
+        
+        # # Pull what currently lives in the DB for a side-by-side comparison
+        # db_records = {
+        #     r.animal_type_id: r.number_of_animals 
+        #     for r in queue_item.census.records.all()
+        # }
+
+        # processed_records = []
+        # for item in records_payload:
+        #     type_id = item.get('animal_type')
+        #     try:
+        #         type_obj = AnimalType.objects.get(id=type_id)
+        #         type_name = type_obj.animal_type_name
+        #     except AnimalType.DoesNotExist:
+        #         type_name = "Unknown Type"
+
+        #     # Match up payloads with existing database baselines
+        #     old_count = db_records.get(type_id, 0)
+            
+        #     processed_records.append({
+        #         'animal_type_name': type_name,
+        #         'new_count': item.get('number_of_animals', 0),
+        #         'old_count': old_count,
+        #         'is_deleted': item.get('DELETE', False)
+        #     })
 
         census_edits.append({
             'queue_obj': queue_item,
@@ -1016,7 +1063,7 @@ def edit_census(request, pk):
         'census': census,
         'existing_records': existing_records
     })
-    
+
 @login_required
 def edit_event(request, pk):
     event = get_object_or_404(EventType, pk=pk)
