@@ -992,21 +992,25 @@ def edit_census(request, pk):
                 records_data = []
                 for f in formset.forms:
                     if f.has_changed() or f.cleaned_data.get('id'):
-                        record_dict = {'DELETE': f.cleaned_data.get('DELETE', False)}
-                        if is_piggery:
-                            record_dict.update({
-                                'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
-                                'line': f.cleaned_data['line'].id,
-                                'number': f.cleaned_data['number'],
-                                'piglets': f.cleaned_data.get('piglets', 0),
-                                'note': f.cleaned_data['note']
-                            })
-                        else:
-                            record_dict.update({
-                                'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
-                                'animal_type': f.cleaned_data['animal_type'].id,
-                                'number_of_animals': f.cleaned_data['number_of_animals']
-                            })
+
+                        # Check specifically for the delete flag from the formset
+                        is_deleted = f.cleaned_data.get('DELETE', False)
+                        record_dict = {'DELETE': is_deleted}
+                        if not is_deleted:
+                            if is_piggery:
+                                record_dict.update({
+                                    'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
+                                    'line': f.cleaned_data['line'].id,
+                                    'number': f.cleaned_data['number'],
+                                    'piglets': f.cleaned_data.get('piglets', 0),
+                                    'note': f.cleaned_data['note']
+                                })
+                            else:
+                                record_dict.update({
+                                    'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
+                                    'animal_type': f.cleaned_data['animal_type'].id,
+                                    'number_of_animals': f.cleaned_data['number_of_animals']
+                                })
                         records_data.append(record_dict)
 
                 serialized_payload = {

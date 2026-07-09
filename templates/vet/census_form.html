@@ -165,8 +165,8 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
       container.appendChild(div);
     });
-    updateSelectOptions();
     rebuildFormset();
+    updateSelectOptions();
   }
 
   // Inside rebuildFormset() in your <script>
@@ -184,10 +184,10 @@ document.addEventListener("DOMContentLoaded", () => {
           `;
           
           if (isPiggery) {
-              html += `
-                  <input type="hidden" name="records-${i}-total_piglets" value="${rec.piglets}">
-                  <input type="hidden" name="records-${i}-note" value="${rec.note}">
-              `;
+            html += `
+                <input type="hidden" name="records-${i}-total_piglets" value="${rec.piglets}">
+                <input type="hidden" name="records-${i}-note" value="${rec.note}">
+            `;
           }
           
           wrapper.innerHTML = html;
@@ -197,18 +197,43 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   window.deleteRecord = (index) => {
-    records[index].id ? records[index]._deleted = true : records.splice(index, 1);
+    // If it's a new record (no ID), just remove it
+    if (!records[index].id) {
+        records.splice(index, 1);
+    } else {
+        // If it's an existing record, mark as deleted so the POST sends the DELETE flag
+        records[index]._deleted = true;
+    }
     renderRecords();
   };
 
   addBtn.addEventListener("click", () => {
     if (!select.value || !countInput.value) return alert("Fill mandatory fields");
-    records.push({
-      id: null, typeId: select.value, typeText: select.options[select.selectedIndex].text,
-      count: countInput.value, piglets: pigletInput?.value || 0, note: noteInput?.value || "", _deleted: false
-    });
-    select.value = ""; countInput.value = ""; if(pigletInput) pigletInput.value = "0"; if(noteInput) noteInput.value = "";
+    
+    const newRec = {
+      id: null, 
+      typeId: select.value, 
+      typeText: select.options[select.selectedIndex].text,
+      count: countInput.value, 
+      piglets: pigletInput?.value || 0, 
+      note: noteInput?.value || "", 
+      _deleted: false
+    };
+
+    const deletedIndex = records.findIndex(r => r._deleted);
+    if (deletedIndex !== -1) {
+        records[deletedIndex] = newRec;
+    } else {
+        records.push(newRec);
+    }
+
+    // --- CRITICAL FIX: Reset inputs ---
+    select.value = ""; 
+    countInput.value = ""; 
+    if(pigletInput) pigletInput.value = "0"; 
+    if(noteInput) noteInput.value = "";
     if(pigletWrapper) pigletWrapper.style.display = "none";
+    
     renderRecords();
   });
 
