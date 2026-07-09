@@ -173,6 +173,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function rebuildFormset() {
       document.querySelectorAll(".hidden-formset").forEach(el => el.remove());
       records.forEach((rec, i) => {
+
+          if (rec._deleted && !rec.id) return;
+
+          // DEBUG: If it's supposed to be an existing record, log a warning
+          if (rec.typeId && !rec.id) {
+              console.warn(`Record at index ${i} is missing an ID!`, rec);
+          }
           const wrapper = document.createElement("div");
           wrapper.className = "hidden-formset d-none";
           
@@ -222,9 +229,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const deletedIndex = records.findIndex(r => r._deleted);
     if (deletedIndex !== -1) {
-        records[deletedIndex] = newRec;
+      // Keep the old ID if we are replacing a deleted existing record
+      const oldId = records[deletedIndex].id;
+      records[deletedIndex] = { ...newRec, id: oldId };
     } else {
-        records.push(newRec);
+      records.push(newRec);
     }
 
     // --- CRITICAL FIX: Reset inputs ---

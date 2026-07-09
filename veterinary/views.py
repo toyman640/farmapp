@@ -1054,6 +1054,8 @@ def edit_census(request, pk):
         
         else:
             errors = {**form.errors, **{f'formset-{i}': e for i, f in enumerate(formset.forms) for e in f.errors}}
+            print("FORM ERRORS:", form.errors)
+            print("FORMSET ERRORS:", formset.errors)
             return JsonResponse({'status': 'error', 'message': 'Please correct the highlighted errors.', 'errors': errors}, status=400)
 
     else:
