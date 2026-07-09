@@ -169,22 +169,31 @@ document.addEventListener("DOMContentLoaded", () => {
     rebuildFormset();
   }
 
+  // Inside rebuildFormset() in your <script>
   function rebuildFormset() {
-    document.querySelectorAll(".hidden-formset").forEach(el => el.remove());
-    records.filter(r => !r._deleted).forEach((rec, i) => {
-      const wrapper = document.createElement("div");
-      wrapper.className = "hidden-formset d-none";
-      wrapper.innerHTML = `
-        <input type="hidden" name="records-${i}-id" value="${rec.id || ''}">
-        <input type="hidden" name="records-${i}-${isPiggery ? 'line' : 'animal_type'}" value="${rec.typeId}">
-        <input type="hidden" name="records-${i}-${isPiggery ? 'number' : 'number_of_animals'}" value="${rec.count}">
-        ${isPiggery ? `<input type="hidden" name="records-${i}-total_piglets" value="${rec.piglets}">` : ''}
-        ${isPiggery ? `<input type="hidden" name="records-${i}-note" value="${rec.note}">` : ''}
-        <input type="hidden" name="records-${i}-DELETE" value="">
-      `;
-      document.getElementById("census-form").appendChild(wrapper);
-    });
-    totalForms.value = records.filter(r => !r._deleted).length;
+      document.querySelectorAll(".hidden-formset").forEach(el => el.remove());
+      records.forEach((rec, i) => {
+          const wrapper = document.createElement("div");
+          wrapper.className = "hidden-formset d-none";
+          
+          let html = `
+              <input type="hidden" name="records-${i}-id" value="${rec.id || ''}">
+              <input type="hidden" name="records-${i}-${isPiggery ? 'line' : 'animal_type'}" value="${rec.typeId}">
+              <input type="hidden" name="records-${i}-${isPiggery ? 'number' : 'number_of_animals'}" value="${rec.count}">
+              <input type="hidden" name="records-${i}-DELETE" value="${rec._deleted ? 'on' : ''}">
+          `;
+          
+          if (isPiggery) {
+              html += `
+                  <input type="hidden" name="records-${i}-total_piglets" value="${rec.piglets}">
+                  <input type="hidden" name="records-${i}-note" value="${rec.note}">
+              `;
+          }
+          
+          wrapper.innerHTML = html;
+          censusForm.appendChild(wrapper);
+      });
+      totalForms.value = records.length; // Keep the total count of all records
   }
 
   window.deleteRecord = (index) => {
@@ -204,8 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   censusForm.addEventListener("submit", (e) => {
-      e.preventDefault(); // Stop normal form submission
-
+      e.preventDefault();
       const formData = new FormData(censusForm);
 
       fetch(window.location.href, {
@@ -216,20 +224,22 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(response => response.json())
       .then(data => {
           if (data.status === "success") {
-              // Show the modal
               $('#successModal').modal('show');
-              
-              // Redirect after 3 seconds
-              setTimeout(() => {
-                  window.location.href = "{% url 'veterinary:census_records' %}";
-              }, 3000);
-          } else {
-              alert("There was an error saving the census. Please check your inputs.");
+              setTimeout(() => window.location.href = "{% url 'veterinary:census_records' %}", 3000);
+          } 
+          else if (data.status === "warning") {
+              // Show a non-blocking alert for partial failures
+              alert("Warning: " + data.message);
+              window.location.href = "{% url 'veterinary:census_records' %}";
+          }
+          else {
+              // Detailed error feedback
+              console.error("Errors:", data.errors);
+              alert("Error: " + data.message);
           }
       })
       .catch(error => {
-          console.error("Error:", error);
-          alert("An unexpected error occurred.");
+          alert("A critical system error occurred.");
       });
   });
 
