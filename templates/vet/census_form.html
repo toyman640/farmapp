@@ -192,8 +192,10 @@ document.addEventListener("DOMContentLoaded", () => {
           
           if (isPiggery) {
             html += `
-                <input type="hidden" name="records-${i}-total_piglets" value="${rec.piglets}">
-                <input type="hidden" name="records-${i}-note" value="${rec.note}">
+              <input type="hidden" name="records-${i}-line" value="${rec.typeId}">
+              <input type="hidden" name="records-${i}-number" value="${rec.count}">
+              <input type="hidden" name="records-${i}-total_piglets" value="${rec.piglets || 0}">
+              <input type="hidden" name="records-${i}-note" value="${rec.note || ''}">
             `;
           }
           

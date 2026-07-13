@@ -239,7 +239,7 @@ def main_index(request):
 
             # Extract new values
             new_n = item.get('number') if is_piggery else item.get('number_of_animals')
-            new_p = item.get('total_piglets', 0) if is_piggery else 0
+            new_p = item.get('piglets', 0) if is_piggery else 0
             new_note = item.get('note', '')
             # Build baseline map for comparison
 
@@ -529,8 +529,9 @@ def approve_census_edit(request, edit_id):
                     # Resolve IDs and values based on type
                     if is_piggery:
                         line_id = record.get('line')
-                        new_count = record.get('new_count', 0)
-                        line_note = record.get('note', '') # Capture the note
+                        new_count = record.get('number', 0)
+                        new_piglets = record.get('piglets', 0) 
+                        line_note = record.get('note', '') # Ensure this matches your template naming
                     else:
                         type_id = record.get('animal_type') or record.get('animal_type_id')
                         new_count = record.get('new_count') or record.get('number_of_animals')
@@ -548,7 +549,11 @@ def approve_census_edit(request, edit_id):
                             PiggeryCensusRecord.objects.update_or_create(
                                 census=census,
                                 line_id=line_id,
-                                defaults={'number': new_count, 'note': line_note}
+                                defaults={
+                                    'number': new_count, 
+                                    'total_piglets': new_piglets, # FIX: Include this field
+                                    'note': line_note
+                                }
                             )
                         else:
                             CensusRecord.objects.update_or_create(

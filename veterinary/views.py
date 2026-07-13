@@ -983,10 +983,14 @@ def edit_census(request, pk):
             census.save()
 
     if request.method == 'POST':
+        # DEBUG: See what is actually arriving
+        print("POST DATA:", request.POST)
         form = CensusForm(request.POST, instance=census, user=user)
         formset = FormSetClass(request.POST, instance=census, user=user, prefix='records')
 
         if form.is_valid() and formset.is_valid():
+            for i, f in enumerate(formset.forms):
+                print(f"FORM {i} DATA: {f.cleaned_data}")
             try:
                 # 3. Dynamic Payload Construction
                 records_data = []
@@ -1002,7 +1006,7 @@ def edit_census(request, pk):
                                     'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
                                     'line': f.cleaned_data['line'].id,
                                     'number': f.cleaned_data['number'],
-                                    'piglets': f.cleaned_data.get('piglets', 0),
+                                    'piglets': f.cleaned_data.get('total_piglets', 0),
                                     'note': f.cleaned_data['note']
                                 })
                             else:
