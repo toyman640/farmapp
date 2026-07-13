@@ -719,7 +719,7 @@
               
               <div class="" style="background-color: #e8f5e9; border-color: #c8e6c9; color: #2e7d32; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
                 <strong>Requested By:</strong> {{ edit.requested_by.username }}<br>
-                <strong>Submission Notes:</strong> {{ edit.census.notes|default:"No notes provided with this modification request." }}
+                <strong>Submission Notes:</strong> {{ edit.request_note|default:"No notes provided with this modification request." }}
               </div>
 
               <h6 class="fw-bold mb-2">Detailed Metric Changes</h6>
@@ -736,27 +736,30 @@
                 <thead class="bg-light">
                   <tr>
                     <th>Classification</th>
-                    <th class="text-center">Prev</th>
-                    <th class="text-center">New</th>
+                    <th class="text-center">Prev {% if edit.records.0.is_piggery %}(G/P){% endif %}</th>
+                    <th class="text-center">New {% if edit.records.0.is_piggery %}(G/P){% endif %}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for item in edit.records %}
-                  <tr class="{% if item.is_deleted %}table-danger{% elif item.old_count != item.new_count %}table-warning{% endif %}">
+                  {% comment %} Highlight row if any change detected {% endcomment %}
+                  <tr class="{% if item.is_deleted %}table-danger{% elif item.count_changed or item.piglets_changed or item.note_changed %}table-warning{% endif %}">
                     <td>
                       <div class="fw-bold">{{ item.animal_type_name }}</div>
-                      {% if item.note %}
-                        <small class="text-muted d-block font-italic">
-                          <i class="fa fa-pencil-alt"></i> {{ item.note }}
+                      {% if item.new_note %}
+                        <small class="{% if item.note_changed %}text-danger fw-bold{% else %}text-muted{% endif %} d-block font-italic">
+                          <i class="fa fa-pencil-alt"></i> {{ item.new_note }}
                         </small>
                       {% endif %}
                     </td>
-                    <td class="text-center text-muted">{{ item.old_count }}</td>
+                    <td class="text-center text-muted">
+                      {{ item.old_count }} {% if item.is_piggery %}/ {{ item.old_piglets }}{% endif %}
+                    </td>
                     <td class="text-center fw-bold">
                       {% if item.is_deleted %}
                         <span class="text-danger">Removed</span>
                       {% else %}
-                        {{ item.new_count }}
+                        {{ item.new_count }} {% if item.is_piggery %}/ {{ item.new_piglets }}{% endif %}
                       {% endif %}
                     </td>
                   </tr>

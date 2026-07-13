@@ -226,9 +226,9 @@ def main_index(request):
         
         # Build baseline map for comparison
         if is_piggery:
-            db_records = {r.line_id: r.number for r in queue_item.census.piggery_records.all()}
+            db_records = {r.line_id: {'n': r.number, 'p': r.total_piglets, 'note': r.note} for r in queue_item.census.piggery_records.all()}
         else:
-            db_records = {r.animal_type_id: r.number_of_animals for r in queue_item.census.records.all()}
+            db_records = {r.animal_type_id: {'n': r.number_of_animals, 'note': ''} for r in queue_item.census.records.all()}
 
         processed_records = []
         for item in records_payload:
@@ -236,6 +236,16 @@ def main_index(request):
             type_id = item.get('line') if is_piggery else item.get('animal_type')
             count = item.get('number') if is_piggery else item.get('number_of_animals')
             note = item.get('note', '')  # Get the note from payload
+
+            # Extract new values
+            new_n = item.get('number') if is_piggery else item.get('number_of_animals')
+            new_p = item.get('total_piglets', 0) if is_piggery else 0
+            new_note = item.get('note', '')
+            # Build baseline map for comparison
+
+            # Fetch old data
+            old_data = db_records.get(type_id, {})
+        
             
             # Fetch human-readable name
             try:
@@ -251,45 +261,22 @@ def main_index(request):
 
             processed_records.append({
                 'animal_type_name': type_name,
-                'new_count': count,
-                'old_count': db_records.get(type_id, 0),
+                'new_count': new_n,
+                'old_count': old_data.get('n', 0),
+                'new_piglets': new_p,
+                'old_piglets': old_data.get('p', 0),
+                'new_note': new_note,
+                'old_note': old_data.get('note', ''),
                 'is_deleted': item.get('DELETE', False),
-                'note': note  # Add this
+                # Flags for highlighting
+                'count_changed': old_data.get('n') != new_n,
+                'piglets_changed': is_piggery and (old_data.get('p') != new_p),
+                'note_changed': old_data.get('note') != new_note,
+                'is_piggery': is_piggery
             })
 
         queue_item.records = processed_records
         processed_census_edits.append(queue_item)
-    # processed_census_edits = []
-    # for queue_item in census_edits:
-    #     payload = queue_item.form_data_payload or {}
-    #     records_payload = payload.get('records', [])
-        
-    #     # Pull baseline from the actual Census object
-    #     db_records = {
-    #         r.animal_type_id: r.number_of_animals 
-    #         for r in queue_item.census.records.all()
-    #     }
-
-    #     processed_records = []
-    #     for item in records_payload:
-    #         type_id = item.get('animal_type')
-    #         try:
-    #             type_obj = AnimalType.objects.get(id=type_id)
-    #             type_name = type_obj.animal_type_name
-    #         except AnimalType.DoesNotExist:
-    #             type_name = "Unknown"
-
-    #         processed_records.append({
-    #             'animal_type_name': type_name,
-    #             'new_count': item.get('number_of_animals', 0),
-    #             'old_count': db_records.get(type_id, 0),
-    #             'is_deleted': item.get('DELETE', False)
-    #         })
-
-    #     # Attach the processed records to the object so the template can see them
-    #     queue_item.records = processed_records
-    #     processed_census_edits.append(queue_item)
-
     context = {
         'low_stock_drugs': low_stock_drugs,
         'today_dispatches': today_dispatches,
