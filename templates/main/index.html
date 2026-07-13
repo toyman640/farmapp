@@ -736,18 +736,25 @@
                 <thead class="bg-light">
                   <tr>
                     <th>Classification</th>
-                    <th class="text-center">Previous Group Count</th>
-                    <th class="text-center">Proposed Group Count</th>
+                    <th class="text-center">Prev</th>
+                    <th class="text-center">New</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for item in edit.records %}
                   <tr class="{% if item.is_deleted %}table-danger{% elif item.old_count != item.new_count %}table-warning{% endif %}">
-                    <td>{{ item.animal_type_name }}</td>
+                    <td>
+                      <div class="fw-bold">{{ item.animal_type_name }}</div>
+                      {% if item.note %}
+                        <small class="text-muted d-block font-italic">
+                          <i class="fa fa-pencil-alt"></i> {{ item.note }}
+                        </small>
+                      {% endif %}
+                    </td>
                     <td class="text-center text-muted">{{ item.old_count }}</td>
                     <td class="text-center fw-bold">
                       {% if item.is_deleted %}
-                        <span class="text-danger text-decoration-line-through">Removed</span>
+                        <span class="text-danger">Removed</span>
                       {% else %}
                         {{ item.new_count }}
                       {% endif %}
