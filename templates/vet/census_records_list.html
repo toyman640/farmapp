@@ -9,12 +9,20 @@
         
         {% if user.profile.is_vet_piggery %}
            <!-- PIGGERY LAYOUT -->
-           <div class="card-header bg-light d-flex justify-content-between">
-                <span><strong>Date:</strong> {{ census.census_date|date:"d M Y" }}</span>
-                <span>
-                    General Totoal: <strong>{{ census.sum_adults|default:0 }}</strong> | 
-                    Piglets Total: <strong>{{ census.sum_piglets|default:0 }}</strong>
-                </span>
+           <!-- PIGGERY LAYOUT -->
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between">
+                    <span><strong>Date:</strong> {{ census.census_date|date:"d M Y" }}</span>
+                </div>
+                <div class="mt-2 small">
+                    <div class="row text-center">
+                        <div class="col">Gen Total: <strong>{{ census.sum_adults|default:0 }}</strong></div>
+                        <div class="col">Piglets: <strong>{{ census.sum_piglets|default:0 }}</strong></div>
+                        <div class="col">Geese: <strong>{{ census.sum_geese|default:0 }}</strong></div>
+                        <div class="col">Croc: <strong>{{ census.sum_crocodiles|default:0 }}</strong></div>
+                        <div class="col">Grand Total: <strong>{{ census.grand_total|default:0 }}</strong></div>
+                    </div>
+                </div>
             </div>
            <div class="row">
              <!-- Inside the PIGGERY LAYOUT loop -->
