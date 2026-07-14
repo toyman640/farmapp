@@ -348,7 +348,7 @@ def create_event(request):
         # ✅ Handle piggery location explicitly
         if getattr(request.user.profile, 'is_vet_piggery', False):
             line = request.POST.get('lineSelect', '')
-            print(line)
+            
             block = request.POST.get('blockSelect', '')
             pen = request.POST.get('penSelect', '')
             post_data['location'] = " ".join(filter(None, [line, block, pen]))
@@ -356,7 +356,7 @@ def create_event(request):
         # form = EventForm(request.POST, request.FILES, user=request.user)
         # form = EventForm(post_data, request.FILES, user=request.user)
         form = EventForm(post_data, request.FILES, user=request.user, edit_mode=False)
-        print(form.errors)
+        
 
         if form.is_valid():
             # event = form.save(commit=False)
@@ -506,6 +506,7 @@ def census_records(request):
         ).prefetch_related(
             Prefetch('piggery_records', queryset=PiggeryCensusRecord.objects.select_related('line'))
         )
+        
     elif vet_profile.is_vet_paddock:
         censuses = censuses.filter(animal__animal_name__iexact='cattle').prefetch_related(
             Prefetch('records', queryset=CensusRecord.objects.select_related('animal_type'))
@@ -983,14 +984,11 @@ def edit_census(request, pk):
             census.save()
 
     if request.method == 'POST':
-        # DEBUG: See what is actually arriving
-        print("POST DATA:", request.POST)
+        
         form = CensusForm(request.POST, instance=census, user=user)
         formset = FormSetClass(request.POST, instance=census, user=user, prefix='records')
 
         if form.is_valid() and formset.is_valid():
-            for i, f in enumerate(formset.forms):
-                print(f"FORM {i} DATA: {f.cleaned_data}")
             try:
                 # 3. Dynamic Payload Construction
                 records_data = []
@@ -1058,8 +1056,7 @@ def edit_census(request, pk):
         
         else:
             errors = {**form.errors, **{f'formset-{i}': e for i, f in enumerate(formset.forms) for e in f.errors}}
-            print("FORM ERRORS:", form.errors)
-            print("FORMSET ERRORS:", formset.errors)
+           
             return JsonResponse({'status': 'error', 'message': 'Please correct the highlighted errors.', 'errors': errors}, status=400)
 
     else:
@@ -1104,7 +1101,7 @@ def edit_event(request, pk):
     # Small ruminant example: "SR Unit 2", "SR Pen 6"
     if location.lower().startswith("sr"):
         initial_small_ruminant = location
-        print(initial_small_ruminant)
+        
 
     
 

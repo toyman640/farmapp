@@ -12,21 +12,32 @@
            <div class="card-header bg-light d-flex justify-content-between">
                 <span><strong>Date:</strong> {{ census.census_date|date:"d M Y" }}</span>
                 <span>
-                    Total Adults: <strong>{{ census.sum_adults|default:0 }}</strong> | 
-                    Total Piglets: <strong>{{ census.sum_piglets|default:0 }}</strong>
+                    General Totoal: <strong>{{ census.sum_adults|default:0 }}</strong> | 
+                    Piglets Total: <strong>{{ census.sum_piglets|default:0 }}</strong>
                 </span>
             </div>
            <div class="row">
              <!-- Inside the PIGGERY LAYOUT loop -->
             {% for record in census.piggery_records.all %}
               <div class="col-md-4 mb-3">
-                <div class="card shadow-sm border-0 h-100 bg-light">
+                <div class="card shadow-sm border-0 h-100 bg-light note-trigger" 
+                  style="cursor: pointer;"
+                  data-toggle="modal"
+                  data-target="#noteModal"
+                  data-title="{{ record.line.name|escape }}"
+                  data-spec="{{ record.line.specification|escape }}"
+                  
+                  
+                >
+                  <div class="d-none record-note">{{ record.note|default:'No notes available.' }}</div>
+                 
                   <div class="card-body">
                     <h6 class="fw-bold text-primary">{{ record.line.name }}</h6>
                     <small class="text-muted">{{ record.line.specification }}</small>
                     
+                    
                     <div class="mt-2">
-                      <div>Adults: <strong>{{ record.number }}</strong></div>
+                      <div>Genreal: <strong>{{ record.number }}</strong></div>
                       
                       <!-- Only show piglets if specification is 'Nursing' -->
                       {% if "nursing" in record.line.specification|lower %}
@@ -61,3 +72,42 @@
     {% endfor %}
   </div>
 {% endfor %}
+
+<!-- Note Detail Modal -->
+<div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="noteModalTitle">Record Note</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="this.blur();">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap;">
+        <p id="noteModalBody"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="this.blur();">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+$('#noteModal').on('show.bs.modal', function (event) {
+    var card = $(event.relatedTarget);
+    var modal = $(this);
+
+    // 1. Get Title and Spec from attributes (these are safe)
+    var title = card.data('title');
+    var spec = card.data('spec');
+    
+    // 2. Get the note text from the hidden div (this preserves the "-" character)
+    var noteContent = card.find('.record-note').text();
+
+    // 3. Update the modal
+    modal.find('#noteModalTitle').text(title + (spec ? '(' + spec + ')' : '') + ' Note');
+    modal.find('#noteModalBody').text(noteContent);
+});
+</script>
