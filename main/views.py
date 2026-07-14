@@ -1500,11 +1500,25 @@ def piggery_census_records_admin(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # Add this:
+    lines = PiggeryLine.objects.all()
+
+    # Handle the line update form
+    if request.method == 'POST' and 'line_id' in request.POST:
+        line_id = request.POST.get('line_id')
+        instance = get_object_or_404(PiggeryLine, id=line_id)
+        form = PiggeryLineForm(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'status': 'success', 'message': 'Line updated successfully!'})
+
     context = {
         'page_obj': page_obj,
         'census_records': page_obj.object_list,
         'has_next': page_obj.has_next(),
+        'lines': lines,
     }
+    
 
     # ✅ AJAX infinite scroll partial
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -1566,3 +1580,17 @@ def delete_census_admin(request, pk):
         return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
     return redirect('main:paddock_census_records_admin')
 
+
+
+# @login_required
+# def manage_piggery_lines(request):
+#     lines = PiggeryLine.objects.all()
+#     if request.method == 'POST':
+#         line_id = request.POST.get('line_id')
+#         instance = get_object_or_404(PiggeryLine, id=line_id)
+#         form = PiggeryLineForm(request.POST, instance=instance)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "Line updated successfully!")
+#             return redirect('main:manage_piggery_lines')
+#     return render(request, 'main/manage_lines.html', {'lines': lines})

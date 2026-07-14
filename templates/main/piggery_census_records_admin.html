@@ -10,6 +10,42 @@
       <li class="breadcrumb-item active">Census Records</li>
     </ol>
 
+    <!-- Piggery Line Management Accordion -->
+    <div class="accordion mb-4" id="lineAccordion">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary p-2" id="headingOne">
+          <h5 class="mb-0">
+            <button class="btn btn-link text-white font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseLines">
+              <i class="fa fa-edit mr-2"></i> Manage Piggery Lines
+            </button>
+          </h5>
+        </div>
+        <div id="collapseLines" class="collapse" data-parent="#lineAccordion">
+          <div class="card-body bg-light">
+            <div class="row">
+              {% for line in lines %}
+                <div class="col-md-4 mb-3">
+                  <form class="line-update-form border p-3 rounded bg-white shadow-sm">
+                    {% csrf_token %}
+                    <input type="hidden" name="line_id" value="{{ line.id }}">
+                    <div class="form-group mb-2">
+                      <label class="small font-weight-bold">Line Name</label>
+                      <input type="text" name="name" value="{{ line.name }}" class="form-control form-control-sm">
+                    </div>
+                    <div class="form-group mb-2">
+                      <label class="small font-weight-bold">Specification</label>
+                      <input type="text" name="specification" value="{{ line.specification }}" class="form-control form-control-sm">
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-success w-100">Update</button>
+                  </form>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="box_general p-4 bg-white shadow-sm rounded">
       <h4 class="text-primary mb-3">🐖 Piggery Census Records</h4>
 

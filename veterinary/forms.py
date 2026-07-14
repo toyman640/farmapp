@@ -1,5 +1,5 @@
 from django import forms
-from farmrecord.models import EventType, AnimalType, Animals, Census, CensusRecord, PiggeryCensusRecord
+from farmrecord.models import EventType, AnimalType, Animals, Census, CensusRecord, PiggeryCensusRecord, PiggeryLine
 from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.utils import timezone
 
@@ -251,3 +251,13 @@ PiggeryCensusRecordFormSet = inlineformset_factory(
     extra=0,
     can_delete=True
 )
+
+
+class PiggeryLineForm(forms.ModelForm):
+    class Meta:
+        model = PiggeryLine
+        fields = ['name', 'specification']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Line 1'}),
+            'specification': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Breeding'}),
+        }

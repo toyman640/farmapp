@@ -38,3 +38,32 @@ $('#noteModal').on('show.bs.modal', function (event) {
     modal.find('.modal-title').text(title + (spec ? ' (' + spec + ')' : '') + ' Note');
     modal.find('#noteModalBody').text(noteContent || "No notes available.");
 });
+
+
+
+
+// Handle line update forms
+document.querySelectorAll('.line-update-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                document.getElementById('successMessage').textContent = data.message;
+                $('#successModal').modal('show');
+                
+                // Close modal after 3 seconds
+                setTimeout(() => {
+                    $('#successModal').modal('hide');
+                }, 3000);
+            }
+        });
+    });
+});
