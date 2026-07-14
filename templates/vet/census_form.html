@@ -282,4 +282,12 @@ document.addEventListener("DOMContentLoaded", () => {
   renderRecords();
 });
 </script>
+{% if user.profile.is_vet_piggery %}
+<style>
+    /* This hides the p-tag containing the notes field */
+    #census-form p:has(label[for="id_notes"]) {
+        display: none;
+    }
+</style>
+{% endif %}
 {% endblock %}
