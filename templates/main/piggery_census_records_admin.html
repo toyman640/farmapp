@@ -46,26 +46,39 @@
                     <div><strong>Animal:</strong> {{ census.animal }}</div>
                     <div><strong>Total:</strong> {{ census.total_animals }}</div>
                   </div>
-                  {% if census.records.all %}
+                
+                  {% if census.piggery_records.all %}
                     <div class="row mt-3">
-                      {% for record in census.records.all %}
+                      {% for record in census.piggery_records.all %}
                         <div class="col-md-4 mb-3">
-                          <div class="card shadow-sm border-0 h-100">
+                          <!-- Added note-trigger and data attributes -->
+                          <div class="card shadow-sm border-0 h-100 bg-light note-trigger" 
+                              style="cursor: pointer;"
+                              data-toggle="modal" 
+                              data-target="#noteModal"
+                              data-title="{{ record.line.name }}"
+                              data-spec="{{ record.line.specification }}"
+                            >
+                            
+                            <!-- Hidden note content for jQuery to read -->
+                            <div class="d-none record-note">{{ record.note|default:'No notes available.' }}</div>
+                            
                             <div class="card-body text-center">
-                              <h6 class="fw-semibold text-primary mb-1">{{ record.animal_type }}</h6>
-                              <p class="mb-0"><strong>{{ record.number_of_animals }}</strong> animals</p>
-                              <i class="fa fa-pig text-secondary fs-5 mt-2"></i>
+                              <h6 class="fw-semibold text-primary mb-1">{{ record.line.name }}</h6>
+                              <small class="text-muted">{{ record.line.specification }}</small>
+                              <p class="mb-0 mt-2">General: <strong>{{ record.number }}</strong></p>
+                              {% if "nursing" in record.line.specification|lower %}
+                                <p class="mb-0"><small>Piglets: <strong>{{ record.total_piglets }}</strong></small></p>
+                              {% endif %}
                             </div>
                           </div>
                         </div>
                       {% endfor %}
                     </div>
-                  {% else %}
+                  {% else%}
                     <p class="text-muted mt-2">No detailed records available.</p>
                   {% endif %}
-                  {% if census.notes %}
-                    <div class="mt-2"><strong>Notes:</strong> {{ census.notes }}</div>
-                  {% endif %}
+                  
 
                   <div class="d-flex justify-content-end mb-2">
                     <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ census.id }})">
@@ -114,6 +127,28 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="noteModalTitle">Record Note</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <!-- Added styling for scrollable notes -->
+      <div class="modal-body overflow-auto" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap;">
+        <p id="noteModalBody"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <script>
   // Prevent future dates
@@ -190,6 +225,25 @@
     })
     .catch(err => console.error("Deletion failed:", err));
   });
+
+
+  // Updated Note Modal Logic
+$('#noteModal').on('show.bs.modal', function (event) {
+    // Button that triggered the modal
+    var button = $(event.relatedTarget); 
+    var modal = $(this);
+
+    // Retrieve values directly from attributes
+    var title = button.attr('data-title');
+    var spec = button.attr('data-spec');
+    
+    // Find the hidden div within the clicked card
+    var noteContent = button.find('.record-note').text().trim();
+
+    // Set the modal content
+    modal.find('.modal-title').text(title + (spec ? ' (' + spec + ')' : '') + ' Note');
+    modal.find('#noteModalBody').text(noteContent || "No notes available.");
+});
 </script>
 
 <style>
