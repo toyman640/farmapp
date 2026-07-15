@@ -148,33 +148,7 @@ def vet_index(request):
                 'old_count': old_count,
                 'is_deleted': item.get('DELETE', False)
             })
-        # payload = queue_item.form_data_payload or {}
-        # records_payload = payload.get('records', [])
         
-        # # Pull what currently lives in the DB for a side-by-side comparison
-        # db_records = {
-        #     r.animal_type_id: r.number_of_animals 
-        #     for r in queue_item.census.records.all()
-        # }
-
-        # processed_records = []
-        # for item in records_payload:
-        #     type_id = item.get('animal_type')
-        #     try:
-        #         type_obj = AnimalType.objects.get(id=type_id)
-        #         type_name = type_obj.animal_type_name
-        #     except AnimalType.DoesNotExist:
-        #         type_name = "Unknown Type"
-
-        #     # Match up payloads with existing database baselines
-        #     old_count = db_records.get(type_id, 0)
-            
-        #     processed_records.append({
-        #         'animal_type_name': type_name,
-        #         'new_count': item.get('number_of_animals', 0),
-        #         'old_count': old_count,
-        #         'is_deleted': item.get('DELETE', False)
-        #     })
 
         census_edits.append({
             'queue_obj': queue_item,
