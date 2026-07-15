@@ -1529,6 +1529,27 @@ def piggery_census_records_admin(request):
 
 
 @login_required
+def exotic_animal_records(request):
+    # Filter for PiggeryCensusRecords where the line is goose or crocodile
+    exotic_records = PiggeryCensusRecord.objects.filter(
+        Q(line__name__icontains='goose') | Q(line__name__icontains='crocodile')
+    ).select_related('census', 'line').order_by('-census__census_date')
+
+    # Optional: Date filtering if needed
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    if start_date:
+        exotic_records = exotic_records.filter(census__census_date__gte=parse_date(start_date))
+    if end_date:
+        exotic_records = exotic_records.filter(census__census_date__lte=parse_date(end_date))
+
+    context = {
+        'exotic_records': exotic_records,
+    }
+    return render(request, 'main/exotic_animal_records.html', context)
+
+@login_required
 def admin_event_detail(request, pk):
     event = get_object_or_404(EventType.objects.select_related('animal', 'animal_type'), pk=pk)
 

@@ -67,6 +67,24 @@
     
               </ul>
         </li>
+         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+              <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#other" data-parent="#mylistings">
+                <i >🐊🦆</i>
+                <span class="nav-link-text">Croc & Geese</span>
+              </a>
+              <ul class="sidenav-second-level collapse" id="other">
+                <li>
+                  <a href="{% url 'main:piggery_event_records_admin' %}"> Event Records</a>
+                </li>
+                <li>
+                  <a href="{% url 'main:exotic_animal_records' %}">Census Records</a>
+                </li>
+          <li>
+                  <a href="{% url 'main:piggery_stats' %}">Analytics</a>
+                </li>
+    
+              </ul>
+        </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'main:drugs_inventory_land' %}">
             <i class="fa fa-fw fa-clipboard"></i>

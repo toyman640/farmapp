@@ -44,4 +44,5 @@ urlpatterns = [
     path('census-edit/<int:edit_id>/approve/', views.approve_census_edit, name='approve_census_edit'),
     # path('admin/census/edit/<int:pk>/', views.admin_edit_census, name='admin_edit_census'),
     path('admin/census/delete/<int:pk>/', views.delete_census_admin, name='delete_census_admin'),
+    path('piggery/exotic-animals/', views.exotic_animal_records, name='exotic_animal_records'),
 ]
