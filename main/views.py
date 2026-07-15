@@ -1273,16 +1273,33 @@ def paddock_stats(request):
     
 @login_required
 def piggery_stats(request):
-    census_data = (
-        Census.objects.filter(animal__animal_name='pig')
-        .annotate(month=TruncMonth('census_date'))
-        .values('month')
-        .annotate(total=Sum('total_animals'))
-        .order_by('month')
+
+    # Retrieve individual census records
+    # 1. Order by census_date (oldest to newest)
+    # 2. Slice [:8] to get the 8 most recent (if you want the very latest, use order_by('-census_date')[:8] and then reverse)
+    
+    # RECOMMENDED: Get the 8 most recent records
+    census_records = Census.objects.filter(animal__animal_name='pig').order_by('-census_date')[:8]
+    
+    # 3. Convert to list and reverse so the chart displays oldest to newest (left to right)
+    census_records = list(reversed(census_records))
+    # Retrieve individual census records to show specific dates
+    census_records = Census.objects.filter(animal__animal_name='pig').order_by('census_date').annotate(
+        sum_adults=Sum(
+            Case(
+                When(piggery_records__line__name__icontains='goose', then=0),
+                When(piggery_records__line__name__icontains='crocodile', then=0),
+                default=F('piggery_records__number'),
+                output_field=IntegerField()
+            )
+        ),
+        sum_piglets=Sum('piggery_records__total_piglets')
     )
 
-    census_labels = [calendar.month_name[d['month'].month] for d in census_data]
-    census_values = [d['total'] or 0 for d in census_data]
+    # Use the census date as the label
+    census_labels = [c.census_date.strftime('%d %b %Y') for c in census_records]
+    adult_values = [c.sum_adults or 0 for c in census_records]
+    piglet_values = [c.sum_piglets or 0 for c in census_records]
 
     event_type = request.GET.get('type', 'mortality')
     event_data = (
@@ -1301,7 +1318,8 @@ def piggery_stats(request):
 
     context = {
         'census_labels': census_labels,
-        'census_values': census_values,
+        'adult_values': adult_values,
+        'piglet_values': piglet_values,
         'event_labels': event_labels,
         'event_values': event_values,
         'selected_type': event_type,

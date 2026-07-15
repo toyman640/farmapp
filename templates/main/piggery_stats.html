@@ -38,12 +38,31 @@ const censusCtx = document.getElementById('censusChart');
 new Chart(censusCtx, {
   type: 'bar',
   data: {
-    labels: {{ census_labels|safe }},
-    datasets: [{
-      label: 'Total Animals (Census)',
-      data: {{ census_values|safe }},
-      backgroundColor: 'rgba(75, 192, 192, 0.6)',
-    }]
+    labels: {{ census_labels|safe }}, // These will now show specific dates
+    datasets: [
+      {
+        label: 'General (Adults)',
+        data: {{ adult_values|safe }},
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+      },
+      {
+        label: 'Piglets',
+        data: {{ piglet_values|safe }},
+        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: { 
+        beginAtZero: true,
+        title: { display: true, text: 'Number of Animals' }
+      },
+      x: {
+        title: { display: true, text: 'Census Date' }
+      }
+    }
   }
 });
 
