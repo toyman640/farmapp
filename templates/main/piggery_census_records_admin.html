@@ -77,15 +77,19 @@
               <h5 class="bg-light text-primary px-3 py-2 rounded border fw-semibold">{{ month.grouper }}</h5>
               {% for census in month.list %}
                 <div class="border rounded p-3 mb-3 bg-light">
-                  <div class="d-flex justify-content-between align-items-center flex-wrap">
-                    <div><strong>Date:</strong> {{ census.census_date|date:"d M Y" }}</div>
-                    <div><strong>Animal:</strong> {{ census.animal }}</div>
-                    <div><strong>Total:</strong> {{ census.total_animals }}</div>
+                  <!-- Census Summary Header -->
+                  <div class="row text-center mb-3">
+                      <div class="col">Gen Total: <strong>{{ census.sum_adults|default:0 }}</strong></div>
+                      <div class="col">Piglets: <strong>{{ census.sum_piglets|default:0 }}</strong></div>
+                      <div class="col">Grand Total: <strong>{{ census.grand_total|default:0 }}</strong></div>
                   </div>
-                
+                              
                   {% if census.piggery_records.all %}
                     <div class="row mt-3">
                       {% for record in census.piggery_records.all %}
+
+                        <!-- EXCLUSION LOGIC: Only show if NOT goose and NOT crocodile -->
+                        {% if "goose" not in record.line.name|lower and "crocodile" not in record.line.name|lower %}
                         <div class="col-md-4 mb-3">
                           <!-- Added note-trigger and data attributes -->
                           <div class="card shadow-sm border-0 h-100 bg-light note-trigger" 
@@ -109,6 +113,7 @@
                             </div>
                           </div>
                         </div>
+                        {% endif %}
                       {% endfor %}
                     </div>
                   {% else%}

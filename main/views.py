@@ -17,7 +17,7 @@ from django.core.paginator import Paginator
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from itertools import chain
 from django.utils import timezone
-from django.db.models import Q, F, Count, Sum, Max
+from django.db.models import Q, F, Count, Sum, Max, Case, When, IntegerField
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit, Animals, AnimalType, CensusApprovalQueue, PiggeryLine, PiggeryCensusRecord
 import calendar
@@ -1494,6 +1494,27 @@ def piggery_census_records_admin(request):
         end = parse_date(end_date)
         if end:
             census_records = census_records.filter(census_date__lt=end + timedelta(days=1))
+
+    
+    # Annotate totals
+    census_records = Census.objects.filter(animal__animal_name__iexact='pig').annotate(
+        sum_adults=Sum(
+            Case(
+                When(piggery_records__line__name__icontains='goose', then=0),
+                When(piggery_records__line__name__icontains='crocodile', then=0),
+                default=F('piggery_records__number'),
+                output_field=IntegerField()
+            )
+        ),
+        sum_piglets=Sum('piggery_records__total_piglets'),
+        sum_geese=Sum(
+            Case(When(piggery_records__line__name__icontains='goose', then=F('piggery_records__number')), default=0, output_field=IntegerField())
+        ),
+        sum_crocodiles=Sum(
+            Case(When(piggery_records__line__name__icontains='crocodile', then=F('piggery_records__number')), default=0, output_field=IntegerField())
+        ),
+        grand_total=F('sum_adults') + F('sum_piglets')
+    ).prefetch_related('piggery_records__line').order_by('-census_date')
 
     # ---- Pagination ----
     paginator = Paginator(census_records.order_by('-census_date'), 10)
