@@ -126,6 +126,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const totalForms = document.querySelector('[name="records-TOTAL_FORMS"]');
   const censusForm = document.getElementById("census-form");
 
+  // Add this inside DOMContentLoaded
+  const dateInput = document.getElementById("id_census_date");
+  if (dateInput) {
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.setAttribute("max", today);
+  }
+
   let records = JSON.parse(document.getElementById("existing-records").textContent).map(r => ({
     id: r.id || null, typeId: String(r.typeId), typeText: r.typeText, count: r.count, 
     piglets: r.piglets || 0, note: r.note || "", _deleted: false 
