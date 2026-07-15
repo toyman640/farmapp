@@ -256,6 +256,56 @@ document.addEventListener("DOMContentLoaded", () => {
   // -------------------- AJAX Submit --------------------
   function ajaxSubmit(actionType) {
     updateHiddenLocation();
+
+    // --- START CLIENT-SIDE VALIDATION ---
+    let errorMessage = "";
+    const eventName = document.getElementById("id_event_name").value.toLowerCase();
+    
+    if (isPiggery) {
+        if (eventName !== 'castration') {
+            if (!lineSelect.value || !blockSelect.value || !penSelect.value) {
+                errorMessage = "Error: Line, Block, and Pen are all required.";
+            }
+        } else {
+            if (!lineSelect.value || !blockSelect.value) {
+                errorMessage = "Error: Line and Block are required for Castration.";
+            }
+        }
+    } else {
+        if (!hiddenLocation.value) {
+            errorMessage = "Error: Location is required.";
+        }
+    }
+
+    // 2. If error exists, show in modal instead of alert
+    if (errorMessage) {
+        const modal = $("#successRedirectModal");
+        const title = document.getElementById("modalMessageTitle");
+        const body = document.getElementById("modalMessageBody");
+        const iconContainer = document.getElementById("modalIconContainer");
+        const countdownContainer = document.getElementById("countdownContainer");
+
+        // Set UI to Error state
+        iconContainer.className = "text-danger mb-3";
+        iconContainer.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+            </svg>`;
+        title.textContent = "Missing Information";
+        title.className = "modal-title mb-2 text-danger";
+        body.textContent = errorMessage;
+        countdownContainer.style.display = "none";
+
+        modal.modal("show");
+        
+        // Auto-close after 3 seconds
+        setTimeout(() => {
+            modal.modal("hide");
+        }, 3000);
+        
+        return; // Stop execution
+    }
+
     const formData = new FormData(form);
     formData.append("actionType", actionType);
 

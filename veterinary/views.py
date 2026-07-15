@@ -354,22 +354,28 @@ def create_event(request):
         #     # event.location = " ".join(filter(None, [line, block, pen]))
         # # form = EventForm(request.POST, request.FILES, user=request.user)
         # # form = EventForm(post_data, request.FILES, user=request.user)
-        if getattr(request.user.profile, 'is_vet_piggery', False):
-            line = request.POST.get('lineSelect', '')
-            block = request.POST.get('blockSelect', '')
-            pen = request.POST.get('penSelect', '')
-            event_name = request.POST.get('event_name', '').lower()
-            print(f"DEBUG: Event Name: {event_name}, Line: {line}, Block: {block}, Pen: {pen}")  # Debugging line
-            
-            # If it's Castration, allow empty pen; otherwise, ensure it exists for location
-            if event_name == 'castration':
-                post_data['location'] = " ".join(filter(None, [line, block, pen]))
+        event_name = post_data.get('event_name', '').lower()
+        is_piggery = getattr(request.user.profile, 'is_vet_piggery', False)
+        
+        # Validation Logic
+        error_message = None
+        
+        if is_piggery:
+            # Piggery Rules: Castration allows blank pen, others require full string
+            if event_name != 'castration':
+                if not (request.POST.get('lineSelect') and request.POST.get('blockSelect') and request.POST.get('penSelect')):
+                    error_message = "Line, Block, and Pen are required for this event."
             else:
-                # If not castration, pen is required; if missing, force validation error
-                if not pen:
-                    post_data['location'] = "" 
-                else:
-                    post_data['location'] = f"{line} {block} {pen}"
+                if not (request.POST.get('lineSelect') and request.POST.get('blockSelect')):
+                    error_message = "Line and Block are required for castration."
+        else:
+            # Other sections: Location is mandatory
+            if not post_data.get('location'):
+                error_message = "Location is required for this record."
+
+        if error_message:
+            return JsonResponse({'status': 'error', 'message': error_message}, status=400)
+
         form = EventForm(post_data, request.FILES, user=request.user, edit_mode=False)
 
         
