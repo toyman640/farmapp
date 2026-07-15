@@ -170,15 +170,24 @@ def main_index(request):
     # goat_breakdown = defaultdict(int)
 
     # PIG
+    # Use annotation to calculate sum excluding geese and crocs
     latest_pig = Census.objects.filter(
         animal__animal_name__iexact="pig"
+    ).annotate(
+        sum_adults=Sum(
+            Case(
+                When(piggery_records__line__name__icontains='goose', then=0),
+                When(piggery_records__line__name__icontains='crocodile', then=0),
+                default=F('piggery_records__number'),
+                output_field=IntegerField()
+            )
+        ),
+        sum_piglets=Sum('piggery_records__total_piglets')
     ).order_by('-census_date').first()
 
+    piggery_total = 0
     if latest_pig:
-        piggery_total = latest_pig.records.aggregate(
-            total=Sum('number_of_animals')
-        )['total'] or 0
-
+        piggery_total = (latest_pig.sum_adults or 0) + (latest_pig.sum_piglets or 0)
 
     # CATTLE
     latest_cattle = Census.objects.filter(
