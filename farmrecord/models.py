@@ -5,6 +5,7 @@ from farmapp.utils import unique_slug_generator
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from .validators import validate_file_size
+from django.conf import settings
 
 # Create your models here.
 
@@ -83,6 +84,7 @@ class EventType(models.Model):
         ('treatment', 'Treatment'),
         ('vaccination', 'Vaccination'),
         ('gift', 'Gift'),
+        ('castration', 'Castration'),
     ]
 
     # 🔹 Piggery Locations: Line + Block (A–Z)
@@ -111,6 +113,7 @@ class EventType(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     event_date = models.DateField(default=timezone.now)
     is_approved = models.BooleanField(default=False)
+    logged_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"{self.get_event_name_display()} - {self.event_date.strftime('%Y-%m-%d')}"
@@ -177,6 +180,7 @@ class Census(models.Model):
     census_date = models.DateField(default=timezone.now)
     total_animals = models.PositiveIntegerField(default=0, editable=False)
     notes = models.TextField(null=True, blank=True)
+    logged_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
     # Add this missing line right here:
     is_pending_review = models.BooleanField(default=False)

@@ -179,18 +179,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // -------------------- Location Writer --------------------
+  // Add this helper function
+  function isCastration() {
+      const eventName = document.getElementById("id_event_name");
+      return eventName && eventName.value.toLowerCase() === "Castration";
+  }
+
+ 
+
   function updateHiddenLocation() {
     if (isPiggery) {
-      hiddenLocation.value = [
-        lineSelect.value,
-        blockSelect.value,
-        penSelect.value
-      ].filter(Boolean).join(" ");
+        // Logic: Always include line and block; only include pen if present or not castration
+        const parts = [lineSelect.value, blockSelect.value];
+        if (penSelect.value || !isCastration()) {
+            parts.push(penSelect.value);
+        }
+        hiddenLocation.value = parts.filter(Boolean).join(" ");
     } else if (locationSelect) {
-      hiddenLocation.value = locationSelect.value;
+        hiddenLocation.value = locationSelect.value;
     }
   }
+
+  // Add a listener to check if we need to enforce Pen validation
+  document.getElementById("id_event_name").addEventListener("change", () => {
+      if (isCastration()) {
+          penSelect.removeAttribute("required");
+      } else {
+          penSelect.setAttribute("required", "required");
+      }
+  });
 
   // -------------------- Prefill (EDIT MODE) --------------------
   if (isEditMode) {

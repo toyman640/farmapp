@@ -345,24 +345,46 @@ def create_event(request):
     if request.method == 'POST':
         post_data = request.POST.copy()
         # ✅ Handle piggery location explicitly
+        # if getattr(request.user.profile, 'is_vet_piggery', False):
+        #     line = request.POST.get('lineSelect', '')
+            
+        #     block = request.POST.get('blockSelect', '')
+        #     pen = request.POST.get('penSelect', '')
+        #     post_data['location'] = " ".join(filter(None, [line, block, pen]))
+        #     # event.location = " ".join(filter(None, [line, block, pen]))
+        # # form = EventForm(request.POST, request.FILES, user=request.user)
+        # # form = EventForm(post_data, request.FILES, user=request.user)
         if getattr(request.user.profile, 'is_vet_piggery', False):
             line = request.POST.get('lineSelect', '')
-            
             block = request.POST.get('blockSelect', '')
             pen = request.POST.get('penSelect', '')
-            post_data['location'] = " ".join(filter(None, [line, block, pen]))
-            # event.location = " ".join(filter(None, [line, block, pen]))
-        # form = EventForm(request.POST, request.FILES, user=request.user)
-        # form = EventForm(post_data, request.FILES, user=request.user)
+            event_name = request.POST.get('event_name', '').lower()
+            print(f"DEBUG: Event Name: {event_name}, Line: {line}, Block: {block}, Pen: {pen}")  # Debugging line
+            
+            # If it's Castration, allow empty pen; otherwise, ensure it exists for location
+            if event_name == 'castration':
+                post_data['location'] = " ".join(filter(None, [line, block, pen]))
+            else:
+                # If not castration, pen is required; if missing, force validation error
+                if not pen:
+                    post_data['location'] = "" 
+                else:
+                    post_data['location'] = f"{line} {block} {pen}"
         form = EventForm(post_data, request.FILES, user=request.user, edit_mode=False)
-        
 
+        
+        print(form.errors)
+        print(post_data)
         if form.is_valid():
             # event = form.save(commit=False)
 
+            instance = form.save(commit=False)
+            instance.logged_by = request.user
+            instance.save()
+
 
             # event.save()
-            event = form.save()
+            # event = form.save()
 
             # AJAX response
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -377,6 +399,18 @@ def create_event(request):
                     'status': 'success',
                     'message': 'Event saved successfully! You can add another.'
                 })
+            else:
+                # ADD THIS: Manual check to catch the missing location error for non-castration
+                event_name = request.POST.get('event_name', '').lower()
+                line = request.POST.get('lineSelect', '')
+                block = request.POST.get('blockSelect', '')
+                pen = request.POST.get('penSelect', '')
+
+                if event_name != 'castration' and not pen:
+                    form.add_error('location', 'Location (including Pen) is required for this event.')
+
+                # Then proceed to collect and return errors
+                errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
 
             # Non-AJAX redirect
             messages.success(request, "Event created successfully!")
@@ -703,7 +737,16 @@ def create_census(request):
         formset = FormSetClass(request.POST, user=user, prefix='records')
 
         if form.is_valid() and formset.is_valid():
-            census = form.save()
+            # 1. Save form with commit=False to get the instance
+            census = form.save(commit=False)
+            
+            # 2. Assign the user
+            census.logged_by = request.user
+            
+            # 3. Save to the database
+            census.save()
+            
+            # 4. Save formset records
             records = formset.save(commit=False)
             for record in records:
                 record.census = census

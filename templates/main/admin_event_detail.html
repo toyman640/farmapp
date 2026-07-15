@@ -26,7 +26,9 @@
 
       <div class="row mb-2">
         <div class="col-md-6"><strong>Number of Animals:</strong> {{ event.number_of_animals }}</div>
+        <div class="col-md-6"><strong>Logged By:</strong> {{ event.logged_by.get_full_name|default:"-" }}</div>
       </div>
+      
 
       {% if event.event_name == "culling" and event.designation %}
       <div class="mt-3">

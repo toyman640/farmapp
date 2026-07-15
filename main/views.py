@@ -1599,7 +1599,32 @@ def exotic_animal_records(request):
 
 @login_required
 def admin_event_detail(request, pk):
-    event = get_object_or_404(EventType.objects.select_related('animal', 'animal_type'), pk=pk)
+    event_query = EventType.objects.select_related('animal', 'animal_type')
+    for rel_field in ['entered_by', 'created_by', 'user']:
+        try:
+            field = EventType._meta.get_field(rel_field)
+            if field.is_relation:
+                event_query = event_query.select_related(rel_field)
+                break
+        except Exception:
+            pass
+
+    event = get_object_or_404(event_query, pk=pk)
+
+    entered_by = None
+    for field_name in ['entered_by', 'created_by', 'user']:
+        if hasattr(event, field_name):
+            entered_by = getattr(event, field_name)
+            break
+
+    entered_by_name = None
+    if entered_by:
+        entered_by_name = entered_by.get_full_name() if hasattr(entered_by, 'get_full_name') else str(entered_by)
+
+    print(
+        f"Event ID: {event.id}, Animal: {event.animal.animal_name}, Event Name: {event.event_name}, "
+        f"Created At: {event.created_at}, Entered By: {entered_by_name or 'Unknown'}"
+    )
 
     # Determine which list page this event belongs to
     animal_name = event.animal.animal_name.lower()
@@ -1614,7 +1639,9 @@ def admin_event_detail(request, pk):
 
     context = {
         'event': event,
-        'back_url': back_url
+        'back_url': back_url,
+        'entered_by': entered_by,
+        'entered_by_name': entered_by_name,
     }
     return render(request, 'main/admin_event_detail.html', context)
 

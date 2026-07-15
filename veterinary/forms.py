@@ -49,7 +49,7 @@ class EventForm(forms.ModelForm):
 
         
         for field_name, field in self.fields.items():
-            if field_name not in ['designation', 'notes', 'image', 'edit_note']:
+            if field_name not in ['designation', 'notes', 'image', 'edit_note', 'location']:
                 field.required = True
             else:
                 field.required = False
