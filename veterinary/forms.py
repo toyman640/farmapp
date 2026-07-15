@@ -47,16 +47,7 @@ class EventForm(forms.ModelForm):
         if not self.is_bound and self.instance.pk:
             self.initial['location'] = self.instance.location
 
-        # if self.instance and self.instance.pk:
-        #     self.initial['location'] = self.instance.location
-
-        # Required and widget classes
-        # for field_name, field in self.fields.items():
-        #     if field_name not in ['designation', 'notes', 'image', 'edit_note']:
-        #         field.required = True
-        #     else:
-        #         field.required = False
-        #     field.widget.attrs.update({'class': 'form-control'})
+        
         for field_name, field in self.fields.items():
             if field_name not in ['designation', 'notes', 'image', 'edit_note']:
                 field.required = True

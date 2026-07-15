@@ -316,6 +316,11 @@ document.addEventListener("DOMContentLoaded", () => {
         
         modal.modal("show");
 
+        // NEW: Auto-close error modal after 2 seconds
+        setTimeout(() => {
+          modal.modal("hide");
+        }, 2000);
+
         // Map field-level error styles to crispy forms DOM nodes
         if (data.errors) {
           Object.keys(data.errors).forEach(field => {
