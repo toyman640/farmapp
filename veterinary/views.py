@@ -172,16 +172,41 @@ def vet_index(request):
         animals_for_section = Animals.objects.none()
 
     # Get the latest census per animal
+    # census_list = []
+    # for animal in animals_for_section:
+    #     last_census = (
+    #         Census.objects
+    #         .filter(animal=animal)
+    #         .prefetch_related('records__animal_type')
+    #         .order_by('-census_date')  # latest first
+    #         .first()
+    #     )
+    #     if last_census:
+    #         census_list.append(last_census)
+
     census_list = []
     for animal in animals_for_section:
-        last_census = (
-            Census.objects
-            .filter(animal=animal)
-            .prefetch_related('records__animal_type')
-            .order_by('-census_date')  # latest first
-            .first()
-        )
+        last_census = Census.objects.filter(animal=animal).order_by('-census_date').first()
+        
         if last_census:
+            # Apply annotation only for Piggery
+            if animal.animal_name.lower() == 'pig':
+                last_census = Census.objects.filter(id=last_census.id).annotate(
+                    sum_adults=Sum(
+                        Case(
+                            When(piggery_records__line__name__icontains='goose', then=0),
+                            When(piggery_records__line__name__icontains='crocodile', then=0),
+                            default=F('piggery_records__number'),
+                            output_field=IntegerField()
+                        )
+                    ),
+                    sum_piglets=Sum('piggery_records__total_piglets')
+                ).first()
+                # Create a dynamic attribute for the template
+                last_census.calculated_total = (last_census.sum_adults or 0) + (last_census.sum_piglets or 0)
+            else:
+                last_census.calculated_total = last_census.total_animals
+            
             census_list.append(last_census)
 
     context = {
