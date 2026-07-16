@@ -288,3 +288,26 @@ class PiggeryCensusRecord(models.Model):
 
     def __str__(self):
         return f"{self.line} - {self.number}"
+
+
+class CensusProjection(models.Model):
+    """
+    Stores the snapshot of calculations between two Census records.
+    This acts as the bridge for the breakdown.
+    """
+    census = models.OneToOneField(Census, on_delete=models.CASCADE, related_name='projection_data')
+    
+    # The math snapshot
+    start_count = models.PositiveIntegerField()
+    projected_count = models.PositiveIntegerField()
+    
+    # Aggregated event totals for the breakdown
+    total_mortality = models.PositiveIntegerField(default=0)
+    total_culling = models.PositiveIntegerField(default=0)
+    total_sale = models.PositiveIntegerField(default=0)
+    total_gift = models.PositiveIntegerField(default=0)
+    total_births = models.PositiveIntegerField(default=0)
+    total_procurement = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"Projection for {self.census}"

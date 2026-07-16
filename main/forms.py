@@ -9,3 +9,5 @@ class AdminEventEditReviewForm(forms.Form):
             'placeholder': 'Add note for approval or rejection...'
         })
     )
+
+

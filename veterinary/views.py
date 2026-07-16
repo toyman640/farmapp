@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from farmrecord.models import EventType, Census, Animals, PendingEventEdit, AnimalType, CensusRecord, CensusApprovalQueue, PiggeryCensusRecord, PiggeryLine
+from farmrecord.models import EventType, Census, Animals, PendingEventEdit, AnimalType, CensusRecord, CensusApprovalQueue, PiggeryCensusRecord, PiggeryLine, CensusProjection
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
@@ -23,6 +23,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
 from itertools import zip_longest
+from main.services import run_projection_calculation
 
 User = get_user_model()
 # Create your views here.
@@ -751,6 +752,8 @@ def create_census(request):
             
             # 3. Save to the database
             census.save()
+
+            
             
             # 4. Save formset records
             records = formset.save(commit=False)
@@ -758,6 +761,39 @@ def create_census(request):
                 record.census = census
                 record.save()
             census.update_total()
+
+            # 4. Now run projection calculation using the PREVIOUS census
+            # We exclude the current census to find the most recent one before this
+            last_census = Census.objects.filter(animal=census.animal)\
+                                        .exclude(id=census.id)\
+                                        .order_by('-census_date').first()
+
+            if last_census:
+                # Determine start_count for the projection
+                if census.animal.animal_name.lower() == 'pig':
+                    # Exclude exotic lines as we did in your dashboard
+                    piggery_data = PiggeryCensusRecord.objects.filter(census=last_census)\
+                        .exclude(line__name__icontains='croc')\
+                        .exclude(line__name__icontains='goose')\
+                        .aggregate(gen=Sum('number'), pig=Sum('total_piglets'))
+                    start_count = (piggery_data['gen'] or 0) + (piggery_data['pig'] or 0)
+                else:
+                    start_count = last_census.total_animals
+
+                data = run_projection_calculation(census.animal, last_census.census_date, start_count)
+
+                # 5. Create Projection record
+                CensusProjection.objects.create(
+                    census=census,
+                    start_count=data['start_count'],
+                    projected_count=data['projected_count'],
+                    total_mortality=data['total_mortality'],
+                    total_culling=data['total_culling'],
+                    total_sale=data['total_sale'],
+                    total_gift=data['total_gift'],
+                    total_births=data['total_births'],
+                    total_procurement=data['total_procurement']
+                )
             return JsonResponse({'status': 'success', 'message': 'Census created successfully.'})
     else:
         form = CensusForm(user=user)

@@ -25,8 +25,11 @@
                 <li>
                   <a href="{% url 'main:small_ruminant_census_records_admin' %}">Census Records</a>
                 </li>
-          <li>
+                <li>
                   <a href="{% url 'main:small_ruminant_stats' %}">Analytics</a>
+                </li>
+                <li>
+                    <a href="{% url 'main:census_dashboard' 'sheep' %}">Projection</a>
                 </li>
     
               </ul>
@@ -43,8 +46,11 @@
                 <li>
                   <a href="{% url 'main:paddock_census_records_admin' %}">Census Records</a>
                 </li>
-          <li>
+                <li>
                   <a href="{% url 'main:paddock_stats' %}">Analytics</a>
+                </li>
+                <li>
+                    <a href="{% url 'main:census_dashboard' 'cattle' %}">Projection</a>
                 </li>
     
               </ul>
@@ -61,8 +67,11 @@
                 <li>
                   <a href="{% url 'main:piggery_census_records_admin' %}">Census Records</a>
                 </li>
-          <li>
+                <li>
                   <a href="{% url 'main:piggery_stats' %}">Analytics</a>
+                </li>
+                <li>
+                    <a href="{% url 'main:census_dashboard' 'pig' %}">Projection</a>
                 </li>
     
               </ul>

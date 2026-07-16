@@ -1,0 +1,57 @@
+{% extends 'main/base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Pig Procurement
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Pig Procurement Result</li>
+      </ol>
+      <div class="box_general padding_bottom">
+        <div class="card">
+            <div class="card-header">
+                <h3>Census & Projection Dashboard</h3>
+            </div>
+            <div class="card-body">
+                {% if last_census %}
+                    <h4>Last Census: {{ display_total }} (Date: {{ last_census.census_date }})</h4>
+                    
+                    <hr>
+                    
+                    <h5>Projected Current Count: <strong>{{ projection.projected_count }}</strong></h5>
+                    
+                    <div class="mt-3">
+                        <h6>Breakdown from {{ last_census.census_date }} to Today:</h6>
+                        <ul>
+                            <li><strong>Additions:</strong></li>
+                            <ul>
+                                <li>Births: +{{ projection.total_births }}</li>
+                                <li>Procurement: +{{ projection.total_procurement }}</li>
+                            </ul>
+                            <li><strong>Reductions:</strong></li>
+                            <ul>
+                                <li>Mortality: -{{ projection.total_mortality }}</li>
+                                <li>Culling: -{{ projection.total_culling }}</li>
+                                <li>Sales: -{{ projection.total_sale }}</li>
+                                <li>Gifts: -{{ projection.total_gift }}</li>
+                            </ul>
+                        </ul>
+                    </div>
+                {% else %}
+                    <p>No census records found to generate projections.</p>
+                {% endif %}
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

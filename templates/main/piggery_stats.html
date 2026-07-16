@@ -41,7 +41,7 @@ new Chart(censusCtx, {
     labels: {{ census_labels|safe }}, // These will now show specific dates
     datasets: [
       {
-        label: 'General (Adults)',
+        label: 'General',
         data: {{ adult_values|safe }},
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
       },

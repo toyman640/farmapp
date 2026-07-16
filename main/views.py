@@ -28,7 +28,8 @@ from django.conf import settings
 from collections import defaultdict
 from django.db import transaction
 from veterinary.forms import *
-
+from .services import run_projection_calculation
+from .services import run_projection_calculation
 
 class CustomLoginView(LoginView):
     template_name = 'main/login.html'
@@ -1599,32 +1600,7 @@ def exotic_animal_records(request):
 
 @login_required
 def admin_event_detail(request, pk):
-    event_query = EventType.objects.select_related('animal', 'animal_type')
-    for rel_field in ['entered_by', 'created_by', 'user']:
-        try:
-            field = EventType._meta.get_field(rel_field)
-            if field.is_relation:
-                event_query = event_query.select_related(rel_field)
-                break
-        except Exception:
-            pass
-
-    event = get_object_or_404(event_query, pk=pk)
-
-    entered_by = None
-    for field_name in ['entered_by', 'created_by', 'user']:
-        if hasattr(event, field_name):
-            entered_by = getattr(event, field_name)
-            break
-
-    entered_by_name = None
-    if entered_by:
-        entered_by_name = entered_by.get_full_name() if hasattr(entered_by, 'get_full_name') else str(entered_by)
-
-    print(
-        f"Event ID: {event.id}, Animal: {event.animal.animal_name}, Event Name: {event.event_name}, "
-        f"Created At: {event.created_at}, Entered By: {entered_by_name or 'Unknown'}"
-    )
+    event = get_object_or_404(EventType.objects.select_related('animal', 'animal_type'), pk=pk)
 
     # Determine which list page this event belongs to
     animal_name = event.animal.animal_name.lower()
@@ -1639,9 +1615,7 @@ def admin_event_detail(request, pk):
 
     context = {
         'event': event,
-        'back_url': back_url,
-        'entered_by': entered_by,
-        'entered_by_name': entered_by_name,
+        'back_url': back_url
     }
     return render(request, 'main/admin_event_detail.html', context)
 
@@ -1690,3 +1664,70 @@ def delete_census_admin(request, pk):
 #             messages.success(request, "Line updated successfully!")
 #             return redirect('main:manage_piggery_lines')
 #     return render(request, 'main/manage_lines.html', {'lines': lines})
+
+
+
+# @login_required
+# def census_dashboard(request, animal_name):
+#     animal = get_object_or_404(Animals, animal_name__iexact=animal_name)
+#     last_census = Census.objects.filter(animal=animal).order_by('-census_date').first()
+    
+#     # NEW: Determine the correct display total for the template
+#     display_total = 0
+#     if last_census:
+#         if animal.animal_name.lower() == 'pig':
+#             # Aggregate from PiggeryCensusRecord
+#             piggery_data = PiggeryCensusRecord.objects.filter(census=last_census).aggregate(
+#                 gen=Sum('number'), pig=Sum('total_piglets')
+#             )
+#             display_total = (piggery_data['gen'] or 0) + (piggery_data['pig'] or 0)
+#         else:
+#             # Standard aggregation
+#             display_total = last_census.total_animals
+            
+#     projection_data = None
+#     if last_census:
+#         projection_data = run_projection_calculation(animal, last_census.census_date)
+    
+#     context = {
+#         'last_census': last_census,
+#         'display_total': display_total, # Use this in template
+#         'projection': projection_data,
+#         'animal_name': animal.animal_name.capitalize(),
+#     }
+#     return render(request, 'main/piggery-census-projection.html', context)
+
+@login_required
+def census_dashboard(request, animal_name):
+    animal = get_object_or_404(Animals, animal_name__iexact=animal_name)
+    last_census = Census.objects.filter(animal=animal).order_by('-census_date').first()
+    
+    display_total = 0
+    if last_census:
+        if animal.animal_name.lower() == 'pig':
+            # Aggregate from PiggeryCensusRecord, excluding exotic animals
+            piggery_data = PiggeryCensusRecord.objects.filter(
+                census=last_census
+            ).exclude(
+                line__name__icontains='croc'
+            ).exclude(
+                line__name__icontains='goose'
+            ).aggregate(
+                gen=Sum('number'), 
+                pig=Sum('total_piglets')
+            )
+            display_total = (piggery_data['gen'] or 0) + (piggery_data['pig'] or 0)
+        else:
+            display_total = last_census.total_animals
+            
+    projection_data = None
+    if last_census:
+        projection_data = run_projection_calculation(animal, last_census.census_date, display_total)
+    
+    context = {
+        'last_census': last_census,
+        'display_total': display_total,
+        'projection': projection_data,
+        'animal_name': animal.animal_name.capitalize(),
+    }
+    return render(request, 'main/piggery-census-projection.html', context)
