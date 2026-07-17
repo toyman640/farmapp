@@ -780,7 +780,22 @@ def create_census(request):
                 else:
                     start_count = last_census.total_animals
 
-                data = run_projection_calculation(census.animal, last_census.census_date, start_count)
+                # # data = run_projection_calculation(census.animal, last_census.census_date, start_count)
+                # data = run_projection_calculation(
+                #     census.animal, 
+                #     last_census.census_date, 
+                #     start_count, 
+                #     end_date=census.census_date # Lock the projection to the day of the census
+                # )
+
+                # STRICT CALL: 
+                # Start = Last Census Date, End = New Census Date
+                data = run_projection_calculation(
+                    animal_obj=census.animal, 
+                    start_date=last_census.census_date, 
+                    end_date=census.census_date, 
+                    start_count=start_count
+                )
 
                 # 5. Create Projection record
                 CensusProjection.objects.create(

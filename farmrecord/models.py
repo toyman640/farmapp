@@ -116,7 +116,7 @@ class EventType(models.Model):
     logged_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.get_event_name_display()} - {self.event_date.strftime('%Y-%m-%d')}"
+        return f"{self.get_event_name_display()} - {self.event_date.strftime('%Y-%m-%d')} - {self.created_at.strftime('%Y-%m-%d')}"
 
     def get_location_choices(self):
         """Return proper location list based on animal type"""
