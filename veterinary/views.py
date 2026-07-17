@@ -578,7 +578,7 @@ def census_records(request):
             Prefetch('records', queryset=CensusRecord.objects.select_related('animal_type'))
         )
     elif vet_profile.is_vet_smallruminant:
-        censuses = censuses.filter(animal__animal_name__in=['sheep', 'goat']).prefetch_related(
+        censuses = censuses.filter(animal__animal_name__iexact='sheep').prefetch_related(
             Prefetch('records', queryset=CensusRecord.objects.select_related('animal_type'))
         )
     else:

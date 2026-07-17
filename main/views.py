@@ -1370,7 +1370,8 @@ def small_ruminant_census_records_admin(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
-    census_records = Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+    # census_records = Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+    census_records = Census.objects.filter(animal__animal_name__iexact='sheep')
 
     # ---- Filters ----
     if start_date:
