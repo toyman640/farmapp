@@ -1666,68 +1666,71 @@ def delete_census_admin(request, pk):
 #     return render(request, 'main/manage_lines.html', {'lines': lines})
 
 
-
 # @login_required
 # def census_dashboard(request, animal_name):
 #     animal = get_object_or_404(Animals, animal_name__iexact=animal_name)
-#     last_census = Census.objects.filter(animal=animal).order_by('-census_date').first()
     
-#     # NEW: Determine the correct display total for the template
-#     display_total = 0
-#     if last_census:
-#         if animal.animal_name.lower() == 'pig':
-#             # Aggregate from PiggeryCensusRecord
-#             piggery_data = PiggeryCensusRecord.objects.filter(census=last_census).aggregate(
-#                 gen=Sum('number'), pig=Sum('total_piglets')
-#             )
-#             display_total = (piggery_data['gen'] or 0) + (piggery_data['pig'] or 0)
-#         else:
-#             # Standard aggregation
-#             display_total = last_census.total_animals
-            
-#     projection_data = None
-#     if last_census:
-#         projection_data = run_projection_calculation(animal, last_census.census_date)
+#     censuses = Census.objects.filter(animal=animal).order_by('-census_date')
     
+#     latest_census = censuses[0] if censuses.count() > 0 else None
+#     previous_census = censuses[1] if censuses.count() > 1 else None
+
+#     def get_piggery_total(census):
+#         if not census:
+#             return 0
+#         data = PiggeryCensusRecord.objects.filter(census=census)\
+#             .exclude(line__name__icontains='croc').exclude(line__name__icontains='goose')\
+#             .aggregate(gen=Sum('number'), pig=Sum('total_piglets'))
+#         return (data['gen'] or 0) + (data['pig'] or 0)
+
+#     count_latest = get_piggery_total(latest_census) if animal.animal_name.lower() == 'pig' else (latest_census.total_animals if latest_census else 0)
+#     count_prev = get_piggery_total(previous_census) if (previous_census and animal.animal_name.lower() == 'pig') else (previous_census.total_animals if previous_census else 0)
+
+#     # DIRECT FETCH: Avoid model accessor bugs by querying CensusProjection directly
+#     previous_projection = None
+#     if previous_census:
+#         previous_projection = CensusProjection.objects.filter(census=previous_census).first()
+
 #     context = {
-#         'last_census': last_census,
-#         'display_total': display_total, # Use this in template
-#         'projection': projection_data,
+#         'latest_census': latest_census,
+#         'count_latest': count_latest,
+#         'previous_census': previous_census,
+#         'count_prev': count_prev,
+#         'previous_projection': previous_projection,
 #         'animal_name': animal.animal_name.capitalize(),
 #     }
 #     return render(request, 'main/piggery-census-projection.html', context)
+
 
 @login_required
 def census_dashboard(request, animal_name):
     animal = get_object_or_404(Animals, animal_name__iexact=animal_name)
     
+    # Get all censuses ordered by date descending
     censuses = Census.objects.filter(animal=animal).order_by('-census_date')
     
-    latest_census = censuses[0] if censuses.count() > 0 else None
-    previous_census = censuses[1] if censuses.count() > 1 else None
-
-    def get_piggery_total(census):
-        if not census:
-            return 0
-        data = PiggeryCensusRecord.objects.filter(census=census)\
-            .exclude(line__name__icontains='croc').exclude(line__name__icontains='goose')\
-            .aggregate(gen=Sum('number'), pig=Sum('total_piglets'))
-        return (data['gen'] or 0) + (data['pig'] or 0)
-
-    count_latest = get_piggery_total(latest_census) if animal.animal_name.lower() == 'pig' else (latest_census.total_animals if latest_census else 0)
-    count_prev = get_piggery_total(previous_census) if (previous_census and animal.animal_name.lower() == 'pig') else (previous_census.total_animals if previous_census else 0)
-
-    # DIRECT FETCH: Avoid model accessor bugs by querying CensusProjection directly
-    previous_projection = None
-    if previous_census:
-        previous_projection = CensusProjection.objects.filter(census=previous_census).first()
+    # Prepare a list of dictionaries to hold census + projection data
+    census_data = []
+    for c in censuses:
+        # Calculate count logic
+        if animal.animal_name.lower() == 'pig':
+            data = PiggeryCensusRecord.objects.filter(census=c)\
+                .exclude(line__name__icontains='croc').exclude(line__name__icontains='goose')\
+                .aggregate(gen=Sum('number'), pig=Sum('total_piglets'))
+            count = (data['gen'] or 0) + (data['pig'] or 0)
+        else:
+            count = c.total_animals
+            
+        projection = CensusProjection.objects.filter(census=c).first()
+        
+        census_data.append({
+            'census': c,
+            'count': count,
+            'projection': projection
+        })
 
     context = {
-        'latest_census': latest_census,
-        'count_latest': count_latest,
-        'previous_census': previous_census,
-        'count_prev': count_prev,
-        'previous_projection': previous_projection,
+        'census_data': census_data,
         'animal_name': animal.animal_name.capitalize(),
     }
     return render(request, 'main/piggery-census-projection.html', context)

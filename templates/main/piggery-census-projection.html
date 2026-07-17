@@ -22,53 +22,45 @@ Pig Procurement
                 <h3>Census & Projection Dashboard</h3>
             </div>
             <div class="card-body">
-    <!-- SECTION 1: Previous Census & Its Projection -->
-    {% if previous_census %}
-    <h5>Section 1: Previous Baseline ({{ previous_census.census_date|date:"d M, Y" }})</h5>
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="p-3 border rounded">
-                <h6>Census Count ({{ previous_census.census_date|date:"d M, Y" }})</h6>
-                <h3>{{ count_prev }}</h3>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="p-3 border rounded bg-light">
-                <h6>Projection (Calculated on {{ previous_census.census_date|date:"d M, Y" }})</h6>
-                <h3>{{ previous_projection.projected_count }}</h3>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+              <h5>Historical Census & Projection Records</h5>
+              <hr>
+              
+              {% for item in census_data %}
+              <div class="card mb-4">
+                  <div class="card-header">
+                      <strong>Date: {{ item.census.census_date|date:"d M, Y" }}</strong>
+                  </div>
+                  <div class="card-body">
+                      <div class="row">
+                          <div class="col-md-6">
+                              <h6>Actual Census Count:</h6>
+                              <h3>{{ item.count }}</h3>
+                          </div>
+                          {% if item.projection %}
+                          <div class="col-md-6">
+                              <h6>Projected Count:</h6>
+                              <h3>{{ item.projection.projected_count }}</h3>
+                          </div>
+                          {% endif %}
+                      </div>
 
-    <hr>
-
-    <!-- SECTION 2: Latest Census -->
-    {% if latest_census %}
-    <h5>Section 2: Latest Census ({{ latest_census.census_date|date:"d M, Y" }})</h5>
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="p-3 border rounded bg-success text-white">
-                <h6>Actual Count Recorded</h6>
-                <h3>{{ count_latest }}</h3>
+                      {% if item.projection %}
+                      <div class="mt-3 p-2 bg-light">
+                          <h6>Projection Breakdown:</h6>
+                          <ul class="list-inline">
+                              <li class="list-inline-item">Births: +{{ item.projection.total_births }}</li>
+                              <li class="list-inline-item">Procurement: +{{ item.projection.total_procurement }}</li>
+                              <li class="list-inline-item">Mortality: -{{ item.projection.total_mortality }}</li>
+                              <li class="list-inline-item">Sales: -{{ item.projection.total_sale }}</li>
+                          </ul>
+                      </div>
+                      {% endif %}
+                  </div>
+              </div>
+              {% empty %}
+              <p>No census data available for this animal.</p>
+              {% endfor %}
             </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Breakdown of the PREVIOUS projection -->
-    {% if previous_projection %}
-    <div class="mt-3">
-        <h6>Breakdown of Projection from {{ previous_census.census_date }} to {{ latest_census.census_date }}:</h6>
-        <ul>
-            <li>Births: +{{ previous_projection.total_births }}</li>
-            <li>Procurement: +{{ previous_projection.total_procurement }}</li>
-            <li>Mortality: -{{ previous_projection.total_mortality }}</li>
-            <li>Sales: -{{ previous_projection.total_sale }}</li>
-        </ul>
-    </div>
-    {% endif %}
-</div>
         </div>
       </div>
     </div>
