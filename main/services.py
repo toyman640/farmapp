@@ -12,7 +12,6 @@ def run_projection_calculation(animal_obj, start_date, end_date, start_count=0):
 
     # Ensure dates are not None
     if start_date is None or end_date is None:
-        print(f"ERROR: Invalid dates provided: {start_date} to {end_date}")
         return None # Or handle accordingly
         
     section = animal_obj.animal_name.lower()
@@ -31,8 +30,6 @@ def run_projection_calculation(animal_obj, start_date, end_date, start_count=0):
         event_date__lte=end_date
     )
 
-    print(f"Calculating projection for {section} from {start_date} to {end_date}. Start count: {start_count}. Events found: {events.count()}")
-    print(f"Events: {list(events.values('event_name', 'number_of_animals', 'event_date'))}")
 
     def get_sum(names):
         return events.filter(event_name__in=names).aggregate(

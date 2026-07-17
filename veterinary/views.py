@@ -380,8 +380,7 @@ def create_event(request):
         form = EventForm(post_data, request.FILES, user=request.user, edit_mode=False)
 
         
-        print(form.errors)
-        print(post_data)
+        
         if form.is_valid():
             # event = form.save(commit=False)
 
