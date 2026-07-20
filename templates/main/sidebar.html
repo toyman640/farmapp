@@ -25,8 +25,11 @@
                 <li>
                   <a href="{% url 'main:small_ruminant_census_records_admin' %}">Census Records</a>
                 </li>
-          <li>
+                <li>
                   <a href="{% url 'main:small_ruminant_stats' %}">Analytics</a>
+                </li>
+                <li>
+                    <a href="{% url 'main:census_dashboard' 'sheep' %}">Projection</a>
                 </li>
     
               </ul>
@@ -43,8 +46,11 @@
                 <li>
                   <a href="{% url 'main:paddock_census_records_admin' %}">Census Records</a>
                 </li>
-          <li>
+                <li>
                   <a href="{% url 'main:paddock_stats' %}">Analytics</a>
+                </li>
+                <li>
+                    <a href="{% url 'main:census_dashboard' 'cattle' %}">Projection</a>
                 </li>
     
               </ul>
@@ -61,9 +67,26 @@
                 <li>
                   <a href="{% url 'main:piggery_census_records_admin' %}">Census Records</a>
                 </li>
-          <li>
+                <li>
                   <a href="{% url 'main:piggery_stats' %}">Analytics</a>
                 </li>
+                <li>
+                    <a href="{% url 'main:census_dashboard' 'pig' %}">Projection</a>
+                </li>
+    
+              </ul>
+        </li>
+         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="My listings">
+              <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#other" data-parent="#mylistings">
+                <i >🐊🦆</i>
+                <span class="nav-link-text">Croc & Geese</span>
+              </a>
+              <ul class="sidenav-second-level collapse" id="other">
+                
+                <li>
+                  <a href="{% url 'main:exotic_animal_records' %}">Census Records</a>
+                </li>
+          
     
               </ul>
         </li>

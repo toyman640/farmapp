@@ -1,15 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import EventForm, CensusForm, CensusRecordFormSet
+from .forms import EventForm, CensusForm, CensusRecordFormSet, PiggeryCensusRecordFormSet
 from drugapp.models import Dispatch, Drug, InventoryLog
 from django.utils.timezone import localtime, now, localdate, timedelta
-from django.db.models import Q, Prefetch, Max
+from django.db.models import Q, Prefetch, Max, Sum, Case, When, F, IntegerField
 from itertools import chain, zip_longest
 from django.db.models import F
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from farmrecord.models import EventType, Census, Animals, PendingEventEdit, AnimalType, CensusRecord, CensusApprovalQueue
+from farmrecord.models import EventType, Census, Animals, PendingEventEdit, AnimalType, CensusRecord, CensusApprovalQueue, PiggeryCensusRecord, PiggeryLine, CensusProjection
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
@@ -23,6 +23,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
 from itertools import zip_longest
+from main.services import run_projection_calculation
 
 User = get_user_model()
 # Create your views here.
@@ -104,30 +105,51 @@ def vet_index(request):
         payload = queue_item.form_data_payload or {}
         records_payload = payload.get('records', [])
         
-        # Pull what currently lives in the DB for a side-by-side comparison
-        db_records = {
-            r.animal_type_id: r.number_of_animals 
-            for r in queue_item.census.records.all()
-        }
+        # FIX: Check if this is a Piggery census to use the correct related name
+        is_piggery = queue_item.census.animal.animal_name.lower() == 'pig'
+        
+        if is_piggery:
+            # Use piggery_records instead of records
+            db_records = {
+                r.line_id: r.number # Adjust to match your model fields
+                for r in queue_item.census.piggery_records.all()
+            }
+        else:
+            # Standard records
+            db_records = {
+                r.animal_type_id: r.number_of_animals 
+                for r in queue_item.census.records.all()
+            }
 
         processed_records = []
         for item in records_payload:
-            type_id = item.get('animal_type')
-            try:
-                type_obj = AnimalType.objects.get(id=type_id)
-                type_name = type_obj.animal_type_name
-            except AnimalType.DoesNotExist:
-                type_name = "Unknown Type"
+            # If piggery, we look up PiggeryLine, otherwise AnimalType
+            if is_piggery:
+                line_id = item.get('line')
+                try:
+                    line_obj = PiggeryLine.objects.get(id=line_id)
+                    type_name = str(line_obj)
+                except PiggeryLine.DoesNotExist:
+                    type_name = "Unknown Line"
+                old_count = db_records.get(int(line_id) if line_id else 0, 0)
+                new_count = item.get('number', 0)
+            else:
+                type_id = item.get('animal_type')
+                try:
+                    type_obj = AnimalType.objects.get(id=type_id)
+                    type_name = type_obj.animal_type_name
+                except AnimalType.DoesNotExist:
+                    type_name = "Unknown Type"
+                old_count = db_records.get(type_id, 0)
+                new_count = item.get('number_of_animals', 0)
 
-            # Match up payloads with existing database baselines
-            old_count = db_records.get(type_id, 0)
-            
             processed_records.append({
                 'animal_type_name': type_name,
-                'new_count': item.get('number_of_animals', 0),
+                'new_count': new_count,
                 'old_count': old_count,
                 'is_deleted': item.get('DELETE', False)
             })
+        
 
         census_edits.append({
             'queue_obj': queue_item,
@@ -151,16 +173,41 @@ def vet_index(request):
         animals_for_section = Animals.objects.none()
 
     # Get the latest census per animal
+    # census_list = []
+    # for animal in animals_for_section:
+    #     last_census = (
+    #         Census.objects
+    #         .filter(animal=animal)
+    #         .prefetch_related('records__animal_type')
+    #         .order_by('-census_date')  # latest first
+    #         .first()
+    #     )
+    #     if last_census:
+    #         census_list.append(last_census)
+
     census_list = []
     for animal in animals_for_section:
-        last_census = (
-            Census.objects
-            .filter(animal=animal)
-            .prefetch_related('records__animal_type')
-            .order_by('-census_date')  # latest first
-            .first()
-        )
+        last_census = Census.objects.filter(animal=animal).order_by('-census_date').first()
+        
         if last_census:
+            # Apply annotation only for Piggery
+            if animal.animal_name.lower() == 'pig':
+                last_census = Census.objects.filter(id=last_census.id).annotate(
+                    sum_adults=Sum(
+                        Case(
+                            When(piggery_records__line__name__icontains='goose', then=0),
+                            When(piggery_records__line__name__icontains='crocodile', then=0),
+                            default=F('piggery_records__number'),
+                            output_field=IntegerField()
+                        )
+                    ),
+                    sum_piglets=Sum('piggery_records__total_piglets')
+                ).first()
+                # Create a dynamic attribute for the template
+                last_census.calculated_total = (last_census.sum_adults or 0) + (last_census.sum_piglets or 0)
+            else:
+                last_census.calculated_total = last_census.total_animals
+            
             census_list.append(last_census)
 
     context = {
@@ -299,24 +346,51 @@ def create_event(request):
     if request.method == 'POST':
         post_data = request.POST.copy()
         # ✅ Handle piggery location explicitly
-        if getattr(request.user.profile, 'is_vet_piggery', False):
-            line = request.POST.get('lineSelect', '')
-            print(line)
-            block = request.POST.get('blockSelect', '')
-            pen = request.POST.get('penSelect', '')
-            post_data['location'] = " ".join(filter(None, [line, block, pen]))
-            # event.location = " ".join(filter(None, [line, block, pen]))
-        # form = EventForm(request.POST, request.FILES, user=request.user)
-        # form = EventForm(post_data, request.FILES, user=request.user)
-        form = EventForm(post_data, request.FILES, user=request.user, edit_mode=False)
-        print(form.errors)
+        # if getattr(request.user.profile, 'is_vet_piggery', False):
+        #     line = request.POST.get('lineSelect', '')
+            
+        #     block = request.POST.get('blockSelect', '')
+        #     pen = request.POST.get('penSelect', '')
+        #     post_data['location'] = " ".join(filter(None, [line, block, pen]))
+        #     # event.location = " ".join(filter(None, [line, block, pen]))
+        # # form = EventForm(request.POST, request.FILES, user=request.user)
+        # # form = EventForm(post_data, request.FILES, user=request.user)
+        event_name = post_data.get('event_name', '').lower()
+        is_piggery = getattr(request.user.profile, 'is_vet_piggery', False)
+        
+        # Validation Logic
+        error_message = None
+        
+        if is_piggery:
+            # Piggery Rules: Castration allows blank pen, others require full string
+            if event_name != 'castration':
+                if not (request.POST.get('lineSelect') and request.POST.get('blockSelect') and request.POST.get('penSelect')):
+                    error_message = "Line, Block, and Pen are required for this event."
+            else:
+                if not (request.POST.get('lineSelect') and request.POST.get('blockSelect')):
+                    error_message = "Line and Block are required for castration."
+        else:
+            # Other sections: Location is mandatory
+            if not post_data.get('location'):
+                error_message = "Location is required for this record."
 
+        if error_message:
+            return JsonResponse({'status': 'error', 'message': error_message}, status=400)
+
+        form = EventForm(post_data, request.FILES, user=request.user, edit_mode=False)
+
+        
+        
         if form.is_valid():
             # event = form.save(commit=False)
 
+            instance = form.save(commit=False)
+            instance.logged_by = request.user
+            instance.save()
+
 
             # event.save()
-            event = form.save()
+            # event = form.save()
 
             # AJAX response
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -331,6 +405,18 @@ def create_event(request):
                     'status': 'success',
                     'message': 'Event saved successfully! You can add another.'
                 })
+            else:
+                # ADD THIS: Manual check to catch the missing location error for non-castration
+                event_name = request.POST.get('event_name', '').lower()
+                line = request.POST.get('lineSelect', '')
+                block = request.POST.get('blockSelect', '')
+                pen = request.POST.get('penSelect', '')
+
+                if event_name != 'castration' and not pen:
+                    form.add_error('location', 'Location (including Pen) is required for this event.')
+
+                # Then proceed to collect and return errors
+                errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
 
             # Non-AJAX redirect
             messages.success(request, "Event created successfully!")
@@ -440,34 +526,64 @@ def event_detail(request, pk):
 
 
 
-
 @login_required
 def census_records(request):
-    """Display census records for the logged-in vet's section with date filters and no duplicates."""
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     page = request.GET.get('page', 1)
 
-    censuses = (
-        Census.objects
-        .select_related('animal')
-        .prefetch_related('records', 'records__animal_type')  # separate prefetch levels
-        .order_by('-census_date')
-    )
-
     vet_profile = request.user.profile
+    
+    # 1. Initialize the base queryset
+    censuses = Census.objects.select_related('animal').order_by('-census_date')
 
+    # 2. Apply filtering based on profile
+    # if vet_profile.is_vet_piggery:
+    #     censuses = censuses.filter(animal__animal_name__iexact='pig').annotate(
+    #         sum_adults=Sum('piggery_records__number'),
+    #         sum_piglets=Sum('piggery_records__total_piglets')
+    #     ).prefetch_related(
+    #         Prefetch('piggery_records', queryset=PiggeryCensusRecord.objects.select_related('line'))
+    #     )
+        
+    # Inside your view, update the piggery filter block:
+    # Inside your piggery_census_records_admin view logic:
     if vet_profile.is_vet_piggery:
-        censuses = censuses.filter(animal__animal_name__iexact='pig')
+        censuses = censuses.filter(animal__animal_name__iexact='pig').annotate(
+            # General = Records excluding Crocodile and Goose
+            sum_adults=Sum(
+                Case(
+                    When(piggery_records__line__name__icontains='goose', then=0),
+                    When(piggery_records__line__name__icontains='crocodile', then=0),
+                    default=F('piggery_records__number'),
+                    output_field=IntegerField()
+                )
+            ),
+            sum_piglets=Sum('piggery_records__total_piglets'),
+            sum_geese=Sum(
+                Case(When(piggery_records__line__name__icontains='goose', then=F('piggery_records__number')), default=0, output_field=IntegerField())
+            ),
+            sum_crocodiles=Sum(
+                Case(When(piggery_records__line__name__icontains='crocodile', then=F('piggery_records__number')), default=0, output_field=IntegerField())
+            )
+        ).annotate(
+            # Grand Total = sum_adults (which already excludes croc/goose) + sum_piglets
+            grand_total=F('sum_adults') + F('sum_piglets')
+        ).prefetch_related(
+            Prefetch('piggery_records', queryset=PiggeryCensusRecord.objects.select_related('line'))
+        )
     elif vet_profile.is_vet_paddock:
-        censuses = censuses.filter(animal__animal_name__iexact='cattle')
+        censuses = censuses.filter(animal__animal_name__iexact='cattle').prefetch_related(
+            Prefetch('records', queryset=CensusRecord.objects.select_related('animal_type'))
+        )
     elif vet_profile.is_vet_smallruminant:
-        censuses = censuses.filter(animal__animal_name__in=['sheep', 'goat'])
-    elif not vet_profile.is_vet:
+        censuses = censuses.filter(animal__animal_name__iexact='sheep').prefetch_related(
+            Prefetch('records', queryset=CensusRecord.objects.select_related('animal_type'))
+        )
+    else:
         censuses = Census.objects.none()
 
-    # Date range filter
-    # Date range filter
+    # 3. Date range filters
     if start_date:
         censuses = censuses.filter(census_date__gte=parse_date(start_date))
     if end_date:
@@ -475,16 +591,13 @@ def census_records(request):
         if end:
             censuses = censuses.filter(census_date__lt=end + timedelta(days=1))
 
-
-    # Ensure uniqueness
     censuses = censuses.distinct()
 
     paginator = Paginator(censuses, 5)
     page_obj = paginator.get_page(page)
 
-    # AJAX infinite scroll
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        html = render_to_string('vet/census_records_list.html', {'censuses': page_obj})
+        html = render_to_string('vet/census_records_list.html', {'censuses': page_obj}, request=request)
         return JsonResponse({'html': html, 'has_next': page_obj.has_next()})
 
     return render(request, 'vet/census_records.html', {
@@ -494,271 +607,255 @@ def census_records(request):
     })
 
 
-@login_required
-def create_census(request):
-
-    user = request.user
-
-    if request.method == 'POST':
-
-        form = CensusForm(request.POST, user=user)
-
-        formset = CensusRecordFormSet(
-            request.POST,
-            user=user,
-            prefix='records'
-        )
-
-        if form.is_valid() and formset.is_valid():
-
-            census = form.save()
-
-            records = formset.save(commit=False)
-
-            for record in records:
-                record.census = census
-                record.save()
-
-            census.update_total()
-
-            # messages.success(request,"Census created successfully.")
-
-            # return redirect('veterinary:census_records')
-            # return render(request, 'vet/census_form.html', {
-            #     'form': form,
-            #     'formset': formset,
-            #     'is_edit': False,
-            #     'existing_records': []
-            # })
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Census created successfully.'
-            })
-
-    else:
-
-        form = CensusForm(user=user)
-
-        formset = CensusRecordFormSet(
-            user=user,
-            prefix='records'
-        )
-
-        animal_type_qs = formset.form.base_fields['animal_type'].queryset
-
-    return render(
-        request,
-        'vet/census_form.html',
-        {
-            'form': form,
-            'formset': formset,
-            'animal_type_qs': animal_type_qs,
-            'is_edit': False,
-            'existing_records': []
-        }
-    )
-
-
 # @login_required
-# def edit_census(request, pk):
-#     user = request.user
-#     census = get_object_or_404(Census, pk=pk)
-#     is_admin = getattr(user.profile, 'is_boss', False)
+# def census_records(request):
+#     """Display census records for the logged-in vet's section with date filters and no duplicates."""
+#     start_date = request.GET.get('start_date')
+#     end_date = request.GET.get('end_date')
+#     page = request.GET.get('page', 1)
 
-#     # Prevent further modifications if a vet is already waiting for an admin approval
-#     if census.is_pending_review and not is_admin:
-#         messages.error(request, "This census record is currently locked pending admin approval.")
-#         return redirect('veterinary:census_records')
+#     censuses = (
+#         Census.objects
+#         .select_related('animal')
+#         .prefetch_related('records', 'records__animal_type')  # separate prefetch levels
+#         .order_by('-census_date')
+#     )
 
-#     if request.method == 'POST':
-#         form = CensusForm(request.POST, instance=census, user=user)
-#         formset = CensusRecordFormSet(request.POST, instance=census, user=user, prefix='records')
+#     vet_profile = request.user.profile
+#     queryset = Census.objects.select_related('animal').order_by('-census_date')
 
-#         if form.is_valid() and formset.is_valid():
-#             if is_admin:
-#                 # Direct immediate mutation for administrators
-#                 census = form.save()
-#                 records = formset.save(commit=False)
-#                 for record in records:
-#                     record.census = census
-#                     record.save()
-#                 for obj in formset.deleted_objects:
-#                     obj.delete()
-#                 census.update_total()
-                
-#                 messages.success(request, "Census updated directly by administrator.")
-#             else:
-#                 # Vet modification flow: Serialize data and stage it in the queue
-#                 # serialized_payload = {
-#                 #     'main_form': {
-#                 #         'census_date': form.cleaned_data['census_date'].isoformat(),
-#                 #         'notes': form.cleaned_data['notes'],
-#                 #     },
-#                 #     'records': [
-#                 #         {
-#                 #             'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
-#                 #             'animal_type': f.cleaned_data['animal_type'].id,
-#                 #             'number_of_animals': f.cleaned_data['number_of_animals'],
-#                 #             'DELETE': f.cleaned_data.get('DELETE', False)
-#                 #         }
-#                 #         for f in formset.forms if f.has_changed() or f.cleaned_data.get('id')
-#                 #     ]
-#                 # }
+#     # if vet_profile.is_vet_piggery:
+#     #     censuses = censuses.filter(animal__animal_name__iexact='pig')
+#     if vet_profile.is_vet_piggery:
+#         # Piggery uses piggery_records and PiggeryLine
+#         queryset = queryset.filter(animal__animal_name__iexact='pig').prefetch_related(
+#             Prefetch('piggery_records', queryset=PiggeryCensusRecord.objects.select_related('line'))
+#         )
+#     elif vet_profile.is_vet_paddock:
+#         censuses = censuses.filter(animal__animal_name__iexact='cattle')
+#     elif vet_profile.is_vet_smallruminant:
+#         censuses = censuses.filter(animal__animal_name__in=['sheep', 'goat'])
+#     elif not vet_profile.is_vet:
+#         censuses = Census.objects.none()
 
-#                 # # Save changes to the queue and lock the active record
-#                 # CensusApprovalQueue.objects.create(
-#                 #     census=census,
-#                 #     requested_by=user,
-#                 #     form_data_payload=serialized_payload
-#                 # )
-#                 # census.is_pending_review = True
-#                 # census.save()
+#     # Date range filter
+#     # Date range filter
+#     if start_date:
+#         censuses = censuses.filter(census_date__gte=parse_date(start_date))
+#     if end_date:
+#         end = parse_date(end_date)
+#         if end:
+#             censuses = censuses.filter(census_date__lt=end + timedelta(days=1))
 
-#                 # # Send email notification to administrators
-#                 # try:
-#                 #     admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
-#                 #     if admin_emails:
-#                 #         review_url = request.build_absolute_uri(reverse('veterinary:census_records'))
-#                 #         send_mail(
-#                 #             subject="⚠️ Notice: Census Change Pending Approval",
-#                 #             message=f"Vet {user.get_full_name()} has requested modifications to {census}.\n\nReview changes here: {review_url}",
-#                 #             from_email=settings.DEFAULT_FROM_EMAIL,
-#                 #             recipient_list=admin_emails,
-#                 #             # fail_silently=True
-#                 #             fail_silently=False
-#                 #         )
-#                 # except Exception as e:
-#                 #     print(f"Mail loop breakdown: {e}")
 
-#                 # messages.success(request, "Your updates have been submitted to the administrator for verification.")
-#                 # ... inside your 'else' (Vet modification flow) block ...
+#     # Ensure uniqueness
+#     censuses = censuses.distinct()
 
-#                 serialized_payload = {
-#                     'main_form': {
-#                         'census_date': form.cleaned_data['census_date'].isoformat(),
-#                         'notes': form.cleaned_data['notes'],
-#                     },
-#                     'records': [
-#                         {
-#                             'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
-#                             'animal_type': f.cleaned_data['animal_type'].id,
-#                             'number_of_animals': f.cleaned_data['number_of_animals'],
-#                             'DELETE': f.cleaned_data.get('DELETE', False)
-#                         }
-#                         for f in formset.forms if f.has_changed() or f.cleaned_data.get('id')
-#                     ]
-#                 }
+#     paginator = Paginator(censuses, 5)
+#     page_obj = paginator.get_page(page)
 
-#                 # 1. Capture the "Before" state (the current census records)
-#                 old_records = [
-#                     {'type': r.animal_type.animal_type_name, 'count': r.number_of_animals}
-#                     for r in census.records.all()
-#                 ]
+#     # AJAX infinite scroll
+#     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#         html = render_to_string('vet/census_records_list.html', {'censuses': page_obj})
+#         return JsonResponse({'html': html, 'has_next': page_obj.has_next()})
 
-#                 # 2. Prepare the "After" state from your serialized_payload
-#                 new_records = []
-#                 for item in serialized_payload['records']:
-#                     # Resolve the type name for the email template
-#                     try:
-#                         type_obj = AnimalType.objects.get(id=item['animal_type'])
-#                         type_name = type_obj.animal_type_name
-#                     except AnimalType.DoesNotExist:
-#                         type_name = "Unknown"
-                        
-#                     new_records.append({
-#                         'type': type_name,
-#                         'count': item['number_of_animals']
-#                     })
-
-#                 combined_records = list(zip_longest(old_records, new_records, fillvalue=None))
-
-#                 # 3. Create the email
-#                 subject = "New Census Edit Pending Approval"
-#                 context = {
-#                     'vet_name': user.get_full_name(),
-#                     'census_id': census.pk,
-#                     'old_records': {'values': old_records},
-#                     'new_records': new_records,
-#                     'combined_records': combined_records,
-#                     'review_url': request.build_absolute_uri(reverse('veterinary:census_records'))
-#                 }
-
-#                 html_content = render_to_string('emails/census_edit_status.html', context)
-#                 text_content = f"New census edit submitted by {user.get_full_name()} for Census #{census.pk}"
-
-#                 admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
-
-#                 if admin_emails:
-#                     email = EmailMultiAlternatives(
-#                         subject,
-#                         text_content,
-#                         settings.DEFAULT_FROM_EMAIL,
-#                         admin_emails
-#                     )
-#                     email.attach_alternative(html_content, "text/html")
-#                     email.send()
-
-#                 messages.success(request, "Your updates have been submitted to the administrator for verification.")
-#                 # ... proceed to render or redirect ...
-
-#             existing_records = [
-#                 {
-#                     'id': record.id,
-#                     'typeId': record.animal_type.id,
-#                     'typeText': record.animal_type.animal_type_name,
-#                     'count': record.number_of_animals,
-#                 }
-#                 for record in census.records.all()
-#             ]
-
-#             return render(request, 'vet/census_form.html', {
-#                 'form': form,
-#                 'formset': formset,
-#                 'is_edit': True,
-#                 'census': census,
-#                 'existing_records': existing_records
-#             })
-#     else:
-#         form = CensusForm(instance=census, user=user)
-#         formset = CensusRecordFormSet(instance=census, user=user, prefix='records')
-
-#     existing_records = [
-#         {
-#             'id': record.id,
-#             'typeId': record.animal_type.id,
-#             'typeText': record.animal_type.animal_type_name,
-#             'count': record.number_of_animals,
-#         }
-#         for record in census.records.all()
-#     ]
-
-#     return render(request, 'vet/census_form.html', {
-#         'form': form,
-#         'formset': formset,
-#         'is_edit': True,
-#         'census': census,
-#         'existing_records': existing_records
+#     return render(request, 'vet/census_records.html', {
+#         'censuses': page_obj,
+#         'start_date': start_date,
+#         'end_date': end_date,
 #     })
 
 
+# @login_required
+# def create_census(request):
 
+#     user = request.user
+
+#     if request.method == 'POST':
+
+#         form = CensusForm(request.POST, user=user)
+
+#         formset = CensusRecordFormSet(
+#             request.POST,
+#             user=user,
+#             prefix='records'
+#         )
+
+#         if form.is_valid() and formset.is_valid():
+
+#             census = form.save()
+
+#             records = formset.save(commit=False)
+
+#             for record in records:
+#                 record.census = census
+#                 record.save()
+
+#             census.update_total()
+
+#             # messages.success(request,"Census created successfully.")
+
+#             # return redirect('veterinary:census_records')
+#             # return render(request, 'vet/census_form.html', {
+#             #     'form': form,
+#             #     'formset': formset,
+#             #     'is_edit': False,
+#             #     'existing_records': []
+#             # })
+#             return JsonResponse({
+#                 'status': 'success',
+#                 'message': 'Census created successfully.'
+#             })
+
+#     else:
+
+#         form = CensusForm(user=user)
+
+#         formset = CensusRecordFormSet(
+#             user=user,
+#             prefix='records'
+#         )
+
+#         animal_type_qs = formset.form.base_fields['animal_type'].queryset
+
+#     return render(
+#         request,
+#         'vet/census_form.html',
+#         {
+#             'form': form,
+#             'formset': formset,
+#             'animal_type_qs': animal_type_qs,
+#             'is_edit': False,
+#             'existing_records': []
+#         }
+#     )
+
+
+@login_required
+def create_census(request):
+    user = request.user
+    is_piggery = getattr(user.profile, 'is_vet_piggery', False)
+
+    if request.method == 'POST':
+        form = CensusForm(request.POST, user=user)
+        # Select FormSet class based on user role
+        FormSetClass = PiggeryCensusRecordFormSet if is_piggery else CensusRecordFormSet
+        formset = FormSetClass(request.POST, user=user, prefix='records')
+
+        if form.is_valid() and formset.is_valid():
+            # 1. Save form with commit=False to get the instance
+            census = form.save(commit=False)
+            
+            # 2. Assign the user
+            census.logged_by = request.user
+            
+            # 3. Save to the database
+            census.save()
+
+            
+            
+            # 4. Save formset records
+            records = formset.save(commit=False)
+            for record in records:
+                record.census = census
+                record.save()
+            census.update_total()
+
+            # 4. Now run projection calculation using the PREVIOUS census
+            # We exclude the current census to find the most recent one before this
+            last_census = Census.objects.filter(animal=census.animal)\
+                                        .exclude(id=census.id)\
+                                        .order_by('-census_date').first()
+
+            if last_census:
+                # Determine start_count for the projection
+                if census.animal.animal_name.lower() == 'pig':
+                    # Exclude exotic lines as we did in your dashboard
+                    piggery_data = PiggeryCensusRecord.objects.filter(census=last_census)\
+                        .exclude(line__name__icontains='croc')\
+                        .exclude(line__name__icontains='goose')\
+                        .aggregate(gen=Sum('number'), pig=Sum('total_piglets'))
+                    start_count = (piggery_data['gen'] or 0) + (piggery_data['pig'] or 0)
+                else:
+                    start_count = last_census.total_animals
+
+                # # data = run_projection_calculation(census.animal, last_census.census_date, start_count)
+                # data = run_projection_calculation(
+                #     census.animal, 
+                #     last_census.census_date, 
+                #     start_count, 
+                #     end_date=census.census_date # Lock the projection to the day of the census
+                # )
+
+                # STRICT CALL: 
+                # Start = Last Census Date, End = New Census Date
+                data = run_projection_calculation(
+                    animal_obj=census.animal, 
+                    start_date=last_census.census_date, 
+                    end_date=census.census_date, 
+                    start_count=start_count
+                )
+
+                # 5. Create Projection record
+                CensusProjection.objects.create(
+                    census=census,
+                    start_count=data['start_count'],
+                    projected_count=data['projected_count'],
+                    total_mortality=data['total_mortality'],
+                    total_culling=data['total_culling'],
+                    total_sale=data['total_sale'],
+                    total_gift=data['total_gift'],
+                    total_births=data['total_births'],
+                    total_procurement=data['total_procurement']
+                )
+            return JsonResponse({'status': 'success', 'message': 'Census created successfully.'})
+    else:
+        form = CensusForm(user=user)
+        FormSetClass = PiggeryCensusRecordFormSet if is_piggery else CensusRecordFormSet
+        formset = FormSetClass(user=user, prefix='records')
+
+    return render(request, 'vet/census_form.html', {
+        'form': form,
+        'formset': formset,
+        'is_edit': False,
+        'existing_records': []
+    })
 
 # @login_required
 # def edit_census(request, pk):
 #     user = request.user
 #     census = get_object_or_404(Census, pk=pk)
     
-#     # Prevent further modifications if a vet is already waiting for an admin approval
+#     # Prevent modifications if a vet is already waiting for admin approval
+#     # Robust check: Prevent modifications if a valid, unprocessed edit request exists
 #     if census.is_pending_review:
-#         messages.error(request, "This census record is currently locked pending admin approval.")
-#         return redirect('veterinary:vet_index')
+#         # Check if an active record exists in the queue
+#         active_request = CensusApprovalQueue.objects.filter(
+#             census=census, 
+#             is_processed=False
+#         ).exists()
+        
+#         if active_request:
+#             messages.error(request, "This census record is currently locked pending admin approval.")
+#             return redirect('veterinary:census_records')
+#         else:
+#             # Sync state: Record was marked pending, but queue entry was deleted.
+#             # Reset flag and allow user to proceed.
+#             census.is_pending_review = False
+#             census.save()
+#     # if census.is_pending_review:
+#     #     messages.error(request, "This census record is currently locked pending admin approval.")
+#     #     return redirect('veterinary:vet_index')
 
 #     if request.method == 'POST':
 #         form = CensusForm(request.POST, instance=census, user=user)
 #         formset = CensusRecordFormSet(request.POST, instance=census, user=user, prefix='records')
 
 #         if form.is_valid() and formset.is_valid():
-#             # Vet modification flow: Serialize data and stage it in the queue
+#             # Capture the user's note from the POST data
+#             user_note = request.POST.get('request_note', '').strip()
+            
+#             # 1. Prepare serialized payload for the queue
 #             serialized_payload = {
 #                 'main_form': {
 #                     'census_date': form.cleaned_data['census_date'].isoformat(),
@@ -775,30 +872,57 @@ def create_census(request):
 #                 ]
 #             }
 
-#             # 1. Save changes to the queue
-#             CensusApprovalQueue.objects.create(
+#             # 2. Save to queue
+#             # CensusApprovalQueue.objects.create(
+#             #     census=census,
+#             #     requested_by=user,
+#             #     form_data_payload=serialized_payload,
+#             #     request_note=user_note
+#             # )
+
+#             queue_item = CensusApprovalQueue.objects.create(
 #                 census=census,
 #                 requested_by=user,
-#                 form_data_payload=serialized_payload
+#                 form_data_payload=serialized_payload,
+#                 request_note=user_note
 #             )
 
-#             # 2. Lock the active record to prevent parallel edits
+#             # # 3. Lock the record
+#             # census.is_pending_review = True
+#             # census.save()
+#             # Generate identifier
+#             request_id = f"SKAAL-CEN-{queue_item.id}"
+
+#             # 3. Lock the record
 #             census.is_pending_review = True
 #             census.save()
 
-#             # 3. Handle Email Notification
+#             # 4. Prepare data for email
 #             old_records = [
 #                 {'type': r.animal_type.animal_type_name, 'count': r.number_of_animals}
 #                 for r in census.records.all()
 #             ]
+            
+#             new_records = []
+#             for item in serialized_payload['records']:
+#                 try:
+#                     type_obj = AnimalType.objects.get(id=item['animal_type'])
+#                     type_name = type_obj.animal_type_name
+#                 except AnimalType.DoesNotExist:
+#                     type_name = "Unknown"
+#                 new_records.append({'type': type_name, 'count': item['number_of_animals']})
 
-#             # Logic to notify admins
-#             subject = "New Census Edit Pending Approval"
+#             combined_records = list(zip_longest(old_records, new_records, fillvalue=None))
+
+#             # 5. Send Email
+#             # subject = "New Census Edit Pending Approval"
+#             subject = f"[{request_id}] New Census Edit Pending Approval"
 #             context = {
 #                 'vet_name': user.get_full_name(),
 #                 'census_id': census.pk,
-#                 'old_records': {'values': old_records},
-#                 'review_url': request.build_absolute_uri(reverse('veterinary:vet_index'))
+#                 'combined_records': combined_records,
+#                 'review_url': request.build_absolute_uri(reverse('veterinary:vet_index')),
+#                 'user_note': user_note,
 #             }
 
 #             html_content = render_to_string('emails/census_edit_status.html', context)
@@ -810,6 +934,12 @@ def create_census(request):
 #                 email.attach_alternative(html_content, "text/html")
 #                 email.send()
 
+#             # messages.success(request, "Your updates have been submitted to the administrator for verification.")
+#             # return redirect('veterinary:vet_index')
+#             # Instead of just redirecting, return a success message
+#             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#                 return JsonResponse({'status': 'success', 'message': 'Your updates have been submitted to the administrator for verification.'})
+            
 #             messages.success(request, "Your updates have been submitted to the administrator for verification.")
 #             return redirect('veterinary:vet_index')
 
@@ -836,141 +966,226 @@ def create_census(request):
 #     })
 
 
+# @login_required
+# def edit_census(request, pk):
+#     user = request.user
+#     census = get_object_or_404(Census, pk=pk)
+    
+#     # 1. Determine if this is a Piggery census
+#     is_piggery = getattr(user.profile, 'is_vet_piggery', False)
+#     FormSetClass = PiggeryCensusRecordFormSet if is_piggery else CensusRecordFormSet
+    
+#     # 2. Lock check logic
+#     if census.is_pending_review:
+#         if CensusApprovalQueue.objects.filter(census=census, is_processed=False).exists():
+#             messages.error(request, "This census record is currently locked pending admin approval.")
+#             return redirect('veterinary:census_records')
+#         else:
+#             census.is_pending_review = False
+#             census.save()
+
+#     if request.method == 'POST':
+#         form = CensusForm(request.POST, instance=census, user=user)
+#         formset = FormSetClass(request.POST, instance=census, user=user, prefix='records')
+
+#         if form.is_valid() and formset.is_valid():
+#             user_note = request.POST.get('request_note', '').strip()
+            
+#             # 3. Dynamic Payload Construction
+#             records_data = []
+#             for f in formset.forms:
+#                 if f.has_changed() or f.cleaned_data.get('id'):
+#                     record_dict = {'DELETE': f.cleaned_data.get('DELETE', False)}
+                    
+#                     if is_piggery:
+#                         record_dict.update({
+#                             'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
+#                             'line': f.cleaned_data['line'].id,
+#                             'number': f.cleaned_data['number'],
+#                             'piglets': f.cleaned_data.get('piglets', 0), # Capture this
+#                             'note': f.cleaned_data['note']
+#                         })
+#                     else:
+#                         record_dict.update({
+#                             'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
+#                             'animal_type': f.cleaned_data['animal_type'].id,
+#                             'number_of_animals': f.cleaned_data['number_of_animals']
+#                         })
+#                     records_data.append(record_dict)
+
+#             serialized_payload = {
+#                 'main_form': {
+#                     'census_date': form.cleaned_data['census_date'].isoformat(),
+#                     'notes': form.cleaned_data['notes'],
+#                 },
+#                 'records': records_data
+#             }
+
+#             # 4. Save to Queue
+#             queue_item = CensusApprovalQueue.objects.create(
+#                 census=census,
+#                 requested_by=user,
+#                 form_data_payload=serialized_payload,
+#                 request_note=user_note
+#             )
+
+#             # 5. Lock and Notify
+#             census.is_pending_review = True
+#             census.save()
+#             request_id = f"SKAAL-CEN-{queue_item.id}"
+
+#             # Prepare email context
+#             # Note: You can add a similar check here to format Piggery records for the email
+#             subject = f"[{request_id}] New Census Edit Pending Approval"
+#             context = {
+#                 'vet_name': user.get_full_name(),
+#                 'census_id': census.pk,
+#                 'review_url': request.build_absolute_uri(reverse('veterinary:vet_index')),
+#                 'user_note': user_note,
+#             }
+
+#             html_content = render_to_string('emails/census_edit_status.html', context)
+#             admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
+
+#             if admin_emails:
+#                 email = EmailMultiAlternatives(subject, f"New edit for #{census.pk}", settings.DEFAULT_FROM_EMAIL, admin_emails)
+#                 email.attach_alternative(html_content, "text/html")
+#                 email.send()
+
+#             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#                 return JsonResponse({'status': 'success', 'message': 'Your updates have been submitted to the administrator for verification.'})
+            
+#             messages.success(request, "Your updates have been submitted to the administrator for verification.")
+#             return redirect('veterinary:vet_index')
+
+#     else:
+#         form = CensusForm(instance=census, user=user)
+#         formset = FormSetClass(instance=census, user=user, prefix='records')
+
+#     return render(request, 'vet/census_form.html', {
+#         'form': form,
+#         'formset': formset,
+#         'is_edit': True,
+#         'census': census,
+#     })
+
+
 @login_required
 def edit_census(request, pk):
     user = request.user
     census = get_object_or_404(Census, pk=pk)
-    
-    # Prevent modifications if a vet is already waiting for admin approval
-    # Robust check: Prevent modifications if a valid, unprocessed edit request exists
+    is_piggery = getattr(user.profile, 'is_vet_piggery', False)
+    FormSetClass = PiggeryCensusRecordFormSet if is_piggery else CensusRecordFormSet
+
+    # Prepare existing records for the JS
+    existing_records = []
+    if is_piggery:
+        for r in census.piggery_records.all():
+            existing_records.append({
+                'id': r.id,
+                'typeId': r.line.id,
+                'typeText': str(r.line),
+                'count': r.number,
+                'piglets': r.total_piglets,
+                'note': r.note
+            })
+    else:
+        for r in census.records.all():
+            existing_records.append({
+                'id': r.id,
+                'typeId': r.animal_type.id,
+                'typeText': r.animal_type.animal_type_name,
+                'count': r.number_of_animals
+            })
+
+    # Lock check logic
     if census.is_pending_review:
-        # Check if an active record exists in the queue
-        active_request = CensusApprovalQueue.objects.filter(
-            census=census, 
-            is_processed=False
-        ).exists()
-        
-        if active_request:
+        if CensusApprovalQueue.objects.filter(census=census, is_processed=False).exists():
             messages.error(request, "This census record is currently locked pending admin approval.")
             return redirect('veterinary:census_records')
         else:
-            # Sync state: Record was marked pending, but queue entry was deleted.
-            # Reset flag and allow user to proceed.
             census.is_pending_review = False
             census.save()
-    # if census.is_pending_review:
-    #     messages.error(request, "This census record is currently locked pending admin approval.")
-    #     return redirect('veterinary:vet_index')
 
     if request.method == 'POST':
+        
         form = CensusForm(request.POST, instance=census, user=user)
-        formset = CensusRecordFormSet(request.POST, instance=census, user=user, prefix='records')
+        formset = FormSetClass(request.POST, instance=census, user=user, prefix='records')
 
         if form.is_valid() and formset.is_valid():
-            # Capture the user's note from the POST data
-            user_note = request.POST.get('request_note', '').strip()
-            
-            # 1. Prepare serialized payload for the queue
-            serialized_payload = {
-                'main_form': {
-                    'census_date': form.cleaned_data['census_date'].isoformat(),
-                    'notes': form.cleaned_data['notes'],
-                },
-                'records': [
-                    {
-                        'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
-                        'animal_type': f.cleaned_data['animal_type'].id,
-                        'number_of_animals': f.cleaned_data['number_of_animals'],
-                        'DELETE': f.cleaned_data.get('DELETE', False)
-                    }
-                    for f in formset.forms if f.has_changed() or f.cleaned_data.get('id')
-                ]
-            }
+            try:
+                # 3. Dynamic Payload Construction
+                records_data = []
+                for f in formset.forms:
+                    if f.has_changed() or f.cleaned_data.get('id'):
 
-            # 2. Save to queue
-            # CensusApprovalQueue.objects.create(
-            #     census=census,
-            #     requested_by=user,
-            #     form_data_payload=serialized_payload,
-            #     request_note=user_note
-            # )
+                        # Check specifically for the delete flag from the formset
+                        is_deleted = f.cleaned_data.get('DELETE', False)
+                        record_dict = {'DELETE': is_deleted}
+                        if not is_deleted:
+                            if is_piggery:
+                                record_dict.update({
+                                    'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
+                                    'line': f.cleaned_data['line'].id,
+                                    'number': f.cleaned_data['number'],
+                                    'piglets': f.cleaned_data.get('total_piglets', 0),
+                                    'note': f.cleaned_data['note']
+                                })
+                            else:
+                                record_dict.update({
+                                    'id': f.cleaned_data.get('id').id if f.cleaned_data.get('id') else None,
+                                    'animal_type': f.cleaned_data['animal_type'].id,
+                                    'number_of_animals': f.cleaned_data['number_of_animals']
+                                })
+                        records_data.append(record_dict)
 
-            queue_item = CensusApprovalQueue.objects.create(
-                census=census,
-                requested_by=user,
-                form_data_payload=serialized_payload,
-                request_note=user_note
-            )
+                serialized_payload = {
+                    'main_form': {
+                        'census_date': form.cleaned_data['census_date'].isoformat(),
+                        'notes': form.cleaned_data['notes'],
+                    },
+                    'records': records_data
+                }
 
-            # # 3. Lock the record
-            # census.is_pending_review = True
-            # census.save()
-            # Generate identifier
-            request_id = f"SKAAL-CEN-{queue_item.id}"
+                # 4. Save to Queue
+                queue_item = CensusApprovalQueue.objects.create(
+                    census=census,
+                    requested_by=user,
+                    form_data_payload=serialized_payload,
+                    request_note=request.POST.get('request_note', '').strip()
+                )
 
-            # 3. Lock the record
-            census.is_pending_review = True
-            census.save()
+                # 5. Lock and Notify
+                census.is_pending_review = True
+                census.save()
 
-            # 4. Prepare data for email
-            old_records = [
-                {'type': r.animal_type.animal_type_name, 'count': r.number_of_animals}
-                for r in census.records.all()
-            ]
-            
-            new_records = []
-            for item in serialized_payload['records']:
+                admin_emails = list(User.objects.filter(profile__is_boss=True, is_active=True).values_list('email', flat=True))
+                if not admin_emails:
+                    return JsonResponse({'status': 'warning', 'message': 'Update queued, but no administrators found to notify.'}, status=200)
+
                 try:
-                    type_obj = AnimalType.objects.get(id=item['animal_type'])
-                    type_name = type_obj.animal_type_name
-                except AnimalType.DoesNotExist:
-                    type_name = "Unknown"
-                new_records.append({'type': type_name, 'count': item['number_of_animals']})
+                    subject = f"[SKAAL-CEN-{queue_item.id}] New Census Edit Pending Approval"
+                    context = {'vet_name': user.get_full_name(), 'census_id': census.pk, 'user_note': queue_item.request_note}
+                    html_content = render_to_string('emails/census_edit_status.html', context)
+                    email = EmailMultiAlternatives(subject, "Pending census edit.", settings.DEFAULT_FROM_EMAIL, admin_emails)
+                    email.attach_alternative(html_content, "text/html")
+                    email.send()
+                except Exception:
+                    return JsonResponse({'status': 'warning', 'message': 'Update submitted, but the email notification failed to send.'}, status=200)
 
-            combined_records = list(zip_longest(old_records, new_records, fillvalue=None))
-
-            # 5. Send Email
-            # subject = "New Census Edit Pending Approval"
-            subject = f"[{request_id}] New Census Edit Pending Approval"
-            context = {
-                'vet_name': user.get_full_name(),
-                'census_id': census.pk,
-                'combined_records': combined_records,
-                'review_url': request.build_absolute_uri(reverse('veterinary:vet_index')),
-                'user_note': user_note,
-            }
-
-            html_content = render_to_string('emails/census_edit_status.html', context)
-            text_content = f"New census edit submitted by {user.get_full_name()} for Census #{census.pk}"
-            admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
-
-            if admin_emails:
-                email = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, admin_emails)
-                email.attach_alternative(html_content, "text/html")
-                email.send()
-
-            # messages.success(request, "Your updates have been submitted to the administrator for verification.")
-            # return redirect('veterinary:vet_index')
-            # Instead of just redirecting, return a success message
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({'status': 'success', 'message': 'Your updates have been submitted to the administrator for verification.'})
-            
-            messages.success(request, "Your updates have been submitted to the administrator for verification.")
-            return redirect('veterinary:vet_index')
+
+            except Exception as e:
+                return JsonResponse({'status': 'error', 'message': f'System error: {str(e)}'}, status=500)
+        
+        else:
+            errors = {**form.errors, **{f'formset-{i}': e for i, f in enumerate(formset.forms) for e in f.errors}}
+           
+            return JsonResponse({'status': 'error', 'message': 'Please correct the highlighted errors.', 'errors': errors}, status=400)
 
     else:
         form = CensusForm(instance=census, user=user)
-        formset = CensusRecordFormSet(instance=census, user=user, prefix='records')
-
-    existing_records = [
-        {
-            'id': record.id,
-            'typeId': record.animal_type.id,
-            'typeText': record.animal_type.animal_type_name,
-            'count': record.number_of_animals,
-        }
-        for record in census.records.all()
-    ]
+        formset = FormSetClass(instance=census, user=user, prefix='records')
 
     return render(request, 'vet/census_form.html', {
         'form': form,
@@ -1010,7 +1225,7 @@ def edit_event(request, pk):
     # Small ruminant example: "SR Unit 2", "SR Pen 6"
     if location.lower().startswith("sr"):
         initial_small_ruminant = location
-        print(initial_small_ruminant)
+        
 
     
 

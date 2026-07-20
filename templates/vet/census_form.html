@@ -5,353 +5,297 @@
 {% block content %}
 <div class="content-wrapper census-page">
   <div class="container-fluid">
-
     <div class="p-4 shadow-sm rounded bg-white">
-
-      <h4 class="text-primary mb-3">
-        {% if is_edit %}Edit Census{% else %}New Census{% endif %}
-      </h4>
+      <h4 class="text-primary mb-3">{% if is_edit %}Edit Census{% else %}New Census{% endif %}</h4>
 
       {% if census.is_pending_review %}
-        <div class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
-          <h5 class="alert-heading font-weight-bold mb-1">
-            <i class="fa fa-hourglass-split mr-2"></i> Review Phase Active
-          </h5>
-          <p class="mb-0 small text-dark">
-            A modified version of this data has been routed to system administrators. This record is locked against further editing until the review is complete.
-          </p>
-        </div>
-      {% endif %}
-
-      <!-- Error / Warning Messages stay inline as normal -->
-      {% if messages %}
-        <div class="mt-3 id-messages-container">
-          {% for message in messages %}
-            {% if 'success' not in message.tags %}
-              <div class="alert message-alert {% if message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-              </div>
-            {% endif %}
-          {% endfor %}
+        <div class="alert alert-warning border-0 shadow-sm mb-4">
+          <h5 class="alert-heading font-weight-bold mb-1"><i class="fa fa-hourglass-split mr-2"></i> Review Phase Active</h5>
+          <p class="mb-0 small text-dark">This record is locked pending admin approval.</p>
         </div>
       {% endif %}
 
       <form method="post" id="census-form">
         {% csrf_token %}
-
         {{ form.as_p }}
         {{ formset.management_form }}
 
-        <!-- INPUT AREA -->
-        <div class="row mb-3">
-          <div class="col-md-5">
-            <label>Animal Type</label>
-            <select id="animalTypeSelect" class="form-control">
-              <option value="">--- Select ---</option>
-              {% for opt in formset.empty_form.fields.animal_type.queryset %}
-                <option value="{{ opt.id }}">{{ opt.animal_type_name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="col-md-5">
-            <label>Number</label>
-            <input type="number" id="animalCountInput" class="form-control">
-          </div>
-
-          <div class="col-md-2 d-flex align-items-end">
-            <button type="button" id="addRecordBtn" class="btn btn-success w-100">
-              Add
-            </button>
-          </div>
+        <!-- DYNAMIC INPUT AREA -->
+        <!-- DYNAMIC INPUT AREA -->
+        <div class="row mb-3 align-items-end">
+          {% if not user.profile.is_vet_piggery %}
+            <div class="col-md-6">
+              <div class="form-group mb-0">
+                <label class="mb-1">Animal Type</label>
+                <select id="recordTypeSelect" class="form-control">
+                  <option value="">--- Select ---</option>
+                  {% for opt in formset.empty_form.fields.animal_type.queryset %}
+                    <option value="{{ opt.id }}">{{ opt.animal_type_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-0">
+                <label class="mb-1">Number</label>
+                <input type="number" id="countInput" class="form-control">
+              </div>
+            </div>
+          {% else %}
+            <div class="col-md-4">
+              <div class="form-group mb-0">
+                <label class="mb-1">Line</label>
+                <select id="recordTypeSelect" class="form-control">
+                  <option value="">--- Select ---</option>
+                  {% for opt in formset.empty_form.fields.line.queryset %}
+                    <option value="{{ opt.id }}">{{ opt.name }} ({{ opt.specification }})</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group mb-0">
+                <label class="mb-1">Number</label>
+                <input type="number" id="countInput" class="form-control">
+              </div>
+            </div>
+            <div class="col-md-4" id="pigletFieldWrapper" style="display:none;">
+              <div class="form-group mb-0">
+                <label class="mb-1">Piglets</label>
+                <input type="number" id="pigletInput" class="form-control" value="0">
+              </div>
+            </div>
+          {% endif %}
         </div>
 
-        <!-- RECORDS -->
+        {% if user.profile.is_vet_piggery %}
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="form-group mb-0">
+                    <label class="mb-1">Note</label>
+                    <textarea id="noteInput" class="form-control" rows="2" placeholder="Enter detailed notes here..."></textarea>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <button type="button" id="addRecordBtn" class="btn btn-success mb-4 w-100">Add Record</button>
+
         <div id="recordsContainer" class="mb-3"></div>
 
         {% if is_edit %}
         <div class="form-group mb-4">
-            <label for="request_note" class="font-weight-bold">Reason for Modification*</label>
-            <textarea name="request_note" id="request_note" class="form-control" rows="3" placeholder="Please explain why you are requesting these changes..." required></textarea>
+            <label class="font-weight-bold">Reason for Modification*</label>
+            <textarea name="request_note" class="form-control" rows="3" required></textarea>
         </div>
         {% endif %}
 
-        <!-- SUBMIT -->
         <div class="text-end">
-          <button type="submit" class="btn btn-primary px-4">
-            {% if is_edit %}Update Census{% else %}Save Census{% endif %}
-          </button>
-          
-          <a id="cancelBtn" href="{% url 'veterinary:census_records' %}" class="btn btn-secondary px-4">
-            Cancel
-          </a>
+          <button type="submit" class="btn btn-primary px-4">{% if is_edit %}Update{% else %}Save{% endif %} Census</button>
+          <a href="{% url 'veterinary:census_records' %}" class="btn btn-secondary px-4">Cancel</a>
         </div>
-
       </form>
-
     </div>
   </div>
 </div>
 
-<!-- Dynamic Success Modal Container -->
-<div class="modal fade" id="successRedirectModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content text-center p-4">
-      <div class="modal-body">
-        <div class="text-success mb-3">
-          <!-- Big checkmark icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-          </svg>
-        </div>
-        <h4 class="modal-title mb-2" id="modalMessageText"></h4>
-        <p class="text-muted small">Redirecting to records in <span id="countdownTimer">3</span> seconds...</p>
+    <div class="modal-content">
+      <div class="modal-body text-center p-4">
+        <i class="fa fa-check-circle text-success" style="font-size: 3rem;"></i>
+        <h4 class="mt-3">Success!</h4>
+        <p>Census record created successfully. Redirecting...</p>
       </div>
     </div>
   </div>
 </div>
-
 {{ existing_records|json_script:"existing-records" }}
 
 <script>
-
-  const censusForm = document.getElementById("census-form");
-
-censusForm.addEventListener("submit", function(e) {
-  e.preventDefault(); // Stop the default reload
-
-  // Gather all data, including the hidden formset fields we generated
-  const formData = new FormData(censusForm);
-
-  fetch(censusForm.action, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest',
-      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.status === 'success') {
-      // Trigger the Modal
-      document.getElementById("modalMessageText").textContent = data.message;
-      $('#successRedirectModal').modal('show');
-
-      // Countdown and Redirect
-      const targetUrl = document.getElementById("cancelBtn").getAttribute("href");
-      let timeLeft = 3;
-      const countdownTimer = document.getElementById("countdownTimer");
-      
-      const interval = setInterval(() => {
-        timeLeft -= 1;
-        countdownTimer.textContent = timeLeft;
-        if (timeLeft <= 0) {
-          clearInterval(interval);
-          window.location.href = targetUrl;
-        }
-      }, 1000);
-    }
-  })
-  .catch(error => console.error('Error:', error));
-});
 document.addEventListener("DOMContentLoaded", () => {
-
-  // ================= AUTO-REDIRECT MODAL HANDLING =================
-  // Safely grab Django messages parsed into raw strings
-  const successMessages = [
-    {% if messages %}
-      {% for message in messages %}
-        {% if 'success' in message.tags %}"{{ message|escapejs }}",{% endif %}
-      {% endfor %}
-    {% endif %}
-  ];
-
-  if (successMessages.length > 0) {
-    const targetUrl = document.getElementById("cancelBtn").getAttribute("href");
-    const modalMessageText = document.getElementById("modalMessageText");
-    const countdownTimer = document.getElementById("countdownTimer");
-    
-    // Set the text from django messages
-    modalMessageText.textContent = successMessages[0];
-
-    // Show the modal using jQuery (Standard for Bootstrap 4 layouts)
-    $('#successRedirectModal').modal('show');
-
-    // Countdown and automatic redirect sequence
-    let timeLeft = 3;
-    const interval = setInterval(() => {
-      timeLeft -= 1;
-      countdownTimer.textContent = timeLeft;
-      
-      if (timeLeft <= 0) {
-        clearInterval(interval);
-        window.location.href = targetUrl;
-      }
-    }, 1000);
-  }
-
-  // ================= FORM LOGIC VARIABLES =================
-  const select = document.getElementById("animalTypeSelect");
-  const input = document.getElementById("animalCountInput");
+  const isPiggery = {{ user.profile.is_vet_piggery|yesno:"true,false" }};
+  const select = document.getElementById("recordTypeSelect");
+  const countInput = document.getElementById("countInput");
+  const pigletInput = document.getElementById("pigletInput");
+  const pigletWrapper = document.getElementById("pigletFieldWrapper");
+  const noteInput = document.getElementById("noteInput");
   const addBtn = document.getElementById("addRecordBtn");
   const container = document.getElementById("recordsContainer");
   const totalForms = document.querySelector('[name="records-TOTAL_FORMS"]');
+  const censusForm = document.getElementById("census-form");
 
-  // ================= EXISTING RECORDS =================
-  let records = JSON.parse(
-    document.getElementById("existing-records").textContent
-  ).map(r => ({
-    id: r.id || null,
-    typeId: r.typeId,
-    typeText: r.typeText,
-    count: r.count,
-    _deleted: false 
+  // Add this inside DOMContentLoaded
+  const dateInput = document.getElementById("id_census_date");
+  if (dateInput) {
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.setAttribute("max", today);
+  }
+
+  let records = JSON.parse(document.getElementById("existing-records").textContent).map(r => ({
+    id: r.id || null, typeId: String(r.typeId), typeText: r.typeText, count: r.count, 
+    piglets: r.piglets || 0, note: r.note || "", _deleted: false 
   }));
 
-  // ================= MASTER OPTIONS =================
-  let masterOptions = [];
-  Array.from(select.options).forEach(opt => {
-    if (opt.value) {
-      masterOptions.push({
-        value: opt.value,
-        text: opt.text
-      });
-    }
-  });
+  const masterOptions = Array.from(select.options).slice(1).map(o => ({value: o.value, text: o.text}));
 
-  // ================= INITIAL LOAD =================
-  renderRecords();
-  updateSelectOptions();
-
-  // ================= ADD RECORD =================
-  addBtn.addEventListener("click", () => {
-    const typeId = select.value;
-    const typeText = select.options[select.selectedIndex]?.text;
-    const count = input.value.trim();
-
-    if (!typeId || !count) {
-      alert("Select animal type and enter number");
-      return;
-    }
-
-    const hiddenMatch = records.find(r => String(r.typeId) === String(typeId));
-    
-    if (hiddenMatch) {
-      if (hiddenMatch._deleted) {
-        hiddenMatch._deleted = false;
-        hiddenMatch.count = count;
-      } else {
-        alert("This animal type already added");
-        return;
+  function updateSelectOptions() {
+    const activeIds = records.filter(r => !r._deleted).map(r => r.typeId);
+    select.innerHTML = '<option value="">--- Select ---</option>';
+    masterOptions.forEach(opt => {
+      if (!activeIds.includes(String(opt.value))) {
+        select.innerHTML += `<option value="${opt.value}">${opt.text}</option>`;
       }
-    } else {
-      records.push({
-        id: null,
-        typeId,
-        typeText,
-        count,
-        _deleted: false
-      });
-    }
-
-    renderRecords();
-    updateSelectOptions();
-
-    select.value = "";
-    input.value = "";
-    select.focus();
-  });
-
-  // ================= DELETE RECORD =================
-  window.deleteRecord = function(index) {
-    const rec = records[index];
-
-    if (rec.id) {
-      rec._deleted = true;
-    } else {
-      records.splice(index, 1);
-    }
-
-    renderRecords();
-    updateSelectOptions();
+    });
   }
 
-  // ================= RENDER RECORDS =================
+  select.addEventListener("change", () => {
+    if (pigletWrapper) {
+        pigletWrapper.style.display = select.options[select.selectedIndex]?.text.toLowerCase().includes("nursing") ? "block" : "none";
+    }
+  });
+
   function renderRecords() {
     container.innerHTML = "";
-
     records.forEach((rec, index) => {
       if (rec._deleted) return;
-
-      const row = document.createElement("div");
-      row.className = "d-flex justify-content-between align-items-center border p-3 mb-2 rounded";
-      row.innerHTML = `
-        <div>
-          <strong>${rec.typeText}</strong> — ${rec.count}
+      const div = document.createElement("div");
+      div.className = "border p-3 mb-2 rounded bg-light";
+      div.innerHTML = `
+        <div class="d-flex justify-content-between">
+            <strong>${rec.typeText}</strong>
+            <button type="button" class="btn btn-danger btn-sm" onclick="deleteRecord(${index})">Delete</button>
         </div>
-        <button type="button" class="btn btn-danger btn-sm" onclick="deleteRecord(${index})">
-          Delete
-        </button>
+        <div>Adults: ${rec.count} ${rec.piglets > 0 ? `| Piglets: ${rec.piglets}` : ''}</div>
+        ${rec.note ? `<div class="mt-1 text-muted"><small><em>${rec.note}</em></small></div>` : ''}
       `;
-
-      container.appendChild(row);
+      container.appendChild(div);
     });
-
     rebuildFormset();
+    updateSelectOptions();
   }
 
-  // ================= REBUILD FORMSET =================
+  // Inside rebuildFormset() in your <script>
   function rebuildFormset() {
-    document.querySelectorAll(".hidden-formset").forEach(el => el.remove());
+      document.querySelectorAll(".hidden-formset").forEach(el => el.remove());
+      records.forEach((rec, i) => {
 
-    records.forEach((rec, i) => {
-      const wrapper = document.createElement("div");
-      wrapper.classList.add("hidden-formset", "d-none");
+          if (rec._deleted && !rec.id) return;
 
-      wrapper.innerHTML = `
-        <input type="hidden" name="records-${i}-id" value="${rec.id || ''}">
-        <input type="hidden" name="records-${i}-animal_type" value="${rec.typeId}">
-        <input type="hidden" name="records-${i}-number_of_animals" value="${rec.count}">
-        <input type="hidden" name="records-${i}-DELETE" value="${rec._deleted ? 'on' : ''}">
-      `;
-
-      document.getElementById("census-form").appendChild(wrapper);
-    });
-
-    totalForms.value = records.length;
+          // DEBUG: If it's supposed to be an existing record, log a warning
+          if (rec.typeId && !rec.id) {
+              console.warn(`Record at index ${i} is missing an ID!`, rec);
+          }
+          const wrapper = document.createElement("div");
+          wrapper.className = "hidden-formset d-none";
+          
+          let html = `
+              <input type="hidden" name="records-${i}-id" value="${rec.id || ''}">
+              <input type="hidden" name="records-${i}-${isPiggery ? 'line' : 'animal_type'}" value="${rec.typeId}">
+              <input type="hidden" name="records-${i}-${isPiggery ? 'number' : 'number_of_animals'}" value="${rec.count}">
+              <input type="hidden" name="records-${i}-DELETE" value="${rec._deleted ? 'on' : ''}">
+          `;
+          
+          if (isPiggery) {
+            html += `
+              <input type="hidden" name="records-${i}-line" value="${rec.typeId}">
+              <input type="hidden" name="records-${i}-number" value="${rec.count}">
+              <input type="hidden" name="records-${i}-total_piglets" value="${rec.piglets || 0}">
+              <input type="hidden" name="records-${i}-note" value="${rec.note || ''}">
+            `;
+          }
+          
+          wrapper.innerHTML = html;
+          censusForm.appendChild(wrapper);
+      });
+      totalForms.value = records.length; // Keep the total count of all records
   }
 
-  // ================= UPDATE OPTIONS =================
-  function updateSelectOptions() {
-    const activeSelectedIds = records
-      .filter(r => !r._deleted)
-      .map(r => String(r.typeId));
+  window.deleteRecord = (index) => {
+    // If it's a new record (no ID), just remove it
+    if (!records[index].id) {
+        records.splice(index, 1);
+    } else {
+        // If it's an existing record, mark as deleted so the POST sends the DELETE flag
+        records[index]._deleted = true;
+    }
+    renderRecords();
+  };
 
-    select.innerHTML = '<option value="">--- Select ---</option>';
+  addBtn.addEventListener("click", () => {
+    if (!select.value || !countInput.value) return alert("Fill mandatory fields");
+    
+    const newRec = {
+      id: null, 
+      typeId: select.value, 
+      typeText: select.options[select.selectedIndex].text,
+      count: countInput.value, 
+      piglets: pigletInput?.value || 0, 
+      note: noteInput?.value || "", 
+      _deleted: false
+    };
 
-    masterOptions.forEach(opt => {
-      if (!activeSelectedIds.includes(String(opt.value))) {
-        const option = document.createElement("option");
-        option.value = opt.value;
-        option.textContent = opt.text;
-        select.appendChild(option);
-      }
-    });
-  }
+    const deletedIndex = records.findIndex(r => r._deleted);
+    if (deletedIndex !== -1) {
+      // Keep the old ID if we are replacing a deleted existing record
+      const oldId = records[deletedIndex].id;
+      records[deletedIndex] = { ...newRec, id: oldId };
+    } else {
+      records.push(newRec);
+    }
+
+    // --- CRITICAL FIX: Reset inputs ---
+    select.value = ""; 
+    countInput.value = ""; 
+    if(pigletInput) pigletInput.value = "0"; 
+    if(noteInput) noteInput.value = "";
+    if(pigletWrapper) pigletWrapper.style.display = "none";
+    
+    renderRecords();
+  });
+
+  censusForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = new FormData(censusForm);
+
+      fetch(window.location.href, {
+          method: "POST",
+          body: formData,
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.status === "success") {
+              $('#successModal').modal('show');
+              setTimeout(() => window.location.href = "{% url 'veterinary:census_records' %}", 3000);
+          } 
+          else if (data.status === "warning") {
+              // Show a non-blocking alert for partial failures
+              alert("Warning: " + data.message);
+              window.location.href = "{% url 'veterinary:census_records' %}";
+          }
+          else {
+              // Detailed error feedback
+              console.error("Errors:", data.errors);
+              alert("Error: " + data.message);
+          }
+      })
+      .catch(error => {
+          alert("A critical system error occurred.");
+      });
+  });
+
+  renderRecords();
 });
 </script>
-
+{% if user.profile.is_vet_piggery %}
 <style>
-#recordsContainer div {
-  background: #f8f9fa;
-}
-/* Style adjustments for a cleaner splash modal experience */
-#successRedirectModal .modal-content {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-}
+    /* This hides the p-tag containing the notes field */
+    #census-form p:has(label[for="id_notes"]) {
+        display: none;
+    }
 </style>
+{% endif %}
 {% endblock %}

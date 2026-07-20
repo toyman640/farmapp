@@ -1,0 +1,68 @@
+{% extends 'main/base.html' %}
+{% load static %}
+<!Doctype html>
+{% block title %}
+Pig Procurement
+{% endblock %}
+
+{% block content %}
+  <!-- /Navigation-->
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Pig Procurement Result</li>
+      </ol>
+      <div class="box_general padding_bottom">
+        <div class="card">
+            <div class="card-header">
+                <h3>Census & Projection Dashboard</h3>
+            </div>
+            <div class="card-body">
+              <h5>Historical Census & Projection Records</h5>
+              <hr>
+              
+              {% for item in census_data %}
+              <div class="card mb-4">
+                  <div class="card-header">
+                      <strong>Date: {{ item.census.census_date|date:"d M, Y" }}</strong>
+                  </div>
+                  <div class="card-body">
+                      <div class="row">
+                          <div class="col-md-6">
+                              <h6>Actual Census Count:</h6>
+                              <h3>{{ item.count }}</h3>
+                          </div>
+                          {% if item.projection %}
+                          <div class="col-md-6">
+                              <h6>Projected Count:</h6>
+                              <h3>{{ item.projection.projected_count }}</h3>
+                          </div>
+                          {% endif %}
+                      </div>
+
+                      {% if item.projection %}
+                      <div class="mt-3 p-2 bg-light">
+                          <h6>Projection Breakdown:</h6>
+                          <ul class="list-inline">
+                              <li class="list-inline-item">Births: +{{ item.projection.total_births }}</li>
+                              <li class="list-inline-item">Procurement: +{{ item.projection.total_procurement }}</li>
+                              <li class="list-inline-item">Mortality: -{{ item.projection.total_mortality }}</li>
+                              <li class="list-inline-item">Sales: -{{ item.projection.total_sale }}</li>
+                          </ul>
+                      </div>
+                      {% endif %}
+                  </div>
+              </div>
+              {% empty %}
+              <p>No census data available for this animal.</p>
+              {% endfor %}
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

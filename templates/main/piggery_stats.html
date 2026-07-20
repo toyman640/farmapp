@@ -6,29 +6,55 @@
 {% block content %}
 <div class="content-wrapper">
   <div class="container-fluid">
+    <!-- Breadcrumbs-->
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="#">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active">Piggery Statistics</li>
+      </ol>
     <h3 class="mb-4">🐖 Piggery Statistics</h3>
-  
-    <!-- Census Chart -->
-    <div class="mb-5">
-      <h5>Census by Month</h5>
-      <canvas id="censusChart" height="100"></canvas>
-    </div>
-  
-    <!-- Event Chart -->
-    <div>
-      <div class="d-flex align-items-center justify-content-between mb-2">
-        <h5>Events by Month</h5>
-        <form method="get">
-          <select name="type" onchange="this.form.submit()" class="form-control" style="width: 200px;">
-            <option value="mortality" {% if selected_type == 'mortality' %}selected{% endif %}>Mortality</option>
-            <option value="farrowing" {% if selected_type == 'farrowing' %}selected{% endif %}>Farrowing</option>
-            <option value="breeding" {% if selected_type == 'breeding' %}selected{% endif %}>Breeding</option>
-            <option value="culling" {% if selected_type == 'culling' %}selected{% endif %}>Culling</option>
-          </select>
-        </form>
+
+    <div class="box_general padding_bottom pb-0 bg-light">
+
+      <!-- Census Chart -->
+      <div class="mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h5>Census Records</h5>
+          <form method="get" id="censusViewForm">
+            <!-- Preserve existing event type parameter if selected -->
+            <input type="hidden" name="type" value="{{ selected_type }}">
+            <select name="census_view" onchange="this.form.submit()" class="form-control" style="width: 250px;">
+              <option value="progressive" {% if selected_census_view == 'progressive' %}selected{% endif %}>Progressive (All Weekly Records)</option>
+              <option value="monthly_last" {% if selected_census_view == 'monthly_last' %}selected{% endif %}>Last Record of Each Month</option>
+            </select>
+          </form>
+        </div>
+        <canvas id="censusChart" height="100"></canvas>
       </div>
-      <canvas id="eventChart" height="100"></canvas>
     </div>
+
+    <div class="box_general padding_bottom pb-0 bg-light">
+
+      <!-- Event Chart -->
+      <div>
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h5>Events by Month</h5>
+          <form method="get" id="eventViewForm">
+            <!-- Preserve existing census view parameter if selected -->
+            <input type="hidden" name="census_view" value="{{ selected_census_view }}">
+            <select name="type" onchange="this.form.submit()" class="form-control" style="width: 200px;">
+              <option value="mortality" {% if selected_type == 'mortality' %}selected{% endif %}>Mortality</option>
+              <option value="farrowing" {% if selected_type == 'farrowing' %}selected{% endif %}>Farrowing</option>
+              <option value="breeding" {% if selected_type == 'breeding' %}selected{% endif %}>Breeding</option>
+              <option value="culling" {% if selected_type == 'culling' %}selected{% endif %}>Culling</option>
+            </select>
+          </form>
+        </div>
+        <canvas id="eventChart" height="100"></canvas>
+      </div>
+    </div>
+  
   </div>
 </div>
 
@@ -39,11 +65,30 @@ new Chart(censusCtx, {
   type: 'bar',
   data: {
     labels: {{ census_labels|safe }},
-    datasets: [{
-      label: 'Total Animals (Census)',
-      data: {{ census_values|safe }},
-      backgroundColor: 'rgba(75, 192, 192, 0.6)',
-    }]
+    datasets: [
+      {
+        label: 'General',
+        data: {{ adult_values|safe }},
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+      },
+      {
+        label: 'Piglets',
+        data: {{ piglet_values|safe }},
+        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: { 
+        beginAtZero: true,
+        title: { display: true, text: 'Number of Animals' }
+      },
+      x: {
+        title: { display: true, text: 'Census Date' }
+      }
+    }
   }
 });
 

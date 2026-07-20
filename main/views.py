@@ -17,9 +17,9 @@ from django.core.paginator import Paginator
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, AdminDispatchForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
 from itertools import chain
 from django.utils import timezone
-from django.db.models import Q, F, Count, Sum, Max
+from django.db.models import Q, F, Count, Sum, Max, Case, When, IntegerField
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
-from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit, Animals, AnimalType, CensusApprovalQueue
+from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit, Animals, AnimalType, CensusApprovalQueue, PiggeryLine, PiggeryCensusRecord, CensusProjection
 import calendar
 from django.core.exceptions import FieldDoesNotExist
 from .forms import AdminEventEditReviewForm
@@ -28,7 +28,8 @@ from django.conf import settings
 from collections import defaultdict
 from django.db import transaction
 from veterinary.forms import *
-
+from .services import run_projection_calculation
+from .services import run_projection_calculation
 
 class CustomLoginView(LoginView):
     template_name = 'main/login.html'
@@ -170,15 +171,24 @@ def main_index(request):
     # goat_breakdown = defaultdict(int)
 
     # PIG
+    # Use annotation to calculate sum excluding geese and crocs
     latest_pig = Census.objects.filter(
         animal__animal_name__iexact="pig"
+    ).annotate(
+        sum_adults=Sum(
+            Case(
+                When(piggery_records__line__name__icontains='goose', then=0),
+                When(piggery_records__line__name__icontains='crocodile', then=0),
+                default=F('piggery_records__number'),
+                output_field=IntegerField()
+            )
+        ),
+        sum_piglets=Sum('piggery_records__total_piglets')
     ).order_by('-census_date').first()
 
+    piggery_total = 0
     if latest_pig:
-        piggery_total = latest_pig.records.aggregate(
-            total=Sum('number_of_animals')
-        )['total'] or 0
-
+        piggery_total = (latest_pig.sum_adults or 0) + (latest_pig.sum_piglets or 0)
 
     # CATTLE
     latest_cattle = Census.objects.filter(
@@ -221,32 +231,62 @@ def main_index(request):
         payload = queue_item.form_data_payload or {}
         records_payload = payload.get('records', [])
         
-        # Pull baseline from the actual Census object
-        db_records = {
-            r.animal_type_id: r.number_of_animals 
-            for r in queue_item.census.records.all()
-        }
+        # Check if this census has piggery records to determine logic
+        is_piggery = queue_item.census.piggery_records.exists()
+        
+        # Build baseline map for comparison
+        if is_piggery:
+            db_records = {r.line_id: {'n': r.number, 'p': r.total_piglets, 'note': r.note} for r in queue_item.census.piggery_records.all()}
+        else:
+            db_records = {r.animal_type_id: {'n': r.number_of_animals, 'note': ''} for r in queue_item.census.records.all()}
 
         processed_records = []
         for item in records_payload:
-            type_id = item.get('animal_type')
+            # Handle different keys for Piggery vs Standard
+            type_id = item.get('line') if is_piggery else item.get('animal_type')
+            count = item.get('number') if is_piggery else item.get('number_of_animals')
+            note = item.get('note', '')  # Get the note from payload
+
+            # Extract new values
+            new_n = item.get('number') if is_piggery else item.get('number_of_animals')
+            new_p = item.get('piglets', 0) if is_piggery else 0
+            new_note = item.get('note', '')
+            # Build baseline map for comparison
+
+            # Fetch old data
+            old_data = db_records.get(type_id, {})
+        
+            
+            # Fetch human-readable name
             try:
-                type_obj = AnimalType.objects.get(id=type_id)
-                type_name = type_obj.animal_type_name
-            except AnimalType.DoesNotExist:
+                if is_piggery:
+                    # FIX: Using the correct model name PiggeryLine
+                    type_obj = PiggeryLine.objects.get(id=type_id) 
+                    type_name = f"{type_obj.name} ({type_obj.specification})"
+                else:
+                    type_obj = AnimalType.objects.get(id=type_id)
+                    type_name = type_obj.animal_type_name
+            except (PiggeryLine.DoesNotExist, AnimalType.DoesNotExist):
                 type_name = "Unknown"
 
             processed_records.append({
                 'animal_type_name': type_name,
-                'new_count': item.get('number_of_animals', 0),
-                'old_count': db_records.get(type_id, 0),
-                'is_deleted': item.get('DELETE', False)
+                'new_count': new_n,
+                'old_count': old_data.get('n', 0),
+                'new_piglets': new_p,
+                'old_piglets': old_data.get('p', 0),
+                'new_note': new_note,
+                'old_note': old_data.get('note', ''),
+                'is_deleted': item.get('DELETE', False),
+                # Flags for highlighting
+                'count_changed': old_data.get('n') != new_n,
+                'piglets_changed': is_piggery and (old_data.get('p') != new_p),
+                'note_changed': old_data.get('note') != new_note,
+                'is_piggery': is_piggery
             })
 
-        # Attach the processed records to the object so the template can see them
         queue_item.records = processed_records
         processed_census_edits.append(queue_item)
-
     context = {
         'low_stock_drugs': low_stock_drugs,
         'today_dispatches': today_dispatches,
@@ -345,81 +385,211 @@ def main_index(request):
 #     return redirect('main:main_index')
 
 
+# @login_required
+# def approve_census_edit(request, edit_id):
+#     # Only allow staff or superusers to process approvals
+#     if not (request.user.is_staff or request.user.is_superuser):
+#         messages.error(request, "You do not have permission to approve census changes.")
+#         return redirect('main:main_index')
+
+#     if request.method == "POST":
+#         queue_item = get_object_or_404(CensusApprovalQueue, id=edit_id, is_processed=False)
+#         action = request.POST.get('action')
+#         admin_comment = request.POST.get('admin_comment', '').strip()
+
+#         # Capture the vet (the user who requested the change) before saving
+#         vet = queue_item.requested_by
+
+#         with transaction.atomic():
+#             if action == 'approve':
+#                 payload = queue_item.form_data_payload or {}
+                
+#                 # 1. Update the parent Census metadata if note or date changed
+#                 census = queue_item.census
+#                 if 'notes' in payload:
+#                     census.notes = payload['notes']
+#                 if 'census_date' in payload:
+#                     census.census_date = payload['census_date']
+#                 census.is_pending_review = False
+#                 census.save()
+
+#                 # 2. Extract and process the formset records from the JSON payload
+#                 # Adjust 'records' to match the exact key name you use to save your formset list
+#                 records_data = payload.get('records', [])
+                
+#                 for record in records_data:
+
+#                     # Use 'animal_type' instead of 'animal_type_id' if that's what is in your JSON
+#                     type_id = record.get('animal_type') or record.get('animal_type_id')
+
+#                     # Case A: Record marked for deletion
+#                     if record.get('is_deleted'):
+#                         CensusRecord.objects.filter(
+#                             census=census, 
+#                             animal_type_id=type_id
+#                         ).delete()
+                    
+#                     # Case B: Update existing or create new record row
+#                     else:
+#                         # animal_type_id = record.get('animal_type_id')
+#                         # new_count = record.get('new_count', 0)
+#                         new_count = record.get('new_count') or record.get('number_of_animals')
+
+                        
+                        
+#                         if type_id:
+#                             CensusRecord.objects.update_or_create(
+#                                 census=census,
+#                                 animal_type_id=type_id,
+#                                 defaults={'number_of_animals': new_count}
+#                             )
+
+#                 # Force recalculate totals via your model's built-in helper method
+#                 census.update_total()
+                
+#                 queue_item.approved = True
+#                 messages.success(request, f"Census changes for {census.animal.animal_name} successfully approved!")
+
+#             elif action == 'reject':
+#                 # Reverting pending flag so it can be edited or resubmitted later
+#                 census = queue_item.census
+#                 census.is_pending_review = False
+#                 census.save()
+
+#                 queue_item.approved = False
+#                 messages.warning(request, f"Census update request for {census.animal.animal_name} was rejected.")
+
+#             # --- Email Logic ---
+#             # subject = f"Census Update {action.title()}d: {queue_item.census.animal.animal_name}"
+
+#             # Define the past tense mapping
+#             status_map = {
+#                 'approve': 'Approved',
+#                 'reject': 'Rejected'
+#             }
+
+#             # Use the map to get the correct string
+#             status_text = status_map.get(action, action.title())
+
+#             # Use the mapped variable in your subject
+#             subject = f"Census Update {status_text}: {queue_item.census.animal.animal_name}"
+            
+#             # Prepare context for the email template
+#             email_context = {
+#                 'vet_name': vet.username,
+#                 'animal_name': queue_item.census.animal.animal_name,
+#                 'status': status_text,
+#                 'admin_comment': admin_comment
+#             }
+            
+#             # Render the HTML content
+#             email_body = render_to_string('emails/census_status_update.html', email_context)
+            
+#             # Send the email
+#             email = EmailMessage(
+#                 subject=subject,
+#                 body=email_body,
+#                 from_email=settings.DEFAULT_FROM_EMAIL,
+#                 to=[vet.email],
+#             )
+#             email.content_subtype = "html"  # Crucial for HTML templates
+#             email.send(fail_silently=True) # Set to False if you want to catch errors
+            
+#             # --- End Email Logic ---
+
+#             # Save historical notes if you choose to expand your schema, then mark processed
+#             queue_item.is_processed = True
+#             queue_item.save()
+
+#     return redirect('main:main_index')
+
+
 @login_required
 def approve_census_edit(request, edit_id):
+    # ... (Permission check remains the same)
     # Only allow staff or superusers to process approvals
     if not (request.user.is_staff or request.user.is_superuser):
         messages.error(request, "You do not have permission to approve census changes.")
         return redirect('main:main_index')
 
+
     if request.method == "POST":
         queue_item = get_object_or_404(CensusApprovalQueue, id=edit_id, is_processed=False)
         action = request.POST.get('action')
         admin_comment = request.POST.get('admin_comment', '').strip()
-
-        # Capture the vet (the user who requested the change) before saving
         vet = queue_item.requested_by
 
         with transaction.atomic():
+            census = queue_item.census
+            
             if action == 'approve':
                 payload = queue_item.form_data_payload or {}
                 
-                # 1. Update the parent Census metadata if note or date changed
-                census = queue_item.census
-                if 'notes' in payload:
-                    census.notes = payload['notes']
-                if 'census_date' in payload:
-                    census.census_date = payload['census_date']
+                # 1. Update Metadata
+                if 'notes' in payload: census.notes = payload['notes']
+                if 'census_date' in payload: census.census_date = payload['census_date']
                 census.is_pending_review = False
                 census.save()
 
-                # 2. Extract and process the formset records from the JSON payload
-                # Adjust 'records' to match the exact key name you use to save your formset list
+                # 2. Determine if Piggery
+                is_piggery = census.piggery_records.exists()
                 records_data = payload.get('records', [])
                 
                 for record in records_data:
-
-                    # Use 'animal_type' instead of 'animal_type_id' if that's what is in your JSON
-                    type_id = record.get('animal_type') or record.get('animal_type_id')
-
-                    # Case A: Record marked for deletion
-                    if record.get('is_deleted'):
-                        CensusRecord.objects.filter(
-                            census=census, 
-                            animal_type_id=type_id
-                        ).delete()
-                    
-                    # Case B: Update existing or create new record row
+                    # Resolve IDs and values based on type
+                    if is_piggery:
+                        line_id = record.get('line')
+                        new_count = record.get('number', 0)
+                        new_piglets = record.get('piglets', 0) 
+                        line_note = record.get('note', '') # Ensure this matches your template naming
                     else:
-                        # animal_type_id = record.get('animal_type_id')
-                        # new_count = record.get('new_count', 0)
+                        type_id = record.get('animal_type') or record.get('animal_type_id')
                         new_count = record.get('new_count') or record.get('number_of_animals')
 
-                        
-                        
-                        if type_id:
+                    # Case A: Deletion
+                    if record.get('is_deleted'):
+                        if is_piggery:
+                            PiggeryCensusRecord.objects.filter(census=census, line_id=line_id).delete()
+                        else:
+                            CensusRecord.objects.filter(census=census, animal_type_id=type_id).delete()
+                    
+                    # Case B: Update/Create
+                    else:
+                        if is_piggery:
+                            PiggeryCensusRecord.objects.update_or_create(
+                                census=census,
+                                line_id=line_id,
+                                defaults={
+                                    'number': new_count, 
+                                    'total_piglets': new_piglets, # FIX: Include this field
+                                    'note': line_note
+                                }
+                            )
+                        else:
                             CensusRecord.objects.update_or_create(
                                 census=census,
                                 animal_type_id=type_id,
                                 defaults={'number_of_animals': new_count}
                             )
 
-                # Force recalculate totals via your model's built-in helper method
-                census.update_total()
+                # 3. Recalculate totals
+                if is_piggery:
+                    # Assuming PiggeryCensusRecord has its own update_total method
+                    for pr in census.piggery_records.all():
+                        pr.update_total() 
+                else:
+                    census.update_total()
                 
                 queue_item.approved = True
-                messages.success(request, f"Census changes for {census.animal.animal_name} successfully approved!")
+                messages.success(request, f"Changes for {census.animal.animal_name} approved!")
 
             elif action == 'reject':
-                # Reverting pending flag so it can be edited or resubmitted later
-                census = queue_item.census
                 census.is_pending_review = False
                 census.save()
-
                 queue_item.approved = False
-                messages.warning(request, f"Census update request for {census.animal.animal_name} was rejected.")
+                messages.warning(request, "Update request rejected.")
 
-            # --- Email Logic ---
+             # --- Email Logic ---
             # subject = f"Census Update {action.title()}d: {queue_item.census.animal.animal_name}"
 
             # Define the past tense mapping
@@ -457,12 +627,10 @@ def approve_census_edit(request, edit_id):
             
             # --- End Email Logic ---
 
-            # Save historical notes if you choose to expand your schema, then mark processed
             queue_item.is_processed = True
             queue_item.save()
 
     return redirect('main:main_index')
-
 
 @login_required
 def approve_event_edit(request, pk):
@@ -1104,18 +1272,98 @@ def paddock_stats(request):
     }
     return render(request, 'main/paddock_stats.html', context)
     
+# @login_required
+# def piggery_stats(request):
+
+#     # Retrieve individual census records
+#     # 1. Order by census_date (oldest to newest)
+#     # 2. Slice [:8] to get the 8 most recent (if you want the very latest, use order_by('-census_date')[:8] and then reverse)
+    
+#     # RECOMMENDED: Get the 8 most recent records
+#     census_records = Census.objects.filter(animal__animal_name='pig').order_by('-census_date')[:8]
+    
+#     # 3. Convert to list and reverse so the chart displays oldest to newest (left to right)
+#     census_records = list(reversed(census_records))
+#     # Retrieve individual census records to show specific dates
+#     census_records = Census.objects.filter(animal__animal_name='pig').order_by('census_date').annotate(
+#         sum_adults=Sum(
+#             Case(
+#                 When(piggery_records__line__name__icontains='goose', then=0),
+#                 When(piggery_records__line__name__icontains='crocodile', then=0),
+#                 default=F('piggery_records__number'),
+#                 output_field=IntegerField()
+#             )
+#         ),
+#         sum_piglets=Sum('piggery_records__total_piglets')
+#     )
+
+#     # Use the census date as the label
+#     census_labels = [c.census_date.strftime('%d %b %Y') for c in census_records]
+#     adult_values = [c.sum_adults or 0 for c in census_records]
+#     piglet_values = [c.sum_piglets or 0 for c in census_records]
+
+#     event_type = request.GET.get('type', 'mortality')
+#     event_data = (
+#         EventType.objects.filter(
+#             animal__animal_name='pig',
+#             event_name__iexact=event_type
+#         )
+#         .annotate(month=TruncMonth('created_at'))
+#         .values('month')
+#         .annotate(total=Sum('number_of_animals'))
+#         .order_by('month')
+#     )
+
+#     event_labels = [calendar.month_name[d['month'].month] for d in event_data]
+#     event_values = [d['total'] or 0 for d in event_data]
+
+#     context = {
+#         'census_labels': census_labels,
+#         'adult_values': adult_values,
+#         'piglet_values': piglet_values,
+#         'event_labels': event_labels,
+#         'event_values': event_values,
+#         'selected_type': event_type,
+#     }
+#     return render(request, 'main/piggery_stats.html', context)
+
+
 @login_required
 def piggery_stats(request):
-    census_data = (
-        Census.objects.filter(animal__animal_name='pig')
-        .annotate(month=TruncMonth('census_date'))
-        .values('month')
-        .annotate(total=Sum('total_animals'))
-        .order_by('month')
+    # Set default to 'weekly' if 'census_view' is not provided in GET parameters
+    census_view = request.GET.get('census_view', 'weekly')
+    
+    # Base queryset with annotations
+    census_query = Census.objects.filter(animal__animal_name='pig').order_by('census_date').annotate(
+        sum_adults=Sum(
+            Case(
+                When(piggery_records__line__name__icontains='goose', then=0),
+                When(piggery_records__line__name__icontains='crocodile', then=0),
+                default=F('piggery_records__number'),
+                output_field=IntegerField()
+            )
+        ),
+        sum_piglets=Sum('piggery_records__total_piglets')
     )
 
-    census_labels = [calendar.month_name[d['month'].month] for d in census_data]
-    census_values = [d['total'] or 0 for d in census_data]
+    if census_view == 'monthly_last':
+        # Filter to keep only the latest census record per month
+        monthly_census_ids = (
+            Census.objects.filter(animal__animal_name='pig')
+            .annotate(month=TruncMonth('census_date'))
+            .values('month')
+            .annotate(latest_id=Max('id'))
+            .values_list('latest_id', flat=True)
+        )
+        census_records = census_query.filter(id__in=monthly_census_ids).order_by('census_date')
+    else:
+        # Default: Weekly (all progressive records)
+        census_records = census_query
+
+    # Use the census date as the label
+    census_labels = [c.census_date.strftime('%d %b %Y') for c in census_records]
+    adult_values = [c.sum_adults or 0 for c in census_records]
+    piglet_values = [c.sum_piglets or 0 for c in census_records]
 
     event_type = request.GET.get('type', 'mortality')
     event_data = (
@@ -1134,13 +1382,14 @@ def piggery_stats(request):
 
     context = {
         'census_labels': census_labels,
-        'census_values': census_values,
+        'adult_values': adult_values,
+        'piglet_values': piglet_values,
         'event_labels': event_labels,
         'event_values': event_values,
         'selected_type': event_type,
+        'selected_census_view': census_view,
     }
     return render(request, 'main/piggery_stats.html', context)
-
 
 @login_required
 def small_ruminant_event_records_admin(request):
@@ -1184,7 +1433,8 @@ def small_ruminant_census_records_admin(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
-    census_records = Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+    # census_records = Census.objects.filter(animal__animal_name__in=['sheep', 'goat'])
+    census_records = Census.objects.filter(animal__animal_name__iexact='sheep')
 
     # ---- Filters ----
     if start_date:
@@ -1337,16 +1587,51 @@ def piggery_census_records_admin(request):
         if end:
             census_records = census_records.filter(census_date__lt=end + timedelta(days=1))
 
+    
+    # Annotate totals
+    census_records = Census.objects.filter(animal__animal_name__iexact='pig').annotate(
+        sum_adults=Sum(
+            Case(
+                When(piggery_records__line__name__icontains='goose', then=0),
+                When(piggery_records__line__name__icontains='crocodile', then=0),
+                default=F('piggery_records__number'),
+                output_field=IntegerField()
+            )
+        ),
+        sum_piglets=Sum('piggery_records__total_piglets'),
+        sum_geese=Sum(
+            Case(When(piggery_records__line__name__icontains='goose', then=F('piggery_records__number')), default=0, output_field=IntegerField())
+        ),
+        sum_crocodiles=Sum(
+            Case(When(piggery_records__line__name__icontains='crocodile', then=F('piggery_records__number')), default=0, output_field=IntegerField())
+        ),
+        grand_total=F('sum_adults') + F('sum_piglets')
+    ).prefetch_related('piggery_records__line').order_by('-census_date')
+
     # ---- Pagination ----
     paginator = Paginator(census_records.order_by('-census_date'), 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # Add this:
+    lines = PiggeryLine.objects.all()
+
+    # Handle the line update form
+    if request.method == 'POST' and 'line_id' in request.POST:
+        line_id = request.POST.get('line_id')
+        instance = get_object_or_404(PiggeryLine, id=line_id)
+        form = PiggeryLineForm(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'status': 'success', 'message': 'Line updated successfully!'})
+
     context = {
         'page_obj': page_obj,
         'census_records': page_obj.object_list,
         'has_next': page_obj.has_next(),
+        'lines': lines,
     }
+    
 
     # ✅ AJAX infinite scroll partial
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -1355,6 +1640,27 @@ def piggery_census_records_admin(request):
     return render(request, 'main/piggery_census_records_admin.html', context)
 
 
+
+@login_required
+def exotic_animal_records(request):
+    # Filter for PiggeryCensusRecords where the line is goose or crocodile
+    exotic_records = PiggeryCensusRecord.objects.filter(
+        Q(line__name__icontains='goose') | Q(line__name__icontains='crocodile')
+    ).select_related('census', 'line').order_by('-census__census_date')
+
+    # Optional: Date filtering if needed
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    if start_date:
+        exotic_records = exotic_records.filter(census__census_date__gte=parse_date(start_date))
+    if end_date:
+        exotic_records = exotic_records.filter(census__census_date__lte=parse_date(end_date))
+
+    context = {
+        'exotic_records': exotic_records,
+    }
+    return render(request, 'main/exotic_animal_records.html', context)
 
 @login_required
 def admin_event_detail(request, pk):
@@ -1408,3 +1714,87 @@ def delete_census_admin(request, pk):
         return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
     return redirect('main:paddock_census_records_admin')
 
+
+
+# @login_required
+# def manage_piggery_lines(request):
+#     lines = PiggeryLine.objects.all()
+#     if request.method == 'POST':
+#         line_id = request.POST.get('line_id')
+#         instance = get_object_or_404(PiggeryLine, id=line_id)
+#         form = PiggeryLineForm(request.POST, instance=instance)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "Line updated successfully!")
+#             return redirect('main:manage_piggery_lines')
+#     return render(request, 'main/manage_lines.html', {'lines': lines})
+
+
+# @login_required
+# def census_dashboard(request, animal_name):
+#     animal = get_object_or_404(Animals, animal_name__iexact=animal_name)
+    
+#     censuses = Census.objects.filter(animal=animal).order_by('-census_date')
+    
+#     latest_census = censuses[0] if censuses.count() > 0 else None
+#     previous_census = censuses[1] if censuses.count() > 1 else None
+
+#     def get_piggery_total(census):
+#         if not census:
+#             return 0
+#         data = PiggeryCensusRecord.objects.filter(census=census)\
+#             .exclude(line__name__icontains='croc').exclude(line__name__icontains='goose')\
+#             .aggregate(gen=Sum('number'), pig=Sum('total_piglets'))
+#         return (data['gen'] or 0) + (data['pig'] or 0)
+
+#     count_latest = get_piggery_total(latest_census) if animal.animal_name.lower() == 'pig' else (latest_census.total_animals if latest_census else 0)
+#     count_prev = get_piggery_total(previous_census) if (previous_census and animal.animal_name.lower() == 'pig') else (previous_census.total_animals if previous_census else 0)
+
+#     # DIRECT FETCH: Avoid model accessor bugs by querying CensusProjection directly
+#     previous_projection = None
+#     if previous_census:
+#         previous_projection = CensusProjection.objects.filter(census=previous_census).first()
+
+#     context = {
+#         'latest_census': latest_census,
+#         'count_latest': count_latest,
+#         'previous_census': previous_census,
+#         'count_prev': count_prev,
+#         'previous_projection': previous_projection,
+#         'animal_name': animal.animal_name.capitalize(),
+#     }
+#     return render(request, 'main/piggery-census-projection.html', context)
+
+
+@login_required
+def census_dashboard(request, animal_name):
+    animal = get_object_or_404(Animals, animal_name__iexact=animal_name)
+    
+    # Get all censuses ordered by date descending
+    censuses = Census.objects.filter(animal=animal).order_by('-census_date')
+    
+    # Prepare a list of dictionaries to hold census + projection data
+    census_data = []
+    for c in censuses:
+        # Calculate count logic
+        if animal.animal_name.lower() == 'pig':
+            data = PiggeryCensusRecord.objects.filter(census=c)\
+                .exclude(line__name__icontains='croc').exclude(line__name__icontains='goose')\
+                .aggregate(gen=Sum('number'), pig=Sum('total_piglets'))
+            count = (data['gen'] or 0) + (data['pig'] or 0)
+        else:
+            count = c.total_animals
+            
+        projection = CensusProjection.objects.filter(census=c).first()
+        
+        census_data.append({
+            'census': c,
+            'count': count,
+            'projection': projection
+        })
+
+    context = {
+        'census_data': census_data,
+        'animal_name': animal.animal_name.capitalize(),
+    }
+    return render(request, 'main/piggery-census-projection.html', context)

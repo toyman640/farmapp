@@ -5,6 +5,8 @@ from farmapp.utils import unique_slug_generator
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from .validators import validate_file_size
+from django.conf import settings
+from django.db.models import Sum
 
 # Create your models here.
 
@@ -83,6 +85,7 @@ class EventType(models.Model):
         ('treatment', 'Treatment'),
         ('vaccination', 'Vaccination'),
         ('gift', 'Gift'),
+        ('castration', 'Castration'),
     ]
 
     # 🔹 Piggery Locations: Line + Block (A–Z)
@@ -111,9 +114,10 @@ class EventType(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     event_date = models.DateField(default=timezone.now)
     is_approved = models.BooleanField(default=False)
+    logged_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.get_event_name_display()} - {self.event_date.strftime('%Y-%m-%d')}"
+        return f"{self.get_event_name_display()} - {self.event_date.strftime('%Y-%m-%d')} - {self.created_at.strftime('%Y-%m-%d')}"
 
     def get_location_choices(self):
         """Return proper location list based on animal type"""
@@ -177,6 +181,7 @@ class Census(models.Model):
     census_date = models.DateField(default=timezone.now)
     total_animals = models.PositiveIntegerField(default=0, editable=False)
     notes = models.TextField(null=True, blank=True)
+    logged_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
     # Add this missing line right here:
     is_pending_review = models.BooleanField(default=False)
@@ -202,6 +207,63 @@ class CensusRecord(models.Model):
 @receiver([post_save, post_delete], sender=CensusRecord)
 def update_census_total(sender, instance, **kwargs):
     instance.census.update_total()
+
+
+# Place this in farmrecord/models.py (or your app's models.py file)
+
+@receiver([post_save, post_delete], sender=EventType)
+def recalculate_projection_on_event_change(sender, instance, **kwargs):
+    """
+    Automatically recalculate the CensusProjection whenever 
+    an EventType record is created, updated, or deleted.
+    """
+    # 1. Find the census created right after or enclosing this event date
+    subsequent_census = Census.objects.filter(
+        animal=instance.animal,
+        census_date__gte=instance.event_date
+    ).order_by('census_date').first()  # Fixed closing parenthesis here
+    
+    if subsequent_census:
+        # Find the previous census before this one
+        prev_census = Census.objects.filter(
+            animal=instance.animal,
+            census_date__lt=subsequent_census.census_date
+        ).order_by('-census_date').first()
+        
+        if prev_census:
+            # Determine start count based on animal type (handling piggery vs standard)
+            if subsequent_census.animal.animal_name.lower() == 'pig':
+                piggery_data = PiggeryCensusRecord.objects.filter(census=prev_census)\
+                    .exclude(line__name__icontains='croc')\
+                    .exclude(line__name__icontains='goose')\
+                    .aggregate(gen=Sum('number'), pig=Sum('total_piglets'))
+                start_count = (piggery_data['gen'] or 0) + (piggery_data['pig'] or 0)
+            else:
+                start_count = prev_census.total_animals
+            
+            # Recalculate using your strict bounds service function
+            from main.services import run_projection_calculation
+            data = run_projection_calculation(
+                animal_obj=subsequent_census.animal,
+                start_date=prev_census.census_date,
+                end_date=subsequent_census.census_date,
+                start_count=start_count
+            )
+            
+            if data:
+                CensusProjection.objects.update_or_create(
+                    census=subsequent_census,
+                    defaults={
+                        'start_count': data['start_count'],
+                        'projected_count': data['projected_count'],
+                        'total_mortality': data['total_mortality'],
+                        'total_culling': data['total_culling'],
+                        'total_sale': data['total_sale'],
+                        'total_gift': data['total_gift'],
+                        'total_births': data['total_births'],
+                        'total_procurement': data['total_procurement']
+                    }
+                )
 
 
 
@@ -249,3 +311,61 @@ class ExoticAnimalCensus(models.Model):
 
     def __str__(self):
         return f"{self.get_animal_name_display()} Census - {self.census_date}"
+
+
+class PiggeryLine(models.Model):
+    """Stores the definitions (e.g., Line 1 (Breeding), Line 2 (Nursing))"""
+    name = models.CharField(max_length=50) # e.g., "Line 1"
+    specification = models.CharField(max_length=100) # e.g., "Breeding"
+
+    def __str__(self):
+        return f"{self.name} ({self.specification})"
+
+class PiggeryCensusRecord(models.Model):
+    """The actual data recorded during a census"""
+    census = models.ForeignKey(Census, on_delete=models.CASCADE, related_name='piggery_records')
+    line = models.ForeignKey(PiggeryLine, on_delete=models.PROTECT)
+    number = models.PositiveIntegerField(default=0)
+    total_general = models.PositiveIntegerField(default=0)
+    total_piglets = models.PositiveIntegerField(default=0)
+    note = models.TextField(null=True, blank=True)
+
+    def update_total(self):
+        # Access the parent census object
+        census = self.census
+        records = census.piggery_records.all()
+        
+        # Calculate totals for the entire census
+        total_gen = sum(r.number for r in records)
+        total_pig = sum(r.total_piglets for r in records)
+        
+        # If you have fields on the Census model to store these:
+        census.total_general = total_gen
+        census.total_piglets = total_pig
+        census.save()
+
+    def __str__(self):
+        return f"{self.line} - {self.number}"
+
+
+class CensusProjection(models.Model):
+    """
+    Stores the snapshot of calculations between two Census records.
+    This acts as the bridge for the breakdown.
+    """
+    census = models.OneToOneField(Census, on_delete=models.CASCADE, related_name='projection_data')
+    
+    # The math snapshot
+    start_count = models.PositiveIntegerField()
+    projected_count = models.PositiveIntegerField()
+    
+    # Aggregated event totals for the breakdown
+    total_mortality = models.PositiveIntegerField(default=0)
+    total_culling = models.PositiveIntegerField(default=0)
+    total_sale = models.PositiveIntegerField(default=0)
+    total_gift = models.PositiveIntegerField(default=0)
+    total_births = models.PositiveIntegerField(default=0)
+    total_procurement = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"Projection for {self.census}"

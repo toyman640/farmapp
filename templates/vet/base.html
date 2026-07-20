@@ -133,6 +133,22 @@
             });
         }, 2000);
       });
+
+      $('#noteModal').on('show.bs.modal', function (event) {
+          var card = $(event.relatedTarget);
+          var modal = $(this);
+
+          // 1. Get Title and Spec from attributes (these are safe)
+          var title = card.data('title');
+          var spec = card.data('spec');
+          
+          // 2. Get the note text from the hidden div (this preserves the "-" character)
+          var noteContent = card.find('.record-note').text();
+
+          // 3. Update the modal
+          modal.find('#noteModalTitle').text(title + (spec ? '(' + spec + ')' : '') + ' Note');
+          modal.find('#noteModalBody').text(noteContent);
+      });
     </script>
 	
 </body>

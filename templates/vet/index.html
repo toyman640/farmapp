@@ -132,43 +132,53 @@
     </style>
 
     <!-- Census Section -->
-    <div class="row g-3 mb-4">
-      {% for census in census_list %}
-      <div class="col-12">
-        <div class="box_general padding_bottom">
-          <h5 class="mb-3 fw-bold">
-            <i class="fa fa-bar-chart-o text-primary"></i>
-            {{ census.animal.animal_name|title }} — {{ census.census_date }}
-          </h5>
+    <!-- Census Section -->
+<div class="row g-3 mb-4">
+  {% for census in census_list %}
+  <div class="col-12">
+    <div class="box_general padding_bottom">
+      <h5 class="mb-3 fw-bold">
+        <i class="fa fa-bar-chart-o text-primary"></i>
+        {{ census.animal.animal_name|title }} — {{ census.census_date|date:"d M Y" }}
+      </h5>
 
-            <div class="mb-3 p-3 rounded bg-light">
-            <strong>Total Animals:</strong> <span class="text-primary fw-bold" style="font-size: 1.25rem;">{{ census.total_animals }}</span>
-            </div>
+      <div class="mb-3 p-3 rounded bg-light">
+        <strong>Total Animals:</strong> 
+        <span class="text-primary fw-bold" style="font-size: 1.25rem;">{{ census.calculated_total }}</span>
+      </div>
 
-          {% if census.records.exists %}
-          <div class="row g-3">
-            {% for record in census.records.all|slice:":8" %}
+      <!-- Logic to handle Piggery vs Standard -->
+      {% if census.animal.animal_name|lower == 'pig' %}
+        <div class="row g-3">
+          {% for record in census.piggery_records.all %}
+            {% if "goose" not in record.line.name|lower and "crocodile" not in record.line.name|lower %}
+              <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stat-card color-{{ forloop.counter }}" style="min-height: 120px; display: flex; flex-direction: column; justify-content: center;">
+                  <p class="mb-1">{{ record.line.name }}</p>
+                  <h4 class="mb-0">{{ record.number }}</h4>
+                  <small>Piglets: <strong>{{ record.total_piglets|default:0 }}</strong></small>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <!-- Standard Records -->
+        <div class="row g-3">
+          {% for record in census.records.all|slice:":8" %}
             <div class="col-md-3 col-sm-6 mb-3">
-              <div class="stat-card color-{{ forloop.counter }}" style="min-height: 150px; display: flex; flex-direction: column; justify-content: center;">
+              <div class="stat-card color-{{ forloop.counter }}" style="min-height: 120px;">
                 <p>{{ record.animal_type.animal_type_name }}</p>
                 <h3 class="count-up">{{ record.number_of_animals }}</h3>
               </div>
             </div>
-            {% endfor %}
-          </div>
-          {% else %}
-            <p class="text-muted mb-0">No census records available.</p>
-          {% endif %}
+          {% endfor %}
         </div>
-      </div>
-      {% empty %}
-      <div class="col-12">
-        <div class="alert alert-info">
-          <i class="fa fa-info-circle"></i> No census records for your section yet.
-        </div>
-      </div>
-      {% endfor %}
+      {% endif %}
     </div>
+  </div>
+  {% endfor %}
+</div>
 
     <!-- Dispatch & Drugs -->
     <div class="row g-3 mb-4">
@@ -563,18 +573,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// function openRetractModal(queueId) {
-//   const form = document.getElementById('retractForm');
-//   // Set the action URL dynamically
-//   form.action = "{% url 'veterinary:retract_census_edit' 0 %}".replace('0', queueId);
-//   $('#retractModal').modal('show');
-// }
 
-// function openEventRetractModal(editId) {
-//   const form = document.getElementById('eventRetractForm');
-//   form.action = "{% url 'veterinary:retract_event_edit' 0 %}".replace('0', editId);
-//   $('#eventRetractModal').modal('show');
-// }
 
 function openRetractModal(queueId) {
   const form = document.getElementById('retractForm');
