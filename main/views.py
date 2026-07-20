@@ -1272,20 +1272,69 @@ def paddock_stats(request):
     }
     return render(request, 'main/paddock_stats.html', context)
     
+# @login_required
+# def piggery_stats(request):
+
+#     # Retrieve individual census records
+#     # 1. Order by census_date (oldest to newest)
+#     # 2. Slice [:8] to get the 8 most recent (if you want the very latest, use order_by('-census_date')[:8] and then reverse)
+    
+#     # RECOMMENDED: Get the 8 most recent records
+#     census_records = Census.objects.filter(animal__animal_name='pig').order_by('-census_date')[:8]
+    
+#     # 3. Convert to list and reverse so the chart displays oldest to newest (left to right)
+#     census_records = list(reversed(census_records))
+#     # Retrieve individual census records to show specific dates
+#     census_records = Census.objects.filter(animal__animal_name='pig').order_by('census_date').annotate(
+#         sum_adults=Sum(
+#             Case(
+#                 When(piggery_records__line__name__icontains='goose', then=0),
+#                 When(piggery_records__line__name__icontains='crocodile', then=0),
+#                 default=F('piggery_records__number'),
+#                 output_field=IntegerField()
+#             )
+#         ),
+#         sum_piglets=Sum('piggery_records__total_piglets')
+#     )
+
+#     # Use the census date as the label
+#     census_labels = [c.census_date.strftime('%d %b %Y') for c in census_records]
+#     adult_values = [c.sum_adults or 0 for c in census_records]
+#     piglet_values = [c.sum_piglets or 0 for c in census_records]
+
+#     event_type = request.GET.get('type', 'mortality')
+#     event_data = (
+#         EventType.objects.filter(
+#             animal__animal_name='pig',
+#             event_name__iexact=event_type
+#         )
+#         .annotate(month=TruncMonth('created_at'))
+#         .values('month')
+#         .annotate(total=Sum('number_of_animals'))
+#         .order_by('month')
+#     )
+
+#     event_labels = [calendar.month_name[d['month'].month] for d in event_data]
+#     event_values = [d['total'] or 0 for d in event_data]
+
+#     context = {
+#         'census_labels': census_labels,
+#         'adult_values': adult_values,
+#         'piglet_values': piglet_values,
+#         'event_labels': event_labels,
+#         'event_values': event_values,
+#         'selected_type': event_type,
+#     }
+#     return render(request, 'main/piggery_stats.html', context)
+
+
 @login_required
 def piggery_stats(request):
-
-    # Retrieve individual census records
-    # 1. Order by census_date (oldest to newest)
-    # 2. Slice [:8] to get the 8 most recent (if you want the very latest, use order_by('-census_date')[:8] and then reverse)
+    # Set default to 'weekly' if 'census_view' is not provided in GET parameters
+    census_view = request.GET.get('census_view', 'weekly')
     
-    # RECOMMENDED: Get the 8 most recent records
-    census_records = Census.objects.filter(animal__animal_name='pig').order_by('-census_date')[:8]
-    
-    # 3. Convert to list and reverse so the chart displays oldest to newest (left to right)
-    census_records = list(reversed(census_records))
-    # Retrieve individual census records to show specific dates
-    census_records = Census.objects.filter(animal__animal_name='pig').order_by('census_date').annotate(
+    # Base queryset with annotations
+    census_query = Census.objects.filter(animal__animal_name='pig').order_by('census_date').annotate(
         sum_adults=Sum(
             Case(
                 When(piggery_records__line__name__icontains='goose', then=0),
@@ -1296,6 +1345,20 @@ def piggery_stats(request):
         ),
         sum_piglets=Sum('piggery_records__total_piglets')
     )
+
+    if census_view == 'monthly_last':
+        # Filter to keep only the latest census record per month
+        monthly_census_ids = (
+            Census.objects.filter(animal__animal_name='pig')
+            .annotate(month=TruncMonth('census_date'))
+            .values('month')
+            .annotate(latest_id=Max('id'))
+            .values_list('latest_id', flat=True)
+        )
+        census_records = census_query.filter(id__in=monthly_census_ids).order_by('census_date')
+    else:
+        # Default: Weekly (all progressive records)
+        census_records = census_query
 
     # Use the census date as the label
     census_labels = [c.census_date.strftime('%d %b %Y') for c in census_records]
@@ -1324,9 +1387,9 @@ def piggery_stats(request):
         'event_labels': event_labels,
         'event_values': event_values,
         'selected_type': event_type,
+        'selected_census_view': census_view,
     }
     return render(request, 'main/piggery_stats.html', context)
-
 
 @login_required
 def small_ruminant_event_records_admin(request):
