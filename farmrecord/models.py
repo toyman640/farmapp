@@ -6,6 +6,7 @@ from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from .validators import validate_file_size
 from django.conf import settings
+from django.db.models import Sum
 
 # Create your models here.
 
@@ -206,6 +207,63 @@ class CensusRecord(models.Model):
 @receiver([post_save, post_delete], sender=CensusRecord)
 def update_census_total(sender, instance, **kwargs):
     instance.census.update_total()
+
+
+# Place this in farmrecord/models.py (or your app's models.py file)
+
+@receiver([post_save, post_delete], sender=EventType)
+def recalculate_projection_on_event_change(sender, instance, **kwargs):
+    """
+    Automatically recalculate the CensusProjection whenever 
+    an EventType record is created, updated, or deleted.
+    """
+    # 1. Find the census created right after or enclosing this event date
+    subsequent_census = Census.objects.filter(
+        animal=instance.animal,
+        census_date__gte=instance.event_date
+    ).order_by('census_date').first()  # Fixed closing parenthesis here
+    
+    if subsequent_census:
+        # Find the previous census before this one
+        prev_census = Census.objects.filter(
+            animal=instance.animal,
+            census_date__lt=subsequent_census.census_date
+        ).order_by('-census_date').first()
+        
+        if prev_census:
+            # Determine start count based on animal type (handling piggery vs standard)
+            if subsequent_census.animal.animal_name.lower() == 'pig':
+                piggery_data = PiggeryCensusRecord.objects.filter(census=prev_census)\
+                    .exclude(line__name__icontains='croc')\
+                    .exclude(line__name__icontains='goose')\
+                    .aggregate(gen=Sum('number'), pig=Sum('total_piglets'))
+                start_count = (piggery_data['gen'] or 0) + (piggery_data['pig'] or 0)
+            else:
+                start_count = prev_census.total_animals
+            
+            # Recalculate using your strict bounds service function
+            from main.services import run_projection_calculation
+            data = run_projection_calculation(
+                animal_obj=subsequent_census.animal,
+                start_date=prev_census.census_date,
+                end_date=subsequent_census.census_date,
+                start_count=start_count
+            )
+            
+            if data:
+                CensusProjection.objects.update_or_create(
+                    census=subsequent_census,
+                    defaults={
+                        'start_count': data['start_count'],
+                        'projected_count': data['projected_count'],
+                        'total_mortality': data['total_mortality'],
+                        'total_culling': data['total_culling'],
+                        'total_sale': data['total_sale'],
+                        'total_gift': data['total_gift'],
+                        'total_births': data['total_births'],
+                        'total_procurement': data['total_procurement']
+                    }
+                )
 
 
 
