@@ -15,6 +15,7 @@ from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
 from datetime import timedelta
 import json
+import datetime
 from django.forms.models import model_to_dict
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -1212,11 +1213,20 @@ def edit_event(request, pk):
     location = event.location.strip() if event.location else ""
 
     # Piggery: "Line X Block Y Pen Z"
+    # parts = location.split()
+    # if len(parts) == 6 and parts[0] == "Line":
+    #     initial_line = f"{parts[0]} {parts[1]}"
+    #     initial_block = f"{parts[2]} {parts[3]}"
+    #     initial_pen = f"{parts[4]} {parts[5]}"
     parts = location.split()
-    if len(parts) == 6 and parts[0] == "Line":
+    if len(parts) >= 5 and parts[0] == "Line":
         initial_line = f"{parts[0]} {parts[1]}"
         initial_block = f"{parts[2]} {parts[3]}"
-        initial_pen = f"{parts[4]} {parts[5]}"
+        initial_pen = " ".join(parts[4:])
+    elif len(parts) >= 3 and parts[0].lower() == "denmark":
+        initial_line = "Denmark"
+        initial_block = f"{parts[1]} {parts[2]}"
+        initial_pen = " ".join(parts[3:]) if len(parts) > 3 else ""
 
     # Paddock example: "Paddock 4" or "Paddock A"
     if location.startswith("Paddock"):
@@ -1254,6 +1264,10 @@ def edit_event(request, pk):
                     
                     if hasattr(value, 'pk'):
                         pending_data[key] = value.pk
+
+                    elif isinstance(value, (datetime.date, datetime.datetime)):
+                        # ✅ Convert date/datetime objects to ISO string for JSON storage
+                        pending_data[key] = value.isoformat()
                       
                     else:
                         pending_data[key] = value
@@ -1331,6 +1345,7 @@ def edit_event(request, pk):
         'form': form,
         'edit_mode': True,
         'event': event,
+        'event_model': EventType,
       
 
         # Piggery
