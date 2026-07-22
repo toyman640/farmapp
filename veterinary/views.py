@@ -1219,14 +1219,20 @@ def edit_event(request, pk):
     #     initial_block = f"{parts[2]} {parts[3]}"
     #     initial_pen = f"{parts[4]} {parts[5]}"
     parts = location.split()
-    if len(parts) >= 5 and parts[0] == "Line":
+    if len(parts) >= 4 and parts[0] == "Line":
         initial_line = f"{parts[0]} {parts[1]}"
         initial_block = f"{parts[2]} {parts[3]}"
-        initial_pen = " ".join(parts[4:])
-    elif len(parts) >= 3 and parts[0].lower() == "denmark":
+        initial_pen = " ".join(parts[4:]) if len(parts) > 4 else ""
+    elif len(parts) >= 2 and parts[0].lower() == "denmark":
         initial_line = "Denmark"
-        initial_block = f"{parts[1]} {parts[2]}"
-        initial_pen = " ".join(parts[3:]) if len(parts) > 3 else ""
+        # Handles "Denmark Block A" or "Denmark 1 Block A" variants
+        if parts[1].lower() == "block" or len(parts) == 3:
+            initial_block = f"{parts[1]} {parts[2]}" if len(parts) >= 3 else ""
+            initial_pen = " ".join(parts[3:]) if len(parts) > 3 else ""
+        else:
+            initial_line = f"{parts[0]} {parts[1]}"
+            initial_block = f"{parts[2]} {parts[3]}" if len(parts) >= 4 else ""
+            initial_pen = " ".join(parts[4:]) if len(parts) > 4 else ""
 
     # Paddock example: "Paddock 4" or "Paddock A"
     if location.startswith("Paddock"):
