@@ -19,4 +19,5 @@ urlpatterns = [
   path('census/records/', views.census_records, name='census_records'),
   path('census/retract/<int:queue_id>/', views.retract_census_edit, name='retract_census_edit'),
   path('event/retract/<int:edit_id>/', views.retract_event_edit, name='retract_event_edit'),
+  path('ajax/event-records/', views.load_event_records_ajax, name='ajax_event_records')
 ]

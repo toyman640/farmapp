@@ -1,0 +1,27 @@
+<div class="box_general padding_bottom" style="min-height: 360px;" id="event-records-container">
+    <h4>Event Record: {{ selected_event_date|date:'F j, Y' }}</h4>
+    
+    <!-- Date Picker -->
+    <form class="form-inline mb-3">
+        <div class="input-group input-group-sm w-100">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+            </div>
+            <input type="date" name="event_date" id="eventDateInput" class="form-control" value="{{ selected_event_date|date:'Y-m-d' }}">
+        </div>
+    </form>
+
+    <!-- Display Summarized Events -->
+    {% if summarized_events %}
+        <ul class="list-group" style="max-height: 260px; overflow-y: auto;">
+            {% for item in summarized_events %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ item.event_name|title }}</span>
+                    <span class="badge badge-primary badge-pill">{{ item.total_count }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No event records found for this date.</p>
+    {% endif %}
+</div>

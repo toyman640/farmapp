@@ -133,52 +133,60 @@
 
     <!-- Census Section -->
     <!-- Census Section -->
-<div class="row g-3 mb-4">
-  {% for census in census_list %}
-  <div class="col-12">
-    <div class="box_general padding_bottom">
-      <h5 class="mb-3 fw-bold">
-        <i class="fa fa-bar-chart-o text-primary"></i>
-        {{ census.animal.animal_name|title }} — {{ census.census_date|date:"d M Y" }}
-      </h5>
+    <div class="row g-3 mb-4">
+      {% for census in census_list %}
+      <div class="col-12">
+        <div class="box_general padding_bottom">
+          <h5 class="mb-3 fw-bold">
+            <i class="fa fa-bar-chart-o text-primary"></i>
+            {{ census.animal.animal_name|title }} — {{ census.census_date|date:"d M Y" }}
+          </h5>
 
-      <div class="mb-3 p-3 rounded bg-light">
-        <strong>Total Animals:</strong> 
-        <span class="text-primary fw-bold" style="font-size: 1.25rem;">{{ census.calculated_total }}</span>
-      </div>
+          <div class="mb-3 p-3 rounded bg-light">
+            <strong>Total Animals:</strong> 
+            <span class="text-primary fw-bold" style="font-size: 1.25rem;">{{ census.calculated_total }}</span>
+          </div>
 
-      <!-- Logic to handle Piggery vs Standard -->
-      {% if census.animal.animal_name|lower == 'pig' %}
-        <div class="row g-3">
-          {% for record in census.piggery_records.all %}
-            {% if "goose" not in record.line.name|lower and "crocodile" not in record.line.name|lower %}
-              <div class="col-md-3 col-sm-6 mb-3">
-                <div class="stat-card color-{{ forloop.counter }}" style="min-height: 120px; display: flex; flex-direction: column; justify-content: center;">
-                  <p class="mb-1">{{ record.line.name }}</p>
-                  <h4 class="mb-0">{{ record.number }}</h4>
-                  <small>Piglets: <strong>{{ record.total_piglets|default:0 }}</strong></small>
-                </div>
-              </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-      {% else %}
-        <!-- Standard Records -->
-        <div class="row g-3">
-          {% for record in census.records.all|slice:":8" %}
-            <div class="col-md-3 col-sm-6 mb-3">
-              <div class="stat-card color-{{ forloop.counter }}" style="min-height: 120px;">
-                <p>{{ record.animal_type.animal_type_name }}</p>
-                <h3 class="count-up">{{ record.number_of_animals }}</h3>
-              </div>
+          <!-- Logic to handle Piggery vs Standard -->
+          {% if census.animal.animal_name|lower == 'pig' %}
+            <div class="row g-3">
+              {% for record in census.piggery_records.all %}
+                {% if "goose" not in record.line.name|lower and "crocodile" not in record.line.name|lower %}
+                  <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card color-{{ forloop.counter }}" style="min-height: 120px; display: flex; flex-direction: column; justify-content: center;">
+                      <p class="mb-1">{{ record.line.name }}</p>
+                      <h4 class="mb-0">{{ record.number }}</h4>
+                      <small>Piglets: <strong>{{ record.total_piglets|default:0 }}</strong></small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
             </div>
-          {% endfor %}
+          {% else %}
+            <!-- Standard Records -->
+            <div class="row g-3">
+              {% for record in census.records.all|slice:":8" %}
+                <div class="col-md-3 col-sm-6 mb-3">
+                  <div class="stat-card color-{{ forloop.counter }}" style="min-height: 120px;">
+                    <p>{{ record.animal_type.animal_type_name }}</p>
+                    <h3 class="count-up">{{ record.number_of_animals }}</h3>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
-      {% endif %}
+      </div>
+      {% endfor %}
     </div>
-  </div>
-  {% endfor %}
-</div>
+    <div class="row g-3">
+      <div class="col-12 col-md-6" id="event-card-wrapper">
+        {% include 'vet/partials/event_records_card.html' %}
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="box_general" style="min-height: 360px;"></div>
+      </div>
+    </div>
 
     <!-- Dispatch & Drugs -->
     <div class="row g-3 mb-4">
@@ -595,6 +603,18 @@ function openEventRetractModal(editId) {
   $('#eventRetractModal').modal('show');
 }
 
+document.addEventListener("change", function(event) {
+    if (event.target && event.target.id === "eventDateInput") {
+        const selectedDate = event.target.value;
+        const wrapper = document.getElementById("event-card-wrapper");
 
+        fetch(`{% url 'veterinary:ajax_event_records' %}?event_date=${selectedDate}`)
+            .then(response => response.json())
+            .then(data => {
+                wrapper.innerHTML = data.html;
+            })
+            .catch(error => console.error("Error loading events:", error));
+    }
+});
 </script>
 {% endblock %}
