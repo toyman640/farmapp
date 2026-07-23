@@ -394,6 +394,104 @@ def vet_index(request):
                 last_census.calculated_total = last_census.total_animals
             
             census_list.append(last_census)
+    
+    # -------------------- CENSUS CHART DATA --------------------
+    census_filter_type = request.GET.get("census_filter", "progressive") # 'progressive' or 'monthly'
+    
+    chart_labels = []
+    chart_datasets = []
+
+    for animal in animals_for_section:
+        animal_name_lower = animal.animal_name.lower()
+        census_qs = Census.objects.filter(animal=animal).order_by('census_date')
+
+        if animal_name_lower == 'pig':
+            # Monthly projection: filter to only the last record of each month if requested
+            if census_filter_type == 'monthly':
+                # Group by year and month, taking the max census_date per month
+                from django.db.models.functions import ExtractYear, ExtractMonth
+                monthly_dates = (
+                    census_qs.annotate(year=ExtractYear('census_date'), month=ExtractMonth('census_date'))
+                    .values('year', 'month')
+                    .annotate(max_date=Max('census_date'))
+                    .values_list('max_date', flat=True)
+                )
+                census_qs = census_qs.filter(census_date__in=monthly_dates).order_by('census_date')
+
+            # Prepare data points for Piggery (Separating General/Adults vs Piglets, excluding geese & crocodiles)
+            general_data = []
+            piglet_data = []
+            dates_list = []
+
+            for c in census_qs:
+                dates_list.append(c.census_date.strftime('%Y-%m-%d'))
+                
+                # Annotate/Calculate sums excluding geese and crocodiles for general, and sum piglets
+                annotated_c = Census.objects.filter(id=c.id).annotate(
+                    sum_adults=Sum(
+                        Case(
+                            When(piggery_records__line__name__icontains='goose', then=0),
+                            When(piggery_records__line__name__icontains='crocodile', then=0),
+                            default=F('piggery_records__number'),
+                            output_field=IntegerField()
+                        )
+                    ),
+                    sum_piglets=Sum('piggery_records__total_piglets')
+                ).first()
+
+                general_data.append(annotated_c.sum_adults or 0)
+                piglet_data.append(annotated_c.sum_piglets or 0)
+
+            chart_labels = dates_list # shared X-axis dates
+            chart_datasets = [
+                {'label': 'Piggery (General / Adults)', 'data': general_data, 'borderColor': '#4e73df', 'fill': False},
+                {'label': 'Piggery (Piglets)', 'data': piglet_data, 'borderColor': '#1cc88a', 'fill': False}
+            ]
+        else:
+            # Other sections (Cattle, Sheep, Goat - Progressive records entered monthly)
+            totals_data = []
+            dates_list = []
+            for c in census_qs:
+                dates_list.append(c.census_date.strftime('%Y-%m-%d'))
+                totals_data.append(c.total_animals or 0)
+
+            chart_labels = dates_list
+            chart_datasets = [
+                {'label': f'{animal.animal_name.title()} (Total)', 'data': totals_data, 'borderColor': '#f6c23e', 'fill': False}
+            ]
+
+    today = localdate()
+    user_profile = request.user.profile
+    
+    # 1. Base queryset filtered by user role/section
+    events_qs = EventType.objects.all()
+    if user_profile.is_vet_piggery:
+        events_qs = events_qs.filter(animal__animal_name__iexact='pig')
+    elif user_profile.is_vet_paddock:
+        events_qs = events_qs.filter(animal__animal_name__iexact='cattle')
+    elif user_profile.is_vet_smallruminant:
+        events_qs = events_qs.filter(animal__animal_name__in=['sheep', 'goat'])
+
+    selected_date_str = request.GET.get("event_date")
+    
+    # 2. Determine target date for initial load
+    if selected_date_str:
+        try:
+            target_date = datetime.strptime(selected_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            target_date = today
+    else:
+        # Find the absolute latest event date for THIS specific section
+        latest_event = events_qs.order_by('-event_date', '-created_at').first()
+        target_date = latest_event.event_date if latest_event else today
+
+    # 3. Fetch summarized events for that date
+    summarized_events = (
+        events_qs.filter(event_date=target_date)
+        .values('event_name')
+        .annotate(total_count=Sum('number_of_animals'))
+        .order_by('event_name')
+    )
 
     context = {
         'today_dispatches': today_dispatches,
@@ -404,40 +502,88 @@ def vet_index(request):
         'current_event_status': event_status,
         'current_census_status': census_status,
         'census_list': census_list,
-        'summarized_events': summarized_events,   # ✅ Pass summarized list
-        'selected_event_date': target_date,       # ✅ Pass target date for input binding
+        'summarized_events': summarized_events,
+        'selected_event_date': target_date,
+        'chart_labels': chart_labels,
+        'chart_datasets': chart_datasets,
+        'is_piggery_section': profile.is_vet_piggery,
+        'current_census_filter': census_filter_type,
     }
     return render(request, 'vet/index.html', context)
 
+
+# @login_required
+# def load_event_records_ajax(request):
+#     selected_date_str = request.GET.get("event_date")
+#     today = localdate()
+    
+#     if selected_date_str:
+#         try:
+#             target_date = datetime.strptime(selected_date_str, "%Y-%m-%d").date()
+#         except ValueError:
+#             target_date = today
+#     else:
+#         # Default behavior: Find the latest date that has event records
+#         latest_event = EventType.objects.order_by('-event_date', '-created_at').first()
+#         target_date = latest_event.event_date if latest_event else today
+
+#     summarized_events = (
+#         EventType.objects.filter(event_date=target_date)
+#         .values('event_name')
+#         .annotate(total_count=Sum('number_of_animals'))
+#         .order_by('event_name')
+#     )
+
+#     context = {
+#         'summarized_events': summarized_events,
+#         'selected_event_date': target_date,
+#     }
+    
+#     # Render just the inner card content or the wrapper fragment
+#     html_content = render_to_string('vet/partials/event_records_card.html', context, request=request)
+#     return JsonResponse({'html': html_content})
 
 @login_required
 def load_event_records_ajax(request):
     selected_date_str = request.GET.get("event_date")
     today = localdate()
     
+    user_profile = request.user.profile  # Using your Userp model linked via OneToOneField
+    
+    # 1. Base queryset filtered by user role/section
+    events_qs = EventType.objects.all()
+    if user_profile.is_vet_piggery:
+        events_qs = events_qs.filter(animal__animal_name__iexact='pig')
+    elif user_profile.is_vet_paddock:
+        events_qs = events_qs.filter(animal__animal_name__iexact='cattle')
+    elif user_profile.is_vet_smallruminant:
+        events_qs = events_qs.filter(animal__animal_name__in=['sheep', 'goat'])
+
+    # 2. Determine target date
     if selected_date_str:
         try:
             target_date = datetime.strptime(selected_date_str, "%Y-%m-%d").date()
         except ValueError:
             target_date = today
     else:
-        # Default behavior: Find the latest date that has event records
-        latest_event = EventType.objects.order_by('-event_date', '-created_at').first()
+        # Default behavior: Find the absolute latest event date for THIS specific section only
+        latest_event = events_qs.order_by('-event_date', '-created_at').first()
+        # If records exist, use that latest date. Otherwise, fall back to today.
         target_date = latest_event.event_date if latest_event else today
 
+    # 3. Fetch and summate events matching the target date AND the user's role
     summarized_events = (
-        EventType.objects.filter(event_date=target_date)
+        events_qs.filter(event_date=target_date)
         .values('event_name')
         .annotate(total_count=Sum('number_of_animals'))
         .order_by('event_name')
     )
-
+    
     context = {
         'summarized_events': summarized_events,
         'selected_event_date': target_date,
     }
     
-    # Render just the inner card content or the wrapper fragment
     html_content = render_to_string('vet/partials/event_records_card.html', context, request=request)
     return JsonResponse({'html': html_content})
 
