@@ -457,7 +457,7 @@ def vet_index(request):
 
             chart_labels = dates_list
             chart_datasets = [
-                {'label': f'{animal.animal_name.title()} (Total)', 'data': totals_data, 'borderColor': '#f6c23e', 'fill': False}
+                {'label': f'{animal.animal_name.title()} (Total)', 'data': totals_data, 'backgroundColor': 'rgba(28, 200, 138, 0.7)', 'borderColor': '#1cc88a', 'borderWidth': 1}
             ]
 
     today = localdate()
