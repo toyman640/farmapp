@@ -444,8 +444,8 @@ def vet_index(request):
 
             chart_labels = dates_list # shared X-axis dates
             chart_datasets = [
-                {'label': 'Piggery (General / Adults)', 'data': general_data, 'borderColor': '#4e73df', 'fill': False},
-                {'label': 'Piggery (Piglets)', 'data': piglet_data, 'borderColor': '#1cc88a', 'fill': False}
+                {'label': 'General', 'data': general_data, 'backgroundColor': 'rgba(78, 115, 223, 0.7)', 'borderColor': '#4e73df', 'borderWidth': 1},
+                {'label': 'Piglets', 'data': piglet_data, 'backgroundColor': 'rgba(28, 200, 138, 0.7)', 'borderColor': '#1cc88a', 'borderWidth': 1}
             ]
         else:
             # Other sections (Cattle, Sheep, Goat - Progressive records entered monthly)
