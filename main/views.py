@@ -124,29 +124,69 @@ def main_index(request):
 
     # yesterday_events = EventType.objects.filter(created_at__date=yesterday)
 
-    # Get latest timestamp
-    latest_event_date = EventType.objects.aggregate(
-        latest_date=Max('created_at__date')
-    )['latest_date']
+    # # Get latest timestamp
+    # latest_event_date = EventType.objects.aggregate(
+    #     latest_date=Max('created_at__date')
+    # )['latest_date']
 
-    # Get all events from that date
-    if latest_event_date:
-        events_by_date = EventType.objects.filter(created_at__date=latest_event_date)
-    else:
-        events_by_date = EventType.objects.none()
+    # # Get all events from that date
+    # if latest_event_date:
+    #     events_by_date = EventType.objects.filter(created_at__date=latest_event_date)
+    # else:
+    #     events_by_date = EventType.objects.none()
 
-    # Split by animal type (adjust names based on your DB values)
-    piggery_events = events_by_date.filter(
-    animal_type__animal__animal_name__iexact="pig"
-    )
+    # # Split by animal type (adjust names based on your DB values)
+    # piggery_events = events_by_date.filter(
+    # animal_type__animal__animal_name__iexact="pig"
+    # )
 
-    paddock_events = events_by_date.filter(
-        animal_type__animal__animal_name__iexact="cattle"
-    )
+    # paddock_events = events_by_date.filter(
+    #     animal_type__animal__animal_name__iexact="cattle"
+    # )
 
-    small_ruminant_events = events_by_date.filter(
-        animal_type__animal__animal_name__in=["sheep", "goat"]
-    )
+    # small_ruminant_events = events_by_date.filter(
+    #     animal_type__animal__animal_name__in=["sheep", "goat"]
+    # )
+
+    # ==========================================================
+   
+    def get_latest_aggregated_events(base_queryset):
+        latest_date = base_queryset.aggregate(
+            latest_date=Max('event_date')
+        )['latest_date']
+
+        if not latest_date:
+            return None, []
+
+        events_on_date = base_queryset.filter(event_date=latest_date)
+
+        aggregated = (
+            events_on_date
+            .values('event_name', 'animal_type')
+            .annotate(total_number=Sum('number_of_animals'))
+        )
+
+        event_list = []
+        for item in aggregated:
+            dummy_event = base_queryset.filter(
+                event_name=item['event_name'], 
+                animal_type=item['animal_type']
+            ).first()
+            
+            if dummy_event:
+                dummy_event.number_of_animals = item['total_number']
+                event_list.append(dummy_event)
+
+        return latest_date, event_list
+
+    base_piggery_qs = EventType.objects.filter(animal_type__animal__animal_name__iexact="pig")
+    base_paddock_qs = EventType.objects.filter(animal_type__animal__animal_name__iexact="cattle")
+    base_sr_qs = EventType.objects.filter(animal_type__animal__animal_name__in=["sheep", "goat"])
+
+    piggery_latest_date, piggery_events = get_latest_aggregated_events(base_piggery_qs)
+    paddock_latest_date, paddock_events = get_latest_aggregated_events(base_paddock_qs)
+    small_ruminant_latest_date, small_ruminant_events = get_latest_aggregated_events(base_sr_qs)
+    # ==========================================================
 
     # Resolve updated animal type IDs into objects
     for p in pending_event_edits:
@@ -300,14 +340,24 @@ def main_index(request):
         'recent_drugs': combined_new_drugs,
         # 'yesterday_events': yesterday_events,
         'show_prompt': True,
-        'latest_event_date': latest_event_date,
         'piggery_events': piggery_events,
+        'piggery_latest_date': piggery_latest_date,
         'paddock_events': paddock_events,
+        'paddock_latest_date': paddock_latest_date,
         'small_ruminant_events': small_ruminant_events,
+        'small_ruminant_latest_date': small_ruminant_latest_date,
         'piggery_total': piggery_total,
         'paddock_total': paddock_total,
         'sheep_total': sheep_total,
         'goat_total': goat_total,
+        # 'latest_event_date': latest_event_date,
+        # 'piggery_events': piggery_events,
+        # 'paddock_events': paddock_events,
+        # 'small_ruminant_events': small_ruminant_events,
+        # 'piggery_total': piggery_total,
+        # 'paddock_total': paddock_total,
+        # 'sheep_total': sheep_total,
+        # 'goat_total': goat_total,
         # 'sheep_breakdown': dict(sheep_breakdown),
         # 'goat_breakdown': dict(goat_breakdown),
     }
