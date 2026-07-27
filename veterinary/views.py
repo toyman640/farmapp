@@ -847,7 +847,7 @@ def event_records(request):
     events = events.order_by('-event_date')
 
     # Pagination (10 items per scroll)
-    paginator = Paginator(events, 2)
+    paginator = Paginator(events, 10)
     page_obj = paginator.get_page(page)
 
     # If AJAX (scroll load)
@@ -956,7 +956,7 @@ def census_records(request):
 
     censuses = censuses.distinct()
 
-    paginator = Paginator(censuses, 5)
+    paginator = Paginator(censuses, 10)
     page_obj = paginator.get_page(page)
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
