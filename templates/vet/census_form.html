@@ -5,6 +5,12 @@
 {% block content %}
 <div class="content-wrapper census-page">
   <div class="container-fluid">
+    <ol class="breadcrumb ">
+      <li class="breadcrumb-item">
+        <a href="{% url 'veterinary:vet_index' %}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active">{% if is_edit %}Edit Census{% else %}New Census{% endif %}</li>
+    </ol>
     <div class="p-4 shadow-sm rounded bg-white">
       <h4 class="text-primary mb-3">{% if is_edit %}Edit Census{% else %}New Census{% endif %}</h4>
 
@@ -20,7 +26,9 @@
         {{ form.as_p }}
         {{ formset.management_form }}
 
-        <!-- DYNAMIC INPUT AREA -->
+        <!-- Inline Validation Error Box -->
+        <div id="validation-message-box" style="display:none;" class="alert alert-danger mb-3"></div>
+
         <!-- DYNAMIC INPUT AREA -->
         <div class="row mb-3 align-items-end">
           {% if not user.profile.is_vet_piggery %}
@@ -91,7 +99,7 @@
         {% endif %}
 
         <div class="text-end">
-          <button type="submit" class="btn btn-primary px-4">{% if is_edit %}Update{% else %}Save{% endif %} Census</button>
+          <button type="submit" id="submitCensusBtn" class="btn btn-primary px-4">{% if is_edit %}Update{% else %}Save{% endif %} Census</button>
           <a href="{% url 'veterinary:census_records' %}" class="btn btn-secondary px-4">Cancel</a>
         </div>
       </form>
@@ -99,18 +107,22 @@
   </div>
 </div>
 
-<!-- Success Modal -->
+<!-- Dynamic Modal Template -->
 <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-body text-center p-4">
-        <i class="fa fa-check-circle text-success" style="font-size: 3rem;"></i>
-        <h4 class="mt-3">Success!</h4>
-        <p>Census record created successfully. Redirecting...</p>
+        <div id="modalIconContainer" class="mb-3"></div>
+        <h4 id="modalMessageTitle" class="mt-3"></h4>
+        <p id="modalMessageBody" class="mb-2"></p>
+        <div id="countdownContainer" style="display:none;" class="small text-muted mt-2">
+          Redirecting in <span id="countdownTimer">3</span> seconds...
+        </div>
       </div>
     </div>
   </div>
 </div>
+
 {{ existing_records|json_script:"existing-records" }}
 
 <script>
@@ -125,11 +137,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("recordsContainer");
   const totalForms = document.querySelector('[name="records-TOTAL_FORMS"]');
   const censusForm = document.getElementById("census-form");
+  const submitCensusBtn = document.getElementById("submitCensusBtn");
+  const validationBox = document.getElementById("validation-message-box");
 
-  // Add this inside DOMContentLoaded
+  function setSubmitLoading(isLoading) {
+    if (submitCensusBtn) {
+      submitCensusBtn.disabled = isLoading;
+      const defaultText = "{{ is_edit }}" === "True" ? "Update Census" : "Save Census";
+      submitCensusBtn.textContent = isLoading ? "Processing..." : defaultText;
+    }
+  }
+
   const dateInput = document.getElementById("id_census_date");
   if (dateInput) {
-      // Get today's date in YYYY-MM-DD format
       const today = new Date().toISOString().split('T')[0];
       dateInput.setAttribute("max", today);
   }
@@ -177,17 +197,11 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSelectOptions();
   }
 
-  // Inside rebuildFormset() in your <script>
   function rebuildFormset() {
       document.querySelectorAll(".hidden-formset").forEach(el => el.remove());
       records.forEach((rec, i) => {
-
           if (rec._deleted && !rec.id) return;
 
-          // DEBUG: If it's supposed to be an existing record, log a warning
-          if (rec.typeId && !rec.id) {
-              console.warn(`Record at index ${i} is missing an ID!`, rec);
-          }
           const wrapper = document.createElement("div");
           wrapper.className = "hidden-formset d-none";
           
@@ -210,22 +224,33 @@ document.addEventListener("DOMContentLoaded", () => {
           wrapper.innerHTML = html;
           censusForm.appendChild(wrapper);
       });
-      totalForms.value = records.length; // Keep the total count of all records
+      totalForms.value = records.length;
   }
 
   window.deleteRecord = (index) => {
-    // If it's a new record (no ID), just remove it
     if (!records[index].id) {
         records.splice(index, 1);
     } else {
-        // If it's an existing record, mark as deleted so the POST sends the DELETE flag
         records[index]._deleted = true;
     }
     renderRecords();
   };
 
   addBtn.addEventListener("click", () => {
-    if (!select.value || !countInput.value) return alert("Fill mandatory fields");
+    if (!select.value || !countInput.value) {
+      if (validationBox) {
+        validationBox.textContent = "Please fill in both the selection and the number before adding the record.";
+        validationBox.style.display = "block";
+        setTimeout(() => { validationBox.style.display = "none"; }, 3000);
+      }
+      if (!select.value) select.classList.add("is-invalid");
+      if (!countInput.value) countInput.classList.add("is-invalid");
+      return;
+    }
+
+    if (validationBox) validationBox.style.display = "none";
+    select.classList.remove("is-invalid");
+    countInput.classList.remove("is-invalid");
     
     const newRec = {
       id: null, 
@@ -239,14 +264,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const deletedIndex = records.findIndex(r => r._deleted);
     if (deletedIndex !== -1) {
-      // Keep the old ID if we are replacing a deleted existing record
       const oldId = records[deletedIndex].id;
       records[deletedIndex] = { ...newRec, id: oldId };
     } else {
       records.push(newRec);
     }
 
-    // --- CRITICAL FIX: Reset inputs ---
     select.value = ""; 
     countInput.value = ""; 
     if(pigletInput) pigletInput.value = "0"; 
@@ -258,6 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   censusForm.addEventListener("submit", (e) => {
       e.preventDefault();
+      setSubmitLoading(true);
       const formData = new FormData(censusForm);
 
       fetch(window.location.href, {
@@ -267,20 +291,66 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .then(response => response.json())
       .then(data => {
-          if (data.status === "success") {
-              $('#successModal').modal('show');
-              setTimeout(() => window.location.href = "{% url 'veterinary:census_records' %}", 3000);
-          } 
-          else if (data.status === "warning") {
-              // Show a non-blocking alert for partial failures
-              alert("Warning: " + data.message);
+        setSubmitLoading(false);
+
+        const modal = $('#successModal');
+        const title = document.getElementById("modalMessageTitle");
+        const body = document.getElementById("modalMessageBody");
+        const iconContainer = document.getElementById("modalIconContainer");
+        const countdownContainer = document.getElementById("countdownContainer");
+        const countdownTimer = document.getElementById("countdownTimer");
+        
+        if (data.status === "success") {
+          iconContainer.className = "text-success mb-3";
+          iconContainer.innerHTML = `<i class="fa fa-check-circle" style="font-size: 3rem;"></i>`;
+          
+          title.textContent = "{{ is_edit }}" === "True" ? "Changes Saved" : "Success!";
+          title.className = "modal-title mb-2 text-success";
+          body.textContent = data.message || ("{{ is_edit }}" === "True" ? "Census record updated successfully. Redirecting..." : "Census record created successfully. Redirecting...");
+          
+          countdownContainer.style.display = "block";
+          countdownTimer.textContent = "3";
+          modal.modal("show");
+
+          let timeLeft = 3;
+          const interval = setInterval(() => {
+            timeLeft -= 1;
+            countdownTimer.textContent = timeLeft;
+            if (timeLeft <= 0) {
+              clearInterval(interval);
               window.location.href = "{% url 'veterinary:census_records' %}";
-          }
-          else {
-              // Detailed error feedback
-              console.error("Errors:", data.errors);
-              alert("Error: " + data.message);
-          }
+            }
+          }, 1000);
+
+        } else if (data.status === "warning") {
+          iconContainer.className = "text-warning mb-3";
+          iconContainer.innerHTML = `<i class="fa fa-exclamation-triangle" style="font-size: 3rem;"></i>`;
+          
+          title.textContent = "Warning";
+          title.className = "modal-title mb-2 text-warning";
+          body.textContent = data.message;
+          countdownContainer.style.display = "none";
+          
+          modal.modal("show");
+          setTimeout(() => {
+              modal.modal("hide");
+              window.location.href = "{% url 'veterinary:census_records' %}";
+          }, 3000);
+
+        } else {
+          iconContainer.className = "text-danger mb-3";
+          iconContainer.innerHTML = `<i class="fa fa-exclamation-circle" style="font-size: 3rem;"></i>`;
+          
+          title.textContent = "Submission Error";
+          title.className = "modal-title mb-2 text-danger";
+          body.textContent = data.message || "Please correct the highlighted data issues.";
+          countdownContainer.style.display = "none";
+          
+          modal.modal("show");
+          setTimeout(() => {
+              modal.modal("hide");
+          }, 2500);
+        }
       })
       .catch(error => {
           alert("A critical system error occurred.");
@@ -292,7 +362,6 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 {% if user.profile.is_vet_piggery %}
 <style>
-    /* This hides the p-tag containing the notes field */
     #census-form p:has(label[for="id_notes"]) {
         display: none;
     }
