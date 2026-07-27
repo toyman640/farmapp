@@ -325,48 +325,50 @@
       </div>
 
       <div>
-        <table class="table table-sm table-bordered">
-          <thead class="thead-light">
-            <tr>
-              <th>#</th>
-              <th>Animal</th>
-              <th>Animal Type</th>
-              <th>Event Type</th>
-              <th>Number of Animals</th>
-              <th>Location</th>
-              <th>Submitted By</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for edit in pending_event_edits %}
+        <div class="table-responsive" style="overflow-x: auto;">
+          <table class="table table-sm table-bordered">
+            <thead class="thead-light">
               <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ edit.data.animal_obj|default:edit.event.animal }}</td>
-                <td>{{ edit.data.animal_type_obj|default:edit.event.animal_type }}</td>
-                <td>{{ edit.event.event_name }}</td>
-                <td>{{ edit.data.number_of_animals|default:edit.event.number_of_animals }}</td>
-                <td>{{ edit.data.location|default:edit.event.location }}</td>
-                <td>{{ edit.submitted_by.username }}</td>
-                <td>
-                  <button
-                    class="btn btn-sm btn-primary"
-                    data-toggle="modal"
-                    data-target="#reviewModal{{ edit.id }}">
-                    Review
-                  </button>
+                <th>#</th>
+                <th>Animal</th>
+                <th>Animal Type</th>
+                <th>Event Type</th>
+                <th>Number of Animals</th>
+                <th>Location</th>
+                <th>Submitted By</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for edit in pending_event_edits %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ edit.data.animal_obj|default:edit.event.animal }}</td>
+                  <td>{{ edit.data.animal_type_obj|default:edit.event.animal_type }}</td>
+                  <td>{{ edit.event.event_name }}</td>
+                  <td>{{ edit.data.number_of_animals|default:edit.event.number_of_animals }}</td>
+                  <td>{{ edit.data.location|default:edit.event.location }}</td>
+                  <td>{{ edit.submitted_by.username }}</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-primary"
+                      data-toggle="modal"
+                      data-target="#reviewModal{{ edit.id }}">
+                      Review
+                    </button>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="8" class="text-center text-muted py-4">
+                  <i class="fa fa-folder-open d-block mb-2 fa-2x text-muted"></i>
+                  No Pending Event Records For Edit Approval.
                 </td>
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="8" class="text-center text-muted py-4">
-                <i class="fa fa-folder-open d-block mb-2 fa-2x text-muted"></i>
-                No Pending Event Records For Edit Approval.
-              </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
 
         <!-- MODALS GO HERE, OUTSIDE TABLE -->
         {% for edit in pending_event_edits %}
