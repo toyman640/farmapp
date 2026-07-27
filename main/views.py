@@ -122,43 +122,26 @@ def main_index(request):
     restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
 
-    # yesterday_events = EventType.objects.filter(created_at__date=yesterday)
-
-    # # Get latest timestamp
-    # latest_event_date = EventType.objects.aggregate(
-    #     latest_date=Max('created_at__date')
-    # )['latest_date']
-
-    # # Get all events from that date
-    # if latest_event_date:
-    #     events_by_date = EventType.objects.filter(created_at__date=latest_event_date)
-    # else:
-    #     events_by_date = EventType.objects.none()
-
-    # # Split by animal type (adjust names based on your DB values)
-    # piggery_events = events_by_date.filter(
-    # animal_type__animal__animal_name__iexact="pig"
-    # )
-
-    # paddock_events = events_by_date.filter(
-    #     animal_type__animal__animal_name__iexact="cattle"
-    # )
-
-    # small_ruminant_events = events_by_date.filter(
-    #     animal_type__animal__animal_name__in=["sheep", "goat"]
-    # )
-
+    
     # ==========================================================
    
-    def get_latest_aggregated_events(base_queryset):
-        latest_date = base_queryset.aggregate(
-            latest_date=Max('event_date')
-        )['latest_date']
+    # ==========================================================
+    def get_aggregated_events(base_queryset, requested_date_str=None):
+        target_date = None
+        
+        if requested_date_str:
+            try:
+                target_date = datetime.strptime(requested_date_str, '%Y-%m-%d').date()
+            except ValueError:
+                target_date = None
 
-        if not latest_date:
+        if not target_date:
+            target_date = base_queryset.aggregate(latest_date=Max('event_date'))['latest_date']
+
+        if not target_date:
             return None, []
 
-        events_on_date = base_queryset.filter(event_date=latest_date)
+        events_on_date = base_queryset.filter(event_date=target_date)
 
         aggregated = (
             events_on_date
@@ -177,15 +160,39 @@ def main_index(request):
                 dummy_event.number_of_animals = item['total_number']
                 event_list.append(dummy_event)
 
-        return latest_date, event_list
+        return target_date, event_list
+
+    # Retrieve optional date filters from GET parameters
+    piggery_req_date = request.GET.get('piggery_date')
+    paddock_req_date = request.GET.get('paddock_date')
+    sr_req_date = request.GET.get('sr_date')
 
     base_piggery_qs = EventType.objects.filter(animal_type__animal__animal_name__iexact="pig")
     base_paddock_qs = EventType.objects.filter(animal_type__animal__animal_name__iexact="cattle")
     base_sr_qs = EventType.objects.filter(animal_type__animal__animal_name__in=["sheep", "goat"])
 
-    piggery_latest_date, piggery_events = get_latest_aggregated_events(base_piggery_qs)
-    paddock_latest_date, paddock_events = get_latest_aggregated_events(base_paddock_qs)
-    small_ruminant_latest_date, small_ruminant_events = get_latest_aggregated_events(base_sr_qs)
+    piggery_latest_date, piggery_events = get_aggregated_events(base_piggery_qs, piggery_req_date)
+    paddock_latest_date, paddock_events = get_aggregated_events(base_paddock_qs, paddock_req_date)
+    small_ruminant_latest_date, small_ruminant_events = get_aggregated_events(base_sr_qs, sr_req_date)
+    # ==========================================================
+
+    # Check if request is an AJAX partial update for a specific card
+    card_type = request.GET.get('card')
+    if card_type == 'piggery' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'main/partials/piggery_card_body.html', {
+            'piggery_events': piggery_events,
+            'piggery_latest_date': piggery_latest_date,
+        })
+    elif card_type == 'paddock' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'main/partials/paddock_card_body.html', {
+            'paddock_events': paddock_events,
+            'paddock_latest_date': paddock_latest_date,
+        })
+    elif card_type == 'small_ruminant' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'main/partials/small_ruminant_card_body.html', {
+            'small_ruminant_events': small_ruminant_events,
+            'small_ruminant_latest_date': small_ruminant_latest_date,
+        })
     # ==========================================================
 
     # Resolve updated animal type IDs into objects
@@ -350,16 +357,6 @@ def main_index(request):
         'paddock_total': paddock_total,
         'sheep_total': sheep_total,
         'goat_total': goat_total,
-        # 'latest_event_date': latest_event_date,
-        # 'piggery_events': piggery_events,
-        # 'paddock_events': paddock_events,
-        # 'small_ruminant_events': small_ruminant_events,
-        # 'piggery_total': piggery_total,
-        # 'paddock_total': paddock_total,
-        # 'sheep_total': sheep_total,
-        # 'goat_total': goat_total,
-        # 'sheep_breakdown': dict(sheep_breakdown),
-        # 'goat_breakdown': dict(goat_breakdown),
     }
 
     return render(request, 'main/index.html', context)
