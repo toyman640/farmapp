@@ -146,136 +146,22 @@
 
         <!-- ✅ PIGGERY CARD -->
         <div class="col-md-4">
-          <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
-            <a href="{% url 'main:piggery_event_records_admin' %}" class="card-ribbon text-decoration-none">
-              More
-            </a>
-
-            <h5 class="text-center mb-1">Piggery</h5>
-            <div class="text-center mb-2">
-              <small class="text-muted">({{ piggery_latest_date|date:"F d, Y"|default:"No records" }})</small>
-            </div>
-
-            <!-- Header -->
-            <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
-              <small class="fw-bold">Event</small>
-              <small class="fw-bold">Number(s)</small>
-            </div>
-
-            <!-- Scrollable body -->
-            <div style="overflow-y: auto; flex-grow: 1;">
-              {% for event in piggery_events %}
-                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                  <div>
-                    <span class="
-                      {% if event.event_name == 'mortality' %}text-danger
-                      {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
-                      {% elif event.event_name == 'procurement' %}text-primary
-                      {% elif event.event_name == 'culling' %}text-warning
-                      {% else %}text-dark
-                      {% endif %}
-                      fw-semibold
-                    ">
-                      {{ event.get_event_name_display }}
-                    </span><br>
-                    <small class="text-muted">{{ event.animal_type }}</small>
-                  </div>
-                  <div class="fw-bold">{{ event.number_of_animals }}</div>
-                </div>
-              {% empty %}
-                <p class="text-muted text-center mt-3">No records</p>
-              {% endfor %}
-            </div>
+          <div id="piggery-card-container" class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column position-relative" style="height: 350px;">
+            {% include 'main/partials/piggery_card_body.html' %}
           </div>
         </div>
 
         <!-- ✅ PADDOCK CARD -->
         <div class="col-md-4">
-          <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
-            <a href="{% url 'main:paddock_event_records_admin' %}" class="card-ribbon text-decoration-none">
-              More
-            </a>
-
-            <h5 class="text-center mb-1">Paddock</h5>
-            <div class="text-center mb-2">
-              <small class="text-muted">({{ paddock_latest_date|date:"F d, Y"|default:"No records" }})</small>
-            </div>
-
-            <!-- Header -->
-            <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
-              <small class="fw-bold">Event</small>
-              <small class="fw-bold">Number(s)</small>
-            </div>
-
-            <!-- Scrollable body -->
-            <div style="overflow-y: auto; flex-grow: 1;">
-              {% for event in paddock_events %}
-                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                  <div>
-                    <span class="
-                      {% if event.event_name == 'mortality' %}text-danger
-                      {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
-                      {% elif event.event_name == 'procurement' %}text-primary
-                      {% elif event.event_name == 'culling' %}text-warning
-                      {% else %}text-dark
-                      {% endif %}
-                      fw-semibold
-                    ">
-                      {{ event.get_event_name_display }}
-                    </span><br>
-                    <small class="text-muted">{{ event.animal_type }}</small>
-                  </div>
-                  <div class="fw-bold">{{ event.number_of_animals }}</div>
-                </div>
-              {% empty %}
-                <p class="text-muted text-center mt-3">No records</p>
-              {% endfor %}
-            </div>
+          <div id="paddock-card-container" class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column position-relative" style="height: 350px;">
+            {% include 'main/partials/paddock_card_body.html' %}
           </div>
         </div>
 
         <!-- ✅ SMALL RUMINANT CARD -->
         <div class="col-md-4">
-          <div class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column" style="height: 350px;">
-            <a href="{% url 'main:small_ruminant_event_records_admin' %}" class="card-ribbon text-decoration-none">
-              More
-            </a>
-
-            <h5 class="text-center mb-1">Small Ruminant</h5>
-            <div class="text-center mb-2">
-              <small class="text-muted">({{ small_ruminant_latest_date|date:"F d, Y"|default:"No records" }})</small>
-            </div>
-
-            <!-- Header -->
-            <div class="d-flex justify-content-between border-bottom pb-1 mb-2">
-              <small class="fw-bold">Event</small>
-              <small class="fw-bold">Number(s)</small>
-            </div>
-
-            <!-- Scrollable body -->
-            <div style="overflow-y: auto; flex-grow: 1;">
-              {% for event in small_ruminant_events %}
-                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                  <div>
-                    <span class="
-                      {% if event.event_name == 'mortality' %}text-danger
-                      {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
-                      {% elif event.event_name == 'procurement' %}text-primary
-                      {% elif event.event_name == 'culling' %}text-warning
-                      {% else %}text-dark
-                      {% endif %}
-                      fw-semibold
-                    ">
-                      {{ event.get_event_name_display }}
-                    </span><br>
-                    <small class="text-muted">{{ event.animal_type }}</small>
-                  </div>
-                  <div class="fw-bold">{{ event.number_of_animals }}</div>
-                </div>
-              {% empty %}
-                <p class="text-muted text-center mt-3">No records</p>
-              {% endfor %}
-            </div>
+          <div id="small_ruminant-card-container" class="box_general data-card p-3 shadow-sm rounded bg-white d-flex flex-column position-relative" style="height: 350px;">
+            {% include 'main/partials/small_ruminant_card_body.html' %}
           </div>
         </div>
 
@@ -439,48 +325,50 @@
       </div>
 
       <div>
-        <table class="table table-sm table-bordered">
-          <thead class="thead-light">
-            <tr>
-              <th>#</th>
-              <th>Animal</th>
-              <th>Animal Type</th>
-              <th>Event Type</th>
-              <th>Number of Animals</th>
-              <th>Location</th>
-              <th>Submitted By</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for edit in pending_event_edits %}
+        <div class="table-responsive" style="overflow-x: auto;">
+          <table class="table table-sm table-bordered">
+            <thead class="thead-light">
               <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ edit.data.animal_obj|default:edit.event.animal }}</td>
-                <td>{{ edit.data.animal_type_obj|default:edit.event.animal_type }}</td>
-                <td>{{ edit.event.event_name }}</td>
-                <td>{{ edit.data.number_of_animals|default:edit.event.number_of_animals }}</td>
-                <td>{{ edit.data.location|default:edit.event.location }}</td>
-                <td>{{ edit.submitted_by.username }}</td>
-                <td>
-                  <button
-                    class="btn btn-sm btn-primary"
-                    data-toggle="modal"
-                    data-target="#reviewModal{{ edit.id }}">
-                    Review
-                  </button>
+                <th>#</th>
+                <th>Animal</th>
+                <th>Animal Type</th>
+                <th>Event Type</th>
+                <th>Number of Animals</th>
+                <th>Location</th>
+                <th>Submitted By</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for edit in pending_event_edits %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ edit.data.animal_obj|default:edit.event.animal }}</td>
+                  <td>{{ edit.data.animal_type_obj|default:edit.event.animal_type }}</td>
+                  <td>{{ edit.event.event_name }}</td>
+                  <td>{{ edit.data.number_of_animals|default:edit.event.number_of_animals }}</td>
+                  <td>{{ edit.data.location|default:edit.event.location }}</td>
+                  <td>{{ edit.submitted_by.username }}</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-primary"
+                      data-toggle="modal"
+                      data-target="#reviewModal{{ edit.id }}">
+                      Review
+                    </button>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="8" class="text-center text-muted py-4">
+                  <i class="fa fa-folder-open d-block mb-2 fa-2x text-muted"></i>
+                  No Pending Event Records For Edit Approval.
                 </td>
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="8" class="text-center text-muted py-4">
-                <i class="fa fa-folder-open d-block mb-2 fa-2x text-muted"></i>
-                No Pending Event Records For Edit Approval.
-              </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
 
         <!-- MODALS GO HERE, OUTSIDE TABLE -->
         {% for edit in pending_event_edits %}
@@ -1025,5 +913,34 @@
   setTimeout(function () {
     $(".alert").alert("close");
   }, 3000);
+
+  function fetchCardData(cardType, dateValue) {
+      let paramName = '';
+      let containerId = '';
+
+      if (cardType === 'piggery') {
+          paramName = 'piggery_date';
+          containerId = 'piggery-card-container';
+      } else if (cardType === 'paddock') {
+          paramName = 'paddock_date';
+          containerId = 'paddock-card-container';
+      } else if (cardType === 'small_ruminant') {
+          paramName = 'sr_date';
+          containerId = 'small_ruminant-card-container';
+      }
+
+      const url = `?card=${cardType}&${paramName}=${dateValue}`;
+
+      fetch(url, {
+          headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+          }
+      })
+      .then(response => response.text())
+      .then(html => {
+          document.getElementById(containerId).innerHTML = html;
+      })
+      .catch(error => console.error('Error updating card:', error));
+  }
 </script>
 {% endblock %}

@@ -5,9 +5,11 @@
 {% block content %}
 <div class="content-wrapper census-records-page">
   <div class="container-fluid">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'veterinary:vet_index' %}">Home</a></li>
-      <li class="breadcrumb-item active">Census Records</li>
+    <ol class="breadcrumb ">
+      <li class="breadcrumb-item">
+        <a href="{% url 'veterinary:vet_index' %}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active">New Census Record</li>
     </ol>
 
     {% if messages %}

@@ -9,7 +9,7 @@
 
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="{% url 'veterinary:vet_index' %}">Home</a>
+        <a href="{% url 'veterinary:vet_index' %}">Dashboard</a>
       </li>
       <li class="breadcrumb-item active">
         {% if edit_mode %}Edit Event{% else %}Create Event{% endif %}
@@ -160,6 +160,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const blockSelect    = document.getElementById("blockSelect");
   const penSelect      = document.getElementById("penSelect");
 
+  const addBtn = document.getElementById("saveAddAnother");
+  const proceedBtn = document.getElementById("saveProceed");
+  const updateBtn = document.getElementById("updateRecordBtn");
+
+  // Helper to disable buttons and update text during processing
+  function setButtonsLoading(isLoading) {
+    if (isEditMode && updateBtn) {
+      updateBtn.disabled = isLoading;
+      updateBtn.textContent = isLoading ? "Processing..." : "Update Record";
+    } else {
+      if (addBtn) {
+        addBtn.disabled = isLoading;
+        addBtn.textContent = isLoading ? "Processing..." : "Save & Add Another";
+      }
+      if (proceedBtn) {
+        proceedBtn.disabled = isLoading;
+        proceedBtn.textContent = isLoading ? "Processing..." : "Save & Proceed";
+      }
+    }
+  }
+
   // -------------------- Populate Pens --------------------
   if (penSelect) {
     for (let i = 1; i <= 100; i++) {
@@ -306,6 +327,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return; // Stop execution
     }
 
+    // Disable buttons and show processing state
+    setButtonsLoading(true);
+
     const formData = new FormData(form);
     formData.append("actionType", actionType);
 
@@ -319,6 +343,10 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(r => r.json())
     .then(data => {
+
+      // Re-enable buttons once response is received
+      setButtonsLoading(false);
+
       const modal = $("#successRedirectModal");
       const title = document.getElementById("modalMessageTitle");
       const body = document.getElementById("modalMessageBody");
@@ -401,11 +429,12 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch(err => {
       console.error("Submission failed:", err);
+      // Re-enable buttons if network/server error happens
+      setButtonsLoading(false);
     });
   }
 
-  const addBtn = document.getElementById("saveAddAnother");
-  const proceedBtn = document.getElementById("saveProceed");
+  
   if (addBtn) addBtn.onclick = () => ajaxSubmit("add");
   if (proceedBtn) proceedBtn.onclick = () => ajaxSubmit("proceed");
 

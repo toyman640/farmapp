@@ -1,0 +1,41 @@
+<a href="{% url 'main:small_ruminant_event_records_admin' %}" class="card-ribbon text-decoration-none">
+  More
+</a>
+
+<h5 class="text-center mb-1">Small Ruminant</h5>
+<div class="text-center mb-2 d-flex justify-content-center align-items-center gap-1">
+  <small class="text-muted">({{ small_ruminant_latest_date|date:"F d, Y"|default:"No records" }})</small>
+  <i class="bi bi-calendar-event text-primary" style="cursor: pointer; font-size: 0.85rem;" onclick="document.getElementById('small_ruminant-date-input').showPicker();" title="Select Date"></i>
+  <input type="date" id="small_ruminant-date-input" class="d-none" value="{{ small_ruminant_latest_date|date:'Y-m-d' }}" onchange="fetchCardData('small_ruminant', this.value)">
+</div>
+
+<!-- Header -->
+<div class="d-flex justify-content-between border-bottom pb-1 mb-2">
+  <small class="fw-bold">Event</small>
+  <small class="fw-bold">Number(s)</small>
+</div>
+
+<!-- Scrollable body -->
+<div style="overflow-y: auto; flex-grow: 1;">
+  {% for event in small_ruminant_events %}
+    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+      <div>
+        <span class="
+          {% if event.event_name == 'mortality' %}text-danger
+          {% elif event.event_name == 'calving' or event.event_name == 'farrowing' or event.event_name == 'kidding' or event.event_name == 'lambing' %}text-success
+          {% elif event.event_name == 'procurement' %}text-primary
+          {% elif event.event_name == 'culling' %}text-warning
+          {% else %}text-dark
+          {% endif %}
+          fw-semibold
+        ">
+          {{ event.get_event_name_display }}
+        </span><br>
+        <small class="text-muted">{{ event.animal_type }}</small>
+      </div>
+      <div class="fw-bold">{{ event.number_of_animals }}</div>
+    </div>
+  {% empty %}
+    <p class="text-muted text-center mt-3">No records</p>
+  {% endfor %}
+</div>
