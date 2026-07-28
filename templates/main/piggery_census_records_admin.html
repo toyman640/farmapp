@@ -77,6 +77,11 @@
               <h5 class="bg-light text-primary px-3 py-2 rounded border fw-semibold">{{ month.grouper }}</h5>
               {% for census in month.list %}
                 <div class="border rounded p-3 mb-3 bg-light">
+                  <div class="d-flex justify-content-end mb-3">
+                    <span class="px-3 py-2 rounded-pill text-white fw-bold" style="background: linear-gradient(90deg, #0d6efd, #3b82f6); box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                      {{ census.census_date|date:"d M Y" }}
+                    </span>
+                  </div>
                   <!-- Census Summary Header -->
                   <div class="row text-center mb-3">
                       <div class="col">Gen Total: <strong>{{ census.sum_adults|default:0 }}</strong></div>
@@ -107,8 +112,10 @@
                               <h6 class="fw-semibold text-primary mb-1">{{ record.line.name }}</h6>
                               <small class="text-muted">{{ record.line.specification }}</small>
                               <p class="mb-0 mt-2">General: <strong>{{ record.number }}</strong></p>
-                              {% if "nursing" in record.line.specification|lower %}
-                                <p class="mb-0"><small>Piglets: <strong>{{ record.total_piglets }}</strong></small></p>
+                              
+                              <!-- Show piglets for all lines except goose and crocodile -->
+                              {% if "goose" not in record.line.name|lower and "crocodile" not in record.line.name|lower %}
+                                <p class="mb-0"><small>Piglets: <strong>{{ record.total_piglets|default:0 }}</strong></small></p>
                               {% endif %}
                             </div>
                           </div>

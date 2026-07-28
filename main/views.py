@@ -1619,6 +1619,73 @@ def piggery_event_records_admin(request):
     return render(request, 'main/piggery-records-admin.html', context)
 
 
+# @login_required
+# def piggery_census_records_admin(request):
+#     start_date = request.GET.get('start_date')
+#     end_date = request.GET.get('end_date')
+
+#     census_records = Census.objects.filter(animal__animal_name__iexact='pig')
+
+#     # ---- Filters ----
+#     if start_date:
+#         census_records = census_records.filter(census_date__gte=parse_date(start_date))
+#     if end_date:
+#         end = parse_date(end_date)
+#         if end:
+#             census_records = census_records.filter(census_date__lt=end + timedelta(days=1))
+
+    
+#     # Annotate totals
+#     census_records = Census.objects.filter(animal__animal_name__iexact='pig').annotate(
+#         sum_adults=Sum(
+#             Case(
+#                 When(piggery_records__line__name__icontains='goose', then=0),
+#                 When(piggery_records__line__name__icontains='crocodile', then=0),
+#                 default=F('piggery_records__number'),
+#                 output_field=IntegerField()
+#             )
+#         ),
+#         sum_piglets=Sum('piggery_records__total_piglets'),
+#         sum_geese=Sum(
+#             Case(When(piggery_records__line__name__icontains='goose', then=F('piggery_records__number')), default=0, output_field=IntegerField())
+#         ),
+#         sum_crocodiles=Sum(
+#             Case(When(piggery_records__line__name__icontains='crocodile', then=F('piggery_records__number')), default=0, output_field=IntegerField())
+#         ),
+#         grand_total=F('sum_adults') + F('sum_piglets')
+#     ).prefetch_related('piggery_records__line').order_by('-census_date')
+
+#     # ---- Pagination ----
+#     paginator = Paginator(census_records.order_by('-census_date'), 10)
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+
+#     # Add this:
+#     lines = PiggeryLine.objects.all()
+
+#     # Handle the line update form
+#     if request.method == 'POST' and 'line_id' in request.POST:
+#         line_id = request.POST.get('line_id')
+#         instance = get_object_or_404(PiggeryLine, id=line_id)
+#         form = PiggeryLineForm(request.POST, instance=instance)
+#         if form.is_valid():
+#             form.save()
+#             return JsonResponse({'status': 'success', 'message': 'Line updated successfully!'})
+
+#     context = {
+#         'page_obj': page_obj,
+#         'census_records': page_obj.object_list,
+#         'has_next': page_obj.has_next(),
+#         'lines': lines,
+#     }
+    
+
+#     # ✅ AJAX infinite scroll partial
+#     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#         return render(request, 'main/includes/_census_records_list.html', context)
+
+#     return render(request, 'main/piggery_census_records_admin.html', context)
+
 @login_required
 def piggery_census_records_admin(request):
     start_date = request.GET.get('start_date')
@@ -1634,9 +1701,8 @@ def piggery_census_records_admin(request):
         if end:
             census_records = census_records.filter(census_date__lt=end + timedelta(days=1))
 
-    
     # Annotate totals
-    census_records = Census.objects.filter(animal__animal_name__iexact='pig').annotate(
+    census_records = census_records.annotate(
         sum_adults=Sum(
             Case(
                 When(piggery_records__line__name__icontains='goose', then=0),
@@ -1645,7 +1711,14 @@ def piggery_census_records_admin(request):
                 output_field=IntegerField()
             )
         ),
-        sum_piglets=Sum('piggery_records__total_piglets'),
+        sum_piglets=Sum(
+            Case(
+                When(piggery_records__line__name__icontains='goose', then=0),
+                When(piggery_records__line__name__icontains='crocodile', then=0),
+                default=F('piggery_records__total_piglets'),
+                output_field=IntegerField()
+            )
+        ),
         sum_geese=Sum(
             Case(When(piggery_records__line__name__icontains='goose', then=F('piggery_records__number')), default=0, output_field=IntegerField())
         ),
@@ -1656,14 +1729,12 @@ def piggery_census_records_admin(request):
     ).prefetch_related('piggery_records__line').order_by('-census_date')
 
     # ---- Pagination ----
-    paginator = Paginator(census_records.order_by('-census_date'), 10)
+    paginator = Paginator(census_records, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Add this:
     lines = PiggeryLine.objects.all()
 
-    # Handle the line update form
     if request.method == 'POST' and 'line_id' in request.POST:
         line_id = request.POST.get('line_id')
         instance = get_object_or_404(PiggeryLine, id=line_id)
@@ -1678,14 +1749,11 @@ def piggery_census_records_admin(request):
         'has_next': page_obj.has_next(),
         'lines': lines,
     }
-    
 
-    # ✅ AJAX infinite scroll partial
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'main/includes/_census_records_list.html', context)
 
     return render(request, 'main/piggery_census_records_admin.html', context)
-
 
 
 @login_required
