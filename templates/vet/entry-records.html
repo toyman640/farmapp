@@ -10,6 +10,50 @@
       <li class="breadcrumb-item active">Event Records</li>
     </ol>
 
+    <!-- 🗑️ DELETE QUEUE ACCORDION -->
+    {% if delete_queue_events %}
+      <div class="card shadow-sm mb-4 border-warning">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center" id="deleteQueueHeading" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#deleteQueueCollapse" aria-expanded="false" aria-controls="deleteQueueCollapse">
+          <h5 class="mb-0 font-weight-bold">
+            <i class="fa fa-clock-o mr-2"></i> Events Pending Deletion Approval 
+            <span class="badge badge-dark ml-2">{{ delete_queue_events|length }}</span>
+          </h5>
+          <i class="fa fa-chevron-down toggle-icon"></i>
+        </div>
+        
+        <div id="deleteQueueCollapse" class="collapse" aria-labelledby="deleteQueueHeading">
+          <div class="card-body bg-light">
+            <div class="table-responsive">
+              <table class="table table-hover table-sm mb-0 bg-white rounded">
+                <thead class="thead-light">
+                  <tr>
+                    <th>Event Date</th>
+                    <th>Event</th>
+                    <th>Animal Type</th>
+                    <th>Requested By</th>
+                    <th>Reason</th>
+                    <th>Action Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in delete_queue_events %}
+                    <tr>
+                      <td>{{ item.event.event_date|date:"M d, Y" }}</td>
+                      <td><span class="badge badge-pill badge-secondary">{{ item.event.get_event_name_display }}</span></td>
+                      <td>{{ item.event.animal_type|default:"N/A" }}</td>
+                      <td>{{ item.event.logged_by.username|default:item.requested_by.username }}</td>
+                      <td class="text-muted text-wrap" style="max-width: 200px;">{{ item.reason|default:"No reason provided" }}</td>
+                      <td><span class="badge badge-warning text-dark">Pending Admin Approval</span></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
     <div class="box_general padding_bottom">
       <div class="filters-section mb-4">
         <h4 class="mb-3">Filter Event Records</h4>
