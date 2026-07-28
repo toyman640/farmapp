@@ -286,7 +286,7 @@ $('#noteModal').on('show.bs.modal', function (event) {
     var spec = button.attr('data-spec');
     
     // Find the hidden div within the clicked card
-    var noteContent = button.find('.record-note').text().trim();
+    var noteContent = button.find('.record-note').text();
 
     // Set the modal content
     modal.find('.modal-title').text(title + (spec ? ' (' + spec + ')' : '') + ' Note');

@@ -1,8 +1,9 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect, render,  get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.template.loader import render_to_string
+from django.contrib.auth import logout
 from datetime import timedelta,datetime
 # from django.db.models import F
 from django.db.models.functions import Lower, TruncMonth
@@ -30,6 +31,8 @@ from django.db import transaction
 from veterinary.forms import *
 from .services import run_projection_calculation
 from .services import run_projection_calculation
+from django.views.decorators.csrf import csrf_exempt
+
 
 class CustomLoginView(LoginView):
     template_name = 'main/login.html'
