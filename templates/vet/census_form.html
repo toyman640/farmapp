@@ -124,14 +124,12 @@
 </div>
 
 {{ existing_records|json_script:"existing-records" }}
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const isPiggery = {{ user.profile.is_vet_piggery|yesno:"true,false" }};
   const select = document.getElementById("recordTypeSelect");
   const countInput = document.getElementById("countInput");
   const pigletInput = document.getElementById("pigletInput");
-  const pigletWrapper = document.getElementById("pigletFieldWrapper");
   const noteInput = document.getElementById("noteInput");
   const addBtn = document.getElementById("addRecordBtn");
   const container = document.getElementById("recordsContainer");
@@ -170,12 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-
-  select.addEventListener("change", () => {
-    if (pigletWrapper) {
-        pigletWrapper.style.display = select.options[select.selectedIndex]?.text.toLowerCase().includes("nursing") ? "block" : "none";
-    }
-  });
 
   function renderRecords() {
     container.innerHTML = "";
@@ -274,10 +266,22 @@ document.addEventListener("DOMContentLoaded", () => {
     countInput.value = ""; 
     if(pigletInput) pigletInput.value = "0"; 
     if(noteInput) noteInput.value = "";
-    if(pigletWrapper) pigletWrapper.style.display = "none";
     
     renderRecords();
   });
+  {% if user.profile.is_vet_piggery %}
+  select.addEventListener("change", () => {
+    const selectedText = select.options[select.selectedIndex]?.text.toLowerCase() || "";
+    if (pigletFieldWrapper) {
+      if (selectedText && !selectedText.includes("goose") && !selectedText.includes("croc")) {
+        pigletFieldWrapper.style.display = "block";
+      } else {
+        pigletFieldWrapper.style.display = "none";
+        if (pigletInput) pigletInput.value = "0";
+      }
+    }
+  });
+  {% endif %}
 
   censusForm.addEventListener("submit", (e) => {
       e.preventDefault();

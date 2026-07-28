@@ -7,9 +7,9 @@ from itertools import chain, zip_longest
 from django.db.models import F
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from farmrecord.models import EventType, Census, Animals, PendingEventEdit, AnimalType, CensusRecord, CensusApprovalQueue, PiggeryCensusRecord, PiggeryLine, CensusProjection
+from farmrecord.models import EventType, Census, Animals, PendingEventEdit, AnimalType, CensusRecord, CensusApprovalQueue, PiggeryCensusRecord, PiggeryLine, CensusProjection, DeleteApprovalQueue
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
@@ -813,6 +813,7 @@ def event_records(request):
     page = request.GET.get('page', 1)
 
     events = EventType.objects.all().select_related('animal', 'animal_type')
+    delete_queue_events = DeleteApprovalQueue.objects.filter(record_type='event', is_processed=False).select_related('event__animal', 'event__animal_type', 'requested_by')
     event_types = []
 
     if hasattr(user, 'profile'):
@@ -820,21 +821,26 @@ def event_records(request):
 
         if profile.is_vet_piggery:
             events = events.filter(animal__animal_name='pig')
+            delete_queue_events = delete_queue_events.filter(event__animal__animal_name='pig')
             event_types = ['culling', 'farrowing', 'gift', 'mortality', 'procurement', 'sale', 'treatment']
 
         elif profile.is_vet_paddock:
             events = events.filter(animal__animal_name='cattle')
+            delete_queue_events = delete_queue_events.filter(event__animal__animal_name='cattle')
             event_types = ['calving', 'gift', 'mortality', 'procurement', 'sale', 'treatment', 'vaccination']
 
         elif profile.is_vet_smallruminant:
             events = events.filter(animal__animal_name__in=['sheep', 'goat'])
+            delete_queue_events = delete_queue_events.filter(event__animal__animal_name__in=['sheep', 'goat'])
             event_types = ['culling', 'gift', 'kidding', 'lambing', 'mortality', 'procurement', 'sale', 'treatment', 'vaccination']
 
         elif not profile.is_vet:
             events = EventType.objects.none()
+            delete_queue_events = DeleteApprovalQueue.objects.none()
 
     else:
         events = EventType.objects.none()
+        delete_queue_events = DeleteApprovalQueue.objects.none()
 
     # Filter by event type & date
     if selected_event:
@@ -857,6 +863,7 @@ def event_records(request):
 
     context = {
         'events': page_obj,
+        'delete_queue_events': delete_queue_events,
         'event_types': event_types,
         'selected_event': selected_event,
         'start_date': start_date,
@@ -901,19 +908,10 @@ def census_records(request):
     censuses = Census.objects.select_related('animal').order_by('-census_date')
 
     # 2. Apply filtering based on profile
-    # if vet_profile.is_vet_piggery:
-    #     censuses = censuses.filter(animal__animal_name__iexact='pig').annotate(
-    #         sum_adults=Sum('piggery_records__number'),
-    #         sum_piglets=Sum('piggery_records__total_piglets')
-    #     ).prefetch_related(
-    #         Prefetch('piggery_records', queryset=PiggeryCensusRecord.objects.select_related('line'))
-    #     )
-        
-    # Inside your view, update the piggery filter block:
+   
     # Inside your piggery_census_records_admin view logic:
     if vet_profile.is_vet_piggery:
         censuses = censuses.filter(animal__animal_name__iexact='pig').annotate(
-            # General = Records excluding Crocodile and Goose
             sum_adults=Sum(
                 Case(
                     When(piggery_records__line__name__icontains='goose', then=0),
@@ -922,7 +920,14 @@ def census_records(request):
                     output_field=IntegerField()
                 )
             ),
-            sum_piglets=Sum('piggery_records__total_piglets'),
+            sum_piglets=Sum(
+                Case(
+                    When(piggery_records__line__name__icontains='goose', then=0),
+                    When(piggery_records__line__name__icontains='crocodile', then=0),
+                    default=F('piggery_records__total_piglets'),
+                    output_field=IntegerField()
+                )
+            ),
             sum_geese=Sum(
                 Case(When(piggery_records__line__name__icontains='goose', then=F('piggery_records__number')), default=0, output_field=IntegerField())
             ),
@@ -930,7 +935,6 @@ def census_records(request):
                 Case(When(piggery_records__line__name__icontains='crocodile', then=F('piggery_records__number')), default=0, output_field=IntegerField())
             )
         ).annotate(
-            # Grand Total = sum_adults (which already excludes croc/goose) + sum_piglets
             grand_total=F('sum_adults') + F('sum_piglets')
         ).prefetch_related(
             Prefetch('piggery_records', queryset=PiggeryCensusRecord.objects.select_related('line'))
@@ -1865,3 +1869,69 @@ def retract_census_edit(request, queue_id):
 
     messages.success(request, "Your edit request has been retracted successfully.")
     return redirect('veterinary:vet_index')
+
+def notify_admins_of_deletion_queue(queue_item, record_title):
+    """Helper function to send email notification to all active admin/staff users."""
+    admin_emails = User.objects.filter(is_staff=True, is_active=True).values_list('email', flat=True)
+    valid_emails = [email for email in admin_emails if email]
+    
+    if not valid_emails:
+        return
+
+    subject = f"New Deletion Request: {record_title}"
+    message = (
+        f"Hello Admin,\n\n"
+        f"A new delete request has been submitted by {queue_item.requested_by.get_full_name() or queue_item.requested_by.username}.\n\n"
+        f"Record Type: {queue_item.get_record_type_display()}\n"
+        f"Target Record: {record_title}\n"
+        f"Reason Provided: {queue_item.reason or 'No reason provided'}\n\n"
+        f"Please log in to the admin panel to review and approve or reject this request."
+    )
+    
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        list(valid_emails),
+        fail_silently=True,
+    )
+
+
+@login_required
+def request_delete_census(request, census_id):
+    census = get_object_or_404(Census, id=census_id)
+    if request.method == 'POST':
+        reason = request.POST.get('reason')
+        queue_item = DeleteApprovalQueue.objects.create(
+            record_type='census',
+            census=census,
+            requested_by=request.user,
+            reason=reason
+        )
+        census.is_pending_review = True
+        census.save()
+        
+        # Trigger email notification to admins
+        notify_admins_of_deletion_queue(queue_item, str(census))
+        
+        messages.success(request, "Census submitted to delete queue for admin approval.")
+    return redirect('veterinary:census_records')
+
+
+@login_required
+def request_delete_event(request, event_id):
+    event = get_object_or_404(EventType, id=event_id)
+    if request.method == 'POST':
+        reason = request.POST.get('reason')
+        queue_item = DeleteApprovalQueue.objects.create(
+            record_type='event',
+            event=event,
+            requested_by=request.user,
+            reason=reason
+        )
+        
+        # Trigger email notification to admins
+        notify_admins_of_deletion_queue(queue_item, str(event))
+        
+        messages.success(request, "Event submitted to delete queue for admin approval.")
+    return redirect('veterinary:event_records')

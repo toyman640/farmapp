@@ -27,35 +27,32 @@
            <div class="row">
              <!-- Inside the PIGGERY LAYOUT loop -->
             {% for record in census.piggery_records.all %}
-              <div class="col-md-4 mb-3">
-                <div class="card shadow-sm border-0 h-100 bg-light note-trigger" 
-                  style="cursor: pointer;"
-                  data-toggle="modal"
-                  data-target="#noteModal"
-                  data-title="{{ record.line.name|escape }}"
-                  data-spec="{{ record.line.specification|escape }}"
-                  
-                  
-                >
-                  <div class="d-none record-note">{{ record.note|default:'No notes available.' }}</div>
-                 
-                  <div class="card-body">
-                    <h6 class="fw-bold text-primary">{{ record.line.name }}</h6>
-                    <small class="text-muted">{{ record.line.specification }}</small>
-                    
-                    
-                    <div class="mt-2">
-                      <div>General: <strong>{{ record.number }}</strong></div>
-                      
-                      <!-- Only show piglets if specification is 'Nursing' -->
-                      {% if "nursing" in record.line.specification|lower %}
-                        <div>Piglets: <strong>{{ record.total_piglets }}</strong></div>
-                      {% endif %}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {% endfor %}
+      <div class="col-md-4 mb-3">
+        <div class="card shadow-sm border-0 h-100 bg-light note-trigger" 
+          style="cursor: pointer;"
+          data-toggle="modal"
+          data-target="#noteModal"
+          data-title="{{ record.line.name|escape }}"
+          data-spec="{{ record.line.specification|escape }}"
+        >
+          <div class="d-none record-note">{{ record.note|default:'No notes available.' }}</div>
+         
+          <div class="card-body">
+            <h6 class="fw-bold text-primary">{{ record.line.name }}</h6>
+            <small class="text-muted">{{ record.line.specification }}</small>
+            
+            <div class="mt-2">
+              <div>General: <strong>{{ record.number }}</strong></div>
+              
+              <!-- Show piglets for all lines except goose and crocodile -->
+              {% if "goose" not in record.line.name|lower and "croc" not in record.line.name|lower %}
+                <div>Piglets: <strong>{{ record.total_piglets|default:0 }}</strong></div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
            </div>
         {% else %}
            <!-- STANDARD LAYOUT -->

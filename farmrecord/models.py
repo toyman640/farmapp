@@ -369,3 +369,27 @@ class CensusProjection(models.Model):
 
     def __str__(self):
         return f"Projection for {self.census}"
+
+
+class DeleteApprovalQueue(models.Model):
+    RECORD_TYPES = (
+        ('census', 'Census'),
+        ('event', 'Event'),
+    )
+    
+    record_type = models.CharField(max_length=10, choices=RECORD_TYPES)
+    census = models.ForeignKey(Census, on_delete=models.CASCADE, null=True, blank=True, related_name='delete_requests')
+    event = models.ForeignKey(EventType, on_delete=models.CASCADE, null=True, blank=True, related_name='delete_requests')
+    
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField(null=True, blank=True, verbose_name="Reason for Deletion")
+    
+    is_processed = models.BooleanField(default=False)
+    approved = models.BooleanField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_deletions')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        target = self.census if self.record_type == 'census' else self.event
+        return f"Delete request for {self.record_type} ({target}) by {self.requested_by}"

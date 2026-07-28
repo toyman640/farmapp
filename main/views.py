@@ -1761,7 +1761,32 @@ def delete_census_admin(request, pk):
         return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
     return redirect('main:paddock_census_records_admin')
 
-
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def process_delete_queue(request, pk):
+    queue_item = get_object_or_404(DeleteApprovalQueue, id=pk)
+    action = request.POST.get('action') # 'approve' or 'reject'
+    
+    queue_item.is_processed = True
+    queue_item.reviewed_by = request.user
+    queue_item.reviewed_at = now()
+    
+    if action == 'approve':
+        queue_item.approved = True
+        if queue_item.record_type == 'census' and queue_item.census:
+            queue_item.census.delete()
+        elif queue_item.record_type == 'event' and queue_item.event:
+            queue_item.event.delete()
+        messages.success(request, "Deletion request approved and record removed.")
+    else:
+        queue_item.approved = False
+        if queue_item.record_type == 'census' and queue_item.census:
+            queue_item.census.is_pending_review = False
+            queue_item.census.save()
+        messages.info(request, "Deletion request rejected.")
+        
+    queue_item.save()
+    return redirect('main:main_index') # Point to your admin management page
 
 # @login_required
 # def manage_piggery_lines(request):
