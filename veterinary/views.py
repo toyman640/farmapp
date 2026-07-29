@@ -13,8 +13,8 @@ from farmrecord.models import EventType, Census, Animals, PendingEventEdit, Anim
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
-import datetime
 from datetime import timedelta, datetime
+import datetime
 import json
 from django.forms.models import model_to_dict
 from django.core.mail import EmailMultiAlternatives
