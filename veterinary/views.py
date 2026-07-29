@@ -846,9 +846,9 @@ def event_records(request):
     if selected_event:
         events = events.filter(event_name=selected_event)
     if start_date:
-        events = events.filter(created_at__date__gte=parse_date(start_date))
+        events = events.filter(event_date__gte=parse_date(start_date))
     if end_date:
-        events = events.filter(created_at__date__lte=parse_date(end_date))
+        events = events.filter(event_date__lte=parse_date(end_date))
 
     events = events.order_by('-event_date')
 

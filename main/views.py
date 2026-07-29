@@ -1452,13 +1452,13 @@ def small_ruminant_event_records_admin(request):
     if event_type:
         events = events.filter(event_name__iexact=event_type)
     if start_date:
-        events = events.filter(created_at__gte=parse_date(start_date))
+        events = events.filter(event_date__gte=parse_date(start_date))
     if end_date:
         end = parse_date(end_date)
         if end:
-            events = events.filter(created_at__lt=end + timedelta(days=1))
+            events = events.filter(event_datet__lt=end + timedelta(days=1))
 
-    paginator = Paginator(events.order_by('-created_at'), 10)
+    paginator = Paginator(events.order_by('-event_date'), 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1525,13 +1525,13 @@ def paddock_event_records_admin(request):
     if event_type:
         events = events.filter(event_name__iexact=event_type)
     if start_date:
-        events = events.filter(created_at__gte=parse_date(start_date))
+        events = events.filter(event_date__gte=parse_date(start_date))
     if end_date:
         end = parse_date(end_date)
         if end:
-            events = events.filter(created_at__lt=end + timedelta(days=1))
+            events = events.filter(event_date__lt=end + timedelta(days=1))
 
-    paginator = Paginator(events.order_by('-created_at'), 10)
+    paginator = Paginator(events.order_by('-event_date'), 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
