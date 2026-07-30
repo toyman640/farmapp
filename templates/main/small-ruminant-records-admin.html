@@ -71,6 +71,60 @@
 </div>
 
 <script>
+  // --- SCROLL & PAGINATION RESTORATION (Small Ruminant) ---
+  const RUMINANT_SCROLL_KEY = 'small_ruminant_records_scroll_pos';
+  const RUMINANT_PAGE_KEY = 'small_ruminant_records_loaded_page';
+
+  document.querySelectorAll('.events-list').forEach(container => {
+    container.addEventListener('click', function(e) {
+      const row = e.target.closest('.event-row');
+      if (row) {
+        sessionStorage.setItem(RUMINANT_SCROLL_KEY, window.scrollY);
+        sessionStorage.setItem(RUMINANT_PAGE_KEY, page);
+      }
+    });
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedScroll = sessionStorage.getItem(RUMINANT_SCROLL_KEY);
+    const savedPage = sessionStorage.getItem(RUMINANT_PAGE_KEY);
+
+    if (savedScroll && savedPage && parseInt(savedPage) > 1) {
+      let targetPage = parseInt(savedPage);
+      let currentPage = 2;
+
+      function loadPreviousPages() {
+        if (currentPage <= targetPage) {
+          const params = new URLSearchParams(window.location.search);
+          params.set('page', currentPage);
+
+          fetch(`?${params.toString()}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          })
+          .then(res => res.json())
+          .then(data => {
+            document.getElementById('events-list').insertAdjacentHTML('beforeend', data.html);
+            page = currentPage + 1;
+            currentPage++;
+            loadPreviousPages();
+          })
+          .catch(() => {
+            window.scrollTo(0, parseInt(savedScroll));
+          });
+        } else {
+          window.scrollTo(0, parseInt(savedScroll));
+          sessionStorage.removeItem(RUMINANT_SCROLL_KEY);
+          sessionStorage.removeItem(RUMINANT_PAGE_KEY);
+        }
+      }
+      loadPreviousPages();
+    } else if (savedScroll) {
+      window.scrollTo(0, parseInt(savedScroll));
+      sessionStorage.removeItem(RUMINANT_SCROLL_KEY);
+      sessionStorage.removeItem(RUMINANT_PAGE_KEY);
+    }
+  });
+  
   // Date control
   const startDate = document.getElementById('start_date');
   const endDate = document.getElementById('end_date');
