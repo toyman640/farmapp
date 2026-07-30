@@ -117,6 +117,63 @@
 </div>
 
 <script>
+  // --- SCROLL & PAGINATION RESTORATION ---
+  const RECORDS_STORAGE_KEY = 'event_records_scroll_pos';
+  const PAGE_STORAGE_KEY = 'event_records_loaded_page';
+
+  // Save position and current page when clicking any event row
+  document.querySelectorAll('.events-list').forEach(container => {
+    container.addEventListener('click', function(e) {
+      const row = e.target.closest('.event-row');
+      if (row) {
+        sessionStorage.setItem(RECORDS_STORAGE_KEY, window.scrollY);
+        sessionStorage.setItem(PAGE_STORAGE_KEY, page);
+      }
+    });
+  });
+
+  // Restore position and loaded pages on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedScroll = sessionStorage.getItem(RECORDS_STORAGE_KEY);
+    const savedPage = sessionStorage.getItem(PAGE_STORAGE_KEY);
+
+    if (savedScroll && savedPage && parseInt(savedPage) > 1) {
+      // If infinite scroll loaded extra pages, fetch them back so the scroll height exists
+      let targetPage = parseInt(savedPage);
+      let currentPage = 2;
+
+      function loadPreviousPages() {
+        if (currentPage <= targetPage) {
+          const params = new URLSearchParams(window.location.search);
+          params.set('page', currentPage);
+
+          fetch(`?${params.toString()}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          })
+          .then(res => res.json())
+          .then(data => {
+            document.getElementById('events-list').insertAdjacentHTML('beforeend', data.html);
+            page = currentPage + 1;
+            currentPage++;
+            loadPreviousPages();
+          })
+          .catch(() => {
+            window.scrollTo(0, parseInt(savedScroll));
+          });
+        } else {
+          window.scrollTo(0, parseInt(savedScroll));
+          sessionStorage.removeItem(RECORDS_STORAGE_KEY);
+          sessionStorage.removeItem(PAGE_STORAGE_KEY);
+        }
+      }
+      loadPreviousPages();
+    } else if (savedScroll) {
+      window.scrollTo(0, parseInt(savedScroll));
+      sessionStorage.removeItem(RECORDS_STORAGE_KEY);
+      sessionStorage.removeItem(PAGE_STORAGE_KEY);
+    }
+  });
+  
   // Date range control
   const startDate = document.getElementById('start_date');
   const endDate = document.getElementById('end_date');
