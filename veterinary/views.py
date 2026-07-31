@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import EventForm, CensusForm, CensusRecordFormSet, PiggeryCensusRecordFormSet
+from .forms import EventBaseForm, EventDetailForm, EventDetailFormSet, CensusForm, CensusRecordFormSet, PiggeryCensusRecordFormSet
 from drugapp.models import Dispatch, Drug, InventoryLog
 from django.utils.timezone import localtime, now, localdate, timedelta
 from django.db.models import Q, Prefetch, Max, Sum, Case, When, F, IntegerField
@@ -660,12 +660,55 @@ def drugs_view(request):
 # @login_required
 # def create_event(request):
 #     if request.method == 'POST':
-#         form = EventForm(request.POST, request.FILES, user=request.user)
+#         post_data = request.POST.copy()
+#         # ✅ Handle piggery location explicitly
+#         # if getattr(request.user.profile, 'is_vet_piggery', False):
+#         #     line = request.POST.get('lineSelect', '')
+            
+#         #     block = request.POST.get('blockSelect', '')
+#         #     pen = request.POST.get('penSelect', '')
+#         #     post_data['location'] = " ".join(filter(None, [line, block, pen]))
+#         #     # event.location = " ".join(filter(None, [line, block, pen]))
+#         # # form = EventForm(request.POST, request.FILES, user=request.user)
+#         # # form = EventForm(post_data, request.FILES, user=request.user)
+#         event_name = post_data.get('event_name', '').lower()
+#         is_piggery = getattr(request.user.profile, 'is_vet_piggery', False)
+        
+#         # Validation Logic
+#         error_message = None
+        
+#         if is_piggery:
+#             # Piggery Rules: Castration allows blank pen, others require full string
+#             if event_name != 'castration':
+#                 if not (request.POST.get('lineSelect') and request.POST.get('blockSelect') and request.POST.get('penSelect')):
+#                     error_message = "Line, Block, and Pen are required for this event."
+#             else:
+#                 if not (request.POST.get('lineSelect') and request.POST.get('blockSelect')):
+#                     error_message = "Line and Block are required for castration."
+#         else:
+#             # Other sections: Location is mandatory
+#             if not post_data.get('location'):
+#                 error_message = "Location is required for this record."
 
+#         if error_message:
+#             return JsonResponse({'status': 'error', 'message': error_message}, status=400)
+
+#         form = EventForm(post_data, request.FILES, user=request.user, edit_mode=False)
+
+        
+        
 #         if form.is_valid():
-#             event = form.save(commit=False)
-#             event.save()
+#             # event = form.save(commit=False)
 
+#             instance = form.save(commit=False)
+#             instance.logged_by = request.user
+#             instance.save()
+
+
+#             # event.save()
+#             # event = form.save()
+
+#             # AJAX response
 #             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
 #                 action_type = request.POST.get('actionType')
 #                 if action_type == 'proceed':
@@ -678,16 +721,26 @@ def drugs_view(request):
 #                     'status': 'success',
 #                     'message': 'Event saved successfully! You can add another.'
 #                 })
+#             else:
+#                 # ADD THIS: Manual check to catch the missing location error for non-castration
+#                 event_name = request.POST.get('event_name', '').lower()
+#                 line = request.POST.get('lineSelect', '')
+#                 block = request.POST.get('blockSelect', '')
+#                 pen = request.POST.get('penSelect', '')
 
+#                 if event_name != 'castration' and not pen:
+#                     form.add_error('location', 'Location (including Pen) is required for this event.')
+
+#                 # Then proceed to collect and return errors
+#                 errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
+
+#             # Non-AJAX redirect
 #             messages.success(request, "Event created successfully!")
 #             return redirect('veterinary:create_event')
 
 #         else:
 #             # Collect detailed field errors
-#             errors = {
-#                 field: [str(err) for err in errs]
-#                 for field, errs in form.errors.items()
-#             }
+#             errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
 
 #             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
 #                 return JsonResponse({
@@ -701,107 +754,83 @@ def drugs_view(request):
 #     else:
 #         form = EventForm(user=request.user)
 
-#     return render(request, 'vet/event_form.html', {'form': form})
+#     return render(request, 'vet/event_form.html', {'form': form, 'is_vet_piggery': request.user.profile.is_vet_piggery, 'event_model': EventType,})
 
 
 @login_required
 def create_event(request):
+    is_piggery = getattr(request.user.profile, 'is_vet_piggery', False)
+    
     if request.method == 'POST':
-        post_data = request.POST.copy()
-        # ✅ Handle piggery location explicitly
-        # if getattr(request.user.profile, 'is_vet_piggery', False):
-        #     line = request.POST.get('lineSelect', '')
-            
-        #     block = request.POST.get('blockSelect', '')
-        #     pen = request.POST.get('penSelect', '')
-        #     post_data['location'] = " ".join(filter(None, [line, block, pen]))
-        #     # event.location = " ".join(filter(None, [line, block, pen]))
-        # # form = EventForm(request.POST, request.FILES, user=request.user)
-        # # form = EventForm(post_data, request.FILES, user=request.user)
-        event_name = post_data.get('event_name', '').lower()
-        is_piggery = getattr(request.user.profile, 'is_vet_piggery', False)
+        base_form = EventBaseForm(request.POST, user=request.user)
+        formset = EventDetailFormSet(request.POST, prefix='details')
         
-        # Validation Logic
+        event_name = request.POST.get('event_name', '').lower()
         error_message = None
-        
-        if is_piggery:
-            # Piggery Rules: Castration allows blank pen, others require full string
-            if event_name != 'castration':
-                if not (request.POST.get('lineSelect') and request.POST.get('blockSelect') and request.POST.get('penSelect')):
-                    error_message = "Line, Block, and Pen are required for this event."
-            else:
-                if not (request.POST.get('lineSelect') and request.POST.get('blockSelect')):
-                    error_message = "Line and Block are required for castration."
-        else:
-            # Other sections: Location is mandatory
-            if not post_data.get('location'):
-                error_message = "Location is required for this record."
 
-        if error_message:
-            return JsonResponse({'status': 'error', 'message': error_message}, status=400)
+        if base_form.is_valid() and formset.is_valid():
+            for form in formset:
+                if not form.cleaned_data or form.cleaned_data.get('DELETE'):
+                    continue
+                
+                loc = form.cleaned_data.get('location')
+                if is_piggery and event_name != 'castration':
+                    if not loc:
+                        error_message = "Line, Block, and Pen are required for all active rows."
+                        break
+                elif not is_piggery and not loc:
+                    error_message = "Location is required for all rows."
+                    break
 
-        form = EventForm(post_data, request.FILES, user=request.user, edit_mode=False)
+            if error_message:
+                return JsonResponse({'status': 'error', 'message': error_message}, status=400)
 
-        
-        
-        if form.is_valid():
-            # event = form.save(commit=False)
+            base_data = base_form.cleaned_data
+            for form in formset:
+                if not form.cleaned_data or form.cleaned_data.get('DELETE'):
+                    continue
+                instance = form.save(commit=False)
+                instance.logged_by = request.user
+                instance.animal = base_data.get('animal')
+                instance.animal_type = base_data.get('animal_type')
+                instance.event_name = base_data.get('event_name')
+                instance.event_date = base_data.get('event_date')
+                instance.save()
 
-            instance = form.save(commit=False)
-            instance.logged_by = request.user
-            instance.save()
-
-
-            # event.save()
-            # event = form.save()
-
-            # AJAX response
+            action_type = request.POST.get('actionType')
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                action_type = request.POST.get('actionType')
                 if action_type == 'proceed':
                     return JsonResponse({
                         'status': 'success',
-                        'message': 'Event saved successfully! Redirecting...',
+                        'message': 'Events saved successfully! Redirecting...',
                         'redirect_url': reverse('veterinary:event_records')
                     })
                 return JsonResponse({
                     'status': 'success',
-                    'message': 'Event saved successfully! You can add another.'
+                    'message': 'Events saved successfully! You can add another.'
                 })
-            else:
-                # ADD THIS: Manual check to catch the missing location error for non-castration
-                event_name = request.POST.get('event_name', '').lower()
-                line = request.POST.get('lineSelect', '')
-                block = request.POST.get('blockSelect', '')
-                pen = request.POST.get('penSelect', '')
 
-                if event_name != 'castration' and not pen:
-                    form.add_error('location', 'Location (including Pen) is required for this event.')
-
-                # Then proceed to collect and return errors
-                errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
-
-            # Non-AJAX redirect
-            messages.success(request, "Event created successfully!")
+            messages.success(request, "Events created successfully!")
             return redirect('veterinary:create_event')
-
         else:
-            # Collect detailed field errors
-            errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
-
+            errors = {**base_form.errors, **{f"form-{i}-{k}": v for i, form in enumerate(formset) for k, v in form.errors.items()}}
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'error',
                     'message': 'Please correct the highlighted errors.',
                     'errors': errors,
-                })
-
-            messages.error(request, "Error saving event. Check your input.")
-
+                }, status=400)
     else:
-        form = EventForm(user=request.user)
+        base_form = EventBaseForm(user=request.user)
+        formset = EventDetailFormSet(queryset=EventType.objects.none(), prefix='details')
 
-    return render(request, 'vet/event_form.html', {'form': form, 'is_vet_piggery': request.user.profile.is_vet_piggery, 'event_model': EventType,})
+    return render(request, 'vet/event_form.html', {
+        'form': base_form,
+        'formset': formset,
+        'is_vet_piggery': is_piggery,
+        'is_small_ruminant': not is_piggery,
+        'event_model': EventType,
+    })
 
 
 @login_required

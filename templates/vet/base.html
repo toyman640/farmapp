@@ -150,6 +150,33 @@
           modal.find('#noteModalBody').text(noteContent);
       });
 
+      (function() {
+          let inactivityTimeout;
+          const TIMEOUT_DURATION = 25 * 1000; // 25 seconds in milliseconds
+
+          function logoutUser() {
+              // Redirect to Django's logout URL (adjust path name if custom)
+              window.location.href = "{% url 'main:logout' %}"; 
+          }
+
+          function resetTimer() {
+              clearTimeout(inactivityTimeout);
+              inactivityTimeout = setTimeout(logoutUser, TIMEOUT_DURATION);
+          }
+
+          // Events that count as user activity
+          const events = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'];
+
+          events.forEach(event => {
+              window.addEventListener(event, resetTimer, true);
+          });
+
+          // Initialize the timer on page load
+          resetTimer();
+      })();
+
+
+
       
     </script>
 	

@@ -19,103 +19,99 @@
     <div id="message-box" style="display:none;"></div>
 
     <div class="box_general padding_bottom">
-      <form method="post" enctype="multipart/form-data" id="eventForm">
+      <form method="post" id="eventForm">
         {% csrf_token %}
 
         {{ form.animal }}
-        {{ form.animal_type|as_crispy_field }}
-        {{ form.event_name|as_crispy_field }}
-        {{ form.event_date|as_crispy_field }}
+        <div class="mb-3">{{ form.animal_type|as_crispy_field }}</div>
+        <div class="mb-3">{{ form.event_name|as_crispy_field }}</div>
+        <div class="mb-3">{{ form.event_date|as_crispy_field }}</div>
 
-        <!-- ========================================================= -->
-        <!-- SINGLE AUTHORITATIVE LOCATION FIELD (DO NOT DUPLICATE) -->
-        <!-- ========================================================= -->
-        <input type="hidden" name="location" id="id_location">
+        <hr>
+        <h5 class="mb-3">Event Record Details (Add up to 10 entries)</h5>
+        
+        {{ formset.management_form }}
+        <div id="formset-container">
+          {% for subform in formset %}
+            <div class="formset-row border p-3 mb-3 rounded bg-light">
+              {{ subform.id }}
+              {{ subform.location }} <!-- Hidden input bound to JS calculation -->
 
-        <!-- ==================== PADDOCK / SR UI ==================== -->
-        {% if not is_vet_piggery %}
-        <div id="location-wrapper" class="form-group">
-          <label for="locationSelect">Location</label>
-          <select id="locationSelect" class="form-control">
-            <option value="">--- Select Location ---</option>
-            {% for value, label in form.fields.location.choices %}
-              {% if value %}
-                <option value="{{ value }}"
-                  {% if form.initial.location == value or initial_paddock == value or initial_small_ruminant == value %}
-                    selected
-                  {% endif %}
-                >
-                  {{ label }}
-                </option>
+              <!-- Location Selection Block per Row -->
+              {% if is_vet_piggery %}
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                    <label class="form-label font-weight-bold">Line</label>
+                    <select class="form-control line-select">
+                      <option value="">--- Select Line ---</option>
+                      <option value="Line 1">Line 1</option>
+                      <option value="Line 2">Line 2</option>
+                      <option value="Line 3">Line 3</option>
+                      <option value="Line 4">Line 4</option>
+                      <option value="Line 5">Line 5</option>
+                      <option value="Line 6">Line 6</option>
+                      <option value="Line 7">Line 7</option>
+                      <option value="Line 8">Line 8</option>
+                      <option value="Line 9">Line 9</option>
+                      <option value="Denmark">Denmark</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label font-weight-bold">Block</label>
+                    <select class="form-control block-select">
+                      <option value="">--- Select Block ---</option>
+                      {% for block in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+                        <option value="Block {{ block }}">Block {{ block }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label font-weight-bold">Pen</label>
+                    <select class="form-control pen-select">
+                      <option value="">--- Select Pen ---</option>
+                    </select>
+                  </div>
+                </div>
+              {% elif is_small_ruminant %}
+                <div class="mb-3">
+                  <label class="form-label font-weight-bold">Pen Location</label>
+                  <select class="form-control small-ruminant-pen-select">
+                    <option value="">--- Select Pen ---</option>
+                  </select>
+                </div>
+              {% else %}
+                <div class="mb-3">
+                  <label class="form-label font-weight-bold">Location</label>
+                  <select class="form-control location-select">
+                    <option value="">--- Select Location ---</option>
+                    {% for val, label in event_model.PADDOCK_LOCATIONS %}
+                      <option value="{{ val }}">{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
               {% endif %}
-            {% endfor %}
-          </select>
-        </div>
-        {% endif %}
 
-        <!-- ==================== PIGGERY UI ==================== -->
-        {% if is_vet_piggery %}
-        <div id="piggery-wrapper" class="form-row">
-          <div class="col-md-4">
-            <label>Line</label>
-            <select id="lineSelect" name="lineSelect" class="form-control">
-              <option value="">--- Select Line ---</option>
-              {% for line in event_model.PIGGERY_LINES %}
-                <option value="{{ line }}">{{ line }}</option>
-              {% endfor %}
-            </select>
-          </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">{{ subform.number_of_animals|as_crispy_field }}</div>
+                <div class="col-md-6 mb-3 designation-group" style="display:none;">
+                  {{ subform.designation|as_crispy_field }}
+                </div>
+              </div>
 
-          <div class="col-md-4">
-            <label>Block</label>
-            <select id="blockSelect" name="blockSelect" class="form-control">
-              <option value="">--- Select Block ---</option>
-              {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
-                <option value="Block {{ letter }}">Block {{ letter }}</option>
-              {% endfor %}
-            </select>
-          </div>
+              <div class="mb-3">
+                {{ subform.notes|as_crispy_field }}
+              </div>
 
-          <div class="col-md-4">
-            <label>Pen</label>
-            <select id="penSelect" name="penSelect" class="form-control">
-              <option value="">--- Select Pen ---</option>
-            </select>
-          </div>
-        </div>
-        {% endif %}
-
-        {{ form.number_of_animals|as_crispy_field }}
-        {{ form.designation|as_crispy_field }}
-        {{ form.notes|as_crispy_field }}
-
-        <div class="form-group">
-          <label>Event Image</label>
-          {{ form.image }}
+              <button type="button" class="btn btn-outline-danger btn-sm remove-row" style="display:none;">Remove Row</button>
+            </div>
+          {% endfor %}
         </div>
 
-        {% if edit_mode and not request.user.profile.is_boss %}
-          <div class="form-group">
-            <label>Note to Admin</label>
-            {{ form.edit_note|as_crispy_field }}
-            <small class="text-muted">
-              This note will be visible to the admin during review.
-            </small>
-          </div>
-        {% endif %}
+        <button type="button" id="addRowBtn" class="btn btn-secondary btn-sm mb-4">+ Add Another Entry</button>
 
-        <div class="mt-3">
-          {% if edit_mode %}
-            <button type="submit" id="updateRecordBtn" class="btn btn-primary">Update Record</button>
-            <a href="{% url 'veterinary:event_records' %}" class="btn btn-secondary">Back</a>
-          {% else %}
-            <button type="button" id="saveAddAnother" class="btn btn-primary">
-              Save & Add Another
-            </button>
-            <button type="button" id="saveProceed" class="btn btn-success">
-              Save & Proceed
-            </button>
-          {% endif %}
+        <div class="mt-4">
+          <button type="button" id="saveAddAnother" class="btn btn-primary">Save & Add Another</button>
+          <button type="button" id="saveProceed" class="btn btn-success">Save & Proceed</button>
         </div>
       </form>
     </div>
@@ -146,25 +142,23 @@
 document.addEventListener("DOMContentLoaded", () => {
   const isEditMode   = {{ edit_mode|yesno:"true,false" }};
   const isPiggery    = {{ is_vet_piggery|yesno:"true,false" }};
+  const isSmallRuminant = {{ is_small_ruminant|yesno:"true,false" }};
   const submitUrl    = {% if edit_mode %}
-                        "{% url 'veterinary:edit_event' event.id %}"
-                      {% else %}
-                        "{% url 'veterinary:create_event' %}"
-                      {% endif %};
+                       "{% url 'veterinary:edit_event' event.id %}"
+                       {% else %}
+                       "{% url 'veterinary:create_event' %}"
+                       {% endif %};
 
-  const form           = document.getElementById("eventForm");
-  const hiddenLocation = document.getElementById("id_location");
+  const form         = document.getElementById("eventForm");
+  const container    = document.getElementById("formset-container");
+  const addButton    = document.getElementById("addRowBtn");
+  const totalForms   = document.getElementById("id_details-TOTAL_FORMS");
+  const eventName    = document.getElementById("id_event_name");
 
-  const locationSelect = document.getElementById("locationSelect");
-  const lineSelect     = document.getElementById("lineSelect");
-  const blockSelect    = document.getElementById("blockSelect");
-  const penSelect      = document.getElementById("penSelect");
+  const addBtn       = document.getElementById("saveAddAnother");
+  const proceedBtn   = document.getElementById("saveProceed");
+  const updateBtn    = document.getElementById("updateRecordBtn");
 
-  const addBtn = document.getElementById("saveAddAnother");
-  const proceedBtn = document.getElementById("saveProceed");
-  const updateBtn = document.getElementById("updateRecordBtn");
-
-  // Helper to disable buttons and update text during processing
   function setButtonsLoading(isLoading) {
     if (isEditMode && updateBtn) {
       updateBtn.disabled = isLoading;
@@ -181,159 +175,237 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // -------------------- Populate Pens --------------------
-  if (penSelect) {
-    for (let i = 1; i <= 100; i++) {
-      const opt = document.createElement("option");
-      opt.value = `Pen ${i}`;
-      opt.textContent = `Pen ${i}`;
-      penSelect.appendChild(opt);
+  function populatePens(selectElement, maxLimit) {
+    if (selectElement && selectElement.options.length <= 1) {
+      for (let i = 1; i <= maxLimit; i++) {
+        const opt = document.createElement("option");
+        opt.value = `Pen ${i}`;
+        opt.textContent = `Pen ${i}`;
+        selectElement.appendChild(opt);
+      }
     }
   }
 
-  function handleLineLogic() {
-    const lineValue = lineSelect.value;
-    const isDenmark = lineValue === "Denmark 1" || lineValue === "Denmark 2";
-    blockSelect.disabled = isDenmark;
-    if (isDenmark) {
-      blockSelect.value = "";
-    }
-  }
+  document.querySelectorAll(".pen-select").forEach(el => populatePens(el, 100));
+  document.querySelectorAll(".small-ruminant-pen-select").forEach(el => populatePens(el, 20));
 
-  // Add this helper function
   function isCastration() {
-      const eventName = document.getElementById("id_event_name");
-      return eventName && eventName.value.toLowerCase() === "Castration";
+    return eventName && eventName.value.toLowerCase() === "castration";
   }
 
- 
+  function updateRowLocation(row) {
+    const hiddenLocation = row.querySelector("input[name$='-location']");
+    const lineSelect = row.querySelector(".line-select");
+    const blockSelect = row.querySelector(".block-select");
+    const penSelect = row.querySelector(".pen-select");
+    const smallRuminantPenSelect = row.querySelector(".small-ruminant-pen-select");
+    const locationSelect = row.querySelector(".location-select");
 
-  function updateHiddenLocation() {
-    if (isPiggery) {
-        // Logic: Always include line and block; only include pen if present or not castration
-        const parts = [lineSelect.value, blockSelect.value];
-        if (penSelect.value || !isCastration()) {
-            parts.push(penSelect.value);
+    if (hiddenLocation) {
+      if (isPiggery) {
+        const parts = [lineSelect ? lineSelect.value : '', blockSelect ? blockSelect.value : ''];
+        if (penSelect && (penSelect.value || !isCastration())) {
+          parts.push(penSelect.value);
         }
         hiddenLocation.value = parts.filter(Boolean).join(" ");
-    } else if (locationSelect) {
-        hiddenLocation.value = locationSelect.value;
-    }
-  }
-
-  // Add a listener to check if we need to enforce Pen validation
-  document.getElementById("id_event_name").addEventListener("change", () => {
-      if (isCastration()) {
-          penSelect.removeAttribute("required");
+      } else if (isSmallRuminant) {
+        hiddenLocation.value = smallRuminantPenSelect ? smallRuminantPenSelect.value : '';
       } else {
-          penSelect.setAttribute("required", "required");
+        hiddenLocation.value = locationSelect ? locationSelect.value : '';
       }
-  });
-
-  // -------------------- Prefill (EDIT MODE) --------------------
-  if (isEditMode) {
-    if (isPiggery) {
-      lineSelect.value  = "{{ initial_line }}";
-      blockSelect.value = "{{ initial_block }}";
-      penSelect.value   = "{{ initial_pen }}";
-    } else {
-      hiddenLocation.value = "{{ form.initial.location }}";
     }
-    updateHiddenLocation();
   }
 
-  // -------------------- Live Updates --------------------
-  if (isPiggery) {
-    lineSelect.addEventListener("change", () => {
-      handleLineLogic();
-      updateHiddenLocation();
-    });
-    blockSelect.addEventListener("change", updateHiddenLocation);
-    penSelect.addEventListener("change", updateHiddenLocation);
-  }
-  if (locationSelect) {
-    locationSelect.addEventListener("change", updateHiddenLocation);
+  function updateAllLocations() {
+    document.querySelectorAll(".formset-row").forEach(updateRowLocation);
   }
 
-  // -------------------- Designation Toggle --------------------
-  const eventName = document.getElementById("id_event_name");
-  const designationGroup = document.getElementById("id_designation")?.closest(".form-group");
+  function handleLineLogic(row) {
+    const lineSelect = row.querySelector(".line-select");
+    const blockSelect = row.querySelector(".block-select");
+    if (lineSelect && blockSelect) {
+      const lineValue = lineSelect.value;
+      const isDenmark = lineValue === "Denmark";
+      blockSelect.disabled = isDenmark;
+      if (isDenmark) {
+        blockSelect.value = "";
+      }
+    }
+  }
 
   function toggleDesignation() {
-    if (!eventName || !designationGroup) return;
-    if (eventName.value.toLowerCase() === "culling") {
-      designationGroup.style.display = "block";
-    } else {
-      designationGroup.style.display = "none";
-      document.getElementById("id_designation").value = "";
-    }
+    if (!eventName) return;
+    const isCulling = eventName.value.toLowerCase() === "culling";
+    document.querySelectorAll(".formset-row").forEach(row => {
+      const designationGroup = row.querySelector(".designation-group");
+      const designationInput = row.querySelector(".designation-input");
+      if (designationGroup) {
+        if (isCulling) {
+          designationGroup.style.display = "block";
+        } else {
+          designationGroup.style.display = "none";
+          if (designationInput) designationInput.value = "";
+        }
+      }
+    });
   }
 
   toggleDesignation();
   if (eventName) {
-    eventName.addEventListener("change", toggleDesignation);
+    eventName.addEventListener("change", () => {
+      toggleDesignation();
+      updateAllLocations();
+    });
   }
+
+  if (container) {
+    container.addEventListener("change", (e) => {
+      const row = e.target.closest(".formset-row");
+      if (!row) return;
+
+      if (e.target.classList.contains("line-select")) {
+        handleLineLogic(row);
+      }
+      updateRowLocation(row);
+    });
+  }
+
+  // -------------------- Re-indexing Helper Function --------------------
+  function reindexRows() {
+    const rows = container.querySelectorAll(".formset-row");
+    rows.forEach((row, index) => {
+      row.querySelectorAll("input, textarea, select, label").forEach(el => {
+        if (el.name) {
+          el.name = el.name.replace(/details-\d+-/, `details-${index}-`);
+        }
+        if (el.id) {
+          el.id = el.id.replace(/details-\d+-/, `details-${index}-`);
+        }
+        if (el.tagName === 'LABEL' && el.getAttribute('for')) {
+          el.setAttribute('for', el.getAttribute('for').replace(/details-\d+-/, `details-${index}-`));
+        }
+      });
+    });
+    totalForms.value = rows.length;
+  }
+
+  // -------------------- Add Row --------------------
+  if (addButton) {
+    addButton.addEventListener("click", () => {
+      const formCount = parseInt(totalForms.value);
+      if (formCount >= 10) {
+        alert("You can add up to 10 entries at a time.");
+        return;
+      }
+
+      const firstRow = container.querySelector(".formset-row");
+      const newRow = firstRow.cloneNode(true);
+
+      newRow.querySelectorAll("input, textarea, select").forEach(input => {
+        if (input.type === 'checkbox') {
+          input.checked = false;
+        } else if (!input.classList.contains('line-select') && !input.classList.contains('block-select')) {
+          input.value = "";
+        }
+      });
+
+      const removeBtn = newRow.querySelector(".remove-row");
+      if (removeBtn) removeBtn.style.display = "inline-block";
+
+      const newPenSelect = newRow.querySelector(".pen-select");
+      if (newPenSelect) {
+        newPenSelect.innerHTML = '<option value="">--- Select Pen ---</option>';
+        populatePens(newPenSelect, 100);
+      }
+
+      const newSmallRuminantPen = newRow.querySelector(".small-ruminant-pen-select");
+      if (newSmallRuminantPen) {
+        newSmallRuminantPen.innerHTML = '<option value="">--- Select Pen ---</option>';
+        populatePens(newSmallRuminantPen, 20);
+      }
+
+      container.appendChild(newRow);
+      reindexRows();
+      toggleDesignation();
+    });
+  }
+
+  // -------------------- Remove Row --------------------
+  container.addEventListener("click", (e) => {
+    if (e.target.classList.contains("remove-row")) {
+      const rows = container.querySelectorAll(".formset-row");
+      if (rows.length > 1) {
+        e.target.closest(".formset-row").remove();
+        reindexRows();
+      }
+    }
+  });
 
   // -------------------- AJAX Submit --------------------
   function ajaxSubmit(actionType) {
-    updateHiddenLocation();
+    updateAllLocations();
+    reindexRows();
 
-    // --- START CLIENT-SIDE VALIDATION ---
     let errorMessage = "";
-    const eventName = document.getElementById("id_event_name").value.toLowerCase();
+    const currentEventName = eventName.value.toLowerCase();
     
-    if (isPiggery) {
-        if (eventName !== 'castration') {
-            if (!lineSelect.value || !blockSelect.value || !penSelect.value) {
-                errorMessage = "Error: Line, Block, and Pen are all required.";
-            }
+    const rows = container.querySelectorAll(".formset-row");
+    rows.forEach((row, index) => {
+      if (errorMessage) return;
+      const lineVal = row.querySelector(".line-select")?.value;
+      const blockVal = row.querySelector(".block-select")?.value;
+      const penVal = row.querySelector(".pen-select")?.value;
+      const smallRumPenVal = row.querySelector(".small-ruminant-pen-select")?.value;
+      const locVal = row.querySelector("input[name$='-location']")?.value;
+
+      if (isPiggery) {
+        if (currentEventName !== 'castration') {
+          if (!lineVal || !blockVal || !penVal) {
+            errorMessage = `Row ${index + 1}: Line, Block, and Pen are all required.`;
+          }
         } else {
-            if (!lineSelect.value || !blockSelect.value) {
-                errorMessage = "Error: Line and Block are required for Castration.";
-            }
+          if (!lineVal || !blockVal) {
+            errorMessage = `Row ${index + 1}: Line and Block are required for Castration.`;
+          }
         }
-    } else {
-        if (!hiddenLocation.value) {
-            errorMessage = "Error: Location is required.";
+      } else if (isSmallRuminant) {
+        if (!smallRumPenVal) {
+          errorMessage = `Row ${index + 1}: Pen is required.`;
         }
-    }
+      } else {
+        if (!locVal) {
+          errorMessage = `Row ${index + 1}: Location is required.`;
+        }
+      }
+    });
 
-    // 2. If error exists, show in modal instead of alert
     if (errorMessage) {
-        const modal = $("#successRedirectModal");
-        const title = document.getElementById("modalMessageTitle");
-        const body = document.getElementById("modalMessageBody");
-        const iconContainer = document.getElementById("modalIconContainer");
-        const countdownContainer = document.getElementById("countdownContainer");
+      const modal = $("#successRedirectModal");
+      const title = document.getElementById("modalMessageTitle");
+      const body = document.getElementById("modalMessageBody");
+      const iconContainer = document.getElementById("modalIconContainer");
+      const countdownContainer = document.getElementById("countdownContainer");
 
-        // Set UI to Error state
-        iconContainer.className = "text-danger mb-3";
-        iconContainer.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
-            </svg>`;
-        title.textContent = "Missing Information";
-        title.className = "modal-title mb-2 text-danger";
-        body.textContent = errorMessage;
-        countdownContainer.style.display = "none";
+      iconContainer.className = "text-danger mb-3";
+      iconContainer.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+        </svg>`;
+      title.textContent = "Missing Information";
+      title.className = "modal-title mb-2 text-danger";
+      body.textContent = errorMessage;
+      countdownContainer.style.display = "none";
 
-        modal.modal("show");
-        
-        // Auto-close after 3 seconds
-        setTimeout(() => {
-            modal.modal("hide");
-        }, 3000);
-        
-        return; // Stop execution
+      modal.modal("show");
+      setTimeout(() => { modal.modal("hide"); }, 3000);
+      return;
     }
 
-    // Disable buttons and show processing state
     setButtonsLoading(true);
 
     const formData = new FormData(form);
     formData.append("actionType", actionType);
 
-    // Clear previous invalid UI indicators
     form.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
 
     fetch(submitUrl, {
@@ -343,8 +415,6 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(r => r.json())
     .then(data => {
-
-      // Re-enable buttons once response is received
       setButtonsLoading(false);
 
       const modal = $("#successRedirectModal");
@@ -355,32 +425,27 @@ document.addEventListener("DOMContentLoaded", () => {
       const countdownTimer = document.getElementById("countdownTimer");
 
       if (data.status === "success") {
-        // Build Success UI state
         iconContainer.className = "text-success mb-3";
         iconContainer.innerHTML = `
           <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
           </svg>`;
         
-        title.textContent = isEditMode ? "Changes Saved" : "Record Entered Successfully";
+        title.textContent = isEditMode ? "Changes Saved" : "Records Entered Successfully";
         title.className = "modal-title mb-2 text-success";
         body.textContent = data.message;
 
         if (actionType === "add") {
-          // Add Another Configuration: Dismisses without hard location redirecting
           countdownContainer.style.display = "none";
           modal.modal("show");
 
           setTimeout(() => {
             modal.modal("hide");
             form.reset();
-            if (locationSelect) locationSelect.value = "";
-            hiddenLocation.value = "";
             toggleDesignation();
           }, 2500);
 
         } else {
-          // Proceed or Edit Configuration: Executes 3-Second Countdown redirect
           countdownContainer.style.display = "block";
           countdownTimer.textContent = "3";
           modal.modal("show");
@@ -397,7 +462,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
       } else if (data.status === "error") {
-        // Build Error UI state
         iconContainer.className = "text-danger mb-3";
         iconContainer.innerHTML = `
           <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
@@ -410,37 +474,28 @@ document.addEventListener("DOMContentLoaded", () => {
         countdownContainer.style.display = "none";
         
         modal.modal("show");
+        setTimeout(() => { modal.modal("hide"); }, 2000);
 
-        // NEW: Auto-close error modal after 2 seconds
-        setTimeout(() => {
-          modal.modal("hide");
-        }, 2000);
-
-        // Map field-level error styles to crispy forms DOM nodes
         if (data.errors) {
           Object.keys(data.errors).forEach(field => {
             const inputEl = document.getElementById(`id_${field}`);
-            if (inputEl) {
-              inputEl.classList.add("is-invalid");
-            }
+            if (inputEl) inputEl.classList.add("is-invalid");
           });
         }
       }
     })
     .catch(err => {
       console.error("Submission failed:", err);
-      // Re-enable buttons if network/server error happens
       setButtonsLoading(false);
     });
   }
 
-  
   if (addBtn) addBtn.onclick = () => ajaxSubmit("add");
   if (proceedBtn) proceedBtn.onclick = () => ajaxSubmit("proceed");
 
-  // Hook normal submit behavior for Edit workflow
   form.addEventListener("submit", function(e) {
-    updateHiddenLocation();
+    updateAllLocations();
+    reindexRows();
     if (isEditMode) {
       e.preventDefault();
       ajaxSubmit("edit");
@@ -448,7 +503,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
-
 <style>
 #successRedirectModal .modal-content {
   border: none;

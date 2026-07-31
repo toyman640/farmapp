@@ -133,6 +133,19 @@ DATABASES = {
 }
 
 
+# settings.py
+
+# If True, the session cookie expires as soon as the user closes their browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# The age of session cookies in seconds (10 minutes = 600 seconds)
+SESSION_COOKIE_AGE = 600
+
+
+# Optional: Ensure the session refreshes or stays secure depending on your setup
+SESSION_SAVE_EVERY_REQUEST = True
+
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 

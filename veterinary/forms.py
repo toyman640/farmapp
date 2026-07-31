@@ -1,30 +1,10 @@
 from django import forms
 from farmrecord.models import EventType, AnimalType, Animals, Census, CensusRecord, PiggeryCensusRecord, PiggeryLine
-from django.forms import inlineformset_factory, BaseInlineFormSet
+from django.forms import inlineformset_factory, BaseInlineFormSet, modelformset_factory
 from django.utils import timezone
 
 
-class EventForm(forms.ModelForm):
-    # image = forms.ImageField(
-    #     required=False,
-    #     widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
-    # )
-    number_of_animals = forms.IntegerField(
-        required=True,
-        min_value=1,
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter number of animals'})
-    )
-
-    edit_note = forms.CharField(
-        required=False,
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'rows': 3,
-            'placeholder': 'Explain why this edit is needed...'
-        })
-    )
-
-    # ... existing fields
+class EventBaseForm(forms.ModelForm):
     event_date = forms.DateField(
         widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         initial=timezone.now().date()
@@ -32,37 +12,12 @@ class EventForm(forms.ModelForm):
 
     class Meta:
         model = EventType
-        fields = [
-            'animal', 'animal_type', 'event_name', 'event_date',
-            'location', 'number_of_animals',
-            'designation', 'notes',
-        ]
+        fields = ['animal', 'animal_type', 'event_name', 'event_date']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
-        edit_mode = kwargs.pop('edit_mode', False)
         super().__init__(*args, **kwargs)
-        # if not edit_mode:
-        #     self.fields.pop('edit_note', None)
-        if not self.is_bound and self.instance.pk:
-            self.initial['location'] = self.instance.location
-
         
-        for field_name, field in self.fields.items():
-            if field_name not in ['designation', 'notes', 'image', 'edit_note', 'location']:
-                field.required = True
-            else:
-                field.required = False
-
-        if not edit_mode:
-            self.fields.pop('edit_note', None)
-        else:
-            self.fields['edit_note'].required = True
-        
-
-        self.fields['notes'].widget.attrs.update({'placeholder': 'Enter notes...'})
-
-        # Detect vet section
         vet_section = None
         if user:
             if getattr(user.profile, 'is_vet_piggery', False):
@@ -72,7 +27,6 @@ class EventForm(forms.ModelForm):
             elif getattr(user.profile, 'is_vet_smallruminant', False):
                 vet_section = 'sheep'
 
-        # Section-specific settings
         if vet_section:
             animal_obj = Animals.objects.filter(animal_name=vet_section).first()
             if animal_obj:
@@ -89,25 +43,143 @@ class EventForm(forms.ModelForm):
                           ('lambing', 'Lambing'), ('mortality', 'Mortality'), ('procurement', 'Procurement'),
                           ('sale', 'Sale'), ('treatment', 'Treatment'), ('vaccination', 'Vaccination')],
             }
-
             self.fields['event_name'].choices = [('', '--- Select Event ---')] + section_events.get(vet_section, [])
-
-            # Location setup
-            if vet_section == 'pig':
-                self.fields['location'].required = False
-                self.fields['location'].widget = forms.HiddenInput()
-            elif vet_section == 'cattle':
-                self.fields['location'].choices = [('', '--- Select Location ---')] + EventType.PADDOCK_LOCATIONS
-            elif vet_section in ['sheep', 'goat']:
-                self.fields['location'].choices = [('', '--- Select Location ---')] + EventType.SMALL_RUMINANT_LOCATIONS
         else:
             self.fields['animal_type'].queryset = AnimalType.objects.all()
             self.fields['event_name'].choices = EventType.EVENT_CHOICES
-            self.fields['location'].choices = [('', '--- Select Location ---')] + EventType.PADDOCK_LOCATIONS
 
-        # Hide label if hidden
         if isinstance(self.fields['animal'].widget, forms.HiddenInput):
             self.fields['animal'].label = ''
+
+
+class EventDetailForm(forms.ModelForm):
+    number_of_animals = forms.IntegerField(
+        required=True,
+        min_value=1,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Qty'})
+    )
+    designation = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Enter notes...'}))
+    location = forms.CharField(required=False, widget=forms.HiddenInput())
+
+    class Meta:
+        model = EventType
+        fields = ['location', 'number_of_animals', 'designation', 'notes']
+
+
+EventDetailFormSet = modelformset_factory(
+    EventType,
+    form=EventDetailForm,
+    extra=1,
+    max_num=10,
+    can_delete=True
+)
+
+
+# class EventForm(forms.ModelForm):
+#     # image = forms.ImageField(
+#     #     required=False,
+#     #     widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
+#     # )
+#     number_of_animals = forms.IntegerField(
+#         required=True,
+#         min_value=1,
+#         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter number of animals'})
+#     )
+
+#     edit_note = forms.CharField(
+#         required=False,
+#         widget=forms.Textarea(attrs={
+#             'class': 'form-control',
+#             'rows': 3,
+#             'placeholder': 'Explain why this edit is needed...'
+#         })
+#     )
+
+#     # ... existing fields
+#     event_date = forms.DateField(
+#         widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+#         initial=timezone.now().date()
+#     )
+
+#     class Meta:
+#         model = EventType
+#         fields = [
+#             'animal', 'animal_type', 'event_name', 'event_date',
+#             'location', 'number_of_animals',
+#             'designation', 'notes',
+#         ]
+
+#     def __init__(self, *args, **kwargs):
+#         user = kwargs.pop('user', None)
+#         edit_mode = kwargs.pop('edit_mode', False)
+#         super().__init__(*args, **kwargs)
+#         # if not edit_mode:
+#         #     self.fields.pop('edit_note', None)
+#         if not self.is_bound and self.instance.pk:
+#             self.initial['location'] = self.instance.location
+
+        
+#         for field_name, field in self.fields.items():
+#             if field_name not in ['designation', 'notes', 'image', 'edit_note', 'location']:
+#                 field.required = True
+#             else:
+#                 field.required = False
+
+#         if not edit_mode:
+#             self.fields.pop('edit_note', None)
+#         else:
+#             self.fields['edit_note'].required = True
+        
+
+#         self.fields['notes'].widget.attrs.update({'placeholder': 'Enter notes...'})
+
+#         # Detect vet section
+#         vet_section = None
+#         if user:
+#             if getattr(user.profile, 'is_vet_piggery', False):
+#                 vet_section = 'pig'
+#             elif getattr(user.profile, 'is_vet_paddock', False):
+#                 vet_section = 'cattle'
+#             elif getattr(user.profile, 'is_vet_smallruminant', False):
+#                 vet_section = 'sheep'
+
+#         # Section-specific settings
+#         if vet_section:
+#             animal_obj = Animals.objects.filter(animal_name=vet_section).first()
+#             if animal_obj:
+#                 self.fields['animal'].initial = animal_obj
+#                 self.fields['animal'].widget = forms.HiddenInput()
+#                 self.fields['animal_type'].queryset = AnimalType.objects.filter(animal=animal_obj)
+
+#             section_events = {
+#                 'pig': [('castration', 'Castration'), ('culling', 'Culling'), ('farrowing', 'Farrowing'),
+#                         ('gift', 'Gift'), ('mortality', 'Mortality'), ('procurement', 'Procurement'), ('sale', 'Sale'), ('treatment', 'Treatment')],
+#                 'cattle': [('calving', 'Calving'), ('culling', 'Culling'),
+#                            ('gift', 'Gift'), ('mortality', 'Mortality'),('other', 'Other (Describe in notes)'),('procurement', 'Procurement'), ('sale', 'Sale'), ('treatment', 'Treatment'), ('vaccination', 'Vaccination')],
+#                 'sheep': [('culling', 'Culling'), ('gift', 'Gift'), ('kidding', 'Kidding'),
+#                           ('lambing', 'Lambing'), ('mortality', 'Mortality'), ('procurement', 'Procurement'),
+#                           ('sale', 'Sale'), ('treatment', 'Treatment'), ('vaccination', 'Vaccination')],
+#             }
+
+#             self.fields['event_name'].choices = [('', '--- Select Event ---')] + section_events.get(vet_section, [])
+
+#             # Location setup
+#             if vet_section == 'pig':
+#                 self.fields['location'].required = False
+#                 self.fields['location'].widget = forms.HiddenInput()
+#             elif vet_section == 'cattle':
+#                 self.fields['location'].choices = [('', '--- Select Location ---')] + EventType.PADDOCK_LOCATIONS
+#             elif vet_section in ['sheep', 'goat']:
+#                 self.fields['location'].choices = [('', '--- Select Location ---')] + EventType.SMALL_RUMINANT_LOCATIONS
+#         else:
+#             self.fields['animal_type'].queryset = AnimalType.objects.all()
+#             self.fields['event_name'].choices = EventType.EVENT_CHOICES
+#             self.fields['location'].choices = [('', '--- Select Location ---')] + EventType.PADDOCK_LOCATIONS
+
+#         # Hide label if hidden
+#         if isinstance(self.fields['animal'].widget, forms.HiddenInput):
+#             self.fields['animal'].label = ''
 
 
 class CensusForm(forms.ModelForm):
