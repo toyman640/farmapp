@@ -32,7 +32,7 @@ STATICFILES_DIRS = [STATIC_DIR,]
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -112,25 +112,38 @@ WSGI_APPLICATION = 'farmapp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'skaascua_skaalhub',
-#         'USER': 'skaascua_toyman',
-#         'PASSWORD': 'omotoyosi19640',
-#         'HOST': 'localhost',
-#         'PORT': '3306',  # Default MySQL port
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'skaascua_skaalhub',
+        'USER': 'skaascua_toyman',
+        'PASSWORD': 'omotoyosi19640',
+        'HOST': 'localhost',
+        'PORT': '3306',  # Default MySQL port
+    }
+}
+
+
+# settings.py
+
+# If True, the session cookie expires as soon as the user closes their browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# The age of session cookies in seconds (10 minutes = 600 seconds)
+SESSION_COOKIE_AGE = 600
+
+
+# Optional: Ensure the session refreshes or stays secure depending on your setup
+SESSION_SAVE_EVERY_REQUEST = True
 
 
 # Password validation
