@@ -737,7 +737,10 @@ def drugs_view(request):
 
 @login_required
 def create_event(request):
-    is_piggery = getattr(request.user.profile, 'is_vet_piggery', False)
+    profile = getattr(request.user, 'profile', None)
+    is_piggery = getattr(profile, 'is_vet_piggery', False)
+    is_small_ruminant = getattr(profile, 'is_vet_smallruminant', False)
+    is_paddock = getattr(profile, 'is_vet_paddock', False)
     
     if request.method == 'POST':
         base_form = EventBaseForm(request.POST, user=request.user)
@@ -813,7 +816,8 @@ def create_event(request):
         'form': base_form,
         'formset': formset,
         'is_vet_piggery': is_piggery,
-        'is_small_ruminant': not is_piggery,
+        'is_small_ruminant': is_small_ruminant,
+        'is_vet_paddock': is_paddock, # Added flag
         'event_model': EventType,
     })
 
@@ -1881,14 +1885,26 @@ def edit_event(request, pk):
                         admin_emails
                     )
                     email.attach_alternative(html_content, "text/html")
-                    email.send()
+                    # email.send()
 
-                    message = "Your edit has been sent for admin approval."
+                    # message = "Your edit has been sent for admin approval."
+                    email_sent = True
+                    try:
+                        email.send()
+                    except Exception as e:
+                        # Catch network errors, SMTP connection errors, etc.
+                        email_sent = False
+
+                    if email_sent:
+                        message = "Your edit has been sent for admin approval."
+                    else:
+                        message = "Your edit has been submitted, but the email notification could not be sent to the admin."
 
                 if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                     return JsonResponse({
                         'status': 'success',
                         'message': message,
+                        'email_sent': email_sent,
                         'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
                     })
 
@@ -1919,9 +1935,11 @@ def edit_event(request, pk):
         'initial_paddock': initial_paddock,
         'initial_small_ruminant': initial_small_ruminant,
         'is_vet_piggery': request.user.profile.is_vet_piggery,
+        'is_vet_paddock': request.user.profile.is_vet_paddock,
+        'is_vet_smallruminant': request.user.profile.is_vet_smallruminant,
     })
 
-    
+
 @login_required
 @require_POST
 def retract_event_edit(request, edit_id):

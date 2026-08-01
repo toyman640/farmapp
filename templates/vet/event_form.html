@@ -20,7 +20,7 @@
 
     <div class="box_general padding_bottom">
       <form method="post" id="eventForm">
-        {% csrf_token %>
+        {% csrf_token %}
 
         {% if edit_mode %}
           {{ base_form.animal }}
@@ -39,8 +39,11 @@
           {% if edit_mode %}Edit Event Record Details{% else %}Event Record Details (Add up to 10 entries){% endif %}
         </h5>
         
-        {% if edit_mode %}
-          <div id="formset-container">
+        <!-- Management Form must always be present in the DOM -->
+        {{ formset.management_form }}
+
+        <div id="formset-container">
+          {% if edit_mode %}
             <div class="formset-row border p-3 mb-3 rounded bg-light">
               {{ detail_form.id }}
               {{ detail_form.location }}
@@ -79,20 +82,22 @@
                     </select>
                   </div>
                 </div>
-              {% elif is_small_ruminant %}
+              {% elif is_vet_smallruminant %}
+                <!-- Small Ruminant Pens -->
                 <div class="mb-3">
                   <label class="form-label font-weight-bold">Pen Location</label>
-                  <select class="form-control small-ruminant-pen-select" data-selected="{{ initial_small_ruminant }}">
+                  <select class="form-control small-ruminant-pen-select" data-selected="{{ detail_form.location.value }}">
                     <option value="">--- Select Pen ---</option>
                   </select>
                 </div>
               {% else %}
+                <!-- Cattle / Paddocks & Isolation -->
                 <div class="mb-3">
-                  <label class="form-label font-weight-bold">Location</label>
-                  <select class="form-control location-select" data-selected="{{ initial_paddock }}">
+                  <label class="form-label font-weight-bold">Location (Paddock)</label>
+                  <select class="form-control location-select" data-selected="{{ detail_form.location.value }}">
                     <option value="">--- Select Location ---</option>
                     {% for val, label in event_model.PADDOCK_LOCATIONS %}
-                      <option value="{{ val }}" {% if initial_paddock == val %}selected{% endif %}>{{ label }}</option>
+                      <option value="{{ val }}" {% if detail_form.location.value == val %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                   </select>
                 </div>
@@ -113,10 +118,7 @@
                 {{ detail_form.edit_note|as_crispy_field }}
               </div>
             </div>
-          </div>
-        {% else %}
-          {{ formset.management_form }}
-          <div id="formset-container">
+          {% else %}
             {% for subform in formset %}
               <div class="formset-row border p-3 mb-3 rounded bg-light">
                 {{ subform.id }}
@@ -189,14 +191,16 @@
                 <button type="button" class="btn btn-outline-danger btn-sm remove-row" style="display:none;">Remove Row</button>
               </div>
             {% endfor %}
-          </div>
+          {% endif %}
+        </div>
 
+        {% if not edit_mode %}
           <button type="button" id="addRowBtn" class="btn btn-secondary btn-sm mb-4">+ Add Another Entry</button>
         {% endif %}
 
         <div class="mt-4">
           {% if edit_mode %}
-            <button type="button" id="saveProceed" class="btn btn-success">Update Event</button>
+            <button type="button" id="updateRecordBtn" class="btn btn-success">Update Event</button>
           {% else %}
             <button type="button" id="saveAddAnother" class="btn btn-primary">Save & Add Another</button>
             <button type="button" id="saveProceed" class="btn btn-success">Save & Proceed</button>
@@ -251,7 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function setButtonsLoading(isLoading) {
     if (isEditMode && updateBtn) {
       updateBtn.disabled = isLoading;
-      updateBtn.textContent = isLoading ? "Processing..." : "Update Record";
+      updateBtn.textContent = isLoading ? "Processing..." : "Update Event";
     } else {
       if (addBtn) {
         addBtn.disabled = isLoading;
@@ -266,10 +270,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function populatePens(selectElement, maxLimit) {
     if (selectElement && selectElement.options.length <= 1) {
+      const selectedValue = selectElement.getAttribute("data-selected");
+      
       for (let i = 1; i <= maxLimit; i++) {
         const opt = document.createElement("option");
         opt.value = `Pen ${i}`;
         opt.textContent = `Pen ${i}`;
+        
+        if (selectedValue && opt.value.trim().toLowerCase() === selectedValue.trim().toLowerCase()) {
+          opt.selected = true;
+        }
+        
         selectElement.appendChild(opt);
       }
     }
@@ -318,7 +329,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function handleLineLogic(row) {
     const blockSelect = row.querySelector(".block-select");
     if (blockSelect) {
-      // Ensure block is never disabled for any line, including Denmark
       blockSelect.disabled = false;
     }
   }
@@ -356,6 +366,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (e.target.classList.contains("line-select")) {
         handleLineLogic(row);
       }
+
+      if (e.target.classList.contains("small-ruminant-pen-select")) {
+        const hiddenLocation = row.querySelector("input[name$='-location']");
+        if (hiddenLocation) {
+          hiddenLocation.value = e.target.value;
+        }
+      }
       updateRowLocation(row);
     });
   }
@@ -375,7 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     });
-    totalForms.value = rows.length;
+    if (totalForms) totalForms.value = rows.length;
   }
 
   if (addButton) {
@@ -512,6 +529,15 @@ document.addEventListener("DOMContentLoaded", () => {
           <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
           </svg>`;
+        if (data.email_sent === false) {
+          iconContainer.className = "text-warning mb-3";
+          title.textContent = "Edit Saved (Email Warning)";
+          title.className = "modal-title mb-2 text-warning";
+        } else {
+          iconContainer.className = "text-success mb-3";
+          title.textContent = isEditMode ? "Changes Saved" : "Records Entered Successfully";
+          title.className = "modal-title mb-2 text-success";
+        }
         
         title.textContent = isEditMode ? "Changes Saved" : "Records Entered Successfully";
         title.className = "modal-title mb-2 text-success";
@@ -567,6 +593,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (addBtn) addBtn.onclick = () => ajaxSubmit("add");
   if (proceedBtn) proceedBtn.onclick = () => ajaxSubmit("proceed");
+  if (updateBtn) updateBtn.onclick = () => ajaxSubmit("edit");
 
   form.addEventListener("submit", function(e) {
     updateAllLocations();
@@ -577,7 +604,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Ensure initial load sets block field correctly
   document.querySelectorAll(".formset-row").forEach(handleLineLogic);
 });
 </script>
