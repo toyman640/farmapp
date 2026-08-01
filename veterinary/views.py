@@ -657,104 +657,82 @@ def drugs_view(request):
   return render(request, 'vet/drugs-records.html')
 
 
+
+
 # @login_required
 # def create_event(request):
+#     is_piggery = getattr(request.user.profile, 'is_vet_piggery', False)
+    
 #     if request.method == 'POST':
-#         post_data = request.POST.copy()
-#         # ✅ Handle piggery location explicitly
-#         # if getattr(request.user.profile, 'is_vet_piggery', False):
-#         #     line = request.POST.get('lineSelect', '')
-            
-#         #     block = request.POST.get('blockSelect', '')
-#         #     pen = request.POST.get('penSelect', '')
-#         #     post_data['location'] = " ".join(filter(None, [line, block, pen]))
-#         #     # event.location = " ".join(filter(None, [line, block, pen]))
-#         # # form = EventForm(request.POST, request.FILES, user=request.user)
-#         # # form = EventForm(post_data, request.FILES, user=request.user)
-#         event_name = post_data.get('event_name', '').lower()
-#         is_piggery = getattr(request.user.profile, 'is_vet_piggery', False)
+#         base_form = EventBaseForm(request.POST, user=request.user)
+#         formset = EventDetailFormSet(request.POST, prefix='details')
         
-#         # Validation Logic
+#         event_name = request.POST.get('event_name', '').lower()
 #         error_message = None
-        
-#         if is_piggery:
-#             # Piggery Rules: Castration allows blank pen, others require full string
-#             if event_name != 'castration':
-#                 if not (request.POST.get('lineSelect') and request.POST.get('blockSelect') and request.POST.get('penSelect')):
-#                     error_message = "Line, Block, and Pen are required for this event."
-#             else:
-#                 if not (request.POST.get('lineSelect') and request.POST.get('blockSelect')):
-#                     error_message = "Line and Block are required for castration."
-#         else:
-#             # Other sections: Location is mandatory
-#             if not post_data.get('location'):
-#                 error_message = "Location is required for this record."
 
-#         if error_message:
-#             return JsonResponse({'status': 'error', 'message': error_message}, status=400)
+#         if base_form.is_valid() and formset.is_valid():
+#             for form in formset:
+#                 if not form.cleaned_data or form.cleaned_data.get('DELETE'):
+#                     continue
+                
+#                 loc = form.cleaned_data.get('location')
+#                 if is_piggery and event_name != 'castration':
+#                     if not loc:
+#                         error_message = "Line, Block, and Pen are required for all active rows."
+#                         break
+#                 elif not is_piggery and not loc:
+#                     error_message = "Location is required for all rows."
+#                     break
 
-#         form = EventForm(post_data, request.FILES, user=request.user, edit_mode=False)
+#             if error_message:
+#                 return JsonResponse({'status': 'error', 'message': error_message}, status=400)
 
-        
-        
-#         if form.is_valid():
-#             # event = form.save(commit=False)
+#             base_data = base_form.cleaned_data
+#             for form in formset:
+#                 if not form.cleaned_data or form.cleaned_data.get('DELETE'):
+#                     continue
+#                 instance = form.save(commit=False)
+#                 instance.logged_by = request.user
+#                 instance.animal = base_data.get('animal')
+#                 instance.animal_type = base_data.get('animal_type')
+#                 instance.event_name = base_data.get('event_name')
+#                 instance.event_date = base_data.get('event_date')
+#                 instance.save()
 
-#             instance = form.save(commit=False)
-#             instance.logged_by = request.user
-#             instance.save()
-
-
-#             # event.save()
-#             # event = form.save()
-
-#             # AJAX response
+#             action_type = request.POST.get('actionType')
 #             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-#                 action_type = request.POST.get('actionType')
 #                 if action_type == 'proceed':
 #                     return JsonResponse({
 #                         'status': 'success',
-#                         'message': 'Event saved successfully! Redirecting...',
+#                         'message': 'Events saved successfully! Redirecting...',
 #                         'redirect_url': reverse('veterinary:event_records')
 #                     })
 #                 return JsonResponse({
 #                     'status': 'success',
-#                     'message': 'Event saved successfully! You can add another.'
+#                     'message': 'Events saved successfully! You can add another.'
 #                 })
-#             else:
-#                 # ADD THIS: Manual check to catch the missing location error for non-castration
-#                 event_name = request.POST.get('event_name', '').lower()
-#                 line = request.POST.get('lineSelect', '')
-#                 block = request.POST.get('blockSelect', '')
-#                 pen = request.POST.get('penSelect', '')
 
-#                 if event_name != 'castration' and not pen:
-#                     form.add_error('location', 'Location (including Pen) is required for this event.')
-
-#                 # Then proceed to collect and return errors
-#                 errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
-
-#             # Non-AJAX redirect
-#             messages.success(request, "Event created successfully!")
+#             messages.success(request, "Events created successfully!")
 #             return redirect('veterinary:create_event')
-
 #         else:
-#             # Collect detailed field errors
-#             errors = {field: [str(err) for err in errs] for field, errs in form.errors.items()}
-
+#             errors = {**base_form.errors, **{f"form-{i}-{k}": v for i, form in enumerate(formset) for k, v in form.errors.items()}}
 #             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
 #                 return JsonResponse({
 #                     'status': 'error',
 #                     'message': 'Please correct the highlighted errors.',
 #                     'errors': errors,
-#                 })
-
-#             messages.error(request, "Error saving event. Check your input.")
-
+#                 }, status=400)
 #     else:
-#         form = EventForm(user=request.user)
+#         base_form = EventBaseForm(user=request.user)
+#         formset = EventDetailFormSet(queryset=EventType.objects.none(), prefix='details')
 
-#     return render(request, 'vet/event_form.html', {'form': form, 'is_vet_piggery': request.user.profile.is_vet_piggery, 'event_model': EventType,})
+#     return render(request, 'vet/event_form.html', {
+#         'form': base_form,
+#         'formset': formset,
+#         'is_vet_piggery': is_piggery,
+#         'is_small_ruminant': not is_piggery,
+#         'event_model': EventType,
+#     })
 
 
 @login_required
@@ -769,18 +747,25 @@ def create_event(request):
         error_message = None
 
         if base_form.is_valid() and formset.is_valid():
-            for form in formset:
+            for index, form in enumerate(formset):
                 if not form.cleaned_data or form.cleaned_data.get('DELETE'):
                     continue
                 
-                loc = form.cleaned_data.get('location')
-                if is_piggery and event_name != 'castration':
-                    if not loc:
-                        error_message = "Line, Block, and Pen are required for all active rows."
+                loc = form.cleaned_data.get('location', '')
+                
+                if is_piggery:
+                    parts = loc.split()
+                    if len(parts) < 2:
+                        error_message = f"Row {index + 1}: Line and Block are required."
                         break
-                elif not is_piggery and not loc:
-                    error_message = "Location is required for all rows."
-                    break
+                    
+                    if event_name not in ['castration', 'treatment'] and len(parts) < 3:
+                        error_message = f"Row {index + 1}: Line, Block, and Pen are required for this event type."
+                        break
+                else:
+                    if not loc:
+                        error_message = f"Row {index + 1}: Location is required."
+                        break
 
             if error_message:
                 return JsonResponse({'status': 'error', 'message': error_message}, status=400)
@@ -831,7 +816,6 @@ def create_event(request):
         'is_small_ruminant': not is_piggery,
         'event_model': EventType,
     })
-
 
 @login_required
 def event_records(request):
@@ -1591,6 +1575,177 @@ def edit_census(request, pk):
         'existing_records': existing_records
     })
 
+# @login_required
+# def edit_event(request, pk):
+#     event = get_object_or_404(EventType, pk=pk)
+#     profile = getattr(request.user, 'profile', None)
+#     is_boss = profile and profile.is_boss
+
+#     # -------------------- AUTO-PARSE LOCATION FOR ALL SECTIONS --------------------
+#     initial_line = ""
+#     initial_block = ""
+#     initial_pen = ""
+
+#     initial_paddock = ""
+#     initial_small_ruminant = ""
+
+#     location = event.location.strip() if event.location else ""
+
+#     # Piggery: "Line X Block Y Pen Z"
+#     # parts = location.split()
+#     # if len(parts) == 6 and parts[0] == "Line":
+#     #     initial_line = f"{parts[0]} {parts[1]}"
+#     #     initial_block = f"{parts[2]} {parts[3]}"
+#     #     initial_pen = f"{parts[4]} {parts[5]}"
+#     parts = location.split()
+#     if len(parts) >= 4 and parts[0] == "Line":
+#         initial_line = f"{parts[0]} {parts[1]}"
+#         initial_block = f"{parts[2]} {parts[3]}"
+#         initial_pen = " ".join(parts[4:]) if len(parts) > 4 else ""
+#     elif len(parts) >= 2 and parts[0].lower() == "denmark":
+#         initial_line = "Denmark"
+#         # Handles "Denmark Block A" or "Denmark 1 Block A" variants
+#         if parts[1].lower() == "block" or len(parts) == 3:
+#             initial_block = f"{parts[1]} {parts[2]}" if len(parts) >= 3 else ""
+#             initial_pen = " ".join(parts[3:]) if len(parts) > 3 else ""
+#         else:
+#             initial_line = f"{parts[0]} {parts[1]}"
+#             initial_block = f"{parts[2]} {parts[3]}" if len(parts) >= 4 else ""
+#             initial_pen = " ".join(parts[4:]) if len(parts) > 4 else ""
+
+#     # Paddock example: "Paddock 4" or "Paddock A"
+#     if location.startswith("Paddock"):
+#         initial_paddock = location
+
+#     # Small ruminant example: "SR Unit 2", "SR Pen 6"
+#     if location.lower().startswith("sr"):
+#         initial_small_ruminant = location
+        
+
+    
+
+#     # -------------------- PROCESS FORM --------------------
+#     if request.method == 'POST':
+#         # form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
+#         original_data = {}
+
+#         for field in EventType._meta.fields:
+#             field_name = field.name
+#             original_data[field_name] = getattr(event, field_name)
+#         form = EventForm(request.POST, request.FILES, instance=event, user=request.user, edit_mode=True)
+#         if form.is_valid():
+
+#             if is_boss:
+#                 updated_event = form.save(commit=False)
+#                 updated_event.is_approved = True
+#                 updated_event.save()
+#                 message = "Event updated and approved successfully!"
+#             else:
+#                 pending_data = {}
+
+#                 for key, value in form.cleaned_data.items():
+#                     if key == 'edit_note':
+#                         continue
+                    
+#                     if hasattr(value, 'pk'):
+#                         pending_data[key] = value.pk
+
+#                     elif isinstance(value, (datetime.date, datetime.datetime)):
+#                         # ✅ Convert date/datetime objects to ISO string for JSON storage
+#                         pending_data[key] = value.isoformat()
+                      
+#                     else:
+#                         pending_data[key] = value
+
+#                 pending = PendingEventEdit.objects.create(
+#                     event=event,
+#                     submitted_by=request.user,
+#                     data=pending_data,
+#                     vet_note=form.cleaned_data.get('edit_note', '')
+#                 )
+#                 # ✅ Resolve FK objects for email (same as admin)
+#                 animal_id = pending.data.get("animal")
+#                 if animal_id:
+#                     try:
+#                         pending.data["animal_obj"] = Animals.objects.get(id=animal_id)
+#                     except Animals.DoesNotExist:
+#                         pending.data["animal_obj"] = None
+
+#                 animal_type_id = pending.data.get("animal_type")
+#                 if animal_type_id:
+#                     try:
+#                         pending.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
+#                     except AnimalType.DoesNotExist:
+#                         pending.data["animal_type_obj"] = None
+
+#                 request_id = f"SKAAL-EVT-{pending.id}"
+#                 subject = f"[{request_id}] New Event Edit Pending Approval"
+#                 context = {
+#                     'edit': pending,
+#                     'event': event,
+#                     'user': request.user,
+#                     'original_data': original_data,  # ✅ THIS is the fix
+#                     'note': pending.vet_note
+#                 }
+
+#                 html_content = render_to_string('emails/pending_event_edit.html', context)
+#                 text_content = f"New edit submitted for event {event.event_name}"
+
+#                 # Get admin emails (adjust as needed)
+#                 admin_emails = [user.email for user in User.objects.filter(is_staff=True) if user.email]
+
+#                 email = EmailMultiAlternatives(
+#                     subject,
+#                     text_content,
+#                     settings.DEFAULT_FROM_EMAIL,
+#                     admin_emails
+#                 )
+#                 email.attach_alternative(html_content, "text/html")
+#                 email.send()
+
+#                 message = "Your edit has been sent for admin approval."
+               
+
+#             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#                 return JsonResponse({
+#                     'status': 'success',
+#                     'message': message,
+#                     'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
+#                 })
+
+           
+#             return redirect('veterinary:event_detail', pk=event.pk)
+
+#         # Return AJAX errors
+#         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#             errors = {f: [str(e) for e in err] for f, err in form.errors.items()}
+#             return JsonResponse({'status': 'error', 'errors': errors})
+
+#         messages.error(request, "Error updating event.")
+
+#     else:
+#         form = EventForm(instance=event, user=request.user, edit_mode=True)
+
+#     return render(request, 'vet/event_form.html', {
+#         'form': form,
+#         'edit_mode': True,
+#         'event': event,
+#         'event_model': EventType,
+      
+
+#         # Piggery
+#         'initial_line': initial_line,
+#         'initial_block': initial_block,
+#         'initial_pen': initial_pen,
+
+#         # Paddock + Ruminant
+#         'initial_paddock': initial_paddock,
+#         'initial_small_ruminant': initial_small_ruminant,
+
+#         #Piggery
+#         'is_vet_piggery': request.user.profile.is_vet_piggery,
+#     })
+
 @login_required
 def edit_event(request, pk):
     event = get_object_or_404(EventType, pk=pk)
@@ -1607,12 +1762,6 @@ def edit_event(request, pk):
 
     location = event.location.strip() if event.location else ""
 
-    # Piggery: "Line X Block Y Pen Z"
-    # parts = location.split()
-    # if len(parts) == 6 and parts[0] == "Line":
-    #     initial_line = f"{parts[0]} {parts[1]}"
-    #     initial_block = f"{parts[2]} {parts[3]}"
-    #     initial_pen = f"{parts[4]} {parts[5]}"
     parts = location.split()
     if len(parts) >= 4 and parts[0] == "Line":
         initial_line = f"{parts[0]} {parts[1]}"
@@ -1620,7 +1769,6 @@ def edit_event(request, pk):
         initial_pen = " ".join(parts[4:]) if len(parts) > 4 else ""
     elif len(parts) >= 2 and parts[0].lower() == "denmark":
         initial_line = "Denmark"
-        # Handles "Denmark Block A" or "Denmark 1 Block A" variants
         if parts[1].lower() == "block" or len(parts) == 3:
             initial_block = f"{parts[1]} {parts[2]}" if len(parts) >= 3 else ""
             initial_pen = " ".join(parts[3:]) if len(parts) > 3 else ""
@@ -1629,167 +1777,151 @@ def edit_event(request, pk):
             initial_block = f"{parts[2]} {parts[3]}" if len(parts) >= 4 else ""
             initial_pen = " ".join(parts[4:]) if len(parts) > 4 else ""
 
-    # Paddock example: "Paddock 4" or "Paddock A"
     if location.startswith("Paddock"):
         initial_paddock = location
 
-    # Small ruminant example: "SR Unit 2", "SR Pen 6"
     if location.lower().startswith("sr"):
         initial_small_ruminant = location
-        
-
-    
 
     # -------------------- PROCESS FORM --------------------
     if request.method == 'POST':
-        # form = EventForm(request.POST, request.FILES, instance=event, user=request.user)
         original_data = {}
-
         for field in EventType._meta.fields:
             field_name = field.name
             original_data[field_name] = getattr(event, field_name)
-        form = EventForm(request.POST, request.FILES, instance=event, user=request.user, edit_mode=True)
-        if form.is_valid():
 
-            if is_boss:
-                updated_event = form.save(commit=False)
-                updated_event.is_approved = True
-                updated_event.save()
-                message = "Event updated and approved successfully!"
+        base_form = EventBaseForm(request.POST, user=request.user, prefix='base')
+        detail_form = EventDetailForm(request.POST, prefix='detail', instance=event)
+
+        event_name = request.POST.get('base-event_name', '').lower()
+        error_message = None
+
+        if base_form.is_valid() and detail_form.is_valid():
+            loc = detail_form.cleaned_data.get('location', '')
+            is_piggery = getattr(request.user.profile, 'is_vet_piggery', False)
+
+            if is_piggery:
+                parts = loc.split()
+                if len(parts) < 2:
+                    error_message = "Line and Block are required."
+                elif event_name not in ['castration', 'treatment'] and len(parts) < 3:
+                    error_message = "Line, Block, and Pen are required for this event type."
             else:
-                pending_data = {}
+                if not loc:
+                    error_message = "Location is required."
 
-                for key, value in form.cleaned_data.items():
-                    if key == 'edit_note':
-                        continue
+            if error_message:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'status': 'error', 'message': error_message}, status=400)
+                messages.error(request, error_message)
+            else:
+                if is_boss:
+                    updated_event = detail_form.save(commit=False)
+                    base_data = base_form.cleaned_data
+                    updated_event.animal = base_data.get('animal')
+                    updated_event.animal_type = base_data.get('animal_type')
+                    updated_event.event_name = base_data.get('event_name')
+                    updated_event.event_date = base_data.get('event_date')
+                    updated_event.is_approved = True
+                    updated_event.save()
+                    message = "Event updated and approved successfully!"
+                else:
+                    pending_data = {}
+                    combined_data = {**base_form.cleaned_data, **detail_form.cleaned_data}
                     
-                    if hasattr(value, 'pk'):
-                        pending_data[key] = value.pk
+                    for key, value in combined_data.items():
+                        if key == 'edit_note':
+                            continue
+                        if hasattr(value, 'pk'):
+                            pending_data[key] = value.pk
+                        elif isinstance(value, (datetime.date, datetime.datetime)):
+                            pending_data[key] = value.isoformat()
+                        else:
+                            pending_data[key] = value
 
-                    elif isinstance(value, (datetime.date, datetime.datetime)):
-                        # ✅ Convert date/datetime objects to ISO string for JSON storage
-                        pending_data[key] = value.isoformat()
-                      
-                    else:
-                        pending_data[key] = value
+                    pending = PendingEventEdit.objects.create(
+                        event=event,
+                        submitted_by=request.user,
+                        data=pending_data,
+                        vet_note=detail_form.cleaned_data.get('edit_note', '')
+                    )
 
-                pending = PendingEventEdit.objects.create(
-                    event=event,
-                    submitted_by=request.user,
-                    data=pending_data,
-                    vet_note=form.cleaned_data.get('edit_note', '')
-                )
-                # ✅ Resolve FK objects for email (same as admin)
-                animal_id = pending.data.get("animal")
-                if animal_id:
-                    try:
-                        pending.data["animal_obj"] = Animals.objects.get(id=animal_id)
-                    except Animals.DoesNotExist:
-                        pending.data["animal_obj"] = None
+                    animal_id = pending.data.get("animal")
+                    if animal_id:
+                        try:
+                            pending.data["animal_obj"] = Animals.objects.get(id=animal_id)
+                        except Animals.DoesNotExist:
+                            pending.data["animal_obj"] = None
 
-                animal_type_id = pending.data.get("animal_type")
-                if animal_type_id:
-                    try:
-                        pending.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
-                    except AnimalType.DoesNotExist:
-                        pending.data["animal_type_obj"] = None
+                    animal_type_id = pending.data.get("animal_type")
+                    if animal_type_id:
+                        try:
+                            pending.data["animal_type_obj"] = AnimalType.objects.get(id=animal_type_id)
+                        except AnimalType.DoesNotExist:
+                            pending.data["animal_type_obj"] = None
 
-                request_id = f"SKAAL-EVT-{pending.id}"
-                subject = f"[{request_id}] New Event Edit Pending Approval"
-                context = {
-                    'edit': pending,
-                    'event': event,
-                    'user': request.user,
-                    'original_data': original_data,  # ✅ THIS is the fix
-                    'note': pending.vet_note
-                }
+                    request_id = f"SKAAL-EVT-{pending.id}"
+                    subject = f"[{request_id}] New Event Edit Pending Approval"
+                    context = {
+                        'edit': pending,
+                        'event': event,
+                        'user': request.user,
+                        'original_data': original_data,
+                        'note': pending.vet_note
+                    }
 
-                html_content = render_to_string('emails/pending_event_edit.html', context)
-                text_content = f"New edit submitted for event {event.event_name}"
+                    html_content = render_to_string('emails/pending_event_edit.html', context)
+                    text_content = f"New edit submitted for event {event.event_name}"
+                    admin_emails = [user.email for user in User.objects.filter(is_staff=True) if user.email]
 
-                # Get admin emails (adjust as needed)
-                admin_emails = [user.email for user in User.objects.filter(is_staff=True) if user.email]
+                    email = EmailMultiAlternatives(
+                        subject,
+                        text_content,
+                        settings.DEFAULT_FROM_EMAIL,
+                        admin_emails
+                    )
+                    email.attach_alternative(html_content, "text/html")
+                    email.send()
 
-                email = EmailMultiAlternatives(
-                    subject,
-                    text_content,
-                    settings.DEFAULT_FROM_EMAIL,
-                    admin_emails
-                )
-                email.attach_alternative(html_content, "text/html")
-                email.send()
+                    message = "Your edit has been sent for admin approval."
 
-                message = "Your edit has been sent for admin approval."
-               
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': message,
+                        'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
+                    })
 
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'status': 'success',
-                    'message': message,
-                    'redirect_url': reverse('veterinary:event_detail', args=[event.pk])
-                })
+                return redirect('veterinary:event_detail', pk=event.pk)
 
-           
-            return redirect('veterinary:event_detail', pk=event.pk)
-
-        # Return AJAX errors
+        # Return AJAX errors if forms are invalid
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            errors = {f: [str(e) for e in err] for f, err in form.errors.items()}
+            errors = {**{f"base-{k}": [str(e) for e in err] for k, err in base_form.errors.items()},
+                      **{f"detail-{k}": [str(e) for e in err] for k, err in detail_form.errors.items()}}
             return JsonResponse({'status': 'error', 'errors': errors})
 
         messages.error(request, "Error updating event.")
 
     else:
-        form = EventForm(instance=event, user=request.user, edit_mode=True)
+        base_form = EventBaseForm(instance=event, user=request.user, prefix='base')
+        detail_form = EventDetailForm(instance=event, prefix='detail')
 
     return render(request, 'vet/event_form.html', {
-        'form': form,
+        'base_form': base_form,
+        'detail_form': detail_form,
         'edit_mode': True,
         'event': event,
         'event_model': EventType,
-      
 
-        # Piggery
         'initial_line': initial_line,
         'initial_block': initial_block,
         'initial_pen': initial_pen,
-
-        # Paddock + Ruminant
         'initial_paddock': initial_paddock,
         'initial_small_ruminant': initial_small_ruminant,
-
-        #Piggery
         'is_vet_piggery': request.user.profile.is_vet_piggery,
     })
 
-
-# @login_required
-# @require_POST
-# def retract_event_edit(request, edit_id):
-#     # Fetch the pending edit belonging to the user
-#     pending_edit = get_object_or_404(PendingEventEdit, id=edit_id, submitted_by=request.user)
-
-#     # Store the ID before deleting
-#     request_id = f"SKAAL-EVT-{pending_edit.id}"
-#     event_name = pending_edit.event.event_name
-
-#     if pending_edit.status != 'pending':
-#         messages.error(request, "This request has already been processed.")
-#         return redirect('veterinary:vet_index')
-
-#     # Notify Admins
-#     admin_emails = [u.email for u in User.objects.filter(is_staff=True, is_active=True) if u.email]
-#     if admin_emails:
-#         subject = f"[{request_id}] Event Edit Retracted by {request.user.get_full_name()}"
-#         message = f"The edit request for event '{pending_edit.event.event_name}' was retracted by the vet."
-#         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails)
-
-#     # Delete the record
-#     pending_edit.delete()
-
-#     messages.success(request, "The edit request has been retracted.")
-#     return redirect('veterinary:vet_index')
-
+    
 @login_required
 @require_POST
 def retract_event_edit(request, edit_id):

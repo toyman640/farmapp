@@ -58,6 +58,14 @@ class EventDetailForm(forms.ModelForm):
         min_value=1,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Qty'})
     )
+
+    # Add this field so it becomes available to crispy forms
+    edit_note = forms.CharField(
+        required=False, 
+        label="Reason for Edit (Note to Admin)",
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Explain why you are editing this record...'})
+    )
+    
     designation = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Enter notes...'}))
     location = forms.CharField(required=False, widget=forms.HiddenInput())

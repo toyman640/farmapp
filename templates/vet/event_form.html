@@ -20,40 +20,47 @@
 
     <div class="box_general padding_bottom">
       <form method="post" id="eventForm">
-        {% csrf_token %}
+        {% csrf_token %>
 
-        {{ form.animal }}
-        <div class="mb-3">{{ form.animal_type|as_crispy_field }}</div>
-        <div class="mb-3">{{ form.event_name|as_crispy_field }}</div>
-        <div class="mb-3">{{ form.event_date|as_crispy_field }}</div>
+        {% if edit_mode %}
+          {{ base_form.animal }}
+          <div class="mb-3">{{ base_form.animal_type|as_crispy_field }}</div>
+          <div class="mb-3">{{ base_form.event_name|as_crispy_field }}</div>
+          <div class="mb-3">{{ base_form.event_date|as_crispy_field }}</div>
+        {% else %}
+          {{ form.animal }}
+          <div class="mb-3">{{ form.animal_type|as_crispy_field }}</div>
+          <div class="mb-3">{{ form.event_name|as_crispy_field }}</div>
+          <div class="mb-3">{{ form.event_date|as_crispy_field }}</div>
+        {% endif %}
 
         <hr>
-        <h5 class="mb-3">Event Record Details (Add up to 10 entries)</h5>
+        <h5 class="mb-3">
+          {% if edit_mode %}Edit Event Record Details{% else %}Event Record Details (Add up to 10 entries){% endif %}
+        </h5>
         
-        {{ formset.management_form }}
-        <div id="formset-container">
-          {% for subform in formset %}
+        {% if edit_mode %}
+          <div id="formset-container">
             <div class="formset-row border p-3 mb-3 rounded bg-light">
-              {{ subform.id }}
-              {{ subform.location }} <!-- Hidden input bound to JS calculation -->
+              {{ detail_form.id }}
+              {{ detail_form.location }}
 
-              <!-- Location Selection Block per Row -->
               {% if is_vet_piggery %}
                 <div class="row mb-3">
                   <div class="col-md-4">
                     <label class="form-label font-weight-bold">Line</label>
                     <select class="form-control line-select">
                       <option value="">--- Select Line ---</option>
-                      <option value="Line 1">Line 1</option>
-                      <option value="Line 2">Line 2</option>
-                      <option value="Line 3">Line 3</option>
-                      <option value="Line 4">Line 4</option>
-                      <option value="Line 5">Line 5</option>
-                      <option value="Line 6">Line 6</option>
-                      <option value="Line 7">Line 7</option>
-                      <option value="Line 8">Line 8</option>
-                      <option value="Line 9">Line 9</option>
-                      <option value="Denmark">Denmark</option>
+                      <option value="Line 1" {% if initial_line == "Line 1" %}selected{% endif %}>Line 1</option>
+                      <option value="Line 2" {% if initial_line == "Line 2" %}selected{% endif %}>Line 2</option>
+                      <option value="Line 3" {% if initial_line == "Line 3" %}selected{% endif %}>Line 3</option>
+                      <option value="Line 4" {% if initial_line == "Line 4" %}selected{% endif %}>Line 4</option>
+                      <option value="Line 5" {% if initial_line == "Line 5" %}selected{% endif %}>Line 5</option>
+                      <option value="Line 6" {% if initial_line == "Line 6" %}selected{% endif %}>Line 6</option>
+                      <option value="Line 7" {% if initial_line == "Line 7" %}selected{% endif %}>Line 7</option>
+                      <option value="Line 8" {% if initial_line == "Line 8" %}selected{% endif %}>Line 8</option>
+                      <option value="Line 9" {% if initial_line == "Line 9" %}selected{% endif %}>Line 9</option>
+                      <option value="Denmark" {% if initial_line == "Denmark" %}selected{% endif %}>Denmark</option>
                     </select>
                   </div>
                   <div class="col-md-4">
@@ -61,13 +68,13 @@
                     <select class="form-control block-select">
                       <option value="">--- Select Block ---</option>
                       {% for block in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
-                        <option value="Block {{ block }}">Block {{ block }}</option>
+                        <option value="Block {{ block }}" {% if initial_block == "Block "|add:block %}selected{% endif %}>Block {{ block }}</option>
                       {% endfor %}
                     </select>
                   </div>
                   <div class="col-md-4">
                     <label class="form-label font-weight-bold">Pen</label>
-                    <select class="form-control pen-select">
+                    <select class="form-control pen-select" data-selected="{{ initial_pen }}">
                       <option value="">--- Select Pen ---</option>
                     </select>
                   </div>
@@ -75,43 +82,125 @@
               {% elif is_small_ruminant %}
                 <div class="mb-3">
                   <label class="form-label font-weight-bold">Pen Location</label>
-                  <select class="form-control small-ruminant-pen-select">
+                  <select class="form-control small-ruminant-pen-select" data-selected="{{ initial_small_ruminant }}">
                     <option value="">--- Select Pen ---</option>
                   </select>
                 </div>
               {% else %}
                 <div class="mb-3">
                   <label class="form-label font-weight-bold">Location</label>
-                  <select class="form-control location-select">
+                  <select class="form-control location-select" data-selected="{{ initial_paddock }}">
                     <option value="">--- Select Location ---</option>
                     {% for val, label in event_model.PADDOCK_LOCATIONS %}
-                      <option value="{{ val }}">{{ label }}</option>
+                      <option value="{{ val }}" {% if initial_paddock == val %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                   </select>
                 </div>
               {% endif %}
 
               <div class="row">
-                <div class="col-md-6 mb-3">{{ subform.number_of_animals|as_crispy_field }}</div>
+                <div class="col-md-6 mb-3">{{ detail_form.number_of_animals|as_crispy_field }}</div>
                 <div class="col-md-6 mb-3 designation-group" style="display:none;">
-                  {{ subform.designation|as_crispy_field }}
+                  {{ detail_form.designation|as_crispy_field }}
                 </div>
               </div>
 
               <div class="mb-3">
-                {{ subform.notes|as_crispy_field }}
+                {{ detail_form.notes|as_crispy_field }}
               </div>
 
-              <button type="button" class="btn btn-outline-danger btn-sm remove-row" style="display:none;">Remove Row</button>
+              <div class="mb-3">
+                {{ detail_form.edit_note|as_crispy_field }}
+              </div>
             </div>
-          {% endfor %}
-        </div>
+          </div>
+        {% else %}
+          {{ formset.management_form }}
+          <div id="formset-container">
+            {% for subform in formset %}
+              <div class="formset-row border p-3 mb-3 rounded bg-light">
+                {{ subform.id }}
+                {{ subform.location }}
 
-        <button type="button" id="addRowBtn" class="btn btn-secondary btn-sm mb-4">+ Add Another Entry</button>
+                {% if is_vet_piggery %}
+                  <div class="row mb-3">
+                    <div class="col-md-4">
+                      <label class="form-label font-weight-bold">Line</label>
+                      <select class="form-control line-select">
+                        <option value="">--- Select Line ---</option>
+                        <option value="Line 1">Line 1</option>
+                        <option value="Line 2">Line 2</option>
+                        <option value="Line 3">Line 3</option>
+                        <option value="Line 4">Line 4</option>
+                        <option value="Line 5">Line 5</option>
+                        <option value="Line 6">Line 6</option>
+                        <option value="Line 7">Line 7</option>
+                        <option value="Line 8">Line 8</option>
+                        <option value="Line 9">Line 9</option>
+                        <option value="Denmark">Denmark</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label font-weight-bold">Block</label>
+                      <select class="form-control block-select">
+                        <option value="">--- Select Block ---</option>
+                        {% for block in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+                          <option value="Block {{ block }}">Block {{ block }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label font-weight-bold">Pen</label>
+                      <select class="form-control pen-select">
+                        <option value="">--- Select Pen ---</option>
+                      </select>
+                    </div>
+                  </div>
+                {% elif is_small_ruminant %}
+                  <div class="mb-3">
+                    <label class="form-label font-weight-bold">Pen Location</label>
+                    <select class="form-control small-ruminant-pen-select">
+                      <option value="">--- Select Pen ---</option>
+                    </select>
+                  </div>
+                {% else %}
+                  <div class="mb-3">
+                    <label class="form-label font-weight-bold">Location</label>
+                    <select class="form-control location-select">
+                      <option value="">--- Select Location ---</option>
+                      {% for val, label in event_model.PADDOCK_LOCATIONS %}
+                        <option value="{{ val }}">{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                {% endif %}
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">{{ subform.number_of_animals|as_crispy_field }}</div>
+                  <div class="col-md-6 mb-3 designation-group" style="display:none;">
+                    {{ subform.designation|as_crispy_field }}
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  {{ subform.notes|as_crispy_field }}
+                </div>
+
+                <button type="button" class="btn btn-outline-danger btn-sm remove-row" style="display:none;">Remove Row</button>
+              </div>
+            {% endfor %}
+          </div>
+
+          <button type="button" id="addRowBtn" class="btn btn-secondary btn-sm mb-4">+ Add Another Entry</button>
+        {% endif %}
 
         <div class="mt-4">
-          <button type="button" id="saveAddAnother" class="btn btn-primary">Save & Add Another</button>
-          <button type="button" id="saveProceed" class="btn btn-success">Save & Proceed</button>
+          {% if edit_mode %}
+            <button type="button" id="saveProceed" class="btn btn-success">Update Event</button>
+          {% else %}
+            <button type="button" id="saveAddAnother" class="btn btn-primary">Save & Add Another</button>
+            <button type="button" id="saveProceed" class="btn btn-success">Save & Proceed</button>
+          {% endif %}
         </div>
       </form>
     </div>
@@ -140,24 +229,24 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const isEditMode   = {{ edit_mode|yesno:"true,false" }};
-  const isPiggery    = {{ is_vet_piggery|yesno:"true,false" }};
+  const isEditMode     = {{ edit_mode|yesno:"true,false" }};
+  const isPiggery      = {{ is_vet_piggery|yesno:"true,false" }};
   const isSmallRuminant = {{ is_small_ruminant|yesno:"true,false" }};
-  const submitUrl    = {% if edit_mode %}
-                       "{% url 'veterinary:edit_event' event.id %}"
-                       {% else %}
-                       "{% url 'veterinary:create_event' %}"
-                       {% endif %};
+  const submitUrl      = {% if edit_mode %}
+                        "{% url 'veterinary:edit_event' event.id %}"
+                        {% else %}
+                        "{% url 'veterinary:create_event' %}"
+                        {% endif %};
 
-  const form         = document.getElementById("eventForm");
-  const container    = document.getElementById("formset-container");
-  const addButton    = document.getElementById("addRowBtn");
-  const totalForms   = document.getElementById("id_details-TOTAL_FORMS");
-  const eventName    = document.getElementById("id_event_name");
+  const form           = document.getElementById("eventForm");
+  const container      = document.getElementById("formset-container");
+  const addButton      = document.getElementById("addRowBtn");
+  const totalForms     = document.getElementById("id_details-TOTAL_FORMS");
+  const eventName      = document.getElementById("id_event_name");
 
-  const addBtn       = document.getElementById("saveAddAnother");
-  const proceedBtn   = document.getElementById("saveProceed");
-  const updateBtn    = document.getElementById("updateRecordBtn");
+  const addBtn         = document.getElementById("saveAddAnother");
+  const proceedBtn     = document.getElementById("saveProceed");
+  const updateBtn      = document.getElementById("updateRecordBtn");
 
   function setButtonsLoading(isLoading) {
     if (isEditMode && updateBtn) {
@@ -189,8 +278,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".pen-select").forEach(el => populatePens(el, 100));
   document.querySelectorAll(".small-ruminant-pen-select").forEach(el => populatePens(el, 20));
 
-  function isCastration() {
-    return eventName && eventName.value.toLowerCase() === "castration";
+  function isOptionalPenEvent() {
+    if (!eventName) return false;
+    const currentName = eventName.value.toLowerCase();
+    return currentName === "castration" || currentName === "treatment";
   }
 
   function updateRowLocation(row) {
@@ -203,9 +294,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (hiddenLocation) {
       if (isPiggery) {
-        const parts = [lineSelect ? lineSelect.value : '', blockSelect ? blockSelect.value : ''];
-        if (penSelect && (penSelect.value || !isCastration())) {
-          parts.push(penSelect.value);
+        const lineVal = lineSelect ? lineSelect.value : '';
+        const blockVal = blockSelect ? blockSelect.value : '';
+        const penVal = penSelect ? penSelect.value : '';
+        
+        const parts = [lineVal, blockVal];
+        if (penVal || !isOptionalPenEvent()) {
+          parts.push(penVal);
         }
         hiddenLocation.value = parts.filter(Boolean).join(" ");
       } else if (isSmallRuminant) {
@@ -221,15 +316,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleLineLogic(row) {
-    const lineSelect = row.querySelector(".line-select");
     const blockSelect = row.querySelector(".block-select");
-    if (lineSelect && blockSelect) {
-      const lineValue = lineSelect.value;
-      const isDenmark = lineValue === "Denmark";
-      blockSelect.disabled = isDenmark;
-      if (isDenmark) {
-        blockSelect.value = "";
-      }
+    if (blockSelect) {
+      // Ensure block is never disabled for any line, including Denmark
+      blockSelect.disabled = false;
     }
   }
 
@@ -270,7 +360,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // -------------------- Re-indexing Helper Function --------------------
   function reindexRows() {
     const rows = container.querySelectorAll(".formset-row");
     rows.forEach((row, index) => {
@@ -289,7 +378,6 @@ document.addEventListener("DOMContentLoaded", () => {
     totalForms.value = rows.length;
   }
 
-  // -------------------- Add Row --------------------
   if (addButton) {
     addButton.addEventListener("click", () => {
       const formCount = parseInt(totalForms.value);
@@ -325,12 +413,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       container.appendChild(newRow);
+      handleLineLogic(newRow);
       reindexRows();
       toggleDesignation();
     });
   }
 
-  // -------------------- Remove Row --------------------
   container.addEventListener("click", (e) => {
     if (e.target.classList.contains("remove-row")) {
       const rows = container.querySelectorAll(".formset-row");
@@ -341,15 +429,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // -------------------- AJAX Submit --------------------
   function ajaxSubmit(actionType) {
     updateAllLocations();
     reindexRows();
 
     let errorMessage = "";
-    const currentEventName = eventName.value.toLowerCase();
-    
     const rows = container.querySelectorAll(".formset-row");
+    
     rows.forEach((row, index) => {
       if (errorMessage) return;
       const lineVal = row.querySelector(".line-select")?.value;
@@ -359,14 +445,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const locVal = row.querySelector("input[name$='-location']")?.value;
 
       if (isPiggery) {
-        if (currentEventName !== 'castration') {
-          if (!lineVal || !blockVal || !penVal) {
-            errorMessage = `Row ${index + 1}: Line, Block, and Pen are all required.`;
-          }
-        } else {
-          if (!lineVal || !blockVal) {
-            errorMessage = `Row ${index + 1}: Line and Block are required for Castration.`;
-          }
+        if (!lineVal || !blockVal) {
+          errorMessage = `Row ${index + 1}: Line and Block are required.`;
+        } else if (!penVal && !isOptionalPenEvent()) {
+          errorMessage = `Row ${index + 1}: Pen is required for this event type.`;
         }
       } else if (isSmallRuminant) {
         if (!smallRumPenVal) {
@@ -475,13 +557,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
         modal.modal("show");
         setTimeout(() => { modal.modal("hide"); }, 2000);
-
-        if (data.errors) {
-          Object.keys(data.errors).forEach(field => {
-            const inputEl = document.getElementById(`id_${field}`);
-            if (inputEl) inputEl.classList.add("is-invalid");
-          });
-        }
       }
     })
     .catch(err => {
@@ -501,6 +576,9 @@ document.addEventListener("DOMContentLoaded", () => {
       ajaxSubmit("edit");
     }
   });
+
+  // Ensure initial load sets block field correctly
+  document.querySelectorAll(".formset-row").forEach(handleLineLogic);
 });
 </script>
 <style>
