@@ -1803,6 +1803,17 @@ def edit_event(request, pk):
         if base_form.is_valid() and detail_form.is_valid():
             loc = detail_form.cleaned_data.get('location', '')
             is_piggery = getattr(request.user.profile, 'is_vet_piggery', False)
+            is_small_ruminant = getattr(request.user.profile, 'is_vet_smallruminant', False)
+
+            # if is_piggery:
+            #     parts = loc.split()
+            #     if len(parts) < 2:
+            #         error_message = "Line and Block are required."
+            #     elif event_name not in ['castration', 'treatment'] and len(parts) < 3:
+            #         error_message = "Line, Block, and Pen are required for this event type."
+            # else:
+            #     if not loc:
+            #         error_message = "Location is required."
 
             if is_piggery:
                 parts = loc.split()
@@ -1810,7 +1821,12 @@ def edit_event(request, pk):
                     error_message = "Line and Block are required."
                 elif event_name not in ['castration', 'treatment'] and len(parts) < 3:
                     error_message = "Line, Block, and Pen are required for this event type."
+            elif is_small_ruminant:
+                print("sm ran")
+                if not loc:
+                    error_message = "Pen Location is required for small ruminants."
             else:
+                print("pad ran")
                 if not loc:
                     error_message = "Location is required."
 
