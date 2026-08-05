@@ -124,6 +124,7 @@
 </div>
 
 {{ existing_records|json_script:"existing-records" }}
+{{ existing_records|json_script:"existing-records" }}
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const isPiggery = {{ user.profile.is_vet_piggery|yesno:"true,false" }};
@@ -269,6 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     renderRecords();
   });
+
   {% if user.profile.is_vet_piggery %}
   select.addEventListener("change", () => {
     const selectedText = select.options[select.selectedIndex]?.text.toLowerCase() || "";
@@ -285,6 +287,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
   censusForm.addEventListener("submit", (e) => {
       e.preventDefault();
+
+      const activeRecordsCount = records.filter(r => !r._deleted).length;
+      
+      // Validation 1: Check if at least one record has been added
+      if (activeRecordsCount === 0) {
+        if (validationBox) {
+          validationBox.textContent = isPiggery 
+            ? "Please add at least one line record before saving the census." 
+            : "Please add at least one animal type record before saving the census.";
+          validationBox.style.display = "block";
+          setTimeout(() => { validationBox.style.display = "none"; }, 4000);
+        }
+        return;
+      }
+
+      // Validation 2: Check if options still remain unadded in the dropdown selector
+      const availableOptionsCount = select.options.length - 1; // Exclude default placeholder
+      if (availableOptionsCount > 0) {
+        if (validationBox) {
+          validationBox.textContent = isPiggery
+            ? "You have unadded line options remaining in the dropdown. Please click 'Add Record' or ensure all selections are added before saving."
+            : "You have unadded animal type options remaining in the dropdown. Please click 'Add Record' or ensure all selections are added before saving.";
+          validationBox.style.display = "block";
+          setTimeout(() => { validationBox.style.display = "none"; }, 5000);
+        }
+        select.classList.add("is-invalid");
+        return;
+      }
+
+      if (validationBox) validationBox.style.display = "none";
+      select.classList.remove("is-invalid");
+
       setSubmitLoading(true);
       const formData = new FormData(censusForm);
 
@@ -357,7 +391,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       })
       .catch(error => {
-          alert("A critical system error occurred.");
+        setSubmitLoading(false); // Reset button state on network failure
+        alert("A critical system error occurred.");
       });
   });
 

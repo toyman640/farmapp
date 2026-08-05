@@ -373,7 +373,7 @@ def vet_index(request):
     elif profile.is_vet_paddock:
         animals_for_section = Animals.objects.filter(animal_name__iexact='cattle')
     elif profile.is_vet_smallruminant:
-        animals_for_section = Animals.objects.filter(animal_name__in=['sheep','goat'])
+        animals_for_section = Animals.objects.filter(animal_name__iexact='sheep')
     else:
         animals_for_section = Animals.objects.none()
 
