@@ -910,9 +910,13 @@ def event_detail(request, pk):
     # Check if this event already has a pending edit in the queue
     has_pending_edit = PendingEventEdit.objects.filter(event=event, status='pending').exists()
 
+    # Inside your event detail view function
+    has_pending_delete = DeleteApprovalQueue.objects.filter(record_type='event', event=event).exists()
+
     context = {
         'event': event,
         'has_pending_edit': has_pending_edit, # Pass to template
+        'has_pending_delete': has_pending_delete, # Pass to template
     }
     return render(request, 'vet/event_details.html', context)
 
@@ -2186,20 +2190,75 @@ def request_delete_census(request, census_id):
     return redirect('veterinary:census_records')
 
 
+# @login_required
+# def request_delete_event(request, event_id):
+#     event = get_object_or_404(EventType, id=event_id)
+#     if request.method == 'POST':
+#         reason = request.POST.get('reason')
+#         queue_item = DeleteApprovalQueue.objects.create(
+#             record_type='event',
+#             event=event,
+#             requested_by=request.user,
+#             reason=reason
+#         )
+        
+#         # Trigger email notification to admins
+#         notify_admins_of_deletion_queue(queue_item, str(event))
+        
+#         messages.success(request, "Event submitted to delete queue for admin approval.")
+#     return redirect('veterinary:event_records')
+
+
+
 @login_required
 def request_delete_event(request, event_id):
     event = get_object_or_404(EventType, id=event_id)
+    
+    # Prevent duplicate submission
+    if DeleteApprovalQueue.objects.filter(record_type='event', event=event).exists():
+        error_msg = "This event is already enqueued for deletion approval."
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'message': error_msg}, status=400)
+        messages.error(request, error_msg)
+        return redirect('veterinary:event_records')
+
     if request.method == 'POST':
-        reason = request.POST.get('reason')
-        queue_item = DeleteApprovalQueue.objects.create(
-            record_type='event',
-            event=event,
-            requested_by=request.user,
-            reason=reason
-        )
+        reason = request.POST.get('reason', '').strip()
         
-        # Trigger email notification to admins
-        notify_admins_of_deletion_queue(queue_item, str(event))
-        
-        messages.success(request, "Event submitted to delete queue for admin approval.")
+        if not reason:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Please provide a reason for deletion.'
+                }, status=400)
+            messages.error(request, "Please provide a reason for deletion.")
+            return redirect('veterinary:event_records')
+
+        try:
+            queue_item = DeleteApprovalQueue.objects.create(
+                record_type='event',
+                event=event,
+                requested_by=request.user,
+                reason=reason
+            )
+            
+            notify_admins_of_deletion_queue(queue_item, str(event))
+            success_msg = "Event submitted to delete queue for admin approval."
+            
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'message': success_msg
+                })
+                
+            messages.success(request, success_msg)
+        except Exception as e:
+            error_msg = "An error occurred while submitting your request. Please try again."
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': error_msg
+                }, status=500)
+            messages.error(request, error_msg)
+            
     return redirect('veterinary:event_records')
