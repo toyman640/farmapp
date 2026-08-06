@@ -21,4 +21,5 @@ urlpatterns = [
   path('event/retract/<int:edit_id>/', views.retract_event_edit, name='retract_event_edit'),
   path('ajax/event-records/', views.load_event_records_ajax, name='ajax_event_records'),
   path('event/<int:event_id>/request-delete/', views.request_delete_event, name='request_delete_event'),
+  path('census/<int:census_id>/request-delete/', views.request_delete_census, name='request_delete_census'),
 ]
