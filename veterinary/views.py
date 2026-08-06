@@ -25,6 +25,11 @@ from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
 from itertools import zip_longest
 from main.services import run_projection_calculation
+from smtplib import SMTPException
+import socket
+import logging
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 # Create your views here.
@@ -368,7 +373,7 @@ def vet_index(request):
     elif profile.is_vet_paddock:
         animals_for_section = Animals.objects.filter(animal_name__iexact='cattle')
     elif profile.is_vet_smallruminant:
-        animals_for_section = Animals.objects.filter(animal_name__in=['sheep','goat'])
+        animals_for_section = Animals.objects.filter(animal_name__iexact='sheep')
     else:
         animals_for_section = Animals.objects.none()
 
@@ -1956,6 +1961,40 @@ def edit_event(request, pk):
     })
 
 
+# @login_required
+# @require_POST
+# def retract_event_edit(request, edit_id):
+#     # Fetch the pending edit belonging to the user
+#     pending_edit = get_object_or_404(PendingEventEdit, id=edit_id, submitted_by=request.user)
+
+#     if pending_edit.status != 'pending':
+#         messages.error(request, "This request has already been processed.")
+#         return redirect('veterinary:vet_index')
+
+#     # Capture the context input from POST (without saving to the model)
+#     reason = request.POST.get('retraction_reason', '').strip()
+#     reason_str = reason if reason else "No reason provided."
+
+#     # Store the ID before deleting
+#     request_id = f"SKAAL-EVT-{pending_edit.id}"
+
+#     # Notify Admins
+#     admin_emails = [u.email for u in User.objects.filter(is_staff=True, is_active=True) if u.email]
+#     if admin_emails:
+#         subject = f"[{request_id}] Event Edit Retracted by {request.user.get_full_name()}"
+#         message = (
+#             f"The edit request for event '{pending_edit.event.event_name}' was retracted by the vet.\n\n"
+#             f"Reason for Retraction:\n{reason_str}"
+#         )
+#         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails)
+
+#     # Delete the record
+#     pending_edit.delete()
+
+#     messages.success(request, "The edit request has been retracted.")
+#     return redirect('veterinary:vet_index')
+
+
 @login_required
 @require_POST
 def retract_event_edit(request, edit_id):
@@ -1973,7 +2012,7 @@ def retract_event_edit(request, edit_id):
     # Store the ID before deleting
     request_id = f"SKAAL-EVT-{pending_edit.id}"
 
-    # Notify Admins
+    # Notify Admins with Fallback
     admin_emails = [u.email for u in User.objects.filter(is_staff=True, is_active=True) if u.email]
     if admin_emails:
         subject = f"[{request_id}] Event Edit Retracted by {request.user.get_full_name()}"
@@ -1981,12 +2020,26 @@ def retract_event_edit(request, edit_id):
             f"The edit request for event '{pending_edit.event.event_name}' was retracted by the vet.\n\n"
             f"Reason for Retraction:\n{reason_str}"
         )
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails)
-
+        
+        try:
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails, fail_silently=False)
+        except (SMTPException, socket.error, Exception) as e:
+            # Log the email dispatch failure
+            logger.error(f"Failed to send retraction email notification for event edit ID {pending_edit.pk}: {e}")
+            
+            # Notify the user on the UI that the retraction succeeded, but email failed
+            messages.warning(
+                request, 
+                "The edit request has been retracted, but the email notification could not be sent to admins due to email server unavailability."
+            )
+            
     # Delete the record
     pending_edit.delete()
 
-    messages.success(request, "The edit request has been retracted.")
+    # Only show success message if a warning message wasn't already triggered by email failure
+    if not any(message.tags == 'warning' for message in messages.get_messages(request)):
+        messages.success(request, "The edit request has been retracted.")
+        
     return redirect('veterinary:vet_index')
 
 @login_required
@@ -2000,22 +2053,28 @@ def delete_event(request, pk):
 
 
 # @login_required
+# @require_POST
 # def retract_census_edit(request, queue_id):
 #     queue_item = get_object_or_404(CensusApprovalQueue, id=queue_id, requested_by=request.user)
-
-#     # Store identifier before deleting the object
-#     request_id = f"SKAAL-CEN-{queue_item.id}"
-#     census = queue_item.census
 
 #     if queue_item.is_processed:
 #         messages.error(request, "Cannot retract a request that has already been processed.")
 #         return redirect('veterinary:vet_index')
 
+#     # Capture the context input from POST (without saving to the model)
+#     reason = request.POST.get('retraction_reason', '').strip()
+#     reason_str = reason if reason else "No reason provided."
+
+#     # Store identifier before deleting the object
+#     request_id = f"SKAAL-CEN-{queue_item.id}"
 #     census = queue_item.census
     
 #     # Notify admins
 #     subject = f"[{request_id}] Census Edit Retracted by {request.user.get_full_name()}"
-#     text_content = f"The edit request for Census #{census.pk} was retracted by the vet."
+#     text_content = (
+#         f"The edit request for Census #{census.pk} was retracted by the vet.\n\n"
+#         f"Reason for Retraction:\n{reason_str}"
+#     )
 #     admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
     
 #     if admin_emails:
@@ -2046,23 +2105,37 @@ def retract_census_edit(request, queue_id):
     request_id = f"SKAAL-CEN-{queue_item.id}"
     census = queue_item.census
     
-    # Notify admins
-    subject = f"[{request_id}] Census Edit Retracted by {request.user.get_full_name()}"
-    text_content = (
-        f"The edit request for Census #{census.pk} was retracted by the vet.\n\n"
-        f"Reason for Retraction:\n{reason_str}"
-    )
+    # Notify admins with fallback handling
     admin_emails = [u.email for u in User.objects.filter(profile__is_boss=True, is_active=True) if u.email]
     
     if admin_emails:
-        send_mail(subject, text_content, settings.DEFAULT_FROM_EMAIL, admin_emails)
+        subject = f"[{request_id}] Census Edit Retracted by {request.user.get_full_name()}"
+        text_content = (
+            f"The edit request for Census #{census.pk} was retracted by the vet.\n\n"
+            f"Reason for Retraction:\n{reason_str}"
+        )
+        
+        try:
+            send_mail(subject, text_content, settings.DEFAULT_FROM_EMAIL, admin_emails, fail_silently=False)
+        except (SMTPException, socket.error, Exception) as e:
+            # Log the email dispatch failure
+            logger.error(f"Failed to send census retraction email notification for queue ID {queue_item.pk}: {e}")
+            
+            # Notify the user on the UI that the retraction succeeded, but email failed
+            messages.warning(
+                request, 
+                "Your edit request has been retracted successfully, but the email notification could not be sent to admins due to email server unavailability."
+            )
 
     # Unlock the census and remove the queue item
     census.is_pending_review = False
     census.save()
     queue_item.delete()
 
-    messages.success(request, "Your edit request has been retracted successfully.")
+    # Only show success message if a warning message wasn't already triggered by email failure
+    if not any(message.tags == 'warning' for message in messages.get_messages(request)):
+        messages.success(request, "Your edit request has been retracted successfully.")
+        
     return redirect('veterinary:vet_index')
 
 def notify_admins_of_deletion_queue(queue_item, record_title):
