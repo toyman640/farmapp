@@ -20,7 +20,7 @@ from itertools import chain
 from django.utils import timezone
 from django.db.models import Q, F, Count, Sum, Max, Case, When, IntegerField
 from drugapp.forms import DrugForm, DispatchForm, UnitForm, DispatchEditForm, DispatchFilter, UpdateDrugQuantityForm, DrugFilterForm
-from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit, Animals, AnimalType, CensusApprovalQueue, PiggeryLine, PiggeryCensusRecord, CensusProjection
+from farmrecord.models import EventType, Census, CensusRecord, PendingEventEdit, Animals, AnimalType, CensusApprovalQueue, PiggeryLine, PiggeryCensusRecord, CensusProjection, DeleteApprovalQueue
 import calendar
 from django.core.exceptions import FieldDoesNotExist
 from .forms import AdminEventEditReviewForm
@@ -130,6 +130,19 @@ def main_index(request):
     ).select_related('drug')
     restocked_drugs = Drug.objects.filter(id__in=restocked_logs.values_list('drug_id', flat=True))
     combined_new_drugs = list(set(chain(new_drugs, restocked_drugs)))
+
+
+    # get delete queue ----------------------------------------
+    # Fetch pending deletion requests and separate them by type
+    deletion_queue_censuses = DeleteApprovalQueue.objects.filter(
+        record_type='census', 
+        is_processed=False
+    ).select_related('census', 'requested_by').order_by('-created_at')
+
+    deletion_queue_events = DeleteApprovalQueue.objects.filter(
+        record_type='event', 
+        is_processed=False
+    ).select_related('event', 'requested_by').order_by('-created_at')
 
     
     # ==========================================================
@@ -366,6 +379,8 @@ def main_index(request):
         'paddock_total': paddock_total,
         'sheep_total': sheep_total,
         'goat_total': goat_total,
+        'deletion_queue_censuses': deletion_queue_censuses, # Added
+        'deletion_queue_events': deletion_queue_events,     # Added
     }
 
     return render(request, 'main/index.html', context)
