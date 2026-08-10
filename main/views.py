@@ -1855,13 +1855,18 @@ def admin_event_detail(request, pk):
 @login_required
 def admin_delete_event(request, pk):
     event = get_object_or_404(EventType, pk=pk)
+    # Check if a 'next' URL was passed (e.g., from the dashboard modal)
+    next_url = request.POST.get('next') or request.GET.get('next')
 
     if request.method == 'POST':
-        animal_name = event.animal.animal_name.lower()
         event.delete()
         messages.success(request, "Event deleted successfully!")
+        
+        if next_url:
+            return redirect(next_url)
 
-        # Redirect to the correct list page based on animal type
+        # Fallback redirects if no 'next' is provided
+        animal_name = event.animal.animal_name.lower()
         if animal_name == "pig":
             return redirect('main:piggery_event_records_admin')
         elif animal_name == "cattle":
@@ -1869,18 +1874,36 @@ def admin_delete_event(request, pk):
         elif animal_name in ["sheep", "goat"]:
             return redirect('main:small_ruminant_event_records_admin')
         else:
-            return redirect('main:index')  # fallback
+            return redirect('main:index')
 
-    # If GET request, redirect back to event detail
-    return redirect('main:admin_event_detail', pk=pk)
+    return redirect(next_url or 'main:index')
+
+# @user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
+# def delete_census_admin(request, pk):
+#     census = get_object_or_404(Census, pk=pk)
+#     if request.method == 'POST':
+#         census.delete()
+#         # Return JSON for your AJAX modal trigger
+#         return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
+#     return redirect('main:paddock_census_records_admin')
 
 @user_passes_test(lambda u: u.is_staff or (hasattr(u, 'profile') and u.profile.is_boss))
 def delete_census_admin(request, pk):
     census = get_object_or_404(Census, pk=pk)
+    next_url = request.POST.get('next') or request.GET.get('next')
+
     if request.method == 'POST':
         census.delete()
-        # Return JSON for your AJAX modal trigger
+        messages.success(request, "Census record deleted successfully!")
+        
+        if next_url:
+            return redirect(next_url)
+            
         return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
+    
+    if next_url:
+        return redirect(next_url)
+        
     return redirect('main:paddock_census_records_admin')
 
 @login_required
