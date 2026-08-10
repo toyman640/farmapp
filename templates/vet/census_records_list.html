@@ -27,32 +27,32 @@
            <div class="row">
              <!-- Inside the PIGGERY LAYOUT loop -->
             {% for record in census.piggery_records.all %}
-      <div class="col-md-4 mb-3">
-        <div class="card shadow-sm border-0 h-100 bg-light note-trigger" 
-          style="cursor: pointer;"
-          data-toggle="modal"
-          data-target="#noteModal"
-          data-title="{{ record.line.name|escape }}"
-          data-spec="{{ record.line.specification|escape }}"
-        >
-          <div class="d-none record-note">{{ record.note|default:'No notes available.' }}</div>
-         
-          <div class="card-body">
-            <h6 class="fw-bold text-primary">{{ record.line.name }}</h6>
-            <small class="text-muted">{{ record.line.specification }}</small>
-            
-            <div class="mt-2">
-              <div>General: <strong>{{ record.number }}</strong></div>
-              
-              <!-- Show piglets for all lines except goose and crocodile -->
-              {% if "goose" not in record.line.name|lower and "croc" not in record.line.name|lower %}
-                <div>Piglets: <strong>{{ record.total_piglets|default:0 }}</strong></div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endfor %}
+              <div class="col-md-4 mb-3">
+                <div class="card shadow-sm border-0 h-100 bg-light note-trigger" 
+                  style="cursor: pointer;"
+                  data-toggle="modal"
+                  data-target="#noteModal"
+                  data-title="{{ record.line.name|escape }}"
+                  data-spec="{{ record.line.specification|escape }}"
+                >
+                  <div class="d-none record-note">{{ record.note|default:'No notes available.' }}</div>
+                
+                  <div class="card-body">
+                    <h6 class="fw-bold text-primary">{{ record.line.name }}</h6>
+                    <small class="text-muted">{{ record.line.specification }}</small>
+                    
+                    <div class="mt-2">
+                      <div>General: <strong>{{ record.number }}</strong></div>
+                      
+                      <!-- Show piglets for all lines except goose and crocodile -->
+                      {% if "goose" not in record.line.name|lower and "croc" not in record.line.name|lower %}
+                        <div>Piglets: <strong>{{ record.total_piglets|default:0 }}</strong></div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
            </div>
         {% else %}
            <!-- STANDARD LAYOUT -->
@@ -69,10 +69,57 @@
                  </div>
                </div>
              {% endfor %}
+             <div class="col-12">
+               <div class="card border-secondary bg-light p-3 mt-3">
+                 <div class="d-flex justify-content-between align-items-center mb-2">
+                   <strong>Notes</strong>
+                 </div>
+                 <p class="mb-0 text-muted" style="white-space: pre-wrap;">
+                   {{ census.notes|default:"No notes available." }}
+                 </p>
+               </div>
+             </div>
            </div>
         {% endif %}
-        
-        <div class="text-end mt-3"><a href="{% url 'veterinary:edit_census' census.id %}" class="btn btn-sm btn-warning">Edit</a></div>
+        <!-- Bottom Right Action Buttons -->
+        <div class="d-flex justify-content-end align-items-center mt-3">
+          <a href="{% url 'veterinary:edit_census' census.id %}" class="btn btn-sm btn-warning mr-2">Edit</a>
+          
+          {% if not census.is_pending_review %}
+            <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteReasonModal{{ census.id }}">
+              Request Delete
+            </button>
+          {% else %}
+            <button class="btn btn-sm btn-secondary" disabled>Delete</button>
+          {% endif %}
+        </div>
+      </div>
+      <!-- Delete Reason Modal per Census item -->
+      <div class="modal fade" id="deleteReasonModal{{ census.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <form method="POST" action="{% url 'veterinary:request_delete_census' census.id %}">
+              {% csrf_token %}
+              <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Submit Census for Deletion</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body text-left">
+                <p class="text-muted">You are requesting admin approval to delete census record for <strong>{{ census.census_date|date:"d M Y" }}</strong>.</p>
+                <div class="form-group">
+                  <label for="reason{{ census.id }}" class="font-weight-bold text-secondary">Reason for Deletion <span class="text-danger">*</span></label>
+                  <textarea name="reason" id="reason{{ census.id }}" class="form-control" rows="4" placeholder="Provide a detailed reason why this record should be removed..." required></textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-danger btn-sm">Submit to Delete Queue</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     {% endfor %}
   </div>

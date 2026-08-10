@@ -910,12 +910,15 @@ def event_detail(request, pk):
     # Check if this event already has a pending edit in the queue
     has_pending_edit = PendingEventEdit.objects.filter(event=event, status='pending').exists()
 
+    # Inside your event detail view function
+    has_pending_delete = DeleteApprovalQueue.objects.filter(record_type='event', event=event).exists()
+
     context = {
         'event': event,
         'has_pending_edit': has_pending_edit, # Pass to template
+        'has_pending_delete': has_pending_delete, # Pass to template
     }
     return render(request, 'vet/event_details.html', context)
-
 
 
 @login_required
@@ -930,8 +933,6 @@ def census_records(request):
     censuses = Census.objects.select_related('animal').order_by('-census_date')
 
     # 2. Apply filtering based on profile
-   
-    # Inside your piggery_census_records_admin view logic:
     if vet_profile.is_vet_piggery:
         censuses = censuses.filter(animal__animal_name__iexact='pig').annotate(
             sum_adults=Sum(
@@ -985,6 +986,12 @@ def census_records(request):
     paginator = Paginator(censuses, 10)
     page_obj = paginator.get_page(page)
 
+    # Fetch records currently sitting in the deletion approval queue for this user/record type
+    pending_deletions = DeleteApprovalQueue.objects.filter(
+        requested_by=request.user, 
+        record_type='census'
+    ).select_related('census', 'requested_by').order_by('-created_at')
+
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         html = render_to_string('vet/census_records_list.html', {'censuses': page_obj}, request=request)
         return JsonResponse({'html': html, 'has_next': page_obj.has_next()})
@@ -993,42 +1000,65 @@ def census_records(request):
         'censuses': page_obj,
         'start_date': start_date,
         'end_date': end_date,
+        'pending_deletions': pending_deletions, # Pass to template
     })
 
 
 # @login_required
 # def census_records(request):
-#     """Display census records for the logged-in vet's section with date filters and no duplicates."""
 #     start_date = request.GET.get('start_date')
 #     end_date = request.GET.get('end_date')
 #     page = request.GET.get('page', 1)
 
-#     censuses = (
-#         Census.objects
-#         .select_related('animal')
-#         .prefetch_related('records', 'records__animal_type')  # separate prefetch levels
-#         .order_by('-census_date')
-#     )
-
 #     vet_profile = request.user.profile
-#     queryset = Census.objects.select_related('animal').order_by('-census_date')
+    
+#     # 1. Initialize the base queryset
+#     censuses = Census.objects.select_related('animal').order_by('-census_date')
 
-#     # if vet_profile.is_vet_piggery:
-#     #     censuses = censuses.filter(animal__animal_name__iexact='pig')
+#     # 2. Apply filtering based on profile
+   
+#     # Inside your piggery_census_records_admin view logic:
 #     if vet_profile.is_vet_piggery:
-#         # Piggery uses piggery_records and PiggeryLine
-#         queryset = queryset.filter(animal__animal_name__iexact='pig').prefetch_related(
+#         censuses = censuses.filter(animal__animal_name__iexact='pig').annotate(
+#             sum_adults=Sum(
+#                 Case(
+#                     When(piggery_records__line__name__icontains='goose', then=0),
+#                     When(piggery_records__line__name__icontains='crocodile', then=0),
+#                     default=F('piggery_records__number'),
+#                     output_field=IntegerField()
+#                 )
+#             ),
+#             sum_piglets=Sum(
+#                 Case(
+#                     When(piggery_records__line__name__icontains='goose', then=0),
+#                     When(piggery_records__line__name__icontains='crocodile', then=0),
+#                     default=F('piggery_records__total_piglets'),
+#                     output_field=IntegerField()
+#                 )
+#             ),
+#             sum_geese=Sum(
+#                 Case(When(piggery_records__line__name__icontains='goose', then=F('piggery_records__number')), default=0, output_field=IntegerField())
+#             ),
+#             sum_crocodiles=Sum(
+#                 Case(When(piggery_records__line__name__icontains='crocodile', then=F('piggery_records__number')), default=0, output_field=IntegerField())
+#             )
+#         ).annotate(
+#             grand_total=F('sum_adults') + F('sum_piglets')
+#         ).prefetch_related(
 #             Prefetch('piggery_records', queryset=PiggeryCensusRecord.objects.select_related('line'))
 #         )
 #     elif vet_profile.is_vet_paddock:
-#         censuses = censuses.filter(animal__animal_name__iexact='cattle')
+#         censuses = censuses.filter(animal__animal_name__iexact='cattle').prefetch_related(
+#             Prefetch('records', queryset=CensusRecord.objects.select_related('animal_type'))
+#         )
 #     elif vet_profile.is_vet_smallruminant:
-#         censuses = censuses.filter(animal__animal_name__in=['sheep', 'goat'])
-#     elif not vet_profile.is_vet:
+#         censuses = censuses.filter(animal__animal_name__iexact='sheep').prefetch_related(
+#             Prefetch('records', queryset=CensusRecord.objects.select_related('animal_type'))
+#         )
+#     else:
 #         censuses = Census.objects.none()
 
-#     # Date range filter
-#     # Date range filter
+#     # 3. Date range filters
 #     if start_date:
 #         censuses = censuses.filter(census_date__gte=parse_date(start_date))
 #     if end_date:
@@ -1036,16 +1066,13 @@ def census_records(request):
 #         if end:
 #             censuses = censuses.filter(census_date__lt=end + timedelta(days=1))
 
-
-#     # Ensure uniqueness
 #     censuses = censuses.distinct()
 
-#     paginator = Paginator(censuses, 5)
+#     paginator = Paginator(censuses, 10)
 #     page_obj = paginator.get_page(page)
 
-#     # AJAX infinite scroll
 #     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-#         html = render_to_string('vet/census_records_list.html', {'censuses': page_obj})
+#         html = render_to_string('vet/census_records_list.html', {'censuses': page_obj}, request=request)
 #         return JsonResponse({'html': html, 'has_next': page_obj.has_next()})
 
 #     return render(request, 'vet/census_records.html', {
@@ -1053,7 +1080,6 @@ def census_records(request):
 #         'start_date': start_date,
 #         'end_date': end_date,
 #     })
-
 
 # @login_required
 # def create_census(request):
@@ -2186,20 +2212,75 @@ def request_delete_census(request, census_id):
     return redirect('veterinary:census_records')
 
 
+# @login_required
+# def request_delete_event(request, event_id):
+#     event = get_object_or_404(EventType, id=event_id)
+#     if request.method == 'POST':
+#         reason = request.POST.get('reason')
+#         queue_item = DeleteApprovalQueue.objects.create(
+#             record_type='event',
+#             event=event,
+#             requested_by=request.user,
+#             reason=reason
+#         )
+        
+#         # Trigger email notification to admins
+#         notify_admins_of_deletion_queue(queue_item, str(event))
+        
+#         messages.success(request, "Event submitted to delete queue for admin approval.")
+#     return redirect('veterinary:event_records')
+
+
+
 @login_required
 def request_delete_event(request, event_id):
     event = get_object_or_404(EventType, id=event_id)
+    
+    # Prevent duplicate submission
+    if DeleteApprovalQueue.objects.filter(record_type='event', event=event).exists():
+        error_msg = "This event is already enqueued for deletion approval."
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'message': error_msg}, status=400)
+        messages.error(request, error_msg)
+        return redirect('veterinary:event_records')
+
     if request.method == 'POST':
-        reason = request.POST.get('reason')
-        queue_item = DeleteApprovalQueue.objects.create(
-            record_type='event',
-            event=event,
-            requested_by=request.user,
-            reason=reason
-        )
+        reason = request.POST.get('reason', '').strip()
         
-        # Trigger email notification to admins
-        notify_admins_of_deletion_queue(queue_item, str(event))
-        
-        messages.success(request, "Event submitted to delete queue for admin approval.")
+        if not reason:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Please provide a reason for deletion.'
+                }, status=400)
+            messages.error(request, "Please provide a reason for deletion.")
+            return redirect('veterinary:event_records')
+
+        try:
+            queue_item = DeleteApprovalQueue.objects.create(
+                record_type='event',
+                event=event,
+                requested_by=request.user,
+                reason=reason
+            )
+            
+            notify_admins_of_deletion_queue(queue_item, str(event))
+            success_msg = "Event submitted to delete queue for admin approval."
+            
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'message': success_msg
+                })
+                
+            messages.success(request, success_msg)
+        except Exception as e:
+            error_msg = "An error occurred while submitting your request. Please try again."
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': error_msg
+                }, status=500)
+            messages.error(request, error_msg)
+            
     return redirect('veterinary:event_records')

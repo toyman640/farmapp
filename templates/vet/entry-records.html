@@ -13,7 +13,7 @@
     <!-- 🗑️ DELETE QUEUE ACCORDION -->
     {% if delete_queue_events %}
       <div class="card shadow-sm mb-4 border-warning">
-        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center" id="deleteQueueHeading" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#deleteQueueCollapse" aria-expanded="false" aria-controls="deleteQueueCollapse">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center" id="deleteQueueHeading" style="cursor: pointer;" data-toggle="collapse" data-target="#deleteQueueCollapse" aria-expanded="false" aria-controls="deleteQueueCollapse">
           <h5 class="mb-0 font-weight-bold">
             <i class="fa fa-clock-o mr-2"></i> Events Pending Deletion Approval 
             <span class="badge badge-dark ml-2">{{ delete_queue_events|length }}</span>
@@ -31,6 +31,7 @@
                     <th>Event</th>
                     <th>Animal Type</th>
                     <th>Requested By</th>
+                    <th>Location</th>
                     <th>Reason</th>
                     <th>Action Status</th>
                   </tr>
@@ -42,6 +43,7 @@
                       <td><span class="badge badge-pill badge-secondary">{{ item.event.get_event_name_display }}</span></td>
                       <td>{{ item.event.animal_type|default:"N/A" }}</td>
                       <td>{{ item.event.logged_by.username|default:item.requested_by.username }}</td>
+                      <td>{{ item.event.location|default:"N/A" }}</td>
                       <td class="text-muted text-wrap" style="max-width: 200px;">{{ item.reason|default:"No reason provided" }}</td>
                       <td><span class="badge badge-warning text-dark">Pending Admin Approval</span></td>
                     </tr>

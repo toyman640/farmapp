@@ -5,7 +5,7 @@
 {% block content %}
 <div class="content-wrapper census-records-page">
   <div class="container-fluid">
-    <ol class="breadcrumb ">
+    <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <a href="{% url 'veterinary:vet_index' %}">Dashboard</a>
       </li>
@@ -35,6 +35,52 @@
 
     <div class="box_general p-4 bg-white shadow-sm rounded">
       <h4 class="text-primary mb-3">Census Records</h4>
+
+      <!-- PENDING DELETION ACCORDION -->
+      <div class="accordion mb-4" id="deletionQueueAccordion">
+        <div class="card border-warning">
+          <div class="card-header bg-warning text-dark py-2" id="headingDeletionQueue" style="cursor: pointer;" data-toggle="collapse" data-target="#collapseDeletionQueue" aria-expanded="false" aria-controls="collapseDeletionQueue">
+            <h6 class="mb-0 d-flex justify-content-between align-items-center font-weight-bold">
+              <span><i class="fa fa-clock-o mr-1"></i> Records Pending Deletion Approval</span>
+              <span class="badge badge-pill badge-light text-dark">{{ pending_deletions|length }}</span>
+            </h6>
+          </div>
+
+          <div id="collapseDeletionQueue" class="collapse" aria-labelledby="headingDeletionQueue" data-parent="#deletionQueueAccordion">
+            <div class="card-body p-0">
+              {% if pending_deletions %}
+                <div class="table-responsive mb-0">
+                  <table class="table table-striped table-sm mb-0">
+                    <thead class="thead-light">
+                      <tr>
+                        <th>Census Date</th>
+                        <th>Reason for Deletion</th>
+                        <th>Requested At</th>
+                        <th>Total Census</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in pending_deletions %}
+                        <tr>
+                          <td>{{ item.census.census_date|date:"d M Y" }}</td>
+                          <td>{{ item.reason }}</td>
+                          <td>{{ item.created_at|date:"d M Y, H:i" }}</td>
+                          <td>{{ item.census.total_animals }}</td>
+                          <td><span class="badge badge-warning">Pending Review</span></td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <div class="p-3 text-muted text-center mb-0">No deletion requests currently pending approval.</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- END ACCORDION -->
 
       <!-- Filter Section -->
       <form method="get" class="filters-section row g-3 mb-4">
@@ -80,11 +126,10 @@
   startInput.setAttribute('max', today);
   endInput.setAttribute('max', today);
 
-  // When start date changes, restrict end date
   startInput.addEventListener('change', () => {
     const startDate = startInput.value;
-    endInput.min = startDate;   // can't pick earlier date
-    endInput.max = today;       // still can't pick future date
+    endInput.min = startDate; 
+    endInput.max = today;       
     if (endInput.value && endInput.value < startDate) {
       endInput.value = startDate;
     }
