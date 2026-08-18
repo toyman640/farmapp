@@ -26,12 +26,18 @@
           {{ base_form.animal }}
           <div class="mb-3">{{ base_form.animal_type|as_crispy_field }}</div>
           <div class="mb-3">{{ base_form.event_name|as_crispy_field }}</div>
-          <div class="mb-3">{{ base_form.event_date|as_crispy_field }}</div>
+          <div class="mb-3">
+            {{ base_form.event_date|as_crispy_field }}
+            <small class="form-text text-muted">Date format: DD-MM-YYYY (e.g., 19-03-2020)</small>
+          </div>
         {% else %}
           {{ form.animal }}
           <div class="mb-3">{{ form.animal_type|as_crispy_field }}</div>
           <div class="mb-3">{{ form.event_name|as_crispy_field }}</div>
-          <div class="mb-3">{{ form.event_date|as_crispy_field }}</div>
+          <div class="mb-3">
+            {{ form.event_date|as_crispy_field }}
+            <small class="form-text text-muted">Date format: DD-MM-YYYY (e.g., 19-03-2020)</small>
+          </div>
         {% endif %}
 
         <hr>
@@ -83,6 +89,7 @@
                   </div>
                 </div>
               {% elif is_vet_smallruminant %}
+              
                 <!-- Small Ruminant Pens -->
                 <div class="mb-3">
                   <label class="form-label font-weight-bold">Pen Location</label>
@@ -158,7 +165,7 @@
                       </select>
                     </div>
                   </div>
-                {% elif is_vet_smallruminant %}
+                {% elif is_small_ruminant %}
                   <div class="mb-3">
                     <label class="form-label font-weight-bold">Pen Location</label>
                     <select class="form-control small-ruminant-pen-select">
@@ -297,7 +304,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.querySelectorAll(".pen-select").forEach(el => populatePens(el, 100));
-  document.querySelectorAll(".small-ruminant-pen-select").forEach(el => populatePens(el, 20));
+  document.querySelectorAll(".small-ruminant-pen-select").forEach(el => {
+    // 1. Populate the regular pens (e.g., up to 20)
+    populatePens(el, 20);
+
+    // 2. Create and prepend the General Herd option
+    const generalHerdOption = document.createElement("option");
+    generalHerdOption.value = "General Herd"; // Adjust value to match your backend choice (e.g., "GENERAL_HERD")
+    generalHerdOption.textContent = "General Herd";
+    
+    // Insert it at the top (right below the placeholder)
+    el.insertBefore(generalHerdOption, el.children[1] || null);
+  });
 
   function isOptionalPenEvent() {
     if (!eventName) return false;
