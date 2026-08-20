@@ -387,6 +387,8 @@ def main_index(request):
 
 @login_required
 def approve_event_edit(request, pk):
+    from django.db.models import DateField, DateTimeField
+    import datetime
     pending_edit = get_object_or_404(PendingEventEdit, pk=pk)
 
     if not request.user.profile.is_boss:
@@ -417,10 +419,22 @@ def approve_event_edit(request, pk):
                     except related_model.DoesNotExist:
                         continue
 
+               
+
+                # CONVERT STRING TO DATE/DATETIME OBJECT
+                elif isinstance(field_obj, (DateField, DateTimeField)) and isinstance(value, str):
+                    try:
+                        if isinstance(field_obj, DateTimeField):
+                            value = datetime.datetime.fromisoformat(value)
+                        else:
+                            value = datetime.date.fromisoformat(value)
+                    except ValueError:
+                        pass
+
                 setattr(event, field, value)
 
             event.is_approved = True
-            event.event_date = timezone.now().date()  # Adjust if needed
+            # event.event_date = timezone.now().date()  # Adjust if needed
             event.save()
 
             pending_edit.status = "approved"
