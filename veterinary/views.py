@@ -745,7 +745,7 @@ def drugs_view(request):
 def create_event(request):
     profile = getattr(request.user, 'profile', None)
     is_piggery = getattr(profile, 'is_vet_piggery', False)
-    is_small_ruminant = getattr(profile, 'is_vet_smallruminant', False)
+    is_vet_smallruminant = getattr(profile, 'is_vet_smallruminant', False)
     is_paddock = getattr(profile, 'is_vet_paddock', False)
     
     if request.method == 'POST':
@@ -822,7 +822,7 @@ def create_event(request):
         'form': base_form,
         'formset': formset,
         'is_vet_piggery': is_piggery,
-        'is_small_ruminant': is_small_ruminant,
+        'is_vet_smallruminant': is_vet_smallruminant,
         'is_vet_paddock': is_paddock, # Added flag
         'event_model': EventType,
     })
