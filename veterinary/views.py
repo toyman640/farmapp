@@ -550,6 +550,7 @@ def vet_index(request):
 
 @login_required
 def load_event_records_ajax(request):
+    from datetime import timedelta, datetime
     selected_date_str = request.GET.get("event_date")
     today = localdate()
     
@@ -1783,6 +1784,7 @@ def edit_census(request, pk):
 
 @login_required
 def edit_event(request, pk):
+    import datetime
     event = get_object_or_404(EventType, pk=pk)
     profile = getattr(request.user, 'profile', None)
     is_boss = profile and profile.is_boss
@@ -1825,7 +1827,7 @@ def edit_event(request, pk):
             field_name = field.name
             original_data[field_name] = getattr(event, field_name)
 
-        base_form = EventBaseForm(request.POST, user=request.user, prefix='base')
+        base_form = EventBaseForm(request.POST, user=request.user, prefix='base', instance=event)
         detail_form = EventDetailForm(request.POST, prefix='detail', instance=event)
 
         event_name = request.POST.get('base-event_name', '').lower()
@@ -1836,15 +1838,6 @@ def edit_event(request, pk):
             is_piggery = getattr(request.user.profile, 'is_vet_piggery', False)
             is_small_ruminant = getattr(request.user.profile, 'is_vet_smallruminant', False)
 
-            # if is_piggery:
-            #     parts = loc.split()
-            #     if len(parts) < 2:
-            #         error_message = "Line and Block are required."
-            #     elif event_name not in ['castration', 'treatment'] and len(parts) < 3:
-            #         error_message = "Line, Block, and Pen are required for this event type."
-            # else:
-            #     if not loc:
-            #         error_message = "Location is required."
 
             if is_piggery:
                 parts = loc.split()
